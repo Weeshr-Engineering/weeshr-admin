@@ -3,7 +3,6 @@ import Overview from '@/components/UseOverview.vue'
 import DateRangePicker from '@/components/DateRangePicker.vue'
 import MainNav from '@/components/MainNav.vue'
 
-
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -12,11 +11,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 <template>
   <div class="flex flex-col h-full bg-[#F8F9FFB2]">
     <div class="">
-    
-        <MainNav class="mx-6" headingText="Dashboard" />
-       
-      </div>
-    
+      <MainNav class="mx-6" headingText="Dashboard" />
+    </div>
+
     <div class="flex-1 space-y-4 p-8 pt-6 bg-[#F8F9FFB2]">
       <div class="flex flex-col items-center justify-between space-y-2 sm:flex-row">
         <h2 class="text-3xl font-bold tracking-tight text-blue-900"></h2>
@@ -30,23 +27,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
           <TabsTrigger value="overview" class="text-blue-900 active:text-blue-900">
             Overview
           </TabsTrigger>
-          <TabsTrigger value="analytics" disabled>
-            Analytics
-          </TabsTrigger>
-          <TabsTrigger value="reports" disabled>
-            Reports
-          </TabsTrigger>
-          <TabsTrigger value="notifications" disabled>
-            Notifications
-          </TabsTrigger>
+          <TabsTrigger value="analytics" disabled> Analytics </TabsTrigger>
+          <TabsTrigger value="reports" disabled> Reports </TabsTrigger>
+          <TabsTrigger value="notifications" disabled> Notifications </TabsTrigger>
         </TabsList>
         <TabsContent value="overview" class="space-y-4">
           <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <Card>
               <CardHeader class="flex flex-row items-center justify-between pb-2 space-y-0">
-                <CardTitle class="text-sm font-medium">
-                  Total Revenue
-                </CardTitle>
+                <CardTitle class="text-sm font-medium"> Total Revenue </CardTitle>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 24 24"
@@ -61,19 +50,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
                 </svg>
               </CardHeader>
               <CardContent>
-                <div class="text-2xl font-bold">
-                  $45,231.89
-                </div>
-                <p class="text-xs text-muted-foreground">
-                  +20.1% from last month
-                </p>
+                <div class="text-2xl font-bold">$45,231.89</div>
+                <p class="text-xs text-muted-foreground">+20.1% from last month</p>
               </CardContent>
             </Card>
             <Card>
               <CardHeader class="flex flex-row items-center justify-between pb-2 space-y-0">
-                <CardTitle class="text-sm font-medium">
-                  Subscriptions
-                </CardTitle>
+                <CardTitle class="text-sm font-medium"> Subscriptions </CardTitle>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 24 24"
@@ -90,19 +73,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
                 </svg>
               </CardHeader>
               <CardContent>
-                <div class="text-2xl font-bold">
-                  +2350
-                </div>
-                <p class="text-xs text-muted-foreground">
-                  +180.1% from last month
-                </p>
+                <div class="text-2xl font-bold">+2350</div>
+                <p class="text-xs text-muted-foreground">+180.1% from last month</p>
               </CardContent>
             </Card>
             <Card>
               <CardHeader class="flex flex-row items-center justify-between pb-2 space-y-0">
-                <CardTitle class="text-sm font-medium">
-                  Sales
-                </CardTitle>
+                <CardTitle class="text-sm font-medium"> Sales </CardTitle>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 24 24"
@@ -118,19 +95,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
                 </svg>
               </CardHeader>
               <CardContent>
-                <div class="text-2xl font-bold">
-                  +12,234
-                </div>
-                <p class="text-xs text-muted-foreground">
-                  +19% from last month
-                </p>
+                <div class="text-2xl font-bold">+12,234</div>
+                <p class="text-xs text-muted-foreground">+19% from last month</p>
               </CardContent>
             </Card>
             <Card>
               <CardHeader class="flex flex-row items-center justify-between pb-2 space-y-0">
-                <CardTitle class="text-sm font-medium">
-                  Active Now
-                </CardTitle>
+                <CardTitle class="text-sm font-medium"> Active Now </CardTitle>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 24 24"
@@ -145,12 +116,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
                 </svg>
               </CardHeader>
               <CardContent>
-                <div class="text-2xl font-bold">
-                  +573
-                </div>
-                <p class="text-xs text-muted-foreground">
-                  +201 since last hour
-                </p>
+                <div class="text-2xl font-bold">+573</div>
+                <p class="text-xs text-muted-foreground">+201 since last hour</p>
               </CardContent>
             </Card>
           </div>
@@ -166,9 +133,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
             <Card class="flex grid w-full col-span-full sm:col-span-3">
               <CardHeader>
                 <CardTitle>Recent Sales</CardTitle>
-                <CardDescription>
-                  You made 265 sales this month.
-                </CardDescription>
+                <CardDescription> You made 265 sales this month. </CardDescription>
               </CardHeader>
               <CardContent> </CardContent>
             </Card>

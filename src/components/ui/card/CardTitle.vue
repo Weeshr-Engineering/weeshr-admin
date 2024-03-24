@@ -4,16 +4,14 @@ import { cn } from '@/lib/utils'
 const props = defineProps({
   class: {
     type: String,
-    default: '',
-  },
+    default: ''
+  }
 })
 </script>
 
 <template>
   <h3
-    :class="
-      cn('text-2xl font-semibold leading-none tracking-tighter text-blue-900', props.class)
-    "
+    :class="cn('text-2xl font-semibold leading-none tracking-tighter text-blue-900', props.class)"
   >
     <slot />
   </h3>

@@ -6,11 +6,7 @@ import { ref } from 'vue'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 
 const date = ref<Date>()
 </script>
@@ -20,13 +16,12 @@ const date = ref<Date>()
     <PopoverTrigger as-child>
       <Button
         :variant="'outline'"
-        :class="cn(
-          'w-[280px] justify-start text-left font-normal',
-          !date && 'text-muted-foreground',
-        )"
+        :class="
+          cn('w-[280px] justify-start text-left font-normal', !date && 'text-muted-foreground')
+        "
       >
         <CalendarIcon class="w-4 h-4 mr-2" />
-        <span>{{ date ? format(date, "PPP") : "Pick a date" }}</span>
+        <span>{{ date ? format(date, 'PPP') : 'Pick a date' }}</span>
       </Button>
     </PopoverTrigger>
     <PopoverContent class="w-auto p-0">

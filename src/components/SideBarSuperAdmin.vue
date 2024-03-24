@@ -1,17 +1,13 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue'
 
-
-
 import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
 
 const superAdminStore = useSuperAdminStore()
 
-
 const logout = async () => {
-  await superAdminStore.logout();
-};
-
+  await superAdminStore.logout()
+}
 </script>
 
 <template>
@@ -27,12 +23,15 @@ const logout = async () => {
       <li :class="{ 'dashboard-active': $route.path === '/' }">
         <a @click="$router.push({ name: 'home' })">
           <div class="icon-grid">
-            <Icon icon="ri:dashboard-horizontal-fill" width="16" height="16" class="icons-sidebar" />
+            <Icon
+              icon="ri:dashboard-horizontal-fill"
+              width="16"
+              height="16"
+              class="icons-sidebar"
+            />
           </div>
 
-          <span class="nav-text">
-            Dashboard
-          </span>
+          <span class="nav-text"> Dashboard </span>
         </a>
       </li>
 
@@ -42,12 +41,9 @@ const logout = async () => {
             <Icon icon="teenyicons:users-solid" width="16" height="16" class="icons-sidebar" />
           </div>
 
-          <span class="nav-text">
-            Users
-          </span>
+          <span class="nav-text"> Users </span>
         </a>
       </li>
-
 
       <li :class="{ 'dashboard-active': $route.path === '/create-user' }">
         <a @click="$router.push({ name: 'create-user' })">
@@ -55,15 +51,9 @@ const logout = async () => {
             <Icon icon="iconoir:add-user" width="16" height="16" class="icons-sidebar" />
           </div>
 
-          <span class="nav-text">
-            Create User
-          </span>
+          <span class="nav-text"> Create User </span>
         </a>
       </li>
-
-
-    
-      
 
       <li>
         <a>
@@ -71,12 +61,9 @@ const logout = async () => {
             <Icon icon="carbon:text-link-analysis" width="16" height="16" class="icons-sidebar" />
           </div>
 
-          <span class="nav-text">
-            Analytics
-          </span>
+          <span class="nav-text"> Analytics </span>
         </a>
       </li>
-      
 
       <li>
         <a>
@@ -84,28 +71,19 @@ const logout = async () => {
             <Icon icon="octicon:log-24" width="16" height="16" class="icons-sidebar" />
           </div>
 
-          <span class="nav-text">
-            Activity Log
-          </span>
+          <span class="nav-text"> Activity Log </span>
         </a>
       </li>
     </ul>
 
     <ul class="logout">
-      <li class="mb-4" style="margin-bottom: 15px;">
+      <li class="mb-4" style="margin-bottom: 15px">
         <a @click="logout">
           <div class="icon-grid">
-            <Icon
-              icon="solar:logout-2-bold"
-              width="16"
-              height="16"
-              style="color: white;"
-            />
+            <Icon icon="solar:logout-2-bold" width="16" height="16" style="color: white" />
           </div>
 
-          <span class="nav-text">
-            Logout
-          </span>
+          <span class="nav-text"> Logout </span>
         </a>
       </li>
     </ul>

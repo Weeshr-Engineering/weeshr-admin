@@ -1,39 +1,32 @@
 <script setup lang="ts">
-import {  RouterView } from 'vue-router'
+import { RouterView } from 'vue-router'
 import Toaster from '@/components/ui/toast/UseToaster.vue'
-import SideBar from './components/SideBarSuperAdmin.vue';
-import LoadingSpinner from './components/LoadingSpinner.vue';
+import SideBar from './components/SideBarSuperAdmin.vue'
+import LoadingSpinner from './components/LoadingSpinner.vue'
 import { useGeneralStore } from '@/stores/general-use'
-
 
 const superAdminStore = useGeneralStore()
 </script>
 
 <template>
-
   <div>
     <LoadingSpinner v-if="superAdminStore.loading" />
 
-       <div v-else>
+    <div v-else>
       <SideBar v-if="!$route.meta.hideSidebar" />
 
-<div :class="{ 'ml-[4rem]': !$route.meta.hideSidebar }">
+      <div :class="{ 'ml-[4rem]': !$route.meta.hideSidebar }">
+        <RouterView />
+      </div>
 
-  <RouterView />
-</div>
-
-
-  <Toaster />
+      <Toaster />
     </div>
- 
-
   </div>
-
-
 </template>
 
 <style scoped>
 .toast {
-  background-color: red
+  background-color: red;
 }
-</style>./components/SideBarSuperAdmin.vue
+</style>
+./components/SideBarSuperAdmin.vue

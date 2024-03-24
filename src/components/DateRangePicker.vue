@@ -6,15 +6,11 @@ import { ref } from 'vue'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 
 const date = ref({
   start: new Date(2023, 0, 20),
-  end: addDays(new Date(2023, 0, 20), 20),
+  end: addDays(new Date(2023, 0, 20), 20)
 })
 </script>
 
@@ -25,26 +21,25 @@ const date = ref({
         <Button
           id="date"
           :variant="'outline'"
-          :class="cn(
-            'w-[260px] justify-start text-left font-normal',
-            !date && 'text-muted-foreground',
-          )"
+          :class="
+            cn('w-[260px] justify-start text-left font-normal', !date && 'text-muted-foreground')
+          "
         >
           <CalendarIcon class="mr-2 h-4 w-4" />
 
           <span>
-            {{ date.start ? (
-            date.end ? `${format(date.start, 'LLL dd, y')} - ${format(date.end, 'LLL dd, y')}`
-              : format(date.start, 'LLL dd, y')
-          ) : 'Pick a date' }}
+            {{
+              date.start
+                ? date.end
+                  ? `${format(date.start, 'LLL dd, y')} - ${format(date.end, 'LLL dd, y')}`
+                  : format(date.start, 'LLL dd, y')
+                : 'Pick a date'
+            }}
           </span>
         </Button>
       </PopoverTrigger>
       <PopoverContent class="w-auto p-0" :align="'end'" :avoid-collisions="true">
-        <Calendar
-          v-model.range="date"
-          :columns="2"
-        />
+        <Calendar v-model.range="date" :columns="2" />
       </PopoverContent>
     </Popover>
   </div>

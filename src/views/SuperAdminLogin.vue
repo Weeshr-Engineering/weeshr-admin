@@ -8,13 +8,7 @@ import * as z from 'zod'
 import { Loader2 } from 'lucide-vue-next'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle
-} from '@/components/ui/card'
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { toast } from '@/components/ui/toast'
 import router from '@/router'
@@ -36,8 +30,6 @@ onMounted(() => {
 
 const loading = ref(false)
 
-
-
 const quotes = [
   'Weehr App turns my ordinary moments into extraordinary 🌟 memories...',
   'Experiencing pure joy is just a 🎉 tap away with Weehr App...',
@@ -47,9 +39,6 @@ const quotes = [
 ]
 
 const authors = ['Chloe Thompson', 'Mason Carter', 'Isabella Scott', 'Noah Adams', 'Ava Miller']
-
-
-
 
 const quote = ref<string>('')
 const author = ref<string>('')
@@ -135,8 +124,6 @@ const onSubmit = form.handleSubmit(async () => {
     loading.value = false
   }
 })
-
-
 </script>
 
 <template>
@@ -166,17 +153,13 @@ const onSubmit = form.handleSubmit(async () => {
             aria-current="page"
             class="flex items-center -translate-y-[145px] flex-col justify-center space-y-2"
           >
-            <h4 class="text-[#F8F9FFB2] tracking-widest">
-              THE
-            </h4>
+            <h4 class="text-[#F8F9FFB2] tracking-widest">THE</h4>
             <img
               class="w-auto h-24"
               src="https://res.cloudinary.com/drykej1am/image/upload/v1697377875/weehser%20pay/Weeshr_Light_lrreyo.svg"
               alt=""
             />
-            <h4 class="text-[#F8F9FFB2] tracking-widest">
-              SUPER ADMIN FACTORY
-            </h4>
+            <h4 class="text-[#F8F9FFB2] tracking-widest">SUPER ADMIN FACTORY</h4>
           </div>
 
           <div class="absolute w-[80%] z-20 mt-auto bottom-[300px] text-white">
@@ -199,17 +182,13 @@ const onSubmit = form.handleSubmit(async () => {
                 aria-current="page"
                 class="flex lg:hidden justify-center -translate-y-[60px] flex-col space-y-2"
               >
-                <h4 class="text-[#F8F9FFB2] tracking-widest">
-                  THE
-                </h4>
+                <h4 class="text-[#F8F9FFB2] tracking-widest">THE</h4>
                 <img
                   class="w-auto h-20"
                   src="https://res.cloudinary.com/drykej1am/image/upload/v1697377875/weehser%20pay/Weeshr_Light_lrreyo.svg"
                   alt=""
                 />
-                <h4 class="text-[#F8F9FFB2] tracking-widest">
-                  SUPER ADMIN FACTORY
-                </h4>
+                <h4 class="text-[#F8F9FFB2] tracking-widest">SUPER ADMIN FACTORY</h4>
               </div>
             </div>
 
@@ -291,4 +270,5 @@ const onSubmit = form.handleSubmit(async () => {
   width: -webkit-fill-available;
   width: -moz-available;
 }
-</style>@/stores/super-admin/super-admin@/stores/super-admin/super-admin
+</style>
+@/stores/super-admin/super-admin@/stores/super-admin/super-admin

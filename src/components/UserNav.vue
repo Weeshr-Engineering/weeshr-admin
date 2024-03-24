@@ -1,5 +1,4 @@
 <script setup lang="ts">
-
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -9,36 +8,33 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuShortcut,
-  DropdownMenuTrigger,
-
+  DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 
 import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
 
 const superAdminStore = useSuperAdminStore()
 
-
 const logout = async () => {
-  await superAdminStore.logout();
-};
+  await superAdminStore.logout()
+}
 </script>
 
 <template>
   <DropdownMenu>
     <DropdownMenuTrigger as-child>
-      <Button variant="ghost" class="relative  h-12 w-12 bg-[#EBCE7E] hover:bg-[#EBCE7E] rounded-2xl ml-2"> 
-          KP
+      <Button
+        variant="ghost"
+        class="relative h-12 w-12 bg-[#EBCE7E] hover:bg-[#EBCE7E] rounded-2xl ml-2"
+      >
+        KP
       </Button>
     </DropdownMenuTrigger>
     <DropdownMenuContent class="w-56" align="end">
       <DropdownMenuLabel class="flex font-normal">
         <div class="flex flex-col space-y-1">
-          <p class="text-sm font-medium leading-none">
-            Kp
-          </p>
-          <p class="text-xs leading-none text-muted-foreground">
-            test@weeshr.com
-          </p>
+          <p class="text-sm font-medium leading-none">Kp</p>
+          <p class="text-xs leading-none text-muted-foreground">test@weeshr.com</p>
         </div>
       </DropdownMenuLabel>
       <DropdownMenuSeparator />
@@ -58,12 +54,11 @@ const logout = async () => {
         <DropdownMenuItem>New Team</DropdownMenuItem>
       </DropdownMenuGroup>
       <DropdownMenuSeparator />
-      <DropdownMenuItem
-      @click="logout"
-      >
+      <DropdownMenuItem @click="logout">
         Log out
         <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
       </DropdownMenuItem>
     </DropdownMenuContent>
   </DropdownMenu>
-</template>@/stores/super-admin/super-admin@/stores/super-admin/super-admin
+</template>
+@/stores/super-admin/super-admin@/stores/super-admin/super-admin

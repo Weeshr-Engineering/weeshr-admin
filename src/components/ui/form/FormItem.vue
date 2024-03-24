@@ -1,8 +1,7 @@
 <script lang="ts">
 import { type InjectionKey } from 'vue'
 
-export const FORM_ITEM_INJECTION_KEY
-  = Symbol() as InjectionKey<string>
+export const FORM_ITEM_INJECTION_KEY = Symbol() as InjectionKey<string>
 </script>
 
 <script lang="ts" setup>
@@ -11,7 +10,7 @@ import { useId } from 'radix-vue'
 import { cn } from '@/lib/utils'
 
 defineOptions({
-  inheritAttrs: false,
+  inheritAttrs: false
 })
 
 const id = useId()

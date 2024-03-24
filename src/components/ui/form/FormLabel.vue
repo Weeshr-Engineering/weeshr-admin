@@ -5,7 +5,7 @@ import { useFormField } from './useFormField'
 import { cn } from '@/lib/utils'
 
 defineOptions({
-  inheritAttrs: false,
+  inheritAttrs: false
 })
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps<LabelProps>()
@@ -16,11 +16,13 @@ const { class: className, ...rest } = useAttrs()
 
 <template>
   <Label
-    :class="cn(
-      'block text-sm tracking-tight font-medium text-foreground text-left',
-      error && 'text-destructive',
-      className ?? '',
-    )"
+    :class="
+      cn(
+        'block text-sm tracking-tight font-medium text-foreground text-left',
+        error && 'text-destructive',
+        className ?? ''
+      )
+    "
     :for="formItemId"
     v-bind="rest"
   >

@@ -7,8 +7,8 @@ interface ToastVariantProps extends VariantProps<typeof toastVariants> {}
 export interface ToastProps extends ToastRootProps {
   class?: string
   variant?: ToastVariantProps['variant']
-  'onOpenChange'?: ((value: boolean) => void) | undefined
-};
+  onOpenChange?: ((value: boolean) => void) | undefined
+}
 </script>
 
 <script setup lang="ts">

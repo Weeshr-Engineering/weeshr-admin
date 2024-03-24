@@ -10,7 +10,7 @@ interface Props extends PrimitiveProps {
 }
 
 withDefaults(defineProps<Props>(), {
-  as: 'button',
+  as: 'button'
 })
 </script>
 

@@ -4,11 +4,6 @@ import { Input } from '@/components/ui/input'
 
 <template>
   <div class="md:w-[100px] lg:w-[300px] bg-[#EEEFF5]">
-    <Input
-      type="search"
-      placeholder="Search..."
-      
-
-    />
+    <Input type="search" placeholder="Search..." />
   </div>
 </template>

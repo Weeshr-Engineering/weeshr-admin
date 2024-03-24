@@ -4,7 +4,7 @@ import { useFormField } from './useFormField'
 import { cn } from '@/lib/utils'
 
 defineOptions({
-  inheritAttrs: false,
+  inheritAttrs: false
 })
 
 const { formDescriptionId } = useFormField()
