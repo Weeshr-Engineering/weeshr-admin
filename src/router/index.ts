@@ -65,7 +65,7 @@ const routes = [
   },
 
   {
-    path: '/:catchAll(.*)', // Wildcard route to catch all unmatched paths
+    path: '/:pathMatch(.*)*', // Wildcard route to catch all unmatched paths
     redirect: { name: 'error' } // Redirect to error page
   }
 ]
