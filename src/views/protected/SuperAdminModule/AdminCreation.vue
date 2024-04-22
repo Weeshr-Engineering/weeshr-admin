@@ -66,10 +66,8 @@ const newUser = ref({
   lastName: '',
   gender: '',
   dob: '',
-  permissions: '',
+  permissions: ''
 })
-
-
 
 const sheetOpen = ref(false)
 const loading = ref(false)
@@ -107,21 +105,50 @@ const onSubmit = handleSubmit(async (values) => {
     userEmail: '',
     gender: '',
     dob: '',
-    permissions:'',
+    permissions: ''
   }
 })
-
 
 // Define a ref to hold the users data
 // const users = ref([]);
 const users = ref<any[]>([
-  { _id: 1, firstName: 'Abiola', lastName: 'Tendo', admin_type: 'Super Admin', permissions:'Dashboard, Users, Weeshes, Deport, Bank,Support,Configuration,Analysics,Activity log'  },
-  { _id: 2, firstName: 'Saloni', lastName: 'Smith', admin_type: 'Admin', permissions: 'Dashboard, Users, Weeshes, Deport, Bank,Support,Activity log'},
-  { _id: 3, firstName: 'Bada', lastName: 'Right', admin_type: 'Admin', permissions: 'Dashboard, Weeshes, Deport, Bank,Support,Configuration,Activity log'},
-  { _id: 4, firstName: 'Emily', lastName: 'Stone', admin_type: 'Flutter', permissions: 'Dashboard, Weeshes, Deport, Bank,Support,Configuration,Activity log'},
-  { _id: 5, firstName: ' Kunle', lastName: 'Blue', admin_type: 'Cxperience', permissions: 'Dashboard, Weeshes, Deport, Bank,Support,Configuration,Activity log'},
-
-]);
+  {
+    _id: 1,
+    firstName: 'Abiola',
+    lastName: 'Tendo',
+    admin_type: 'Super Admin',
+    permissions:
+      'Dashboard, Users, Weeshes, Deport, Bank,Support,Configuration,Analysics,Activity log'
+  },
+  {
+    _id: 2,
+    firstName: 'Saloni',
+    lastName: 'Smith',
+    admin_type: 'Admin',
+    permissions: 'Dashboard, Users, Weeshes, Deport, Bank,Support,Activity log'
+  },
+  {
+    _id: 3,
+    firstName: 'Bada',
+    lastName: 'Right',
+    admin_type: 'Admin',
+    permissions: 'Dashboard, Weeshes, Deport, Bank,Support,Configuration,Activity log'
+  },
+  {
+    _id: 4,
+    firstName: 'Emily',
+    lastName: 'Stone',
+    admin_type: 'Flutter',
+    permissions: 'Dashboard, Weeshes, Deport, Bank,Support,Configuration,Activity log'
+  },
+  {
+    _id: 5,
+    firstName: ' Kunle',
+    lastName: 'Blue',
+    admin_type: 'Cxperience',
+    permissions: 'Dashboard, Weeshes, Deport, Bank,Support,Configuration,Activity log'
+  }
+])
 
 // Define a function to fetch users data
 const fetchUsersData = async () => {
@@ -254,12 +281,11 @@ onMounted(async () => {
 })
 
 const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
-
 </script>
 
 <template>
   <div class="flex-col flex bg-[#f0f8ff] min-h-[400px] px-4 sm:px-10 pb-10">
-    <MainNav class="mx-6" headingText="wae"  />
+    <MainNav class="mx-6" headingText="wae" />
     <div class="px-10 py-10 ml-auto">
       <Sheet :close="sheetOpen">
         <SheetTrigger as-child>
@@ -379,7 +405,6 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
                 </div>
               </div>
 
-            
               <FormField v-slot="{ componentField }" name="type">
                 <FormItem>
                   <FormLabel>Admin Type</FormLabel>
@@ -403,29 +428,41 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
                 <FormItem>
                   <FormLabel>Modular Permissions</FormLabel>
                   <FormControl>
-                 <!-- Example Checkbox Markup -->
-<div v-for="permissions in ['Dashboard', 'Users', 'Weeshes', 'Deposit', 'Bank', 'Support', 'Configuration', 'Analytics', 'Log']" :key="permissions" class="relative flex items-start ml-2">
-  <input
-    :id="permissions"
-    type="checkbox"
-    class="hidden peer"
-    v-bind="componentField" 
-  />
-  <label
-    :for="permissions"
-    class="inline-flex items-center justify-between w-auto p-2 font-medium tracking-tight border rounded-lg cursor-pointer bg-brand-light text-brand-black border-violet-500 peer-checked:border-violet-400 peer-checked:bg-violet-700 peer-checked:text-white peer-checked:font-semibold peer-checked:decoration-brand-dark decoration-2"
-  >
-    <div class="flex items-center justify-center w-full">
-      <div class="text-sm text-brand-black">{{ permissions }}</div>
-    </div>
-  </label>
-</div>
-
+                    <!-- Example Checkbox Markup -->
+                    <div
+                      v-for="permissions in [
+                        'Dashboard',
+                        'Users',
+                        'Weeshes',
+                        'Deposit',
+                        'Bank',
+                        'Support',
+                        'Configuration',
+                        'Analytics',
+                        'Log'
+                      ]"
+                      :key="permissions"
+                      class="relative flex items-start ml-2"
+                    >
+                      <input
+                        :id="permissions"
+                        type="checkbox"
+                        class="hidden peer"
+                        v-bind="componentField"
+                      />
+                      <label
+                        :for="permissions"
+                        class="inline-flex items-center justify-between w-auto p-2 font-medium tracking-tight border rounded-lg cursor-pointer bg-brand-light text-brand-black border-violet-500 peer-checked:border-violet-400 peer-checked:bg-violet-700 peer-checked:text-white peer-checked:font-semibold peer-checked:decoration-brand-dark decoration-2"
+                      >
+                        <div class="flex items-center justify-center w-full">
+                          <div class="text-sm text-brand-black">{{ permissions }}</div>
+                        </div>
+                      </label>
+                    </div>
                   </FormControl>
                   <FormMessage for="permissions" />
                 </FormItem>
               </FormField>
-              
 
               <Button :disabled="loading" type="submit">
                 <Loader2
@@ -463,29 +500,43 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
               <TableHead>Admin Type</TableHead>
               <TableHead>Modular Permission</TableHead>
               <TableHead></TableHead>
-
             </TableRow>
           </TableHeader>
           <TableBody>
             <TableRow v-for="user in users" :key="user._id">
               <TableCell class="font-medium">{{ user.firstName }} {{ user.lastName }}</TableCell>
               <TableCell>{{ user.admin_type }}</TableCell>
-              
-<TableCell>
 
-        <div class="flex flex-wrap gap-2">
-          <!-- Display each permission as a pill -->
-          <template v-for="permission in user.permissions.split(',')":key="permission">
-            <span class="inline-block bg-[#373B4D] text-[#F8F9FF] rounded-full px-2 py-1 text-sm">{{ permission }}</span>
-          </template>
-        </div>
-      </TableCell>
-      <TableCell>
-        <svg width="20" height="50" viewBox="0 0 20 50" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M7 31L12.5118 26.0606C13.1627 25.4773 13.1627 24.5227 12.5118 23.9394L7 19" stroke="#54586D" stroke-opacity="0.8" stroke-width="2" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
-</svg>
-</TableCell>
-
+              <TableCell>
+                <div class="flex flex-wrap gap-2">
+                  <!-- Display each permission as a pill -->
+                  <template v-for="permission in user.permissions.split(',')" :key="permission">
+                    <span
+                      class="inline-block bg-[#373B4D] text-[#F8F9FF] rounded-full px-2 py-1 text-sm"
+                      >{{ permission }}</span
+                    >
+                  </template>
+                </div>
+              </TableCell>
+              <TableCell>
+                <svg
+                  width="20"
+                  height="50"
+                  viewBox="0 0 20 50"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M7 31L12.5118 26.0606C13.1627 25.4773 13.1627 24.5227 12.5118 23.9394L7 19"
+                    stroke="#54586D"
+                    stroke-opacity="0.8"
+                    stroke-width="2"
+                    stroke-miterlimit="10"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </TableCell>
             </TableRow>
           </TableBody>
         </Table>
@@ -493,5 +544,4 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
     </Card>
   </div>
 </template>
-@/stores/super-admin/super-admin@/stores/super-admin/super-admin
-admin
+@/stores/super-admin/super-admin@/stores/super-admin/super-admin admin

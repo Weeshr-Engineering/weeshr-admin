@@ -1,10 +1,9 @@
-const animate = require('tailwindcss-animate')
+import animate from 'tailwindcss-animate'
 
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+export default {
   darkMode: ['class'],
-  safelist: ['dark'],
-  prefix: '',
+  safelist: ['light'],
 
   content: [
     './pages/**/*.{ts,tsx,vue}',
@@ -58,7 +57,6 @@ module.exports = {
         }
       },
       borderRadius: {
-        xl: 'calc(var(--radius) + 4px)',
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)'

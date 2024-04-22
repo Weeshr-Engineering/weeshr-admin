@@ -138,7 +138,7 @@ const onSubmit = form.handleSubmit(async () => {
       />
 
       <div
-        class="relative flex-col hidden h-full p-10 pb-0 text-white bg-center bg-no-repeat bg-cover dark:border-r lg:flex"
+        class="relative flex-col hidden h-full p-10 pb-0 text-white bg-center bg-no-repeat bg-cover lg:flex"
       >
         <img
           class="hidden lg:block absolute bottom-0 h-[280px] w-auto transform left-1/2 -translate-x-[50%]"
@@ -243,17 +243,19 @@ const onSubmit = form.handleSubmit(async () => {
                 </form>
               </CardContent>
               <CardFooter>
-                <Button
-                  @click="onSubmit()"
-                  type="submit"
-                  class="w-full bg-[#BAEF23] hover:bg-[#BAEF23] hover:scale-105 text-black font-normal"
-                >
-                  <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" />
+                <div class="flex flex-col w-full">
+                  <Button
+                    @click="onSubmit()"
+                    type="submit"
+                    class="w-full bg-[#BAEF23] hover:bg-[#BAEF23] hover:scale-105 text-black font-normal"
+                  >
+                    <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" />
 
-                  Sign In
-                </Button>
-                <div class="pt-5 text-xs text-center text-gray-400">
-                  <span> Copyright © {{ currentYear }} </span>
+                    Sign In
+                  </Button>
+                  <div class="pt-5 text-xs text-center text-gray-400">
+                    <span> Copyright © {{ currentYear }} </span>
+                  </div>
                 </div>
               </CardFooter>
             </Card>
