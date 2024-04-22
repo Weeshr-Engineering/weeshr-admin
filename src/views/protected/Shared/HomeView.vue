@@ -4,6 +4,16 @@ import MainNav from '@/components/MainNav.vue'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
 </script>
 
 <template>
@@ -119,6 +129,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
               </CardHeader>
               <CardContent class="pl-2">
                 <Overview />
+              
               </CardContent>
             </Card>
             <Card class="flex grid w-full col-span-full sm:col-span-3">
