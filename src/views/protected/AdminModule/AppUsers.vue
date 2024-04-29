@@ -612,8 +612,15 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
                 <DropdownMenuLabel>Status</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuRadioGroup v-model="position">
-                  <DropdownMenuRadioItem value="active"> Active </DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="nonactive">Not active </DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="active"> Featured </DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="nonactive">Non Verified </DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="nonactive">BlueVerified </DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="nonactive">WeeshrVerified </DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="nonactive">Staff </DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="nonactive">PublicFigure </DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="nonactive">Regular </DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="nonactive">Influencer </DropdownMenuRadioItem>
+
                 </DropdownMenuRadioGroup>
               </DropdownMenuContent>
             </DropdownMenu>
