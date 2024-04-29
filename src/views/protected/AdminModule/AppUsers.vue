@@ -32,8 +32,9 @@ import {
   DropdownMenuContent,
   DropdownMenuLabel,
   DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
   DropdownMenuSeparator,
-  DropdownMenuTrigger
+  DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 
 const position = ref('bottom')
@@ -611,12 +612,13 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
                 <DropdownMenuLabel>Status</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuRadioGroup v-model="position">
-                  <DropdownMenuRadioItem value=""> Active </DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="">Not active </DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="active"> Active </DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="nonactive">Not active </DropdownMenuRadioItem>
                 </DropdownMenuRadioGroup>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
+          
           <Search />
         </div>
       </div>
