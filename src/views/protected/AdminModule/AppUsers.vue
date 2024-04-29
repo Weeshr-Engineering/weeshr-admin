@@ -63,7 +63,6 @@ const formSchema = toTypedSchema(
     gender: z.string().nonempty(''),
     dob: z.string().nonempty('Please enter your Date of birth'),
     status: z.string().nonempty('Please select Modular Status')
-
   })
 )
 const { handleSubmit } = useForm({
@@ -75,7 +74,7 @@ const newUser = ref({
   lastName: '',
   gender: '',
   dob: '',
-  status:''
+  status: ''
 })
 
 const sheetOpen = ref(false)
@@ -111,38 +110,84 @@ const onSubmit = handleSubmit(async (values) => {
     userEmail: '',
     gender: '',
     dob: '',
-    status:'',
+    status: ''
   }
 })
 
 // Define a ref to hold the users data
 // const users = ref([]);
-  const users = ref<any[]>([
-  { _id: 1, firstName: 'Abiola', lastName: 'Tendo', dob: '01 Nov 1974', gender:'female', balance:'$11,111', status:['Regular','BlueVerified','Featured']},
-  { _id: 2, firstName: 'Saloni', lastName: 'Smith', dob: '30 Nov 2001', gender:'male', balance:'$1,111',status:[ 'PublicFigure','Influencer','WeeshrVerified','Featured']},
-  { _id: 3, firstName: 'Bada', lastName: 'Right', dob: '01 Nov 1974', gender:'male', balance:'$19,611', status:['Regular','NonVerified','Featured']},
-  { _id: 4, firstName: 'Emily', lastName: 'Stone', dob: '01 Nov 1974', gender:'female', balance:'$11,111',status:['Regular','NonVerified']},
-  { _id: 5, firstName: ' Kunle', lastName: 'Blue', dob: '01 Nov 1974', gender:'female', balance:'$11,111',status:['Staff','NonVerified',]},
-
-]);
+const users = ref<any[]>([
+  {
+    _id: 1,
+    firstName: 'Abiola',
+    lastName: 'Tendo',
+    dob: '01 Nov 1974',
+    gender: 'female',
+    balance: '$11,111',
+    status: ['Regular', 'BlueVerified', 'Featured']
+  },
+  {
+    _id: 2,
+    firstName: 'Saloni',
+    lastName: 'Smith',
+    dob: '30 Nov 2001',
+    gender: 'male',
+    balance: '$1,111',
+    status: ['PublicFigure', 'Influencer', 'WeeshrVerified', 'Featured']
+  },
+  {
+    _id: 3,
+    firstName: 'Bada',
+    lastName: 'Right',
+    dob: '01 Nov 1974',
+    gender: 'male',
+    balance: '$19,611',
+    status: ['Regular', 'NonVerified', 'Featured']
+  },
+  {
+    _id: 4,
+    firstName: 'Emily',
+    lastName: 'Stone',
+    dob: '01 Nov 1974',
+    gender: 'female',
+    balance: '$11,111',
+    status: ['Regular', 'NonVerified']
+  },
+  {
+    _id: 5,
+    firstName: ' Kunle',
+    lastName: 'Blue',
+    dob: '01 Nov 1974',
+    gender: 'female',
+    balance: '$11,111',
+    status: ['Staff', 'NonVerified']
+  }
+])
 // / Define a function to get the URL of the status icon based on the status value
 const getStatusIconUrl = (status: string) => {
   // Define a mapping of status values to image URLs
   const statusIconUrls: Record<string, string> = {
-    Featured: 'https://res.cloudinary.com/dufimctfc/image/upload/v1712910733/UserFeaturing_rj4fnp.svg',
-    NonVerified: 'https://res.cloudinary.com/dufimctfc/image/upload/v1713424079/Property_1_Not_Verified_tlgd9k.svg',
-    BlueVerified: 'https://res.cloudinary.com/dufimctfc/image/upload/v1712910733/UserVerificationStatus_oglh0k.svg',
-    WeeshrVerified: 'https://res.cloudinary.com/dufimctfc/image/upload/v1712910733/Property_1_Weeshr_Verified_th0oq2.svg',
-    Staff: 'https://res.cloudinary.com/dufimctfc/image/upload/v1713424079/Property_1_Staff_c49bd5.svg',
-    PublicFigure: 'https://res.cloudinary.com/dufimctfc/image/upload/v1712910732/Property_1_Public_Figure_wbek9n.svg',
-    Regular: 'https://res.cloudinary.com/dufimctfc/image/upload/v1712910732/Property_1_Regular_smttkj.svg',
-    Influencer: 'https://res.cloudinary.com/dufimctfc/image/upload/v1712910732/UserTypeI_lfcvbw.svg',
+    Featured:
+      'https://res.cloudinary.com/dufimctfc/image/upload/v1712910733/UserFeaturing_rj4fnp.svg',
+    NonVerified:
+      'https://res.cloudinary.com/dufimctfc/image/upload/v1713424079/Property_1_Not_Verified_tlgd9k.svg',
+    BlueVerified:
+      'https://res.cloudinary.com/dufimctfc/image/upload/v1712910733/UserVerificationStatus_oglh0k.svg',
+    WeeshrVerified:
+      'https://res.cloudinary.com/dufimctfc/image/upload/v1712910733/Property_1_Weeshr_Verified_th0oq2.svg',
+    Staff:
+      'https://res.cloudinary.com/dufimctfc/image/upload/v1713424079/Property_1_Staff_c49bd5.svg',
+    PublicFigure:
+      'https://res.cloudinary.com/dufimctfc/image/upload/v1712910732/Property_1_Public_Figure_wbek9n.svg',
+    Regular:
+      'https://res.cloudinary.com/dufimctfc/image/upload/v1712910732/Property_1_Regular_smttkj.svg',
+    Influencer: 'https://res.cloudinary.com/dufimctfc/image/upload/v1712910732/UserTypeI_lfcvbw.svg'
     // Add more mappings as needed
-  };
+  }
 
   // Return the corresponding icon URL based on the status value
-  return statusIconUrls[status] || ''; // Default to empty string if status is not found
-};
+  return statusIconUrls[status] || '' // Default to empty string if status is not found
+}
 // Define a function to fetch users data
 const fetchUsersData = async () => {
   toast({
@@ -262,9 +307,6 @@ const saveUserData = async (user: any) => {
   }
 }
 
-
-
-
 // onMounted(fetchUsersData);
 
 onMounted(async () => {
@@ -273,7 +315,6 @@ onMounted(async () => {
 })
 
 const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
-
 </script>
 
 <template>
@@ -342,9 +383,8 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
 
                   <FormMessage />
                 </FormItem>
-
               </FormField>
-<div class="flex flex-row justify-between gap-2">
+              <div class="flex flex-row justify-between gap-2">
                 <FormField v-slot="{ componentField }" name="gender" class="w-[40%]">
                   <FormItem>
                     <FormLabel>Gender</FormLabel>
@@ -403,24 +443,36 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
                 <FormItem>
                   <FormLabel>Status</FormLabel>
                   <FormControl>
-                 <!-- Example Checkbox Markup -->
-<div v-for="status in ['Featured','NonVerified', 'BlueVerified', 'WeeshrVerified', 'Staff', 'PublicFigure', 'Regular', 'Influencer']" :key="status" class="relative flex items-start ml-2">
-  <input
-    :id="status"
-    type="checkbox"
-    class="hidden peer"
-    v-bind="componentField" 
-  />
-  <label
-    :for="status"
-    class="inline-flex items-center justify-between w-auto p-2 font-medium tracking-tight border rounded-lg cursor-pointer bg-brand-light text-brand-black border-violet-500 peer-checked:border-violet-400 peer-checked:bg-violet-700 peer-checked:text-white peer-checked:font-semibold peer-checked:decoration-brand-dark decoration-2"
-  >
-  <div class="flex items-center justify-center w-full">
-      <div class="text-sm text-brand-black">{{ status }}</div>
-    </div>
-  </label>
-</div>
-
+                    <!-- Example Checkbox Markup -->
+                    <div
+                      v-for="status in [
+                        'Featured',
+                        'NonVerified',
+                        'BlueVerified',
+                        'WeeshrVerified',
+                        'Staff',
+                        'PublicFigure',
+                        'Regular',
+                        'Influencer'
+                      ]"
+                      :key="status"
+                      class="relative flex items-start ml-2"
+                    >
+                      <input
+                        :id="status"
+                        type="checkbox"
+                        class="hidden peer"
+                        v-bind="componentField"
+                      />
+                      <label
+                        :for="status"
+                        class="inline-flex items-center justify-between w-auto p-2 font-medium tracking-tight border rounded-lg cursor-pointer bg-brand-light text-brand-black border-violet-500 peer-checked:border-violet-400 peer-checked:bg-violet-700 peer-checked:text-white peer-checked:font-semibold peer-checked:decoration-brand-dark decoration-2"
+                      >
+                        <div class="flex items-center justify-center w-full">
+                          <div class="text-sm text-brand-black">{{ status }}</div>
+                        </div>
+                      </label>
+                    </div>
                   </FormControl>
                   <FormMessage for="status" />
                 </FormItem>
@@ -466,110 +518,107 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
           App Users
           <p class="text-xs sm:text-sm text-[#02072199]">List of Weeshr App Users</p>
         </div>
-        <div class="flex flex-wrap justify-center sm:justify-end space-y-2 sm:space-y-0 sm:space-x-3 items-center">
-             <div class="flex items-center space-x-2 ">
-          <DropdownMenu>
-            <DropdownMenuTrigger as-child class="rounded-2xl bg-[#EEEFF5] ">
-              <Button variant="outline">
-                Gender
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="w-5 h-5 ml-2 -mr-1"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    d="M6.293 9.293a1 1 0 011.414 0L10 11.586l2.293-2.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
-                    clip-rule="evenodd"
-                  />
-                </svg>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent class="">
-              <DropdownMenuLabel>Gender</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuRadioGroup v-model="position">
-                <DropdownMenuRadioItem value="male"> Male </DropdownMenuRadioItem>
-                <DropdownMenuRadioItem value="female"> Female </DropdownMenuRadioItem>
-              </DropdownMenuRadioGroup>
-            </DropdownMenuContent>
-          </DropdownMenu> 
-          <DropdownMenu>
-            <DropdownMenuTrigger as-child class="rounded-2xl bg-[#EEEFF5]">
-              <Button variant="outline">
-                Birth Month
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="w-5 h-5 ml-2 -mr-1"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    d="M6.293 9.293a1 1 0 011.414 0L10 11.586l2.293-2.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
-                    clip-rule="evenodd"
-                  />
-                </svg>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent class="w-56 space-y-4">
-              <DropdownMenuLabel>Birth Month</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuRadioGroup v-model="position">
-                <DropdownMenuRadioItem value="jan"> January </DropdownMenuRadioItem>
-                <DropdownMenuRadioItem value="feb"> February </DropdownMenuRadioItem>
-                <DropdownMenuRadioItem value="march"> March </DropdownMenuRadioItem>
-                <DropdownMenuRadioItem value="april"> April </DropdownMenuRadioItem>
-                <DropdownMenuRadioItem value="may"> May </DropdownMenuRadioItem>
-                <DropdownMenuRadioItem value="june"> June </DropdownMenuRadioItem>
-                <DropdownMenuRadioItem value="july"> July </DropdownMenuRadioItem>
-                <DropdownMenuRadioItem value="aug"> August </DropdownMenuRadioItem>
-                <DropdownMenuRadioItem value="sep"> September </DropdownMenuRadioItem>
-                <DropdownMenuRadioItem value="oct"> October </DropdownMenuRadioItem>
-                <DropdownMenuRadioItem value="nov"> November </DropdownMenuRadioItem>
-                <DropdownMenuRadioItem value="dec"> December </DropdownMenuRadioItem>
-              </DropdownMenuRadioGroup>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <DropdownMenu>
-            <DropdownMenuTrigger as-child class="rounded-2xl bg-[#EEEFF5]">
-              <Button variant="outline">
-                Status
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="w-5 h-5 ml-2 -mr-1"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    d="M6.293 9.293a1 1 0 011.414 0L10 11.586l2.293-2.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
-                    clip-rule="evenodd"
-                  />
-                </svg>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent >
-              <DropdownMenuLabel>Status</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuRadioGroup v-model="position">
-                <DropdownMenuRadioItem value=""> Active </DropdownMenuRadioItem>
-                <DropdownMenuRadioItem value="">Not active  </DropdownMenuRadioItem>
-              </DropdownMenuRadioGroup>
-            </DropdownMenuContent>
-          </DropdownMenu> 
-
+        <div
+          class="flex flex-wrap justify-center sm:justify-end space-y-2 sm:space-y-0 sm:space-x-3 items-center"
+        >
+          <div class="flex items-center space-x-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger as-child class="rounded-2xl bg-[#EEEFF5]">
+                <Button variant="outline">
+                  Gender
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="w-5 h-5 ml-2 -mr-1"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M6.293 9.293a1 1 0 011.414 0L10 11.586l2.293-2.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
+                      clip-rule="evenodd"
+                    />
+                  </svg>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent class="">
+                <DropdownMenuLabel>Gender</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuRadioGroup v-model="position">
+                  <DropdownMenuRadioItem value="male"> Male </DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="female"> Female </DropdownMenuRadioItem>
+                </DropdownMenuRadioGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <DropdownMenu>
+              <DropdownMenuTrigger as-child class="rounded-2xl bg-[#EEEFF5]">
+                <Button variant="outline">
+                  Birth Month
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="w-5 h-5 ml-2 -mr-1"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M6.293 9.293a1 1 0 011.414 0L10 11.586l2.293-2.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
+                      clip-rule="evenodd"
+                    />
+                  </svg>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent class="w-56 space-y-4">
+                <DropdownMenuLabel>Birth Month</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuRadioGroup v-model="position">
+                  <DropdownMenuRadioItem value="jan"> January </DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="feb"> February </DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="march"> March </DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="april"> April </DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="may"> May </DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="june"> June </DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="july"> July </DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="aug"> August </DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="sep"> September </DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="oct"> October </DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="nov"> November </DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="dec"> December </DropdownMenuRadioItem>
+                </DropdownMenuRadioGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <DropdownMenu>
+              <DropdownMenuTrigger as-child class="rounded-2xl bg-[#EEEFF5]">
+                <Button variant="outline">
+                  Status
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="w-5 h-5 ml-2 -mr-1"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M6.293 9.293a1 1 0 011.414 0L10 11.586l2.293-2.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
+                      clip-rule="evenodd"
+                    />
+                  </svg>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuLabel>Status</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuRadioGroup v-model="position">
+                  <DropdownMenuRadioItem value=""> Active </DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="">Not active </DropdownMenuRadioItem>
+                </DropdownMenuRadioGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+          <Search />
         </div>
-            <Search />
-        </div>
-     
-      
-
-       
       </div>
 
       <div class="overflow-auto bg-white rounded-lg shadow">
@@ -585,27 +634,42 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
               <TableHead>Wallet Balance</TableHead>
               <TableHead>Status</TableHead>
               <TableHead></TableHead>
-
             </TableRow>
           </TableHeader>
           <TableBody>
             <TableRow v-for="user in users" :key="user._id">
               <TableCell class="font-medium">{{ user.firstName }} </TableCell>
               <TableCell class="font-medium">{{ user.firstName }} {{ user.lastName }}</TableCell>
-              <TableCell class="font-medium">{{ user.dob}} </TableCell>
+              <TableCell class="font-medium">{{ user.dob }} </TableCell>
               <TableCell class="font-medium">{{ user.gender }} </TableCell>
               <TableCell>{{ user.balance }}</TableCell>
-              <TableCell class="min-h-16 sm:min-h-12">
-                              <!-- Render multiple status icons based on user's status array -->
-              <template v-for="status in user.status" :key="status">
-                <img :src="getStatusIconUrl(status)" :alt="status" class="h-5 w-19 mr-1" />
-              </template>
-            </TableCell>
-          <TableCell>
-        <svg width="20" height="50" viewBox="0 0 20 50" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M7 31L12.5118 26.0606C13.1627 25.4773 13.1627 24.5227 12.5118 23.9394L7 19" stroke="#54586D" stroke-opacity="0.8" stroke-width="2" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
-</svg>
-</TableCell>
+              <TableCell class="flex">
+                <!-- Render multiple status icons based on user's status array -->
+                <template v-for="status in user.status" :key="status">
+                  <img :src="getStatusIconUrl(status)" :alt="status" class="h-5 w-19 mr-1" />
+                </template>
+              </TableCell>
+              <TableCell>
+                <router-link :to="`/usersdetails/${user._id}`">
+                  <svg
+                    width="20"
+                    height="50"
+                    viewBox="0 0 20 50"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M7 31L12.5118 26.0606C13.1627 25.4773 13.1627 24.5227 12.5118 23.9394L7 19"
+                      stroke="#54586D"
+                      stroke-opacity="0.8"
+                      stroke-width="2"
+                      stroke-miterlimit="10"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </router-link>
+              </TableCell>
             </TableRow>
           </TableBody>
         </Table>

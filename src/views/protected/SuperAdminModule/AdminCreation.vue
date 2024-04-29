@@ -6,8 +6,6 @@ import { toTypedSchema } from '@vee-validate/zod'
 import * as z from 'zod'
 import { useDateFormat, useNow } from '@vueuse/core'
 import MainNav from '@/components/MainNav.vue'
-import VueTelInput from 'vue-tel-input'
-import 'vue-tel-input/vue-tel-input.css'
 import axios from 'axios'
 import { Loader2 } from 'lucide-vue-next'
 import router from '@/router'
@@ -519,23 +517,25 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
                 </div>
               </TableCell>
               <TableCell>
-                <svg
-                  width="20"
-                  height="50"
-                  viewBox="0 0 20 50"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M7 31L12.5118 26.0606C13.1627 25.4773 13.1627 24.5227 12.5118 23.9394L7 19"
-                    stroke="#54586D"
-                    stroke-opacity="0.8"
-                    stroke-width="2"
-                    stroke-miterlimit="10"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
+                <router-link :to="`/admindetails/${user._id}`">
+                  <svg
+                    width="20"
+                    height="50"
+                    viewBox="0 0 20 50"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M7 31L12.5118 26.0606C13.1627 25.4773 13.1627 24.5227 12.5118 23.9394L7 19"
+                      stroke="#54586D"
+                      stroke-opacity="0.8"
+                      stroke-width="2"
+                      stroke-miterlimit="10"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </router-link>
               </TableCell>
             </TableRow>
           </TableBody>

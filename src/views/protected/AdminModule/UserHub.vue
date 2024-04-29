@@ -10,7 +10,7 @@ import DashboardFooter from '@/components/DashboardFooter.vue'
   <div class="flex-col flex h-svh h-full bg-[#f0f8ff] relative">
     <div class="flex-1 space-y-4 p-8 pt-6 bg-[#f0f8ff] w-full">
       <MainNav class="mx-6" headingText="Users Hub" />
-      <div class="grid gap-7 md:grid-cols-2 lg:grid-cols-4">
+      <div class="grid gap-7 md:grid-cols-2 lg:grid-cols-4 h-80">
         <Card
           class="rounded-xl bg-[#C6F4EB] h-80 shadow-md transition-transform transform hover:scale-105 mb-5"
         >
