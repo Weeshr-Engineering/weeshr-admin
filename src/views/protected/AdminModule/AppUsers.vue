@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Search from '@/components/UseSearch.vue'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import * as z from 'zod'
@@ -316,6 +316,32 @@ onMounted(async () => {
 })
 
 const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
+
+const selectedGender = ref('');
+const genderOptions = computed<string[]>(() => {
+  const genders: Set<string> = new Set();
+  users.value.forEach(user => {
+    genders.add(user.gender);
+  });
+  return Array.from(genders);
+});
+
+const selectedStatus = ref('');
+const statusOptions = computed<string[]>(() => {
+  const statuses: Set<string> = new Set();
+  users.value.forEach(user => {
+    user.status.forEach((status: string) => {
+      statuses.add(status);
+    });
+  });
+  return Array.from(statuses);
+});
+
+
+const selectedMonth = ref('');
+const birthMonthOptions = computed<string[]>(() => [
+  'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'
+]);
 </script>
 
 <template>
@@ -522,7 +548,7 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
         <div
           class="flex flex-wrap justify-center sm:justify-end space-y-2 sm:space-y-0 sm:space-x-3 items-center"
         >
-          <div class="flex items-center space-x-2">
+          <div class="flex flex-col md:flex-row md:items-center space-y-4 md:space-x-4">
             <DropdownMenu>
               <DropdownMenuTrigger as-child class="rounded-2xl bg-[#EEEFF5]">
                 <Button variant="outline">
@@ -545,9 +571,10 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
               <DropdownMenuContent class="">
                 <DropdownMenuLabel>Gender</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuRadioGroup v-model="position">
-                  <DropdownMenuRadioItem value="male"> Male </DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="female"> Female </DropdownMenuRadioItem>
+                <DropdownMenuRadioGroup v-model="selectedGender">
+                  <DropdownMenuRadioItem v-for="(genderOption, index) in genderOptions" :key="index" :value="genderOption">
+                                        {{ genderOption }}
+                  </DropdownMenuRadioItem>
                 </DropdownMenuRadioGroup>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -573,20 +600,11 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
               <DropdownMenuContent class="w-56 space-y-4">
                 <DropdownMenuLabel>Birth Month</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuRadioGroup v-model="position">
-                  <DropdownMenuRadioItem value="jan"> January </DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="feb"> February </DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="march"> March </DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="april"> April </DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="may"> May </DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="june"> June </DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="july"> July </DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="aug"> August </DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="sep"> September </DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="oct"> October </DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="nov"> November </DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="dec"> December </DropdownMenuRadioItem>
-                </DropdownMenuRadioGroup>
+                <DropdownMenuRadioGroup v-model="selectedMonth">
+        <DropdownMenuRadioItem v-for="(monthOption, index) in birthMonthOptions" :key="index" :value="monthOption">
+          {{ monthOption }}
+        </DropdownMenuRadioItem>
+      </DropdownMenuRadioGroup>
               </DropdownMenuContent>
             </DropdownMenu>
             <DropdownMenu>
@@ -611,22 +629,16 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
               <DropdownMenuContent>
                 <DropdownMenuLabel>Status</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuRadioGroup v-model="position">
-                  <DropdownMenuRadioItem value="active"> Featured </DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="nonactive">Non Verified </DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="nonactive">BlueVerified </DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="nonactive">WeeshrVerified </DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="nonactive">Staff </DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="nonactive">PublicFigure </DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="nonactive">Regular </DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="nonactive">Influencer </DropdownMenuRadioItem>
-
-                </DropdownMenuRadioGroup>
+                <DropdownMenuRadioGroup v-model="selectedStatus">
+        <DropdownMenuRadioItem v-for="(statusOption, index) in statusOptions" :key="index" :value="statusOption">
+          {{ statusOption }}
+        </DropdownMenuRadioItem>
+      </DropdownMenuRadioGroup>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
           
-          <Search />
+          <Search/>
         </div>
       </div>
 
@@ -655,7 +667,7 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
               <TableCell class="flex">
                 <!-- Render multiple status icons based on user's status array -->
                 <template v-for="status in user.status" :key="status">
-                  <img :src="getStatusIconUrl(status)" :alt="status" class="h-5 w-19 mr-1" />
+                  <img :src="getStatusIconUrl(status)" :alt="status" class="h-50 w-160 mr-1" />
                 </template>
               </TableCell>
               <TableCell>
