@@ -37,6 +37,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 
+
 const position = ref('bottom')
 
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
@@ -347,197 +348,7 @@ const birthMonthOptions = computed<string[]>(() => [
 <template>
   <div class="flex-col flex bg-[#f0f8ff] min-h-[400px] px-4 sm:px-10 pb-10">
     <MainNav class="mx-6" headingText="User > App Users" />
-    <div class="px-10 py-10 ml-auto">
-      <Sheet :close="sheetOpen">
-        <SheetTrigger as-child>
-          <button @click="sheetOpen = true" class="bg-[#020721] px-4 py-2 rounded-xl w-50 h-12">
-            <div class="text-base text-[#F8F9FF] text-center flex items-center">
-              Add New Vendor
-              <svg
-                width="20"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                class="ml-6"
-              >
-                <path
-                  d="M12 2C6.49 2 2 6.49 2 12C2 17.51 6.49 22 12 22C17.51 22 22 17.51 22 12C22 6.49 17.51 2 12 2ZM16 12.75H12.75V16C12.75 16.41 12.41 16.75 12 16.75C11.59 16.75 11.25 16.41 11.25 16V12.75H8C7.59 12.75 7.25 12.41 7.25 12C7.25 11.59 7.59 11.25 8 11.25H11.25V8C11.25 7.59 11.59 7.25 12 7.25C12.41 7.25 12.75 7.59 12.75 8V11.25H16C16.41 11.25 16.75 11.59 16.75 12C16.75 12.41 16.41 12.75 16 12.75Z"
-                  fill="#F8F9FF"
-                />
-              </svg>
-            </div>
-          </button>
-        </SheetTrigger>
-        <SheetContent class="overflow-y-auto">
-          <SheetHeader>
-            <h3 class="text-2xl font-medium">Create User profile</h3>
-            <SheetDescription>
-              Add a new profile here. Click submit when you're done.
-            </SheetDescription>
-          </SheetHeader>
-          <CardContent class="grid gap-4 pt-10">
-            <form class="space-y-4" @submit="onSubmit">
-              <FormField v-slot="{ componentField }" name="vendor">
-                <FormItem v-auto-animate>
-                  <FormLabel class="text-blue-900">Vendor</FormLabel>
-                  <FormControl>
-                    <Input
-                      id="text"
-                      type="text"
-                      placeholder="Vendor Name"
-                      class="focus-visible:ring-blue-600"
-                      v-bind="componentField"
-                    />
-                  </FormControl>
-
-                  <FormMessage for="vendor" />
-                </FormItem>
-              </FormField>
-
-              <FormField v-slot="{ componentField }" name="userEmail">
-                <FormItem v-auto-animate>
-                  <FormLabel class="text-blue-900">Email</FormLabel>
-                  <FormControl>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="weeshr@admin.com"
-                      class="focus-visible:ring-blue-600"
-                      v-bind="componentField"
-                    />
-                  </FormControl>
-
-                  <FormMessage />
-                </FormItem>
-              </FormField>
-              <div class="flex flex-row justify-between gap-2">
-                <FormField v-slot="{ componentField }" name="gender" class="w-[40%]">
-                  <FormItem>
-                    <FormLabel>Gender</FormLabel>
-                    <select
-                      v-bind="componentField"
-                      id="gender"
-                      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                      placeholder="Select a category"
-                    >
-                      <option value="" disabled selected hidden>Gender</option>
-                      <option value="Male">Male</option>
-                      <option value="Female">Female</option>
-                    </select>
-                    <FormMessage for="gender" />
-                  </FormItem>
-                </FormField>
-
-                <div class="w-[70%]">
-                  <FormField v-slot="{ componentField }" name="dob">
-                    <FormItem v-auto-animate>
-                      <FormLabel class="text-blue-900">Date of Birth</FormLabel>
-                      <FormControl>
-                        <Input
-                          id="dob"
-                          type="date"
-                          placeholder="Date of Birth"
-                          class="focus-visible:ring-blue-600"
-                          v-bind="componentField"
-                        />
-                      </FormControl>
-
-                      <FormMessage for="dob" />
-                    </FormItem>
-                  </FormField>
-                </div>
-              </div>
-              <FormField v-slot="{ componentField }" name="phone">
-                <FormItem v-auto-animate>
-                  <FormLabel class="text-blue-900">Phone Number</FormLabel>
-                  <FormControl>
-                    <div>
-                      <Input
-                        id="phone"
-                        type="tel"
-                        placeholder="Phone Number"
-                        class="focus-visible:ring-blue-600"
-                        v-bind="componentField"
-                      />
-                    </div>
-                  </FormControl>
-
-                  <FormMessage for="phone" />
-                </FormItem>
-              </FormField>
-              <FormField v-slot="{ componentField }" name="status">
-                <FormItem>
-                  <FormLabel>Status</FormLabel>
-                  <FormControl>
-                    <!-- Example Checkbox Markup -->
-                    <div
-                      v-for="status in [
-                        'Featured',
-                        'NonVerified',
-                        'BlueVerified',
-                        'WeeshrVerified',
-                        'Staff',
-                        'PublicFigure',
-                        'Regular',
-                        'Influencer'
-                      ]"
-                      :key="status"
-                      class="relative flex items-start ml-2"
-                    >
-                      <input
-                        :id="status"
-                        type="checkbox"
-                        class="hidden peer"
-                        v-bind="componentField"
-                      />
-                      <label
-                        :for="status"
-                        class="inline-flex items-center justify-between w-auto p-2 font-medium tracking-tight border rounded-lg cursor-pointer bg-brand-light text-brand-black border-violet-500 peer-checked:border-violet-400 peer-checked:bg-violet-700 peer-checked:text-white peer-checked:font-semibold peer-checked:decoration-brand-dark decoration-2"
-                      >
-                        <div class="flex items-center justify-center w-full">
-                          <div class="text-sm text-brand-black">{{ status }}</div>
-                        </div>
-                      </label>
-                    </div>
-                  </FormControl>
-                  <FormMessage for="status" />
-                </FormItem>
-              </FormField>
-
-              <FormField v-slot="{ componentField }" name="category">
-                <FormItem>
-                  <FormLabel>Category</FormLabel>
-                  <select
-                    v-bind="componentField"
-                    id="category"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                    placeholder="Category"
-                  >
-                    <option value="" disabled selected hidden>Select Vendor Category</option>
-                    <option value="cash">Cash</option>
-                    <option value="gift">Gift Cards</option>
-                    <option value="all">All Category</option>
-                  </select>
-                  <FormMessage for="category" />
-                </FormItem>
-              </FormField>
-
-              <Button :disabled="loading" type="submit">
-                <Loader2
-                  color="#ffffff"
-                  v-if="loading"
-                  class="w-4 h-4 mr-2 text-black animate-spin"
-                />
-                Submit
-
-                <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" />
-              </Button>
-            </form>
-          </CardContent>
-        </SheetContent>
-      </Sheet>
-    </div>
+    
 
     <Card class="container px-4 pt-6 pb-10 mx-auto sm:px-6 lg:px-8 bg-[#FFFFFF] rounded-2xl">
       <div class="flex flex-col sm:flex-row items-center justify-between px-2 sm:px-6 py-4">
@@ -548,7 +359,7 @@ const birthMonthOptions = computed<string[]>(() => [
         <div
           class="flex flex-wrap justify-center sm:justify-end space-y-2 sm:space-y-0 sm:space-x-3 items-center"
         >
-          <div class="flex flex-col md:flex-row md:items-center space-y-4 md:space-x-4">
+          <div class=" items-center space-x-2 md:flex-row md:items-center space-y-4 md:space-x-4">
             <DropdownMenu>
               <DropdownMenuTrigger as-child class="rounded-2xl bg-[#EEEFF5]">
                 <Button variant="outline">
@@ -597,7 +408,7 @@ const birthMonthOptions = computed<string[]>(() => [
                   </svg>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent class="w-56 space-y-4">
+              <DropdownMenuContent class="">
                 <DropdownMenuLabel>Birth Month</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuRadioGroup v-model="selectedMonth">
@@ -664,10 +475,10 @@ const birthMonthOptions = computed<string[]>(() => [
               <TableCell class="font-medium">{{ user.dob }} </TableCell>
               <TableCell class="font-medium">{{ user.gender }} </TableCell>
               <TableCell>{{ user.balance }}</TableCell>
-              <TableCell class="flex">
+              <TableCell class="flex flex-wrap">
                 <!-- Render multiple status icons based on user's status array -->
                 <template v-for="status in user.status" :key="status">
-                  <img :src="getStatusIconUrl(status)" :alt="status" class="h-50 w-160 mr-1" />
+                  <img :src="getStatusIconUrl(status)" :alt="status" class="h-50  w-auto mr-1"  />
                 </template>
               </TableCell>
               <TableCell>
