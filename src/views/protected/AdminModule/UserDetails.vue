@@ -208,7 +208,7 @@ const getStatusIconUrl = (status: string) => {
             <CardHeader>
               <CardTitle class="text-xl font-bold">User Profile</CardTitle>
               <CardDescription>
-                <div class="grid gap-2 md:grid-cols-4 lg:grid-cols">
+                <div class="grid gap-2 md:grid-cols-5 lg:grid-cols">
                   <img
                     class=""
                     src="https://res.cloudinary.com/dufimctfc/image/upload/v1710684025/images1_wbbxb5.svg"
@@ -227,6 +227,11 @@ const getStatusIconUrl = (status: string) => {
                   <img
                     class=""
                     src="https://res.cloudinary.com/dufimctfc/image/upload/v1710684024/image4_v8krvl.svg"
+                    alt="gradient"
+                  />
+                  <img
+                    class=""
+                    src="https://res.cloudinary.com/dufimctfc/image/upload/v1710684023/images2_ma998k.svg"
                     alt="gradient"
                   />
                 </div>

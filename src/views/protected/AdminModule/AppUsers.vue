@@ -34,9 +34,8 @@ import {
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
   DropdownMenuSeparator,
-  DropdownMenuTrigger,
+  DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
-
 
 const position = ref('bottom')
 
@@ -318,37 +317,46 @@ onMounted(async () => {
 
 const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
 
-const selectedGender = ref('');
+const selectedGender = ref('')
 const genderOptions = computed<string[]>(() => {
-  const genders: Set<string> = new Set();
-  users.value.forEach(user => {
-    genders.add(user.gender);
-  });
-  return Array.from(genders);
-});
+  const genders: Set<string> = new Set()
+  users.value.forEach((user) => {
+    genders.add(user.gender)
+  })
+  return Array.from(genders)
+})
 
-const selectedStatus = ref('');
+const selectedStatus = ref('')
 const statusOptions = computed<string[]>(() => {
-  const statuses: Set<string> = new Set();
-  users.value.forEach(user => {
+  const statuses: Set<string> = new Set()
+  users.value.forEach((user) => {
     user.status.forEach((status: string) => {
-      statuses.add(status);
-    });
-  });
-  return Array.from(statuses);
-});
+      statuses.add(status)
+    })
+  })
+  return Array.from(statuses)
+})
 
-
-const selectedMonth = ref('');
+const selectedMonth = ref('')
 const birthMonthOptions = computed<string[]>(() => [
-  'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'
-]);
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December'
+])
 </script>
 
 <template>
   <div class="flex-col flex bg-[#f0f8ff] min-h-[400px] px-4 sm:px-10 pb-10">
     <MainNav class="mx-6" headingText="User > App Users" />
-    
 
     <Card class="container px-4 pt-6 pb-10 mx-auto sm:px-6 lg:px-8 bg-[#FFFFFF] rounded-2xl">
       <div class="flex flex-col sm:flex-row items-center justify-between px-2 sm:px-6 py-4">
@@ -359,7 +367,7 @@ const birthMonthOptions = computed<string[]>(() => [
         <div
           class="flex flex-wrap justify-center sm:justify-end space-y-2 sm:space-y-0 sm:space-x-3 items-center"
         >
-          <div class=" items-center space-x-2 md:flex-row md:items-center space-y-4 md:space-x-4">
+          <div class="items-center space-x-2 md:flex-row md:items-center space-y-4 md:space-x-4">
             <DropdownMenu>
               <DropdownMenuTrigger as-child class="rounded-2xl bg-[#EEEFF5]">
                 <Button variant="outline">
@@ -383,8 +391,12 @@ const birthMonthOptions = computed<string[]>(() => [
                 <DropdownMenuLabel>Gender</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuRadioGroup v-model="selectedGender">
-                  <DropdownMenuRadioItem v-for="(genderOption, index) in genderOptions" :key="index" :value="genderOption">
-                                        {{ genderOption }}
+                  <DropdownMenuRadioItem
+                    v-for="(genderOption, index) in genderOptions"
+                    :key="index"
+                    :value="genderOption"
+                  >
+                    {{ genderOption }}
                   </DropdownMenuRadioItem>
                 </DropdownMenuRadioGroup>
               </DropdownMenuContent>
@@ -412,10 +424,14 @@ const birthMonthOptions = computed<string[]>(() => [
                 <DropdownMenuLabel>Birth Month</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuRadioGroup v-model="selectedMonth">
-        <DropdownMenuRadioItem v-for="(monthOption, index) in birthMonthOptions" :key="index" :value="monthOption">
-          {{ monthOption }}
-        </DropdownMenuRadioItem>
-      </DropdownMenuRadioGroup>
+                  <DropdownMenuRadioItem
+                    v-for="(monthOption, index) in birthMonthOptions"
+                    :key="index"
+                    :value="monthOption"
+                  >
+                    {{ monthOption }}
+                  </DropdownMenuRadioItem>
+                </DropdownMenuRadioGroup>
               </DropdownMenuContent>
             </DropdownMenu>
             <DropdownMenu>
@@ -441,15 +457,19 @@ const birthMonthOptions = computed<string[]>(() => [
                 <DropdownMenuLabel>Status</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuRadioGroup v-model="selectedStatus">
-        <DropdownMenuRadioItem v-for="(statusOption, index) in statusOptions" :key="index" :value="statusOption">
-          {{ statusOption }}
-        </DropdownMenuRadioItem>
-      </DropdownMenuRadioGroup>
+                  <DropdownMenuRadioItem
+                    v-for="(statusOption, index) in statusOptions"
+                    :key="index"
+                    :value="statusOption"
+                  >
+                    {{ statusOption }}
+                  </DropdownMenuRadioItem>
+                </DropdownMenuRadioGroup>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-          
-          <Search/>
+
+          <Search />
         </div>
       </div>
 
@@ -478,7 +498,7 @@ const birthMonthOptions = computed<string[]>(() => [
               <TableCell class="flex flex-wrap">
                 <!-- Render multiple status icons based on user's status array -->
                 <template v-for="status in user.status" :key="status">
-                  <img :src="getStatusIconUrl(status)" :alt="status" class="h-50  w-auto mr-1"  />
+                  <img :src="getStatusIconUrl(status)" :alt="status" class="h-50 w-auto mr-1" />
                 </template>
               </TableCell>
               <TableCell>
