@@ -29,8 +29,6 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 
-
-
 import { Button } from '@/components/ui/button'
 import { toast } from '@/components/ui/toast'
 import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
@@ -304,7 +302,6 @@ onMounted(async () => {
   // useGeneralStore().setLoading(true);
   fetchUsersData()
 })
-
 
 const selectedGender = ref('')
 const genderOptions = computed<string[]>(() => {

@@ -201,109 +201,112 @@ const getStatusIconUrl = (status: string) => {
 </script>
 <template>
   <div class="container px-6 mx-auto">
-    
-      <Card>
-        <div class="flex flex-col text-center md:text-left md:flex-row justify-evenly md:items-center sm:items-center ">
-          <Card class="sm:col-span-3 md:col-span-2 bg-[#F8F9FF] items-center justify-between shadow-2xl mb-auto ">
-            <CardHeader>
-              <CardTitle class="text-xl font-bold">User Profile</CardTitle>
-              <CardDescription>
-                <div class="grid gap-2  md:grid-cols-2 lg:grid-cols-5 mt-1  ">
+    <Card>
+      <div
+        class="flex flex-col text-center md:text-left md:flex-row justify-evenly md:items-center sm:items-center"
+      >
+        <Card
+          class="sm:col-span-3 md:col-span-2 bg-[#F8F9FF] items-center justify-between shadow-2xl mb-auto"
+        >
+          <CardHeader>
+            <CardTitle class="text-xl font-bold">User Profile</CardTitle>
+            <CardDescription>
+              <div class="grid gap-2 md:grid-cols-2 lg:grid-cols-5 mt-1">
+                <img
+                  class="max-w-[80px] h-auto mx-auto"
+                  src="https://res.cloudinary.com/dufimctfc/image/upload/v1710684025/images1_wbbxb5.svg"
+                  alt="gradient"
+                />
+                <img
+                  class="max-w-[80px] h-auto mx-auto"
+                  src="https://res.cloudinary.com/dufimctfc/image/upload/v1710684023/images2_ma998k.svg"
+                  alt="gradient"
+                />
+                <img
+                  class="max-w-[80px] h-auto mx-auto"
+                  src="https://res.cloudinary.com/dufimctfc/image/upload/v1710693199/image5_lwx2g1.svg"
+                  alt="gradient"
+                />
+                <img
+                  class="max-w-[80px] h-auto mx-auto"
+                  src="https://res.cloudinary.com/dufimctfc/image/upload/v1710684024/image4_v8krvl.svg"
+                  alt="gradient"
+                />
+                <img
+                  class="max-w-[80px] h-auto mx-auto"
+                  src="https://res.cloudinary.com/dufimctfc/image/upload/v1710684023/images2_ma998k.svg"
+                  alt="gradient"
+                />
+              </div>
+              <div class="flex space-x-2 justify-between px-6 py-4">
+                <span class="text-sm text-gray-500">Identity</span>
+                <div class="flex">
                   <img
-                    class=" max-w-[80px] h-auto  mx-auto"
-                    src="https://res.cloudinary.com/dufimctfc/image/upload/v1710684025/images1_wbbxb5.svg"
+                    class=""
+                    src="https://res.cloudinary.com/dufimctfc/image/upload/v1714310908/edit-4-svgrepo-com_1_iy2nwu.svg"
                     alt="gradient"
                   />
-                  <img
-                    class="max-w-[80px] h-auto   mx-auto"
-                    src="https://res.cloudinary.com/dufimctfc/image/upload/v1710684023/images2_ma998k.svg"
-                    alt="gradient"
-                  />
-                  <img
-                    class="max-w-[80px] h-auto mx-auto"
-                    src="https://res.cloudinary.com/dufimctfc/image/upload/v1710693199/image5_lwx2g1.svg"
-                    alt="gradient"
-                  />
-                  <img
-                    class="max-w-[80px] h-auto mx-auto"
-                    src="https://res.cloudinary.com/dufimctfc/image/upload/v1710684024/image4_v8krvl.svg"
-                    alt="gradient"
-                  />
-                  <img
-                    class="max-w-[80px] h-auto mx-auto"
-                    src="https://res.cloudinary.com/dufimctfc/image/upload/v1710684023/images2_ma998k.svg"
-                    alt="gradient"
-                  />
+                  <span class="ml-2 text-sm font-medium text-gray-700"> Edit </span>
                 </div>
-                <div class="flex space-x-2 justify-between px-6 py-4">
-                  <span class="text-sm text-gray-500">Identity</span>
-                  <div class="flex">
-                    <img
-                      class=""
-                      src="https://res.cloudinary.com/dufimctfc/image/upload/v1714310908/edit-4-svgrepo-com_1_iy2nwu.svg"
-                      alt="gradient"
-                    />
-                    <span class="ml-2 text-sm font-medium text-gray-700"> Edit </span>
+              </div>
+
+              <Card
+                class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 border border-gray-200 rounded-md px-4 py-4"
+              >
+                <dt class="text-sm font-medium text-gray-500">Full Name</dt>
+                <dd class="text-sm text-gray-800">Tochukwu Felix Onwuelo</dd>
+
+                <dt class="text-sm font-medium text-gray-500">Preferred</dt>
+                <dd class="text-sm text-gray-800">Felixont</dd>
+
+                <dt class="text-sm font-medium text-gray-500">Birthday</dt>
+                <dd class="text-sm text-gray-800">July 28</dd>
+
+                <dt class="text-sm font-medium text-gray-500">Gender</dt>
+                <dd class="text-sm text-gray-800">Female</dd>
+              </Card>
+              <div class="flex space-x-2 justify-between px-6 py-4">
+                <span class="text-sm text-gray-500">Contact</span>
+                <div class="flex">
+                  <img
+                    class=""
+                    src="https://res.cloudinary.com/dufimctfc/image/upload/v1714310908/edit-4-svgrepo-com_1_iy2nwu.svg"
+                    alt="gradient"
+                  />
+                  <span class="ml-2 text-sm font-medium text-gray-700"> Edit </span>
+                </div>
+              </div>
+              <Card
+                class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 border border-gray-200 rounded-md px-4 py-4"
+              >
+                <dt class="text-sm font-medium text-gray-500">Email</dt>
+                <dd class="text-sm text-gray-800">felixont@email.uk</dd>
+                <dt class="text-sm font-medium text-gray-500">phone.no</dt>
+                <dd class="text-sm text-gray-800">felixont@email.uk</dd>
+                <dt class="text-sm font-medium text-gray-500">Address</dt>
+                <dd class="text-sm text-gray-800">No. 51, Briswood Ipaja Rd, Ikeja</dd>
+                <p>User ID: {{ $route.params.userId }}</p>
+              </Card>
+
+              <Card
+                class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 border border-gray-200 rounded-md px-4 py-4"
+              >
+                <p>Profile privacy</p>
+                <label class="relative inline-flex cursor-pointer items-center">
+                  <input type="checkbox" value="" checked class="peer sr-only" />
+                  <div
+                    class="peer flex h-8 items-center gap-4 rounded-xl bg-[#373B4D] px-5 after:absolute after:left-1 after: after:h-6 after:w-16 after:rounded-xl after:bg-white/40 after:transition-all after:content-[''] peer-checked:bg-stone-600 peer-checked:after:translate-x-full peer-focus:outline-none dark:border-slate-600 dark:bg-slate-700 text-sm text-white"
+                  >
+                    <span>Public</span>
+                    <span>Private</span>
                   </div>
-                </div>
-
-                <Card
-                  class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 border border-gray-200 rounded-md px-4 py-4"
-                >
-                  <dt class="text-sm font-medium text-gray-500">Full Name</dt>
-                  <dd class="text-sm text-gray-800">Tochukwu Felix Onwuelo</dd>
-
-                  <dt class="text-sm font-medium text-gray-500">Preferred</dt>
-                  <dd class="text-sm text-gray-800">Felixont</dd>
-
-                  <dt class="text-sm font-medium text-gray-500">Birthday</dt>
-                  <dd class="text-sm text-gray-800">July 28</dd>
-
-                  <dt class="text-sm font-medium text-gray-500">Gender</dt>
-                  <dd class="text-sm text-gray-800">Female</dd>
-                </Card>
-                <div class="flex space-x-2 justify-between px-6 py-4">
-                  <span class="text-sm text-gray-500">Contact</span>
-                  <div class="flex">
-                    <img
-                      class=""
-                      src="https://res.cloudinary.com/dufimctfc/image/upload/v1714310908/edit-4-svgrepo-com_1_iy2nwu.svg"
-                      alt="gradient"
-                    />
-                    <span class="ml-2 text-sm font-medium text-gray-700"> Edit </span>
-                  </div>
-                </div>
-                <Card
-                  class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 border border-gray-200 rounded-md px-4 py-4"
-                >
-                  <dt class="text-sm font-medium text-gray-500">Email</dt>
-                  <dd class="text-sm text-gray-800">felixont@email.uk</dd>
-                  <dt class="text-sm font-medium text-gray-500">phone.no</dt>
-                  <dd class="text-sm text-gray-800">felixont@email.uk</dd>
-                  <dt class="text-sm font-medium text-gray-500">Address</dt>
-                  <dd class="text-sm text-gray-800">No. 51, Briswood Ipaja Rd, Ikeja</dd>
-                  <p>User ID: {{ $route.params.userId }}</p>
-                </Card>
-
-                <Card
-                  class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 border border-gray-200 rounded-md px-4 py-4"
-                >
-                  <p>Profile privacy</p>
-                  <label class="relative inline-flex cursor-pointer items-center">
-            <input type="checkbox" value="" checked class="peer sr-only" />
-            <div
-              class="peer flex h-8 items-center gap-4 rounded-xl bg-[#373B4D] px-5 after:absolute after:left-1 after: after:h-6 after:w-16 after:rounded-xl after:bg-white/40 after:transition-all after:content-[''] peer-checked:bg-stone-600 peer-checked:after:translate-x-full peer-focus:outline-none dark:border-slate-600 dark:bg-slate-700 text-sm text-white"
-            >
-              <span>Public</span>
-              <span>Private</span>
-            </div>
-          </label>
-                </Card>
-                <Card
-                  class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 border border-gray-200 rounded-md px-4 py-4"
-                >
-                  <p>User Status</p>
-                  <div class="flex">
+                </label>
+              </Card>
+              <Card
+                class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 border border-gray-200 rounded-md px-4 py-4"
+              >
+                <p>User Status</p>
+                <div class="flex">
                   <img
                     class=" "
                     src="https://res.cloudinary.com/dufimctfc/image/upload/v1712910732/Property_1_Public_Figure_wbek9n.svg"
@@ -320,136 +323,131 @@ const getStatusIconUrl = (status: string) => {
                     alt="gradient"
                   />
                 </div>
+              </Card>
+            </CardDescription>
+          </CardHeader>
+        </Card>
 
-                </Card>
-                
-              </CardDescription>
-            </CardHeader>
-          </Card>
+        <div class="col-span-4 my-9">
+          <Tabs default-value="weeshes" class="space-y-4">
+            <TabsList class="text-blue-900">
+              <TabsTrigger value="weeshes" class="text-[#000000]"> Weeshes </TabsTrigger>
+              <TabsTrigger value="bank"> Bank </TabsTrigger>
+              <TabsTrigger value="analytics" disabled>Support </TabsTrigger>
+              <TabsTrigger value="analytics" disabled> Activity log </TabsTrigger>
+            </TabsList>
+            <TabsContent value="weeshes" class="space-y-4">
+              <div class="overflow-auto bg-white rounded-lg shadow">
+                <Table>
+                  <TableHeader>
+                    <TableRow
+                      class="text-xs sm:text-sm md:text-base text-[#02072199] font-semibold bg-gray-200"
+                    >
+                      <TableHead> Name of Weesh </TableHead>
+                      <TableHead>Category</TableHead>
+                      <TableHead>Price</TableHead>
+                      <TableHead> Changes</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead></TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    <TableRow v-for="user in users" :key="user._id">
+                      <TableCell class="font-medium">{{ user.nameofweeshes }}</TableCell>
+                      <TableCell class="font-medium">{{ user.category }}</TableCell>
+                      <TableCell class="font-normal text-xs">{{ user.price }} </TableCell>
+                      <TableCell class="font-medium">{{ user.changes }} </TableCell>
+                      <TableCell class="">
+                        <!-- Render multiple status icons based on user's status array -->
+                        <template v-for="status in user.status" :key="status">
+                          <img
+                            :src="getStatusIconUrl(status)"
+                            :alt="status"
+                            class="h-5 w-19 mr-1"
+                          />
+                        </template>
+                      </TableCell>
+                      <TableCell>
+                        <svg
+                          width="20"
+                          height="50"
+                          viewBox="0 0 20 50"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M7 31L12.5118 26.0606C13.1627 25.4773 13.1627 24.5227 12.5118 23.9394L7 19"
+                            stroke="#54586D"
+                            stroke-opacity="0.8"
+                            stroke-width="2"
+                            stroke-miterlimit="10"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          />
+                        </svg>
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </div>
+            </TabsContent>
 
-          
-
-          <div class="col-span-4 my-9">
-            <Tabs default-value="weeshes" class="space-y-4">
-              <TabsList class="text-blue-900">
-                <TabsTrigger value="weeshes" class="text-[#000000]"> Weeshes </TabsTrigger>
-                <TabsTrigger value="bank"> Bank </TabsTrigger>
-                <TabsTrigger value="analytics" disabled>Support </TabsTrigger>
-                <TabsTrigger value="analytics" disabled> Activity log </TabsTrigger>
-              </TabsList>
-              <TabsContent value="weeshes" class="space-y-4">
-                <div class="overflow-auto bg-white rounded-lg shadow">
-                  <Table>
-                    <TableHeader>
-                      <TableRow
-                        class="text-xs sm:text-sm md:text-base text-[#02072199] font-semibold bg-gray-200"
-                      >
-                        <TableHead> Name of Weesh </TableHead>
-                        <TableHead>Category</TableHead>
-                        <TableHead>Price</TableHead>
-                        <TableHead> Changes</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead></TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      <TableRow v-for="user in users" :key="user._id">
-                        <TableCell class="font-medium">{{ user.nameofweeshes }}</TableCell>
-                        <TableCell class="font-medium">{{ user.category }}</TableCell>
-                        <TableCell class="font-normal text-xs">{{ user.price }} </TableCell>
-                        <TableCell class="font-medium">{{ user.changes }} </TableCell>
-                        <TableCell class="">
-                          <!-- Render multiple status icons based on user's status array -->
-                          <template v-for="status in user.status" :key="status">
-                            <img
-                              :src="getStatusIconUrl(status)"
-                              :alt="status"
-                              class="h-5 w-19 mr-1"
-                            />
-                          </template>
-                        </TableCell>
-                        <TableCell>
-                          <svg
-                            width="20"
-                            height="50"
-                            viewBox="0 0 20 50"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M7 31L12.5118 26.0606C13.1627 25.4773 13.1627 24.5227 12.5118 23.9394L7 19"
-                              stroke="#54586D"
-                              stroke-opacity="0.8"
-                              stroke-width="2"
-                              stroke-miterlimit="10"
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                            />
-                          </svg>
-                        </TableCell>
-                      </TableRow>
-                    </TableBody>
-                  </Table>
-                </div>
-              </TabsContent>
-
-              <TabsContent value="bank" class="space-y-4">
-                <div class="overflow-auto bg-white rounded-lg shadow">
-                  <Table>
-                    <TableHeader>
-                      <TableRow
-                        class="text-xs sm:text-sm md:text-base text-[#02072199] font-semibold bg-gray-200"
-                      >
-                        <TableHead> Type </TableHead>
-                        <TableHead>Date</TableHead>
-                        <TableHead>Amount</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead></TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      <TableRow v-for="user2 in user2s" :key="user2._id">
-                        <TableCell class="font-medium">{{ user2.type }}</TableCell>
-                        <TableCell class="font-medium">{{ user2.date }}</TableCell>
-                        <TableCell class="font-normal text-xs">{{ user2.amount }} </TableCell>
-                        <TableCell class="">
-                          <!-- Render multiple status icons based on user's status array -->
-                          <template v-for="status in user2.status" :key="status">
-                            <img
-                              :src="getStatusIconUrl(status)"
-                              :alt="status"
-                              class="h-5 w-19 mr-1"
-                            />
-                          </template>
-                        </TableCell>
-                        <TableCell>
-                          <svg
-                            width="20"
-                            height="50"
-                            viewBox="0 0 20 50"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M7 31L12.5118 26.0606C13.1627 25.4773 13.1627 24.5227 12.5118 23.9394L7 19"
-                              stroke="#54586D"
-                              stroke-opacity="0.8"
-                              stroke-width="2"
-                              stroke-miterlimit="10"
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                            />
-                          </svg>
-                        </TableCell>
-                      </TableRow>
-                    </TableBody>
-                  </Table>
-                </div>
-              </TabsContent>
-            </Tabs>
-          </div>
+            <TabsContent value="bank" class="space-y-4">
+              <div class="overflow-auto bg-white rounded-lg shadow">
+                <Table>
+                  <TableHeader>
+                    <TableRow
+                      class="text-xs sm:text-sm md:text-base text-[#02072199] font-semibold bg-gray-200"
+                    >
+                      <TableHead> Type </TableHead>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Amount</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead></TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    <TableRow v-for="user2 in user2s" :key="user2._id">
+                      <TableCell class="font-medium">{{ user2.type }}</TableCell>
+                      <TableCell class="font-medium">{{ user2.date }}</TableCell>
+                      <TableCell class="font-normal text-xs">{{ user2.amount }} </TableCell>
+                      <TableCell class="">
+                        <!-- Render multiple status icons based on user's status array -->
+                        <template v-for="status in user2.status" :key="status">
+                          <img
+                            :src="getStatusIconUrl(status)"
+                            :alt="status"
+                            class="h-5 w-19 mr-1"
+                          />
+                        </template>
+                      </TableCell>
+                      <TableCell>
+                        <svg
+                          width="20"
+                          height="50"
+                          viewBox="0 0 20 50"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M7 31L12.5118 26.0606C13.1627 25.4773 13.1627 24.5227 12.5118 23.9394L7 19"
+                            stroke="#54586D"
+                            stroke-opacity="0.8"
+                            stroke-width="2"
+                            stroke-miterlimit="10"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          />
+                        </svg>
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </div>
+            </TabsContent>
+          </Tabs>
         </div>
-      </Card>
-    </div>
-  
+      </div>
+    </Card>
+  </div>
 </template>

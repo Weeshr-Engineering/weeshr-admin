@@ -7,8 +7,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
   <div class="container px-6 mx-auto">
     <div>
       <Card>
-        <div class="flex flex-col text-center md:text-left md:flex-row justify-evenly md:items-center sm:items-center">
-          <Card class="sm:col-span-3  bg-[#F8F9FF] items-center justify-between shadow-2xl ">
+        <div
+          class="flex flex-col text-center md:text-left md:flex-row justify-evenly md:items-center sm:items-center"
+        >
+          <Card class="sm:col-span-3 bg-[#F8F9FF] items-center justify-between shadow-2xl">
             <CardHeader>
               <CardTitle class="text-xl font-bold">Admin Profile</CardTitle>
               <CardDescription>
