@@ -4,19 +4,11 @@ import { ref, onMounted, computed } from 'vue'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import * as z from 'zod'
-import { useDateFormat, useNow } from '@vueuse/core'
 import MainNav from '@/components/MainNav.vue'
 
 import axios from 'axios'
 import { Loader2 } from 'lucide-vue-next'
 import router from '@/router'
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetDescription,
-  SheetTrigger
-} from '@/components/ui/sheet'
 
 import {
   Table,
@@ -37,10 +29,8 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 
-const position = ref('bottom')
 
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
+
 import { Button } from '@/components/ui/button'
 import { toast } from '@/components/ui/toast'
 import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
@@ -315,7 +305,6 @@ onMounted(async () => {
   fetchUsersData()
 })
 
-const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
 
 const selectedGender = ref('')
 const genderOptions = computed<string[]>(() => {

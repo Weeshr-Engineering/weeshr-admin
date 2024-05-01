@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 
-import { Switch } from '@/components/ui/switch'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Table,
   TableRow,
@@ -200,37 +199,37 @@ const getStatusIconUrl = (status: string) => {
 }
 </script>
 <template>
-  <div class="flex-col flex min-h-[400px] px-4 sm:px-10 pb-10">
-    <div>
+  <div class="container px-6 mx-auto">
+    
       <Card>
-        <div class="grid gap-4 lg:grid-cols-7">
-          <Card class="sm:col-span-3 bg-[#F8F9FF] shadow-2xl">
+        <div class="flex flex-col text-center md:text-left md:flex-row justify-evenly md:items-center sm:items-center ">
+          <Card class="sm:col-span-3  bg-[#F8F9FF] items-center justify-between shadow-2xl ">
             <CardHeader>
               <CardTitle class="text-xl font-bold">User Profile</CardTitle>
               <CardDescription>
-                <div class="grid gap-2 md:grid-cols-5 lg:grid-cols">
+                <div class="flex    ">
                   <img
-                    class=""
+                    class=" max-w-[80px] h-auto"
                     src="https://res.cloudinary.com/dufimctfc/image/upload/v1710684025/images1_wbbxb5.svg"
                     alt="gradient"
                   />
                   <img
-                    class=""
+                    class="max-w-[80px] h-auto"
                     src="https://res.cloudinary.com/dufimctfc/image/upload/v1710684023/images2_ma998k.svg"
                     alt="gradient"
                   />
                   <img
-                    class=""
+                    class="max-w-[80px] h-auto"
                     src="https://res.cloudinary.com/dufimctfc/image/upload/v1710693199/image5_lwx2g1.svg"
                     alt="gradient"
                   />
                   <img
-                    class=""
+                    class="max-w-[80px] h-auto"
                     src="https://res.cloudinary.com/dufimctfc/image/upload/v1710684024/image4_v8krvl.svg"
                     alt="gradient"
                   />
                   <img
-                    class=""
+                    class="max-w-[80px] h-auto"
                     src="https://res.cloudinary.com/dufimctfc/image/upload/v1710684023/images2_ma998k.svg"
                     alt="gradient"
                   />
@@ -239,7 +238,7 @@ const getStatusIconUrl = (status: string) => {
                   <span class="text-sm text-gray-500">Identity</span>
                   <div class="flex">
                     <img
-                      class=""
+                      class="max-w-[80px] h-auto"
                       src="https://res.cloudinary.com/dufimctfc/image/upload/v1714310908/edit-4-svgrepo-com_1_iy2nwu.svg"
                       alt="gradient"
                     />
@@ -431,5 +430,5 @@ const getStatusIconUrl = (status: string) => {
         </div>
       </Card>
     </div>
-  </div>
+  
 </template>
