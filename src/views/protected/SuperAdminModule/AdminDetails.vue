@@ -4,11 +4,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 </script>
 <template>
-  <div class="flex-col flex min-h-[400px] px-4 sm:px-10 pb-10">
+  <div class="container px-6 mx-auto">
     <div>
       <Card>
-        <div class="grid gap-4 lg:grid-cols-7">
-          <Card class="sm:col-span-3 bg-[#F8F9FF] shadow-2xl">
+        <div class="flex flex-col text-center md:text-left md:flex-row justify-evenly md:items-center sm:items-center">
+          <Card class="sm:col-span-3  bg-[#F8F9FF] items-center justify-between shadow-2xl ">
             <CardHeader>
               <CardTitle class="text-xl font-bold">Admin Profile</CardTitle>
               <CardDescription>
@@ -18,7 +18,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
                   alt="gradient"
                 />
                 <div class="flex space-x-2 justify-between px-6 py-4">
-                  <span class="text-sm text-gray-500">Identity</span>
+                  <span class="text-sm font-bold text-[#020721]">Identity</span>
                   <div class="flex">
                     <img
                       class=""
@@ -53,7 +53,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
                   <dd class="text-sm text-gray-800">3 Aug 2023</dd>
                 </Card>
                 <div class="flex space-x-2 justify-between px-6 py-4">
-                  <span class="text-sm text-gray-500">Contact</span>
+                  <span class="text-sm text-[#020721] font-bold">Contact</span>
                   <div class="flex">
                     <img
                       class=""
@@ -128,7 +128,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
                         Weeshes
                       </div>
                       <p class="text-sm text-muted-foreground text-center text-[#000000]">
-                        View and manage all weeshes at different level fulfillementr
+                        View and manage all weeshes at different level fulfillement
                       </p>
                       <Switch />
                     </CardContent>
