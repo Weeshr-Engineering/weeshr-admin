@@ -11,6 +11,7 @@ import {
   TableCell,
   TableHead
 } from '@/components/ui/table'
+import { Switch } from '@/components/ui/switch'
 
 // const users = ref([]);
 const users = ref<any[]>([
@@ -203,33 +204,33 @@ const getStatusIconUrl = (status: string) => {
     
       <Card>
         <div class="flex flex-col text-center md:text-left md:flex-row justify-evenly md:items-center sm:items-center ">
-          <Card class="sm:col-span-3  bg-[#F8F9FF] items-center justify-between shadow-2xl ">
+          <Card class="sm:col-span-3 md:col-span-2 bg-[#F8F9FF] items-center justify-between shadow-2xl mb-auto ">
             <CardHeader>
               <CardTitle class="text-xl font-bold">User Profile</CardTitle>
               <CardDescription>
-                <div class="flex    ">
+                <div class="grid gap-2  md:grid-cols-2 lg:grid-cols-5 mt-1  ">
                   <img
-                    class=" max-w-[80px] h-auto"
+                    class=" max-w-[80px] h-auto  mx-auto"
                     src="https://res.cloudinary.com/dufimctfc/image/upload/v1710684025/images1_wbbxb5.svg"
                     alt="gradient"
                   />
                   <img
-                    class="max-w-[80px] h-auto"
+                    class="max-w-[80px] h-auto   mx-auto"
                     src="https://res.cloudinary.com/dufimctfc/image/upload/v1710684023/images2_ma998k.svg"
                     alt="gradient"
                   />
                   <img
-                    class="max-w-[80px] h-auto"
+                    class="max-w-[80px] h-auto mx-auto"
                     src="https://res.cloudinary.com/dufimctfc/image/upload/v1710693199/image5_lwx2g1.svg"
                     alt="gradient"
                   />
                   <img
-                    class="max-w-[80px] h-auto"
+                    class="max-w-[80px] h-auto mx-auto"
                     src="https://res.cloudinary.com/dufimctfc/image/upload/v1710684024/image4_v8krvl.svg"
                     alt="gradient"
                   />
                   <img
-                    class="max-w-[80px] h-auto"
+                    class="max-w-[80px] h-auto mx-auto"
                     src="https://res.cloudinary.com/dufimctfc/image/upload/v1710684023/images2_ma998k.svg"
                     alt="gradient"
                   />
@@ -238,7 +239,7 @@ const getStatusIconUrl = (status: string) => {
                   <span class="text-sm text-gray-500">Identity</span>
                   <div class="flex">
                     <img
-                      class="max-w-[80px] h-auto"
+                      class=""
                       src="https://res.cloudinary.com/dufimctfc/image/upload/v1714310908/edit-4-svgrepo-com_1_iy2nwu.svg"
                       alt="gradient"
                     />
@@ -288,25 +289,45 @@ const getStatusIconUrl = (status: string) => {
                   class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 border border-gray-200 rounded-md px-4 py-4"
                 >
                   <p>Profile privacy</p>
-                  <div
-                    class="mx-8 shadow rounded-full h-10 mt-4 flex p-1 relative items-center bg-[#373B4D]"
-                  >
-                    <div class="w-full flex justify-center">
-                      <button>Left</button>
-                    </div>
-                    <div class="w-full flex justify-center">
-                      <button>Right</button>
-                    </div>
-                    <span
-                      class="elSwitch bg-indigo-600 shadow text-white flex items-center justify-center w-1/2 rounded-full h-8 transition-all top-[4px] absolute left-1"
-                    >
-                      Text
-                    </span>
-                  </div>
+                  <label class="relative inline-flex cursor-pointer items-center">
+            <input type="checkbox" value="" checked class="peer sr-only" />
+            <div
+              class="peer flex h-8 items-center gap-4 rounded-xl bg-[#373B4D] px-5 after:absolute after:left-1 after: after:h-6 after:w-16 after:rounded-xl after:bg-white/40 after:transition-all after:content-[''] peer-checked:bg-stone-600 peer-checked:after:translate-x-full peer-focus:outline-none dark:border-slate-600 dark:bg-slate-700 text-sm text-white"
+            >
+              <span>Public</span>
+              <span>Private</span>
+            </div>
+          </label>
                 </Card>
+                <Card
+                  class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 border border-gray-200 rounded-md px-4 py-4"
+                >
+                  <p>User Status</p>
+                  <div class="flex">
+                  <img
+                    class=" "
+                    src="https://res.cloudinary.com/dufimctfc/image/upload/v1712910732/Property_1_Public_Figure_wbek9n.svg"
+                    alt="gradient"
+                  />
+                  <img
+                    class="    "
+                    src="https://res.cloudinary.com/dufimctfc/image/upload/v1712910733/Property_1_Weeshr_Verified_th0oq2.svg"
+                    alt="gradient"
+                  />
+                  <img
+                    class="    "
+                    src="https://res.cloudinary.com/dufimctfc/image/upload/v1712910733/UserFeaturing_rj4fnp.svg"
+                    alt="gradient"
+                  />
+                </div>
+
+                </Card>
+                
               </CardDescription>
             </CardHeader>
           </Card>
+
+          
 
           <div class="col-span-4 my-9">
             <Tabs default-value="weeshes" class="space-y-4">

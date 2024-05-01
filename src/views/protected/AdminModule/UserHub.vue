@@ -17,7 +17,7 @@ import DashboardFooter from '@/components/DashboardFooter.vue'
           <RouterLink to="/user/appuser">
             <CardHeader class="flex items-center justify-between space-y-0">
               <img
-                class="h-180"
+                class=""
                 src="https://res.cloudinary.com/dufimctfc/image/upload/v1712066751/users1_yng7it.svg"
                 alt="gradient"
               />
@@ -39,7 +39,7 @@ import DashboardFooter from '@/components/DashboardFooter.vue'
           <RouterLink to="/user/vendors">
             <CardHeader class="flex items-center justify-between space-y-0">
               <img
-                class="h-180"
+                class=""
                 src="https://res.cloudinary.com/dufimctfc/image/upload/v1712066752/user2_gygznz.svg"
                 alt="gradient"
               />
@@ -61,7 +61,7 @@ import DashboardFooter from '@/components/DashboardFooter.vue'
           <RouterLink to="/user/admin">
             <CardHeader class="flex items-center justify-between space-y-0">
               <img
-                class="h-180"
+                class=""
                 src="https://res.cloudinary.com/dufimctfc/image/upload/v1712066752/user3_hpnxmx.svg"
                 alt="gradient"
               />
@@ -82,7 +82,7 @@ import DashboardFooter from '@/components/DashboardFooter.vue'
         >
           <CardHeader class="flex items-center justify-between space-y-0">
             <img
-              class="h-180"
+              class=""
               src="https://res.cloudinary.com/dufimctfc/image/upload/v1712066752/user4_a9k8bm.svg"
               alt="gradient"
             />
