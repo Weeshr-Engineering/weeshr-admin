@@ -129,7 +129,7 @@ const fetchUsersData = async () => {
   try {
     // Set loading to true
 
-    const response = await axios.get('https://api.staging.weeshr.com/api/v1/administrators', {
+    const response = await axios.get('https://api.staging.weeshr.com/api/v1/admin/administrators', {
       // params: {
       //   search: 'test_admin',
       //   disabled_status: 'disabled'
@@ -183,11 +183,15 @@ const fetchUsersData = async () => {
 const saveUserData = async (user: any) => {
   loading.value = true
   try {
-    const response = await axios.post('https://api.staging.weeshr.com/api/v1/administrator', user, {
-      headers: {
-        Authorization: `Bearer ${token}`
+    const response = await axios.post(
+      'https://api.staging.weeshr.com/api/v1/admin/administrator',
+      user,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       }
-    })
+    )
 
     // Check if response status is 200 or 201
     if (response.status === 200 || response.status === 201) {
