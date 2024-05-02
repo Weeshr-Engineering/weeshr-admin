@@ -69,7 +69,7 @@ const routes = [
   },
   {
     path: '/admin-creation',
-    name: 'admin-creation',
+    name: 'adminCreation',
     component: () => CreateUser,
     meta: { requiresAuth: true }
   },

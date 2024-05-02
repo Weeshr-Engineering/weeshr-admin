@@ -46,7 +46,7 @@ const logout = async () => {
       </li>
 
       <li :class="{ 'dashboard-active': $route.path === '/admin-creation' }">
-        <a @click="$router.push({ name: 'admin-creation' })">
+        <a @click="$router.push({ name: 'adminCreation' })">
           <div class="icon-grid">
             <Icon icon="iconoir:add-user" width="16" height="16" class="icons-sidebar" />
           </div>
