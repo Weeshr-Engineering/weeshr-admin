@@ -40,19 +40,30 @@ const formSchema = toTypedSchema(
       .string()
       .min(2, { message: 'First name must be at least 2 characters long' })
       .max(50, { message: 'First name cannot be longer than 50 characters' })
-      .nonempty('Please enter your first name'),
+      .nonempty('Please enter your first name')
+      .regex(/^[A-Za-z\s]*$/, { message: 'First name must contain only alphabetic characters' }),
+
     lastName: z
       .string()
+      .regex(/^[A-Za-z\s]*$/, { message: 'Last name must contain only alphabetic characters' })
+
       .min(2, { message: 'Last name must be at least 2 characters long' })
       .max(50, { message: 'Last name cannot be longer than 50 characters' })
       .nonempty('Please enter your last name'),
-    userEmail: z.string().email('Please enter a valid email address'),
+    userEmail: z
+      .string()
+      .regex(/^[\w@.]*$/, {
+        message: 'Email must contain only alphabetic characters, numbers, "@" symbol, or "."'
+      })
+
+      .email('Please enter a valid email address'),
     dob: z.string().nonempty('Please enter your date of birth'),
     gender: z.string().nonempty('Please select your gender'),
     status: z.boolean().optional(),
     phone: z.string().nonempty('Please enter your phone number')
   })
 )
+
 const { handleSubmit } = useForm({
   validationSchema: formSchema
 })
@@ -222,6 +233,16 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
 
 // onMounted(fetchUsersData);
 
+// Define the validateLastName function
+const validateLastName = () => {
+  // Get the last entered character
+  const lastChar = newUser.value.lastName.slice(-1)
+  // If the last entered character is not alphabetic, remove it
+  if (!/^[A-Za-z]*$/.test(lastChar)) {
+    newUser.value.lastName = newUser.value.lastName.slice(0, -1)
+  }
+}
+
 onMounted(async () => {
   // useGeneralStore().setLoading(true);
   fetchUsersData()
@@ -270,6 +291,7 @@ onMounted(async () => {
                       id="text"
                       type="text"
                       placeholder="First Name"
+                      pattern="[A-Za-z]+"
                       class="focus-visible:ring-blue-600"
                       v-bind="componentField"
                     />
