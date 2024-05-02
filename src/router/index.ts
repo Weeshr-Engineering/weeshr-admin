@@ -5,13 +5,15 @@ import configuration from '@/views/protected/AdminModule/UserConfiguration.vue'
 import user from '@/views/protected/AdminModule/UserHub.vue'
 import AppUsers from '@/views/protected/AdminModule/AppUsers.vue'
 import Vendors from '@/views/protected/AdminModule/Vendors.vue'
-import Admin from '@/views/protected/SuperAdminModule/AdminCreation.vue'
-import AdminDetails from '@/views/protected/SuperAdminModule/AdminDetails.vue'
+import AdminDetails from '@/views/protected/AdminModule/AdminDetails.vue'
 import UserDetails from '@/views/protected/AdminModule/UserDetails.vue'
 
 import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
 
 import ErrorPage from '@/views/unprotected/ErrorPageView.vue'
+import AdminView from '@/views/protected/AdminModule/AdminList.vue'
+import AdminList from '@/views/protected/SuperAdminModule/AdminList.vue'
+import CreateUser from '@/views/protected/SuperAdminModule/CreateUser.vue'
 
 const routes = [
   {
@@ -62,7 +64,13 @@ const routes = [
   {
     path: '/user/admin',
     name: 'admin',
-    component: () => Admin,
+    component: () => AdminView,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/admin-creation',
+    name: 'admin-creation',
+    component: () => CreateUser,
     meta: { requiresAuth: true }
   },
   {

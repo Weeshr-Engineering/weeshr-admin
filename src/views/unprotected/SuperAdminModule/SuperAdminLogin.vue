@@ -84,6 +84,8 @@ const onSubmit = form.handleSubmit(async () => {
     superAdminStore.setPassword(password)
 
     try {
+      console.log('userEmail', userEmail)
+
       const response = await axios.post('https://api.staging.weeshr.com/api/v1/admin/login', {
         email: userEmail,
         password: password
