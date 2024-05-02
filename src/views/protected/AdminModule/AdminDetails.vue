@@ -19,7 +19,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
                   src="https://res.cloudinary.com/dufimctfc/image/upload/v1710684025/images1_wbbxb5.svg"
                   alt="gradient"
                 />
-                <div class="flex space-x-2 justify-between px-6 py-4">
+                <div class="flex justify-between px-6 py-4 space-x-2">
                   <span class="text-sm font-bold text-[#020721]">Identity</span>
                   <div class="flex">
                     <img
@@ -32,7 +32,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
                 </div>
 
                 <Card
-                  class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 border border-gray-200 rounded-md px-4 py-4"
+                  class="grid grid-cols-1 gap-4 px-4 py-4 mt-4 border border-gray-200 rounded-md sm:grid-cols-2"
                 >
                   <dt class="text-sm font-medium text-gray-500">First Name</dt>
                   <dd class="text-sm text-gray-800">Demliade</dd>
@@ -54,7 +54,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
                   <dt class="text-sm font-medium text-gray-500">Joined</dt>
                   <dd class="text-sm text-gray-800">3 Aug 2023</dd>
                 </Card>
-                <div class="flex space-x-2 justify-between px-6 py-4">
+                <div class="flex justify-between px-6 py-4 space-x-2">
                   <span class="text-sm text-[#020721] font-bold">Contact</span>
                   <div class="flex">
                     <img
@@ -66,7 +66,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
                   </div>
                 </div>
                 <Card
-                  class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 border border-gray-200 rounded-md px-4 py-4"
+                  class="grid grid-cols-1 gap-4 px-4 py-4 mt-4 border border-gray-200 rounded-md sm:grid-cols-2"
                 >
                   <dt class="text-sm font-medium text-gray-500">Email</dt>
                   <dd class="text-sm text-gray-800">felixont@email.uk</dd>
@@ -90,7 +90,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
                 <div>
                   <Card Content class="bg-[#F8F9FF] mt-4">
                     <CardContent
-                      class="flex flex-col sm:flex-row items-center justify-between px-2 sm:px-6 py-4"
+                      class="flex flex-col items-center justify-between px-2 py-4 sm:flex-row sm:px-6"
                     >
                       <div
                         class="inline-block bg-[#373B4D] text-[#F8F9FF] rounded-full px-2 py-1 text-sm"
@@ -106,7 +106,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 
                   <Card Content class="bg-[#F8F9FF] mt-4">
                     <CardContent
-                      class="flex flex-col sm:flex-row items-center justify-between px-2 sm:px-6 py-4"
+                      class="flex flex-col items-center justify-between px-2 py-4 sm:flex-row sm:px-6"
                     >
                       <div
                         class="inline-block bg-[#373B4D] text-[#F8F9FF] rounded-full px-2 py-1 text-sm"
@@ -122,7 +122,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 
                   <Card Content class="bg-[#F8F9FF] mt-4">
                     <CardContent
-                      class="flex flex-col sm:flex-row items-center justify-between px-2 sm:px-6 py-4"
+                      class="flex flex-col items-center justify-between px-2 py-4 sm:flex-row sm:px-6"
                     >
                       <div
                         class="inline-block bg-[#373B4D] text-[#F8F9FF] rounded-full px-2 py-1 text-sm"
@@ -138,7 +138,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 
                   <Card Content class="bg-[#F8F9FF] mt-4">
                     <CardContent
-                      class="flex flex-col sm:flex-row items-center justify-between px-2 sm:px-6 py-4"
+                      class="flex flex-col items-center justify-between px-2 py-4 sm:flex-row sm:px-6"
                     >
                       <div
                         class="inline-block bg-[#373B4D] text-[#F8F9FF] rounded-full px-2 py-1 text-sm"
@@ -154,7 +154,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 
                   <Card Content class="bg-[#F8F9FF] mt-4">
                     <CardContent
-                      class="flex flex-col sm:flex-row items-center justify-between px-2 sm:px-6 py-4"
+                      class="flex flex-col items-center justify-between px-2 py-4 sm:flex-row sm:px-6"
                     >
                       <div
                         class="inline-block bg-[#373B4D] text-[#F8F9FF] rounded-full px-2 py-1 text-sm"
@@ -170,7 +170,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 
                   <Card Content class="bg-[#F8F9FF] mt-4">
                     <CardContent
-                      class="flex flex-col sm:flex-row items-center justify-between px-2 sm:px-6 py-4"
+                      class="flex flex-col items-center justify-between px-2 py-4 sm:flex-row sm:px-6"
                     >
                       <div
                         class="inline-block bg-[#373B4D] text-[#F8F9FF] rounded-full px-2 py-1 text-sm"
@@ -186,7 +186,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 
                   <Card Content class="bg-[#F8F9FF] mt-4">
                     <CardContent
-                      class="flex flex-col sm:flex-row items-center justify-between px-2 sm:px-6 py-4"
+                      class="flex flex-col items-center justify-between px-2 py-4 sm:flex-row sm:px-6"
                     >
                       <div
                         class="inline-block bg-[#373B4D] text-[#F8F9FF] rounded-full px-2 py-1 text-sm"
@@ -202,7 +202,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 
                   <Card Content class="bg-[#F8F9FF] mt-4">
                     <CardContent
-                      class="flex flex-col sm:flex-row items-center justify-between px-2 sm:px-6 py-4"
+                      class="flex flex-col items-center justify-between px-2 py-4 sm:flex-row sm:px-6"
                     >
                       <div
                         class="inline-block bg-[#373B4D] text-[#F8F9FF] rounded-full px-2 py-1 text-sm"
@@ -218,7 +218,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 
                   <Card Content class="bg-[#F8F9FF] mt-4">
                     <CardContent
-                      class="flex flex-col sm:flex-row items-center justify-between px-2 sm:px-6 py-4"
+                      class="flex flex-col items-center justify-between px-2 py-4 sm:flex-row sm:px-6"
                     >
                       <div
                         class="inline-block bg-[#373B4D] text-[#F8F9FF] rounded-full px-2 py-1 text-sm"

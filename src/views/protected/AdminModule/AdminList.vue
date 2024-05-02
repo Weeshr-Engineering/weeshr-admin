@@ -113,7 +113,7 @@ const users = ref<any[]>([
   {
     _id: 1,
     firstName: 'Abiola',
-    lastName: 'Tendo',
+    lastName: 'Tendox',
     admin_type: 'Super Admin',
     permissions:
       'Dashboard, Users, Weeshes, Deport, Bank,Support,Configuration,Analysics,Activity log'
