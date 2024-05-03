@@ -484,7 +484,7 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
           Admin
           <p class="text-xs text-[#02072199] py-2">List of Weehr Admin</p>
         </div>
-        <div class="flex flex-col"></div>
+        
         <Search />
       </div>
 
