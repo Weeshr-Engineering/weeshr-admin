@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import { Switch } from '@/components/ui/switch'
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -13,6 +13,10 @@ import {
   TableHead
 } from '@/components/ui/table'
 
+const editProfile = () => {
+  // Your logic for handling the edit click goes here
+  console.log("Edit clicked!");
+};
 
 
 
@@ -234,7 +238,7 @@ const user2s = ref<any[]>([
                     src="https://res.cloudinary.com/dufimctfc/image/upload/v1714310908/edit-4-svgrepo-com_1_iy2nwu.svg"
                     alt="gradient"
                   />
-                  <span class="text-sm font-medium text-[#02072199]"> Edit </span>
+                  <span class="text-sm font-medium text-[#02072199]">  <a href="#" @click="editProfile">Edit</a> </span>
                 </div>
               </div>
 
@@ -269,7 +273,8 @@ const user2s = ref<any[]>([
                     src="https://res.cloudinary.com/dufimctfc/image/upload/v1714310908/edit-4-svgrepo-com_1_iy2nwu.svg"
                     alt="gradient"
                   />
-                  <span class="text-sm font-medium text-[#02072199]"> Edit </span>
+                  <span class="text-sm font-medium text-[#02072199]"> <a href="#" @click="editProfile">Edit</a>
+                   </span>
                 </div>
               </div>
               <Card
