@@ -342,21 +342,18 @@ const birthMonthOptions = computed<string[]>(() => [
 
 <template>
   <div class="flex-col flex bg-[#f0f8ff] min-h-[400px] px-4 sm:px-10 pb-10">
-    <MainNav class="mx-6" headingText="User > App Users" />
+    <MainNav class="mx-6" headingText="User" />
 
     <Card class="container px-4 pt-6 pb-10 mx-auto sm:px-6 lg:px-8 bg-[#FFFFFF] rounded-2xl">
       <div class="flex flex-col sm:flex-row items-center justify-between px-2 sm:px-6 py-4">
-        <div class="text-lg sm:text-xl font-bold tracking-tight text-[#020721] mb-2 sm:mb-0">
+        <div class="text-xl sm:text-xl font-bold tracking-tight text-[#020721] mb-2 sm:mb-0">
           App Users
           <p class="text-xs sm:text-sm text-[#02072199]">List of Weeshr App Users</p>
         </div>
-        <div
-          class="flex flex-wrap justify-center sm:justify-end space-y-2 sm:space-y-0 sm:space-x-3 items-center"
-        >
-          <div class="items-center space-x-2 md:flex-row md:items-center space-y-4 md:space-x-4">
-            <DropdownMenu>
-              <DropdownMenuTrigger as-child class="rounded-2xl bg-[#EEEFF5]">
-                <Button variant="outline">
+          <div class="items-center space-x-1 flex flex-row md:items-center  md:space-x-3">
+            <DropdownMenu  >
+              <DropdownMenuTrigger as-child class="rounded-2xl  bg-[#EEEFF5]">
+                <Button variant="outline" class="w-full">
                   Gender
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -373,14 +370,15 @@ const birthMonthOptions = computed<string[]>(() => [
                   </svg>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent class="">
-                <DropdownMenuLabel>Gender</DropdownMenuLabel>
+              <DropdownMenuContent class="item-center justify-between ">
+                <DropdownMenuLabel class="item-center justify-center text-center" >Gender</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuRadioGroup v-model="selectedGender">
                   <DropdownMenuRadioItem
                     v-for="(genderOption, index) in genderOptions"
                     :key="index"
                     :value="genderOption"
+                    class="item-center  text-center "
                   >
                     {{ genderOption }}
                   </DropdownMenuRadioItem>
@@ -407,7 +405,7 @@ const birthMonthOptions = computed<string[]>(() => [
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent class="">
-                <DropdownMenuLabel>Birth Month</DropdownMenuLabel>
+                <DropdownMenuLabel class="item-center justify-center text-center">Birth Month</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuRadioGroup v-model="selectedMonth">
                   <DropdownMenuRadioItem
@@ -440,7 +438,7 @@ const birthMonthOptions = computed<string[]>(() => [
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <DropdownMenuLabel>Status</DropdownMenuLabel>
+                <DropdownMenuLabel class="item-center justify-center text-center" >Status</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuRadioGroup v-model="selectedStatus">
                   <DropdownMenuRadioItem
@@ -456,11 +454,11 @@ const birthMonthOptions = computed<string[]>(() => [
           </div>
 
           <Search />
-        </div>
+        
       </div>
 
       <div class="overflow-auto bg-white rounded-lg shadow">
-        <Table>
+        <Table class="lg:w-full w-[800px]">
           <TableHeader>
             <TableRow
               class="text-xs sm:text-sm md:text-base text-[#02072199] font-semibold bg-gray-200"
@@ -476,15 +474,15 @@ const birthMonthOptions = computed<string[]>(() => [
           </TableHeader>
           <TableBody>
             <TableRow v-for="user in users" :key="user._id">
-              <TableCell class="font-medium">{{ user.firstName }} </TableCell>
-              <TableCell class="font-medium">{{ user.firstName }} {{ user.lastName }}</TableCell>
-              <TableCell class="font-medium">{{ user.dob }} </TableCell>
-              <TableCell class="font-medium">{{ user.gender }} </TableCell>
-              <TableCell>{{ user.balance }}</TableCell>
-              <TableCell class="flex flex-wrap">
+              <TableCell class="text-xs md:text-sm lg:text-sm">{{ user.firstName }} </TableCell>
+              <TableCell class="text-xs md:text-sm lg:text-sm">{{ user.firstName }} {{ user.lastName }}</TableCell>
+              <TableCell class="text-xs md:text-sm lg:text-sm">{{ user.dob }} </TableCell>
+              <TableCell class="text-xs md:text-sm lg:text-sm">{{ user.gender }} </TableCell>
+              <TableCell class="text-xs md:text-sm lg:text-sm">{{ user.balance }}</TableCell>
+              <TableCell class="flex ">
                 <!-- Render multiple status icons based on user's status array -->
                 <template v-for="status in user.status" :key="status">
-                  <img :src="getStatusIconUrl(status)" :alt="status" class="h-50 w-auto mr-1" />
+                  <img :src="getStatusIconUrl(status)" :alt="status" class="h-[20px] lg:h-[20px] w-auto mr-1" />
                 </template>
               </TableCell>
               <TableCell>
