@@ -351,9 +351,9 @@ const birthMonthOptions = computed<string[]>(() => [
           <p class="text-xs sm:text-sm text-[#02072199]">List of Weeshr App Users</p>
         </div>
           <div class="items-center space-x-1 flex flex-row md:items-center  md:space-x-3">
-            <DropdownMenu  >
-              <DropdownMenuTrigger as-child class="rounded-2xl  bg-[#EEEFF5]">
-                <Button variant="outline" class="w-full">
+            <DropdownMenu>
+              <DropdownMenuTrigger as-child class="rounded-2xl   bg-[#EEEFF5]">
+                <Button variant="outline">
                   Gender
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -453,7 +453,7 @@ const birthMonthOptions = computed<string[]>(() => [
             </DropdownMenu>
           </div>
 
-          <Search />
+          <Search class="mt-3 lg:mt-0"/>
         
       </div>
 

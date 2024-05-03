@@ -489,7 +489,7 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
       </div>
 
       <div class="overflow-auto bg-white rounded-lg shadow">
-        <Table>
+        <Table class="lg:w-[1140px] w-[1100px]">
           <TableHeader>
             <TableRow
               class="text-xs sm:text-sm md:text-base text-[#02072199] font-semibold bg-gray-200"
@@ -506,7 +506,7 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
               <TableCell>{{ user.admin_type }}</TableCell>
 
               <TableCell>
-                <div class="flex flex-wrap gap-2">
+                <div class="flex flex-wrap gap-2 ">
                   <!-- Display each permission as a pill -->
                   <template v-for="permission in user.permissions.split(',')" :key="permission">
                     <span
