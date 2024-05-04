@@ -73,6 +73,9 @@ export const useSuperAdminStore = defineStore({
 
         // Clear the token
         this.clearToken()
+        // clear localstorage
+        localStorage.removeItem('user');
+        
         useGeneralStore().setLoading(false)
 
         router.push({ name: 'superAdmin-login' })
