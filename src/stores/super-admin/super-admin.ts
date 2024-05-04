@@ -34,6 +34,19 @@ export const useSuperAdminStore = defineStore({
       this.token = token
       sessionStorage.setItem('token', token)
     },
+    setLocalStorage(firstname: string, lastname: string, email: string){
+      const user = {
+        firstname,
+        lastname,
+        email
+      }
+      // store basic user data in local storage
+      localStorage.setItem('user', JSON.stringify(user))
+    },
+    getLocalstorageData (){
+      const data = localStorage.getItem('user')!
+      return JSON.parse(data)
+    },
     clearToken() {
       this.token = ''
       // Remove the token from sessionStorage
