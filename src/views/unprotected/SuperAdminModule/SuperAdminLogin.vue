@@ -93,11 +93,23 @@ const onSubmit = form.handleSubmit(async () => {
 
       // Check if the token property exists in the response
       if (response.data.data && response.data.data.user && response.data.data.user.token) {
-        // Access the token from the response data
+        // Access the data from the response data
+        // token
         const token = response.data.data.user.token
+        //  firstname
+        const firstName = response.data.data.user.firstName
+        // lastname
+        const lastName = response.data.data.user.lastName
+        // email
+        const userEmail = response.data.data.user.email
 
+        // save basic user data to local storage
+        superAdminStore.setLocalStorage(firstName, lastName, userEmail)
+        // save user email
+        superAdminStore.setuserEmail(userEmail)
         // Save the token in Pinia store
         superAdminStore.setToken(token)
+
 
         // Save the token in sessionStorage
 
