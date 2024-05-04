@@ -2,6 +2,12 @@
 import { Switch } from '@/components/ui/switch'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+
+const editProfile = () => {
+  // Your logic for handling the edit click goes here
+  console.log("Edit clicked!");
+};
+
 </script>
 <template>
   <div class="container lg:px-0  mx-auto">
