@@ -484,7 +484,7 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
           Admin
           <p class="text-xs text-[#02072199] py-2">List of Weehr Admin</p>
         </div>
-        
+
         <Search />
       </div>
 
@@ -506,7 +506,7 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
               <TableCell>{{ user.admin_type }}</TableCell>
 
               <TableCell>
-                <div class="flex flex-wrap gap-2 ">
+                <div class="flex flex-wrap gap-2">
                   <!-- Display each permission as a pill -->
                   <template v-for="permission in user.permissions.split(',')" :key="permission">
                     <span
