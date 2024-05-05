@@ -479,17 +479,17 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
     </div>
 
     <Card class="container px-4 pt-6 pb-10 mx-auto sm:px-6 lg:px-8 bg-[#FFFFFF] rounded-2xl">
-      <div class="flex items-center justify-between px-6 py-4">
+      <div class="flex flex-col sm:flex-row items-center justify-between px-2 sm:px-6 py-4">
         <div class="text-2xl font-bold tracking-tight text-[#020721]">
           Admin
           <p class="text-xs text-[#02072199] py-2">List of Weehr Admin</p>
         </div>
-        <div class="flex flex-col"></div>
+
         <Search />
       </div>
 
       <div class="overflow-auto bg-white rounded-lg shadow">
-        <Table>
+        <Table class="lg:w-[1140px] w-[1100px]">
           <TableHeader>
             <TableRow
               class="text-xs sm:text-sm md:text-base text-[#02072199] font-semibold bg-gray-200"

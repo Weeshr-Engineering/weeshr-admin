@@ -342,125 +342,128 @@ const birthMonthOptions = computed<string[]>(() => [
 
 <template>
   <div class="flex-col flex bg-[#f0f8ff] min-h-[400px] px-4 sm:px-10 pb-10">
-    <MainNav class="mx-6" headingText="User > App Users" />
+    <MainNav class="mx-6" headingText="User" />
 
     <Card class="container px-4 pt-6 pb-10 mx-auto sm:px-6 lg:px-8 bg-[#FFFFFF] rounded-2xl">
       <div class="flex flex-col sm:flex-row items-center justify-between px-2 sm:px-6 py-4">
-        <div class="text-lg sm:text-xl font-bold tracking-tight text-[#020721] mb-2 sm:mb-0">
+        <div class="text-xl sm:text-xl font-bold tracking-tight text-[#020721] mb-2 sm:mb-0">
           App Users
           <p class="text-xs sm:text-sm text-[#02072199]">List of Weeshr App Users</p>
         </div>
-        <div
-          class="flex flex-wrap justify-center sm:justify-end space-y-2 sm:space-y-0 sm:space-x-3 items-center"
-        >
-          <div class="items-center space-x-2 md:flex-row md:items-center space-y-4 md:space-x-4">
-            <DropdownMenu>
-              <DropdownMenuTrigger as-child class="rounded-2xl bg-[#EEEFF5]">
-                <Button variant="outline">
-                  Gender
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="w-5 h-5 ml-2 -mr-1"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path
-                      fill-rule="evenodd"
-                      d="M6.293 9.293a1 1 0 011.414 0L10 11.586l2.293-2.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
-                      clip-rule="evenodd"
-                    />
-                  </svg>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent class="">
-                <DropdownMenuLabel>Gender</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuRadioGroup v-model="selectedGender">
-                  <DropdownMenuRadioItem
-                    v-for="(genderOption, index) in genderOptions"
-                    :key="index"
-                    :value="genderOption"
-                  >
-                    {{ genderOption }}
-                  </DropdownMenuRadioItem>
-                </DropdownMenuRadioGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <DropdownMenu>
-              <DropdownMenuTrigger as-child class="rounded-2xl bg-[#EEEFF5]">
-                <Button variant="outline">
-                  Birth Month
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="w-5 h-5 ml-2 -mr-1"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path
-                      fill-rule="evenodd"
-                      d="M6.293 9.293a1 1 0 011.414 0L10 11.586l2.293-2.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
-                      clip-rule="evenodd"
-                    />
-                  </svg>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent class="">
-                <DropdownMenuLabel>Birth Month</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuRadioGroup v-model="selectedMonth">
-                  <DropdownMenuRadioItem
-                    v-for="(monthOption, index) in birthMonthOptions"
-                    :key="index"
-                    :value="monthOption"
-                  >
-                    {{ monthOption }}
-                  </DropdownMenuRadioItem>
-                </DropdownMenuRadioGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <DropdownMenu>
-              <DropdownMenuTrigger as-child class="rounded-2xl bg-[#EEEFF5]">
-                <Button variant="outline">
-                  Status
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="w-5 h-5 ml-2 -mr-1"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path
-                      fill-rule="evenodd"
-                      d="M6.293 9.293a1 1 0 011.414 0L10 11.586l2.293-2.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
-                      clip-rule="evenodd"
-                    />
-                  </svg>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuLabel>Status</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuRadioGroup v-model="selectedStatus">
-                  <DropdownMenuRadioItem
-                    v-for="(statusOption, index) in statusOptions"
-                    :key="index"
-                    :value="statusOption"
-                  >
-                    {{ statusOption }}
-                  </DropdownMenuRadioItem>
-                </DropdownMenuRadioGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-
-          <Search />
+        <div class="items-center space-x-1 flex flex-row md:items-center md:space-x-3">
+          <DropdownMenu>
+            <DropdownMenuTrigger as-child class="rounded-2xl bg-[#EEEFF5]">
+              <Button variant="outline">
+                Gender
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="w-5 h-5 ml-2 -mr-1"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M6.293 9.293a1 1 0 011.414 0L10 11.586l2.293-2.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent class="item-center justify-between">
+              <DropdownMenuLabel class="item-center justify-center text-center"
+                >Gender</DropdownMenuLabel
+              >
+              <DropdownMenuSeparator />
+              <DropdownMenuRadioGroup v-model="selectedGender">
+                <DropdownMenuRadioItem
+                  v-for="(genderOption, index) in genderOptions"
+                  :key="index"
+                  :value="genderOption"
+                  class="item-center text-center"
+                >
+                  {{ genderOption }}
+                </DropdownMenuRadioItem>
+              </DropdownMenuRadioGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <DropdownMenu>
+            <DropdownMenuTrigger as-child class="rounded-2xl bg-[#EEEFF5]">
+              <Button variant="outline">
+                Birth Month
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="w-5 h-5 ml-2 -mr-1"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M6.293 9.293a1 1 0 011.414 0L10 11.586l2.293-2.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent class="">
+              <DropdownMenuLabel class="item-center justify-center text-center"
+                >Birth Month</DropdownMenuLabel
+              >
+              <DropdownMenuSeparator />
+              <DropdownMenuRadioGroup v-model="selectedMonth">
+                <DropdownMenuRadioItem
+                  v-for="(monthOption, index) in birthMonthOptions"
+                  :key="index"
+                  :value="monthOption"
+                >
+                  {{ monthOption }}
+                </DropdownMenuRadioItem>
+              </DropdownMenuRadioGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <DropdownMenu>
+            <DropdownMenuTrigger as-child class="rounded-2xl bg-[#EEEFF5]">
+              <Button variant="outline">
+                Status
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="w-5 h-5 ml-2 -mr-1"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M6.293 9.293a1 1 0 011.414 0L10 11.586l2.293-2.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuLabel class="item-center justify-center text-center"
+                >Status</DropdownMenuLabel
+              >
+              <DropdownMenuSeparator />
+              <DropdownMenuRadioGroup v-model="selectedStatus">
+                <DropdownMenuRadioItem
+                  v-for="(statusOption, index) in statusOptions"
+                  :key="index"
+                  :value="statusOption"
+                >
+                  {{ statusOption }}
+                </DropdownMenuRadioItem>
+              </DropdownMenuRadioGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
+
+        <Search class="mt-3 lg:mt-0" />
       </div>
 
       <div class="overflow-auto bg-white rounded-lg shadow">
-        <Table>
+        <Table class="lg:w-full w-[800px]">
           <TableHeader>
             <TableRow
               class="text-xs sm:text-sm md:text-base text-[#02072199] font-semibold bg-gray-200"
@@ -476,15 +479,21 @@ const birthMonthOptions = computed<string[]>(() => [
           </TableHeader>
           <TableBody>
             <TableRow v-for="user in users" :key="user._id">
-              <TableCell class="font-medium">{{ user.firstName }} </TableCell>
-              <TableCell class="font-medium">{{ user.firstName }} {{ user.lastName }}</TableCell>
-              <TableCell class="font-medium">{{ user.dob }} </TableCell>
-              <TableCell class="font-medium">{{ user.gender }} </TableCell>
-              <TableCell>{{ user.balance }}</TableCell>
-              <TableCell class="flex flex-wrap">
+              <TableCell class="text-xs md:text-sm lg:text-sm">{{ user.firstName }} </TableCell>
+              <TableCell class="text-xs md:text-sm lg:text-sm"
+                >{{ user.firstName }} {{ user.lastName }}</TableCell
+              >
+              <TableCell class="text-xs md:text-sm lg:text-sm">{{ user.dob }} </TableCell>
+              <TableCell class="text-xs md:text-sm lg:text-sm">{{ user.gender }} </TableCell>
+              <TableCell class="text-xs md:text-sm lg:text-sm">{{ user.balance }}</TableCell>
+              <TableCell class="flex">
                 <!-- Render multiple status icons based on user's status array -->
                 <template v-for="status in user.status" :key="status">
-                  <img :src="getStatusIconUrl(status)" :alt="status" class="h-50 w-auto mr-1" />
+                  <img
+                    :src="getStatusIconUrl(status)"
+                    :alt="status"
+                    class="h-[20px] lg:h-[20px] w-auto mr-1"
+                  />
                 </template>
               </TableCell>
               <TableCell>
