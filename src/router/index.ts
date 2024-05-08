@@ -7,6 +7,7 @@ import AppUsers from '@/views/protected/AdminModule/AppUsers.vue'
 import Vendors from '@/views/protected/AdminModule/Vendors.vue'
 import AdminDetails from '@/views/protected/AdminModule/AdminDetails.vue'
 import UserDetails from '@/views/protected/AdminModule/UserDetails.vue'
+import AdminDashboard from '@/views/protected/AdminModule/AdminDashboard.vue'
 
 import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
 
@@ -22,6 +23,14 @@ const routes = [
     component: HomeView,
     meta: { requiresAuth: true }
   },
+
+  {
+    path: '/dashboard',
+    name: 'dashboard',
+    component: AdminDashboard,
+    meta: { requiresAuth: true }
+  },
+  
   {
     path: '/login',
     name: 'superAdmin-login',
