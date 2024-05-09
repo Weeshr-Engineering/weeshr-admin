@@ -7,9 +7,7 @@ import AppUsers from '@/views/protected/AdminModule/AppUsers.vue'
 import Vendors from '@/views/protected/AdminModule/Vendors.vue'
 import AdminDetails from '@/views/protected/AdminModule/AdminDetails.vue'
 import UserDetails from '@/views/protected/AdminModule/UserDetails.vue'
-
 import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
-
 import ErrorPage from '@/views/unprotected/ErrorPageView.vue'
 import AdminView from '@/views/protected/AdminModule/AdminList.vue'
 import AdminList from '@/views/protected/SuperAdminModule/AdminList.vue'
@@ -49,6 +47,7 @@ const routes = [
     component: user,
     meta: { requiresAuth: true }
   },
+
   {
     path: '/user/appuser',
     name: 'appuser',
