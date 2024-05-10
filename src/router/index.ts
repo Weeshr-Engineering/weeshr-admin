@@ -20,16 +20,16 @@ const routes = [
   {
     path: '/',
     name: 'home',
-    component: HomeView,
-    meta: { requiresAuth: true }
-  },
-
-  {
-    path: '/dashboard',
-    name: 'dashboard',
     component: AdminDashboard,
     meta: { requiresAuth: true }
   },
+
+  // {
+  //   path: '/',
+  //   name: 'home',
+  //   component: HomeView,
+  //   meta: { requiresAuth: true }
+  // },
   
   {
     path: '/login',

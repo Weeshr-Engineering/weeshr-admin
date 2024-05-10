@@ -183,20 +183,20 @@ const fetchUsersData = async () => {
         <Card class="h-[210px] rounded-[24px] shadow-md transition-transform transform hover:scale-105">
             <div class="h-[130px] pt-4 bg-[#00e19d] bg-opacity-20 relative rounded-tr-[24px] rounded-tl-[24px]">
                 <CardContent class="flex items-center justify-between space-y-0">
-                    <p class="text-[16px] font-medium text-[#020721]">Weeshes</p>
+                    <p class="text-l font-medium text-[#020721]">Weeshes</p>
                     <img
-                      class="h-[24px] w-[24px]"
+                      class="h-6 w-6"
                       src="https://res.cloudinary.com/dotojp6xu/image/upload/v1715162947/menu_mvjoy6.svg"
                       alt="gradient"
                     />
       
-                    <p class="text-[32px] font-medium text-[#020721] absolute bottom-2 left-5">1,648,975,865</p>
+                    <p class="text-2xl lg:text-2xl font-medium text-[#020721] absolute bottom-2 left-5">1,648,975,865</p>
                   </CardContent>
             </div>
             <div class="bg-[#020721] pt-2 h-[80px] rounded-bl-[24px] rounded-br-[24px]">
                 <CardContent class="flex flex-col space-y-0">
-                    <p class="text-[16px] font-normal text-[#F8F9FFB2]">Delivered</p>
-                    <p class="text-[24px] font-normal text-white">275,865</p>
+                    <p class="text-l font-normal text-[#F8F9FFB2]">Delivered</p>
+                    <p class="text-2xl font-normal text-white">275,865</p>
                   </CardContent>
             </div>
         </Card>
@@ -204,20 +204,20 @@ const fetchUsersData = async () => {
         <Card class="h-[210px] rounded-[24px] shadow-md transition-transform transform hover:scale-105">
             <div class="h-[130px] pt-4 bg-[#6A70FF] bg-opacity-20 relative rounded-tr-[24px] rounded-tl-[24px]">
                 <CardContent class="flex items-center justify-between space-y-0">
-                    <p class="text-[16px] font-medium text-[#020721]">Total wallet balance</p>
+                    <p class="text-l font-medium text-[#020721]">Total wallet balance</p>
                     <img
-                      class="h-[24px] w-[24px]"
+                      class="h-6 w-6"
                       src="https://res.cloudinary.com/dotojp6xu/image/upload/v1715162926/wallet-3_fbkk9u.svg"
                       alt="gradient"
                     />
       
-                    <p class="text-[32px] font-medium text-[#020721] absolute bottom-2 left-5">₦ 2,986,004.07</p>
+                    <p class="text-2xl lg:text-2xl font-medium text-[#020721] absolute bottom-2 left-5">₦ 2,986,004.07</p>
                   </CardContent>
             </div>
             <div class="bg-[#020721] pt-2 h-[80px] rounded-bl-[24px] rounded-br-[24px]">
                 <CardContent class="flex flex-col space-y-0">
-                    <p class="text-[16px] font-normal text-[#F8F9FFB2]">Invested</p>
-                    <p class="text-[24px] font-normal text-white">₦ 0.00</p>
+                    <p class="text-l font-normal text-[#F8F9FFB2]">Invested</p>
+                    <p class="text-2xl font-normal text-white">₦ 0.00</p>
                   </CardContent>
             </div>
         </Card>
@@ -225,20 +225,20 @@ const fetchUsersData = async () => {
         <Card class="h-[210px] rounded-[24px] shadow-md transition-transform transform hover:scale-105">
             <div class="h-[130px] pt-4 bg-[#00BBD4] bg-opacity-20 relative rounded-tr-[24px] rounded-tl-[24px]">
                 <CardContent class="flex items-center justify-between space-y-0">
-                    <p class="text-[16px] font-medium text-[#020721]">Users</p>
+                    <p class="text-l font-medium text-[#020721]">Users</p>
                     <img
-                      class="h-[24px] w-[24px]"
+                      class="h-6 w-6"
                       src="https://res.cloudinary.com/dotojp6xu/image/upload/v1715162907/profile-2user_stezwz.svg"
                       alt="gradient"
                     />
       
-                    <p class="text-[32px] font-medium text-[#020721] absolute bottom-2 left-5">586,004</p>
+                    <p class="text-2xl lg:text-2xl font-medium text-[#020721] absolute bottom-2 left-5">586,004</p>
                   </CardContent>
             </div>
             <div class="bg-[#020721] pt-2 h-[80px] rounded-bl-[24px] rounded-br-[24px]">
                 <CardContent class="flex flex-col space-y-0">
-                    <p class="text-[16px] font-normal text-[#F8F9FFB2]">Active</p>
-                    <p class="text-[24px] font-normal text-white">365,987</p>
+                    <p class="text-l font-normal text-[#F8F9FFB2]">Active</p>
+                    <p class="text-2xl font-normal text-white">365,987</p>
                   </CardContent>
             </div>
         </Card>
@@ -246,20 +246,20 @@ const fetchUsersData = async () => {
         <Card class="h-[210px] rounded-[24px] shadow-md transition-transform transform hover:scale-105">
             <div class="h-[130px] pt-4 bg-[#AEE219] bg-opacity-20 relative rounded-tr-[24px] rounded-tl-[24px]">
                 <CardContent class="flex items-center justify-between space-y-0">
-                    <p class="text-[16px] font-medium text-[#020721]">Tickets</p>
+                    <p class="text-l font-medium text-[#020721]">Tickets</p>
                     <img
-                      class="h-[24px] w-[24px]"
+                      class="h-6 w-6"
                       src="https://res.cloudinary.com/dotojp6xu/image/upload/v1715162881/ticket_etur0t.svg"
                       alt="gradient"
                     />
       
-                    <p class="text-[32px] font-medium text-[#020721] absolute bottom-2 left-5">1,375</p>
+                    <p class="text-2xl lg:text-2xl font-medium text-[#020721] absolute bottom-2 left-5">1,375</p>
                 </CardContent>
             </div>
             <div class="bg-[#020721] h-[80px] pt-2 rounded-bl-[24px] rounded-br-[24px]">
                 <CardContent class="flex flex-col space-y-0">
-                    <p class="text-[16px] font-normal text-[#F8F9FFB2]">Pending</p>
-                    <p class="text-[24px] font-normal text-white">15</p>
+                    <p class="text-l font-normal text-[#F8F9FFB2]">Pending</p>
+                    <p class="text-2xl font-normal text-white">15</p>
                   </CardContent>
             </div>
         </Card>
