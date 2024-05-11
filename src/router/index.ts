@@ -83,17 +83,24 @@ const routes = [
     meta: { requiresAuth: true }
   },
   {
+    path: '/admin-list',
+    name: 'admin-list',
+    component: () => AdminList,
+    meta: { requiresAuth: true }
+  },
+
+  {
     path: '/admindetails/:Id',
     name: 'AdminDetails',
     component: () => AdminDetails,
-    meta: { requiresAuth: true }
+    meta: { hideSidebar: true }
   },
 
   {
     path: '/usersdetails/:Id',
     name: 'UserDetails',
     component: () => UserDetails,
-    meta: { requiresAuth: true }
+    meta: { hideSidebar: true }
   },
 
   {
