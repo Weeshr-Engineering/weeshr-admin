@@ -34,6 +34,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 
+
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -57,9 +58,8 @@ const formSchema = toTypedSchema(
     dob: z.string().nonempty('Please enter your date of birth'),
     gender: z.string().nonempty('Please select your gender'),
     phone: z.string().nonempty('Please enter your phone number'),
-    status: z.boolean().optional()
-    // admin_type: z.string().nonempty('Please select your admin_type'),
-    //permissions: z.string().nonempty('Please select Modular Permission')
+    admin_type: z.string().nonempty('Please select your admin_type'),
+    permissions: z.string().nonempty('Please select Modular Permission')
   })
 )
 
@@ -73,7 +73,7 @@ const newUser = ref({
   lastName: '',
   gender: '',
   dob: '',
-  phone: '',
+  permissions: ''
 })
 
 const sheetOpen = ref(false)
@@ -81,14 +81,9 @@ const loading = ref(false)
 const superAdminStore = useSuperAdminStore()
 const token = sessionStorage.getItem('token') || ''
 
-
-const submit = async (values : any)=>{
-  console.log(values.firstName)
-}
-
 const onSubmit = handleSubmit(async (values) => {
   loading.value = true
-console.log('submitting')
+
   const user = {
     firstName: values.firstName,
     lastName: values.lastName,
@@ -100,10 +95,10 @@ console.log('submitting')
       phoneNumber: values.phone
     },
     dateJoined: formattedDate.value,
-    disabled: values.status || false
+    permissions: values.permissions,
+    admin_type: values.admin_type
   }
 
-  // console.log(user)
   await saveUserData(user)
 
   sheetOpen.value = false
@@ -117,13 +112,50 @@ console.log('submitting')
     userEmail: '',
     gender: '',
     dob: '',
-    phone: '',
+    permissions: ''
   }
 })
 
 // Define a ref to hold the users data
 // const users = ref([]);
-const users = ref<any[]>([])
+const users = ref<any[]>([
+  {
+    _id: 1,
+    firstName: 'Abiola',
+    lastName: 'Tendox',
+    admin_type: 'Super Admin',
+    permissions:
+      'Dashboard, Users, Weeshes, Deport, Bank,Support,Configuration,Analysics,Activity log'
+  },
+  {
+    _id: 2,
+    firstName: 'Saloni',
+    lastName: 'Smith',
+    admin_type: 'Admin',
+    permissions: 'Dashboard, Users, Weeshes, Deport, Bank,Support,Activity log'
+  },
+  {
+    _id: 3,
+    firstName: 'Bada',
+    lastName: 'Right',
+    admin_type: 'Admin',
+    permissions: 'Dashboard, Weeshes, Deport, Bank,Support,Configuration,Activity log'
+  },
+  {
+    _id: 4,
+    firstName: 'Emily',
+    lastName: 'Stone',
+    admin_type: 'Flutter',
+    permissions: 'Dashboard, Weeshes, Deport, Bank,Support,Configuration,Activity log'
+  },
+  {
+    _id: 5,
+    firstName: ' Kunle',
+    lastName: 'Blue',
+    admin_type: 'Cxperience',
+    permissions: 'Dashboard, Weeshes, Deport, Bank,Support,Configuration,Activity log'
+  }
+])
 
 // Define a function to fetch users data
 const fetchUsersData = async () => {
@@ -138,7 +170,7 @@ const fetchUsersData = async () => {
     // Set loading to true
 
     const response = await axios.get(
-      'https://api.staging.weeshr.com/api/v1/admin/administrators',
+      'https://api.staging.weeshr.com/api/v1/administrators',
       {
         // params: {
         //   search: 'test_admin',
@@ -151,6 +183,7 @@ const fetchUsersData = async () => {
     )
 
     if (response.status === 200 || response.status === 201) {
+      useGeneralStore().setLoadingToFalse()
       // Show success toast
       toast({
         title: 'Success',
@@ -162,9 +195,8 @@ const fetchUsersData = async () => {
     }
 
     // Update the users data with the response
-    const data = response.data.data.data
-    users.value = data.reverse()
-    // useGeneralStore().setLoading(false)
+
+    users.value = response.data.data.data
   } catch (error: any) {
     if (error.response.status === 401) {
       sessionStorage.removeItem('token')
@@ -195,7 +227,7 @@ const saveUserData = async (user: any) => {
   loading.value = true
   try {
     const response = await axios.post(
-      'https://api.staging.weeshr.com/api/v1/admin/administrator',
+      'https:{{host}}/administrators?search=test_admin&disabled_status=disabled',
       user,
       {
         headers: {
@@ -260,7 +292,7 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
 
 <template>
   <div class="flex-col flex bg-[#f0f8ff] min-h-[400px] px-4 sm:px-10 pb-10">
-    <MainNav class="mx-6" headingText="Admin List" />
+    <MainNav class="mx-6" headingText="wae" />
     <div class="px-10 py-10 ml-auto">
       <Sheet :close="sheetOpen">
         <SheetTrigger as-child>
@@ -291,7 +323,7 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
             </SheetDescription>
           </SheetHeader>
           <CardContent class="grid gap-4 pt-10">
-            <form class="space-y-4" @submit.prevent="onSubmit">
+            <form class="space-y-4" @submit="onSubmit">
               <FormField v-slot="{ componentField }" name="firstName">
                 <FormItem v-auto-animate>
                   <FormLabel class="text-blue-900">First Name</FormLabel>
@@ -346,22 +378,19 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
                 <FormField v-slot="{ componentField }" name="gender" class="w-[40%]">
                   <FormItem>
                     <FormLabel>Gender</FormLabel>
-                    
-                      <Select
+                    <Select
                       v-bind="componentField"
                       id="gender"
                       class='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'>
-                      <FormControl>
-                        <SelectTrigger class="">
+                          <SelectTrigger class="w-[180px]">
                             <SelectValue placeholder="Gender" />
                           </SelectTrigger>
-                      </FormControl>
-                        <SelectContent>
-                          <SelectItem value="Female">Female</SelectItem>
-                          <SelectItem value="Male">Male</SelectItem>
-                        </SelectContent>
+                          <SelectContent>
+                            <SelectItem value="Female">Female</SelectItem>
+                            <SelectItem value="Male">Male</SelectItem>
+                          </SelectContent>
                       </Select>
-                    
+
                     <FormMessage for="gender" />
                   </FormItem>
                 </FormField>
@@ -386,38 +415,17 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
                 </div>
               </div>
 
-              <FormField v-slot="{ componentField }" name="phone">
-                <FormItem v-auto-animate>
-                  <FormLabel class="text-blue-900">Phone Number</FormLabel>
-                  <FormControl>
-                    <div>
-                      <Input
-                        id="phone"
-                        type="tel"
-                        placeholder="Phone Number"
-                        class="focus-visible:ring-blue-600"
-                        v-bind="componentField"
-                      />
-                    </div>
-                  </FormControl>
-
-                  <FormMessage for="phone" />
-                </FormItem>
-              </FormField>
-
               <FormField v-slot="{ componentField }" name="type">
                 <FormItem>
                   <FormLabel>Admin Type</FormLabel>
-                  
-                    <Select
+                  <Select
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                     v-bind="componentField"
-                    id="type">
-                    <FormControl>
+                    id="type"
+                  >
                       <SelectTrigger class="w-full">
                         <SelectValue placeholder="Select Admin Type" />
                       </SelectTrigger>
-                    </FormControl>
                       <SelectContent>
                         <SelectItem value="super_admin">Super Admin</SelectItem>
                         <SelectItem value="admin">Admin</SelectItem>
@@ -469,7 +477,7 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
                 </FormItem>
               </FormField>
 
-              <Button type="submit">
+              <Button :disabled="loading" type="submit">
                 <Loader2
                   color="#ffffff"
                   v-if="loading"
@@ -486,25 +494,23 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
     </div>
 
     <Card class="container px-4 pt-6 pb-10 mx-auto sm:px-6 lg:px-8 bg-[#FFFFFF] rounded-2xl">
-      <div class="flex items-center justify-between px-6 py-4">
+      <div class="flex flex-col sm:flex-row items-center justify-between px-2 sm:px-6 py-4">
         <div class="text-2xl font-bold tracking-tight text-[#020721]">
           Admin
           <p class="text-xs text-[#02072199] py-2">List of Weehr Admin</p>
         </div>
-        <div class="flex flex-col"></div>
+
         <Search />
       </div>
 
       <div class="overflow-auto bg-white rounded-lg shadow">
-        <Table>
+        <Table class="lg:w-[1140px] w-[1100px]">
           <TableHeader>
             <TableRow
               class="text-xs sm:text-sm md:text-base text-[#02072199] font-semibold bg-gray-200"
             >
               <TableHead> Name </TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Gender</TableHead>
-              <TableHead>Phone Number</TableHead>
+              <TableHead>Admin Type</TableHead>
               <TableHead>Modular Permission</TableHead>
               <TableHead></TableHead>
             </TableRow>
@@ -512,18 +518,17 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
           <TableBody>
             <TableRow v-for="user in users" :key="user._id">
               <TableCell class="font-medium">{{ user.firstName }} {{ user.lastName }}</TableCell>
-              <TableCell>{{ user.email }}</TableCell>
-              <TableCell>{{ user.gender }}</TableCell>
-              <TableCell>{{user.phoneNumber.normalizedNumber}}</TableCell>
+              <TableCell>{{ user.admin_type }}</TableCell>
+
               <TableCell>
                 <div class="flex flex-wrap gap-2">
                   <!-- Display each permission as a pill -->
-                  <!-- <template v-for="permission in users" :key="permission"> -->
+                  <template v-for="permission in user.permissions.split(',')" :key="permission">
                     <span
                       class="inline-block bg-[#373B4D] text-[#F8F9FF] rounded-full px-2 py-1 text-sm"
-                      >Dashboard</span
+                      >{{ permission }}</span
                     >
-                  <!-- </template> -->
+                  </template>
                 </div>
               </TableCell>
               <TableCell>
@@ -554,6 +559,4 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
     </Card>
   </div>
 </template>
-<!-- @/stores/super-admin/super-admin@/stores/super-admin/super-admin admin -->
-
-@/stores/super-admin/super-admin@/stores/super-admin/super-admin
+@/stores/super-admin/super-admin@/stores/super-admin/super-admin admin

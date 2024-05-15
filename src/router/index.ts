@@ -10,7 +10,6 @@ import UserDetails from '@/views/protected/AdminModule/UserDetails.vue'
 import AdminDashboard from '@/views/protected/AdminModule/AdminDashboard.vue'
 
 import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
-
 import ErrorPage from '@/views/unprotected/ErrorPageView.vue'
 import AdminView from '@/views/protected/AdminModule/AdminList.vue'
 import AdminList from '@/views/protected/SuperAdminModule/AdminList.vue'
