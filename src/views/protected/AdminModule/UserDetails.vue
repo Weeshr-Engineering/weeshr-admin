@@ -286,7 +286,15 @@ const user2s = ref<any[]>([
             <Card class="rounded-md my-5">
               <div class="flex justify-between px-3 lg:px-6 py-2">
                 <p class="text-[#02072199] text-xs md:text-sm lg:text-sm">Profile Privacy</p>
-           
+                <label class="relative inline-flex cursor-pointer items-center">
+            <input type="checkbox" value="" checked class="peer sr-only" />
+            <div
+              class="peer flex h-[28px] items-center gap-6 rounded-md bg-[#373B4D] px-4 after:absolute after:left-0.5 after: after:h-6 after:w-16 after:rounded-md after:bg-[#F8F9FF]/80 after:transition-all after:content-['']  peer-checked:after:translate-x-full peer-focus:outline-none dark:border-slate-600 dark:bg-slate-700 text-sm text-white "
+            >
+              <span>Public</span>
+              <span>Private</span>
+            </div>
+          </label>
               </div>
               
             </Card>
