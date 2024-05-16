@@ -187,12 +187,12 @@ const user2s = ref<any[]>([
 </script>
 <template>
   <div class="container lg:px-0 mx-auto">
-    <div class="flex flex-col lg:flex-row justify-evenly">
+    <div class=" flex-col  lg:flex lg:flex-row justify-evenly">
       <Card
         class="sm:col-span-3 md:col-span-3 bg-[#F8F9FF] sm:items-center shadow-2xl mb-auto mr-auto"
       >
         <CardHeader>
-          <CardTitle class="text-xl font-bold">User Profile</CardTitle>
+          <CardTitle class="text-2xl font-medium text-[#000000]">User Profile</CardTitle>
           <CardDescription>
             <div class="grid gap-2 grid-cols-3 md:grid-cols-3 lg:grid-cols-5">
               <img
@@ -222,7 +222,7 @@ const user2s = ref<any[]>([
               />
             </div>
             <div class="flex justify-between px-6 my-2">
-              <span class="text-sm lg:text-base text-[#020721]">Identity</span>
+              <span class="text-base font-medium lg:text-base text-[#020721]">Identity</span>
               <div class="flex">
                 <img
                   class="max-w-[18.05px] max-h-[24px]"
@@ -254,7 +254,7 @@ const user2s = ref<any[]>([
               </div>
             </Card>
             <div class="flex justify-between px-6 my-2">
-              <span class="text-sm lg:text-base text-[#020721]">Contact</span>
+              <span class="text-base font-medium lg:text-base text-[#020721]">Contact</span>
               <div class="flex">
                 <img
                   class="max-w-[18.05px] max-h-[24px]"
@@ -286,16 +286,17 @@ const user2s = ref<any[]>([
             <Card class="rounded-md my-5">
               <div class="flex justify-between px-3 lg:px-6 py-2">
                 <p class="text-[#02072199] text-xs md:text-sm lg:text-sm">Profile Privacy</p>
-                <label for="privacy" class="relative inline-flex cursor-pointer items-center">
-                  <input id="privacy" type="checkbox" value="" checked class="peer sr-only" />
-                  <div
-                    class="peer flex h-8 items-center gap-2 rounded-full bg-[#373B4D] px-4 after:absolute after:left-1 after: after:h-6 after:w-12 after:rounded-full after:bg-[#FFFFFF]/50 after:transition-all after:content-[''] peer-checked:bg-[#373B4D] peer-checked:text-[#FFFFFF] peer-checked:after:translate-x-full peer-focus:outline-none dark:border-slate-600 dark:bg-slate-700 text-sm text-[#020721]"
-                  >
-                    <span class="text-xs">Public</span>
-                    <span class="text-xs">Private</span>
-                  </div>
-                </label>
+                <label class="relative inline-flex cursor-pointer items-center">
+            <input type="checkbox" value="" checked class="peer sr-only" />
+            <div
+              class="peer flex h-[28px] items-center gap-6 rounded-md bg-[#373B4D] px-4 after:absolute after:left-0.5 after: after:h-6 after:w-16 after:rounded-md after:bg-[#F8F9FF]/80 after:transition-all after:content-['']  peer-checked:after:translate-x-full peer-focus:outline-none dark:border-slate-600 dark:bg-slate-700 text-sm text-white "
+            >
+              <span>Public</span>
+              <span>Private</span>
+            </div>
+          </label>
               </div>
+              
             </Card>
             <div>
               <Card class="rounded-md">
@@ -324,7 +325,7 @@ const user2s = ref<any[]>([
               </Card>
               <div class="flex justify-between px-3 lg:px-6 py-2">
                 <p class="text-[#02072199] text-xs md:text-sm lg:text-sm">Public Figure</p>
-                <Switch />
+                <Switch/>
                 <p class="text-xs md:text-sm lg:text-sm text-[#020721]">Influencer</p>
                 <Switch />
               </div>
@@ -342,10 +343,10 @@ const user2s = ref<any[]>([
       <div class="my-9 lg:mx-auto">
         <Tabs default-value="weeshes" class="space-y-1">
           <TabsList
-            class="border-b-8 border-[#DEDFE8] lg:w-[560px] lg:flex lg:justify-between px-0 lg:px-6 md:px-6 py-2 bg-transparent"
+            class=" border-[#DEDFE8] bg-transparent  lg:w-[560px] lg:flex lg:justify-between px-0 lg:px-6 md:px-6 py-2"
           >
-            <TabsTrigger value="weeshes" class="text-[#000000]"> Weeshes </TabsTrigger>
-            <TabsTrigger value="bank" class="text-[#000000]"> Bank </TabsTrigger>
+            <TabsTrigger value="weeshes" class="text-[#000000] "> Weeshes </TabsTrigger>
+            <TabsTrigger value="bank" class="text-[#000000] "> Bank </TabsTrigger>
             <TabsTrigger value="support" class="text-[#000000]">Support </TabsTrigger>
             <TabsTrigger value="activity" class="text-[#000000]"> Activity log </TabsTrigger>
           </TabsList>
@@ -467,7 +468,11 @@ const user2s = ref<any[]>([
               </Table>
             </div>
           </TabsContent>
-        </Tabs>
+          <TabsContent value="support" class="space-y-4 w-[802px]">
+          </TabsContent>
+          <TabsContent value="activity" class="space-y-4 w-[802px]">
+          </TabsContent>
+                    </Tabs>
       </div>
     </div>
   </div>

@@ -7,6 +7,7 @@ import AppUsers from '@/views/protected/AdminModule/AppUsers.vue'
 import Vendors from '@/views/protected/AdminModule/Vendors.vue'
 import AdminDetails from '@/views/protected/AdminModule/AdminDetails.vue'
 import UserDetails from '@/views/protected/AdminModule/UserDetails.vue'
+import AdminDashboard from '@/views/protected/AdminModule/AdminDashboard.vue'
 
 import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
 
@@ -19,9 +20,17 @@ const routes = [
   {
     path: '/',
     name: 'home',
-    component: HomeView,
+    component: AdminDashboard,
     meta: { requiresAuth: true }
   },
+
+  // {
+  //   path: '/',
+  //   name: 'home',
+  //   component: HomeView,
+  //   meta: { requiresAuth: true }
+  // },
+  
   {
     path: '/login',
     name: 'superAdmin-login',
@@ -64,33 +73,33 @@ const routes = [
   {
     path: '/user/admin',
     name: 'admin',
-    component: () => AdminView,
+    component:  AdminView,
     meta: { requiresAuth: true }
   },
   {
     path: '/admin-creation',
     name: 'admin-creation',
-    component: () => CreateUser,
+    component:  CreateUser,
     meta: { requiresAuth: true }
   },
   {
     path: '/admin-list',
     name: 'admin-list',
-    component: () => AdminList,
+    component:  AdminList,
     meta: { requiresAuth: true }
   },
 
   {
     path: '/admindetails/:Id',
     name: 'AdminDetails',
-    component: () => AdminDetails,
+    component:  AdminDetails,
     meta: { hideSidebar: true }
   },
 
   {
     path: '/usersdetails/:Id',
     name: 'UserDetails',
-    component: () => UserDetails,
+    component:  UserDetails,
     meta: { hideSidebar: true }
   },
 
