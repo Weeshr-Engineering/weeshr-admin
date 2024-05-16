@@ -9,6 +9,8 @@ import MainNav from '@/components/MainNav.vue'
 import axios from 'axios'
 import { Loader2 } from 'lucide-vue-next'
 import router from '@/router'
+import { Button } from "@/components/ui/button"
+import { Icon } from '@iconify/vue'
 import {
   Sheet,
   SheetContent,
@@ -36,7 +38,6 @@ import {
 
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
 import { toast } from '@/components/ui/toast'
 import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
 import { useGeneralStore } from '@/stores/general-use'
@@ -78,13 +79,10 @@ const newUser = ref({
 
 const sheetOpen = ref(false)
 const loading = ref(false)
+const currentPage = ref(1)
+const totalPage = ref<any[]>([])
 const superAdminStore = useSuperAdminStore()
 const token = sessionStorage.getItem('token') || ''
-
-
-const submit = async (values : any)=>{
-  console.log(values.firstName)
-}
 
 const onSubmit = handleSubmit(async (values) => {
   loading.value = true
@@ -138,7 +136,7 @@ const fetchUsersData = async () => {
     // Set loading to true
 
     const response = await axios.get(
-      'https://api.staging.weeshr.com/api/v1/admin/administrators',
+      'https://api.staging.weeshr.com/api/v1/admin/administrators?per_page=40',
       {
         // params: {
         //   search: 'test_admin',
@@ -158,12 +156,19 @@ const fetchUsersData = async () => {
         variant: 'success'
       })
 
-      console.log('jiji' + JSON.stringify(response.data))
+      console.log(response.data)
     }
 
     // Update the users data with the response
     const data = response.data.data.data
     users.value = data.reverse()
+
+    // set page data
+    currentPage.value = response.data.data.currentPage
+    const totalPageValue = await response.data.data.totalPages
+    totalPage.value = new Array(totalPageValue).fill(null)
+    
+    // close loading screen
     // useGeneralStore().setLoading(false)
   } catch (error: any) {
     if (error.response.status === 401) {
@@ -241,6 +246,18 @@ const saveUserData = async (user: any) => {
       })
     }
     // Handle other errors
+  }
+}
+
+const prevPage = ()=>{
+  if(currentPage.value > 1){
+    console.log(currentPage.value++)
+  }
+}
+
+const nextPage = ()=>{
+  if(currentPage.value < totalPage.value.length - 1){
+    console.log(currentPage.value++)
   }
 }
 
@@ -550,6 +567,16 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
             </TableRow>
           </TableBody>
         </Table>
+      </div>
+      <div class="flex gap-2 max-w-full flex-wrap justify-end mt-8 mr-4 items-center text-[15px]">
+        <Button variant="secondary" @click="prevPage"> <Icon icon="radix-icons:chevron-left" /> </Button>
+        <Button variant="secondary" class="bg-[#020721] text-gray-400" v-for="(item, index) in totalPage" :key="index"> {{ index + 1 }} </Button>
+        <!-- <Button variant="outline"> 2 </Button>
+        <Button variant="outline"> &#8230; </Button>
+        <Button variant="outline"> 57 </Button>
+        <Button variant="outline"> 58 </Button> -->
+        <Button variant="outline" @click="nextPage"> <Icon icon="radix-icons:chevron-right" /> </Button>
+        <!-- <a href="#"><p class="text-[blue]">See all</p></a> -->
       </div>
     </Card>
   </div>
