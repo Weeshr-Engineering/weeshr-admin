@@ -286,7 +286,7 @@ const user2s = ref<any[]>([
             <Card class="rounded-md my-5">
               <div class="flex justify-between px-3 lg:px-6 py-2">
                 <p class="text-[#02072199] text-xs md:text-sm lg:text-sm">Profile Privacy</p>
-                
+           
               </div>
               
             </Card>
@@ -335,10 +335,10 @@ const user2s = ref<any[]>([
       <div class="my-9 lg:mx-auto">
         <Tabs default-value="weeshes" class="space-y-1">
           <TabsList
-            class=" border-[#DEDFE8]  lg:w-[560px] lg:flex lg:justify-between px-0 lg:px-6 md:px-6 py-2"
+            class=" border-[#DEDFE8] bg-transparent  lg:w-[560px] lg:flex lg:justify-between px-0 lg:px-6 md:px-6 py-2"
           >
-            <TabsTrigger value="weeshes" class="text-[#000000]"> Weeshes </TabsTrigger>
-            <TabsTrigger value="bank" class="text-[#000000]"> Bank </TabsTrigger>
+            <TabsTrigger value="weeshes" class="text-[#000000] "> Weeshes </TabsTrigger>
+            <TabsTrigger value="bank" class="text-[#000000] "> Bank </TabsTrigger>
             <TabsTrigger value="support" class="text-[#000000]">Support </TabsTrigger>
             <TabsTrigger value="activity" class="text-[#000000]"> Activity log </TabsTrigger>
           </TabsList>
