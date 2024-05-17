@@ -7,7 +7,7 @@ import DashboardFooter from '@/components/DashboardFooter.vue'
 </script>
 
 <template>
-  <div class="flex-col flex h-svh h-full bg-[#f0f8ff] relative">
+  <div class="flex-col flex  h-full bg-[#f0f8ff] relative">
     <div class="flex-1 space-y-4 p-8 pt-6 bg-[#f0f8ff] w-full">
       <MainNav class="mx-6" headingText="Users Hub" />
       <div class="grid gap-7 md:grid-cols-2 lg:grid-cols-4 h-80">
@@ -94,9 +94,11 @@ import DashboardFooter from '@/components/DashboardFooter.vue'
             
           </CardContent>
         </Card>
+       
       </div>
+        
     </div>
-
-    <DashboardFooter></DashboardFooter>
+<DashboardFooter class="lg:my-4"/>
+   
   </div>
 </template>
