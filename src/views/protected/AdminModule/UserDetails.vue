@@ -379,7 +379,7 @@ const user2s = ref<any[]>([
                             'bg-[#6A70FF] text-[#F8F9FF]': status === 'Fulfiled',
                             'bg-[#373B4D] text-[#F8F9FF]': status === 'Added',
                             'bg-[#EE9F39] text-[#F8F9FF]': status === 'Initiated',
-                            'bg-[#00C37F] text-[#F8F9FF]': status === 'Delivered'
+                            'bg-[#00c3a6] text-[#F8F9FF]': status === 'Delivered'
                           }"
                           class="inline-block bg-[#373B4D] text-[#F8F9FF] rounded-full px-2 py-1 text-sm"
                           >{{ status }}</span
@@ -435,7 +435,7 @@ const user2s = ref<any[]>([
                       <template v-for="status in user2.status" :key="status">
                         <span
                           :class="{
-                            'bg-[#00C37F] text-[#F8F9FF]': status === 'Successful',
+                            'bg-[#00c3a6] text-[#F8F9FF]': status === 'Successful',
                             'bg-[#373B4D] text-[#F8F9FF]': status === ' Pending',
                             'bg-[#EE9F39] text-[#F8F9FF]': status === 'Failed'
                           }"
