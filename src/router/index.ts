@@ -30,7 +30,7 @@ const routes = [
   //   component: HomeView,
   //   meta: { requiresAuth: true }
   // },
-  
+
   {
     path: '/login',
     name: 'superAdmin-login',
@@ -73,33 +73,33 @@ const routes = [
   {
     path: '/user/admin',
     name: 'admin',
-    component:  AdminView,
+    component: AdminView,
     meta: { requiresAuth: true }
   },
   {
     path: '/admin-creation',
     name: 'admin-creation',
-    component:  CreateUser,
+    component: CreateUser,
     meta: { requiresAuth: true }
   },
   {
     path: '/admin-list',
     name: 'admin-list',
-    component:  AdminList,
+    component: AdminList,
     meta: { requiresAuth: true }
   },
 
   {
     path: '/admindetails/:Id',
     name: 'AdminDetails',
-    component:  AdminDetails,
+    component: AdminDetails,
     meta: { hideSidebar: true }
   },
 
   {
     path: '/usersdetails/:Id',
     name: 'UserDetails',
-    component:  UserDetails,
+    component: UserDetails,
     meta: { hideSidebar: true }
   },
 

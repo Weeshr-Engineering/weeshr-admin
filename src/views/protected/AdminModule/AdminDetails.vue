@@ -10,7 +10,7 @@ const editProfile = () => {
 </script>
 <template>
   <div class="container lg:px-0 mx-auto">
-    <div class="flex-col  lg:flex lg:flex-row justify-evenly">
+    <div class="flex-col lg:flex lg:flex-row justify-evenly">
       <Card
         class="sm:col-span-3 md:col-span-3 bg-[#F8F9FF] sm:items-center shadow-2xl mb-auto mr-auto"
       >
@@ -107,11 +107,9 @@ const editProfile = () => {
 
       <div class="my-9 lg:mx-auto">
         <Tabs default-value="permission" class="space-y-1">
-          <TabsList
-            class=" lg:justify-between px-0 lg:px-6 md:px-6 py-2 bg-transparent"
-          >
+          <TabsList class="lg:justify-between px-0 lg:px-6 md:px-6 py-2 bg-transparent">
             <TabsTrigger value="permission" class="text-[#000000]"> Permission </TabsTrigger>
-            <TabsTrigger value="activity" > Activity log </TabsTrigger>
+            <TabsTrigger value="activity"> Activity log </TabsTrigger>
           </TabsList>
           <TabsContent value="permission" class="space-y-4 lg-w-[802px]">
             <div class="lg:w-[802px]">
@@ -127,7 +125,9 @@ const editProfile = () => {
                   <p class="text-sm text-muted-foreground text-center text-[#000000]">
                     Get an overall stats of Weeshr and a users list at login
                   </p>
-                  <Switch class=" data-[state=unchecked]:bg-[#2A2A4A] data-[state=checked]:bg-[#2A2A4A]"/>
+                  <Switch
+                    class="data-[state=unchecked]:bg-[#2A2A4A] data-[state=checked]:bg-[#2A2A4A]"
+                  />
                 </CardContent>
               </Card>
 
@@ -143,7 +143,9 @@ const editProfile = () => {
                   <p class="text-sm text-muted-foreground text-center text-[#000000]">
                     View and manage all Weeshr app users,admin ,vendors and partners
                   </p>
-                  <Switch class=" data-[state=unchecked]:bg-[#2A2A4A] data-[state=checked]:bg-[#2A2A4A]"/>
+                  <Switch
+                    class="data-[state=unchecked]:bg-[#2A2A4A] data-[state=checked]:bg-[#2A2A4A]"
+                  />
                 </CardContent>
               </Card>
 
@@ -159,7 +161,9 @@ const editProfile = () => {
                   <p class="text-sm text-muted-foreground text-center text-[#000000]">
                     View and manage all weeshes at different level fulfillement
                   </p>
-                  <Switch class=" data-[state=unchecked]:bg-[#2A2A4A] data-[state=checked]:bg-[#2A2A4A]"/>
+                  <Switch
+                    class="data-[state=unchecked]:bg-[#2A2A4A] data-[state=checked]:bg-[#2A2A4A]"
+                  />
                 </CardContent>
               </Card>
 
@@ -175,7 +179,9 @@ const editProfile = () => {
                   <p class="text-sm text-muted-foreground text-center text-[#000000]">
                     Manage fulfilled weeshes and delievery status
                   </p>
-                  <Switch class=" data-[state=unchecked]:bg-[#2A2A4A] data-[state=checked]:bg-[#2A2A4A]"/>
+                  <Switch
+                    class="data-[state=unchecked]:bg-[#2A2A4A] data-[state=checked]:bg-[#2A2A4A]"
+                  />
                 </CardContent>
               </Card>
 
@@ -191,7 +197,9 @@ const editProfile = () => {
                   <p class="text-sm text-muted-foreground text-center text-[#000000]">
                     View and manage funds in user's wallet
                   </p>
-                  <Switch class=" data-[state=unchecked]:bg-[#2A2A4A] data-[state=checked]:bg-[#2A2A4A]"/>
+                  <Switch
+                    class="data-[state=unchecked]:bg-[#2A2A4A] data-[state=checked]:bg-[#2A2A4A]"
+                  />
                 </CardContent>
               </Card>
 
@@ -207,7 +215,9 @@ const editProfile = () => {
                   <p class="text-sm text-muted-foreground text-center text-[#000000]">
                     View and manage tickets and complaints from users
                   </p>
-                  <Switch class=" data-[state=unchecked]:bg-[#2A2A4A] data-[state=checked]:bg-[#2A2A4A]"/>
+                  <Switch
+                    class="data-[state=unchecked]:bg-[#2A2A4A] data-[state=checked]:bg-[#2A2A4A]"
+                  />
                 </CardContent>
               </Card>
 
@@ -223,7 +233,9 @@ const editProfile = () => {
                   <p class="text-sm text-muted-foreground text-center text-[#000000]">
                     Manage the core engine of Weeshr
                   </p>
-                  <Switch class=" data-[state=unchecked]:bg-[#2A2A4A] data-[state=checked]:bg-[#2A2A4A]"/>
+                  <Switch
+                    class="data-[state=unchecked]:bg-[#2A2A4A] data-[state=checked]:bg-[#2A2A4A]"
+                  />
                 </CardContent>
               </Card>
 
@@ -239,7 +251,9 @@ const editProfile = () => {
                   <p class="text-sm text-muted-foreground text-center text-[#000000]">
                     Get general data in regards to Weeshr performance
                   </p>
-                  <Switch class=" data-[state=unchecked]:bg-[#2A2A4A] data-[state=checked]:bg-[#2A2A4A]"/>
+                  <Switch
+                    class="data-[state=unchecked]:bg-[#2A2A4A] data-[state=checked]:bg-[#2A2A4A]"
+                  />
                 </CardContent>
               </Card>
 
@@ -255,13 +269,14 @@ const editProfile = () => {
                   <p class="text-sm text-muted-foreground text-center text-[#000000]">
                     View all activites of weeshr in record
                   </p>
-                  <Switch class=" data-[state=unchecked]:bg-[#2A2A4A] data-[state=checked]:bg-[#2A2A4A]"/>
+                  <Switch
+                    class="data-[state=unchecked]:bg-[#2A2A4A] data-[state=checked]:bg-[#2A2A4A]"
+                  />
                 </CardContent>
               </Card>
             </div>
           </TabsContent>
-          <TabsContent value="activity" class="space-y-4 w-[802px]">
-          </TabsContent>
+          <TabsContent value="activity" class="space-y-4 w-[802px]"> </TabsContent>
         </Tabs>
       </div>
     </div>

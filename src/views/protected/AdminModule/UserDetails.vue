@@ -187,10 +187,8 @@ const user2s = ref<any[]>([
 </script>
 <template>
   <div class="container lg:px-0 mx-auto">
-    <div class=" flex-col  lg:flex lg:flex-row justify-evenly">
-      <Card
-        class="sm:col-span-3 md:col-span-3 bg-[#F8F9FF] sm:items-center shadow-2xl  mr-auto "
-      >
+    <div class="flex-col lg:flex lg:flex-row justify-evenly">
+      <Card class="sm:col-span-3 md:col-span-3 bg-[#F8F9FF] sm:items-center shadow-2xl mr-auto">
         <CardHeader>
           <CardTitle class="text-2xl font-bold text-[#000000] my-4">User Profile</CardTitle>
           <CardDescription>
@@ -222,7 +220,7 @@ const user2s = ref<any[]>([
               />
             </div>
             <div class="flex justify-between px-6 my-2">
-              <span class="text-base font-bold lg:text-base text-[#020721] ">Identity</span>
+              <span class="text-base font-bold lg:text-base text-[#020721]">Identity</span>
               <div class="flex">
                 <img
                   class="max-w-[18.05px] max-h-[20px]"
@@ -235,7 +233,7 @@ const user2s = ref<any[]>([
               </div>
             </div>
 
-            <Card class="rounded-md ">
+            <Card class="rounded-md">
               <div class="flex justify-between px-6 md:px-6 py-2 border-b">
                 <p class="text-[#02072199] text-xs md:text-sm lg:text-sm">Full Name</p>
                 <p class="text-xs md:text-sm lg:text-sm text-[#020721]">Tochukwu Felix Onwuelo</p>
@@ -287,16 +285,15 @@ const user2s = ref<any[]>([
               <div class="flex justify-between px-3 lg:px-6 py-2">
                 <p class="text-[#02072199] text-xs md:text-sm lg:text-sm">Profile Privacy</p>
                 <label class="relative inline-flex cursor-pointer items-center">
-            <input type="checkbox" value="" checked class="peer sr-only" />
-            <div
-              class="peer flex h-[28px] items-center gap-6 rounded-md bg-[#373B4D] px-4 after:absolute after:left-0.5 after: after:h-6 after:w-16 after:rounded-md after:bg-[#F8F9FF]/80 after:transition-all after:content-['']  peer-checked:after:translate-x-full peer-focus:outline-none dark:border-slate-600 dark:bg-slate-700 text-sm text-white "
-            >
-              <span>Public</span>
-              <span>Private</span>
-            </div>
-          </label>
+                  <input type="checkbox" value="" checked class="peer sr-only" />
+                  <div
+                    class="peer flex h-[28px] items-center gap-6 rounded-md bg-[#373B4D] px-4 after:absolute after:left-0.5 after: after:h-6 after:w-16 after:rounded-md after:bg-[#F8F9FF]/80 after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-focus:outline-none dark:border-slate-600 dark:bg-slate-700 text-sm text-white"
+                  >
+                    <span>Public</span>
+                    <span>Private</span>
+                  </div>
+                </label>
               </div>
-              
             </Card>
             <div>
               <Card class="rounded-md">
@@ -323,17 +320,19 @@ const user2s = ref<any[]>([
                   </div>
                 </div>
               </Card>
-              <div class="flex justify-between px-3 lg:px-6 py-2 ">
-                <p class="text-[#02072199] text-xs md:text-sm lg:text-sm flex justify-between ">Public Figure </p>
-               <Switch/>
+              <div class="flex justify-between px-3 lg:px-6 py-2">
+                <p class="text-[#02072199] text-xs md:text-sm lg:text-sm flex justify-between">
+                  Public Figure
+                </p>
+                <Switch />
                 <p class="text-xs md:text-sm lg:text-sm text-[#020721]">Influencer</p>
                 <Switch />
               </div>
               <div class="flex justify-between px-3 lg:px-6 py-2">
-                <p class="text-[#02072199] text-xs md:text-sm lg:text-sm">Featured </p>
-               <Switch />
-                <p class="text-xs md:text-sm lg:text-sm text-[#020721] ">Verified </p>
-               <Switch />
+                <p class="text-[#02072199] text-xs md:text-sm lg:text-sm">Featured</p>
+                <Switch />
+                <p class="text-xs md:text-sm lg:text-sm text-[#020721]">Verified</p>
+                <Switch />
               </div>
             </div>
           </CardDescription>
@@ -343,14 +342,16 @@ const user2s = ref<any[]>([
       <div class="my-9 lg:mx-auto">
         <Tabs default-value="weeshes" class="space-y-1">
           <TabsList
-            class=" border-[#DEDFE8] bg-transparent  lg:w-[560px] lg:flex lg:justify-between px-0 lg:px-6 md:px-6 py-2"
+            class="border-[#DEDFE8] bg-transparent lg:w-[560px] lg:flex lg:justify-between px-0 lg:px-6 md:px-6 py-2"
           >
-            <TabsTrigger value="weeshes" class="text-[#000000] "> Weeshes </TabsTrigger>
-            <TabsTrigger value="bank" class="text-[#000000] "> Bank </TabsTrigger>
-            <TabsTrigger value="support" class="text-[#000000] " disabled>Support </TabsTrigger>
-            <TabsTrigger value="activity" class="text-[#000000]" disabled> Activity log </TabsTrigger>
+            <TabsTrigger value="weeshes" class="text-[#000000]"> Weeshes </TabsTrigger>
+            <TabsTrigger value="bank" class="text-[#000000]"> Bank </TabsTrigger>
+            <TabsTrigger value="support" class="text-[#000000]" disabled>Support </TabsTrigger>
+            <TabsTrigger value="activity" class="text-[#000000]" disabled>
+              Activity log
+            </TabsTrigger>
           </TabsList>
-          <TabsContent value="weeshes" class="space-y-4 ">
+          <TabsContent value="weeshes" class="space-y-4">
             <div class="overflow-auto bg-white rounded-lg shadow">
               <Table class="lg:w-[802px] w-[800px]">
                 <TableHeader>
@@ -379,7 +380,7 @@ const user2s = ref<any[]>([
                             'bg-[#6A70FF] text-[#F8F9FF]': status === 'Fulfiled',
                             'bg-[#373B4D] text-[#F8F9FF]': status === 'Added',
                             'bg-[#EE9F39] text-[#F8F9FF]': status === 'Initiated',
-                            'bg-[#00C37F] text-[#F8F9FF]': status === 'Delivered'
+                            'bg-[#00c3a6] text-[#F8F9FF]': status === 'Delivered'
                           }"
                           class="inline-block bg-[#373B4D] text-[#F8F9FF] rounded-full px-2 py-1 text-sm"
                           >{{ status }}</span
@@ -435,7 +436,7 @@ const user2s = ref<any[]>([
                       <template v-for="status in user2.status" :key="status">
                         <span
                           :class="{
-                            'bg-[#00C37F] text-[#F8F9FF]': status === 'Successful',
+                            'bg-[#00c3a6] text-[#F8F9FF]': status === 'Successful',
                             'bg-[#373B4D] text-[#F8F9FF]': status === ' Pending',
                             'bg-[#EE9F39] text-[#F8F9FF]': status === 'Failed'
                           }"
@@ -468,11 +469,9 @@ const user2s = ref<any[]>([
               </Table>
             </div>
           </TabsContent>
-          <TabsContent value="support" class="space-y-4 w-[802px]">
-          </TabsContent>
-          <TabsContent value="activity" class="space-y-4 w-[802px]">
-          </TabsContent>
-                    </Tabs>
+          <TabsContent value="support" class="space-y-4 w-[802px]"> </TabsContent>
+          <TabsContent value="activity" class="space-y-4 w-[802px]"> </TabsContent>
+        </Tabs>
       </div>
     </div>
   </div>
