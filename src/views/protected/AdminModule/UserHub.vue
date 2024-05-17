@@ -24,11 +24,10 @@ import DashboardFooter from '@/components/DashboardFooter.vue'
 
               <p class="text-2xl font-bold text-gray-800">App Users</p>
             </CardHeader>
-            <CardContent class="bg-[#373B4D] rounded-xl pb-4">
-              <div class="px-1 pt-4 text-xs">
+            <CardContent class="bg-[#020721] h-[80px] pt-2 rounded-bl-[24px] rounded-br-[24px]">
                 <p class="font-semibold tracking-tight text-gray-400">Members</p>
                 <p class="text-2xl font-semibold text-white">586,004</p>
-              </div>
+             
             </CardContent>
           </RouterLink>
         </Card>
@@ -46,11 +45,11 @@ import DashboardFooter from '@/components/DashboardFooter.vue'
 
               <p class="text-2xl font-bold text-gray-800">Vendors</p>
             </CardHeader>
-            <CardContent class="bg-[#373B4D] rounded-xl pb-4">
-              <div class="px-1 pt-4 text-xs">
+            <CardContent class="bg-[#020721] h-[80px] pt-2 rounded-bl-[24px] rounded-br-[24px]">
+             
                 <p class="font-semibold tracking-tight text-gray-400">Members</p>
                 <p class="text-2xl font-semibold text-white">3</p>
-              </div>
+              
             </CardContent>
           </RouterLink>
         </Card>
@@ -68,11 +67,10 @@ import DashboardFooter from '@/components/DashboardFooter.vue'
 
               <p class="text-2xl font-bold text-gray-800">Admin Staff</p>
             </CardHeader>
-            <CardContent class="bg-[#373B4D] rounded-xl pb-4">
-              <div class="px-1 pt-4 text-xs">
+            <CardContent class="bg-[#020721] h-[80px] pt-2 rounded-bl-[24px] rounded-br-[24px]">
                 <p class="font-semibold tracking-tight text-gray-400">Members</p>
                 <p class="text-2xl font-semibold text-white">18</p>
-              </div>
+             
             </CardContent>
           </RouterLink>
         </Card>
@@ -89,11 +87,11 @@ import DashboardFooter from '@/components/DashboardFooter.vue'
 
             <p class="text-2xl font-bold text-gray-800">Partners</p>
           </CardHeader>
-          <CardContent class="bg-[#373B4D] rounded-xl pb-4">
-            <div class="px-1 pt-4 text-xs">
+          <CardContent class="bg-[#020721] h-[80px] pt-2 rounded-bl-[24px] rounded-br-[24px]">
+            
               <p class="font-semibold tracking-tight text-gray-400">Members</p>
               <p class="text-2xl font-semibold text-white">0</p>
-            </div>
+            
           </CardContent>
         </Card>
       </div>
