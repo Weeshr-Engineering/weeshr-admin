@@ -10,12 +10,12 @@ const editProfile = () => {
 </script>
 <template>
   <div class="container lg:px-0 mx-auto">
-    <div class="flex flex-col lg:flex-row justify-evenly">
+    <div class="flex-col  lg:flex lg:flex-row justify-evenly">
       <Card
         class="sm:col-span-3 md:col-span-3 bg-[#F8F9FF] sm:items-center shadow-2xl mb-auto mr-auto"
       >
         <CardHeader>
-          <CardTitle class="text-xl font-bold">Admin Profile</CardTitle>
+          <CardTitle class="text-2xl font-medium text-[#000000]">Admin Profile</CardTitle>
           <CardDescription>
             <img
               class=""
@@ -23,7 +23,7 @@ const editProfile = () => {
               alt="gradient"
             />
             <div class="flex justify-between px-6 my-2">
-              <span class="text-sm lg:text-base text-[#020721]">Identity</span>
+              <span class="text-base font-medium lg:text-base text-[#020721]">Identity</span>
               <div class="flex">
                 <img
                   class="max-w-[18.05px] max-h-[24px]"
@@ -72,7 +72,7 @@ const editProfile = () => {
             </Card>
 
             <div class="flex justify-between px-6 my-2">
-              <span class="text-sm lg:text-base text-[#020721]">Contact</span>
+              <span class="text-base font-medium lg:text-base text-[#020721]">Contact</span>
               <div class="flex">
                 <img
                   class="max-w-[18.05px] max-h-[24px]"
@@ -108,12 +108,12 @@ const editProfile = () => {
       <div class="my-9 lg:mx-auto">
         <Tabs default-value="permission" class="space-y-1">
           <TabsList
-            class="border-b-8 border-[#DEDFE8] lg:justify-between px-0 lg:px-6 md:px-6 py-2 bg-transparent"
+            class=" lg:justify-between px-0 lg:px-6 md:px-6 py-2 bg-transparent"
           >
             <TabsTrigger value="permission" class="text-[#000000]"> Permission </TabsTrigger>
-            <TabsTrigger value="analytics" disabled> Activity log </TabsTrigger>
+            <TabsTrigger value="activity" > Activity log </TabsTrigger>
           </TabsList>
-          <TabsContent value="permission" class="space-y-4">
+          <TabsContent value="permission" class="space-y-4 lg-w-[802px]">
             <div class="lg:w-[802px]">
               <Card Content class="bg-[#F8F9FF] mt-4">
                 <CardContent
@@ -259,6 +259,8 @@ const editProfile = () => {
                 </CardContent>
               </Card>
             </div>
+          </TabsContent>
+          <TabsContent value="activity" class="space-y-4 w-[802px]">
           </TabsContent>
         </Tabs>
       </div>
