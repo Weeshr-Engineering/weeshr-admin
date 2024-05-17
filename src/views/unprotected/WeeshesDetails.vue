@@ -116,7 +116,7 @@ const statusIcon = (status: string) => {
 </script>
 
 <template >
-    <div class="flex-col flex bg-[#f0f8ff] h-[400px] px-4 sm:px-10 pb-10">
+    <div class="flex-col flex h-full bg-[#f0f8ff] px-4 sm:px-10 pb-10">
         <MainNav class="mx-6" headingText="Weeshes" />
         <Card class="container px-4 pt-6 pb-10 mx-auto sm:px-6 lg:px-8 bg-[#FFFFFF] rounded-2xl mt-6 mb-4">
         <div class="flex flex-col sm:flex-row items-center justify-between py-4">
@@ -212,8 +212,8 @@ const statusIcon = (status: string) => {
           <Button variant="outline"> <Icon icon="radix-icons:chevron-right" /> </Button>
           <a href="#"><p class="text-[blue]">See all</p></a>
         </div>
-      </Card>
-      <DashboardFooter/>
+        </Card>
+        <DashboardFooter/>
     </div>
 </template>
 

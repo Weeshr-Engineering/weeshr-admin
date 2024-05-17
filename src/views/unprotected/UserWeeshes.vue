@@ -1,5 +1,5 @@
 <template >
-    <div class="flex-col flex bg-[#f0f8ff] h-[400px] px-4 sm:px-10 pb-10">
+    <div class="flex-col flex bg-[#f0f8ff] h-full px-4 sm:px-10 pb-10">
         <MainNav class="mx-6" headingText="Weeshes" />
         <div class="w-full grid gap-4 md:grid-cols-2 md:gap-6 lg:grid-cols-4">
           <RouterLink to="/weeshes/fulfullied">
