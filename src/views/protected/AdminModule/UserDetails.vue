@@ -189,12 +189,12 @@ const user2s = ref<any[]>([
   <div class="container lg:px-0 mx-auto">
     <div class=" flex-col  lg:flex lg:flex-row justify-evenly">
       <Card
-        class="sm:col-span-3 md:col-span-3 bg-[#F8F9FF] sm:items-center shadow-2xl mb-auto mr-auto"
+        class="sm:col-span-3 md:col-span-3 bg-[#F8F9FF] sm:items-center shadow-2xl  mr-auto "
       >
         <CardHeader>
-          <CardTitle class="text-2xl font-medium text-[#000000]">User Profile</CardTitle>
+          <CardTitle class="text-2xl font-bold text-[#000000] my-4">User Profile</CardTitle>
           <CardDescription>
-            <div class="grid gap-2 grid-cols-3 md:grid-cols-3 lg:grid-cols-5">
+            <div class="grid gap-2 grid-cols-3 md:grid-cols-3 lg:grid-cols-5 my-7">
               <img
                 class="max-w-[60.66px] h-auto"
                 src="https://res.cloudinary.com/dufimctfc/image/upload/v1710684025/images1_wbbxb5.svg"
@@ -222,10 +222,10 @@ const user2s = ref<any[]>([
               />
             </div>
             <div class="flex justify-between px-6 my-2">
-              <span class="text-base font-medium lg:text-base text-[#020721]">Identity</span>
+              <span class="text-base font-bold lg:text-base text-[#020721] ">Identity</span>
               <div class="flex">
                 <img
-                  class="max-w-[18.05px] max-h-[24px]"
+                  class="max-w-[18.05px] max-h-[20px]"
                   src="https://res.cloudinary.com/dufimctfc/image/upload/v1714310908/edit-4-svgrepo-com_1_iy2nwu.svg"
                   alt="gradient"
                 />
@@ -235,7 +235,7 @@ const user2s = ref<any[]>([
               </div>
             </div>
 
-            <Card class="rounded-md">
+            <Card class="rounded-md ">
               <div class="flex justify-between px-6 md:px-6 py-2 border-b">
                 <p class="text-[#02072199] text-xs md:text-sm lg:text-sm">Full Name</p>
                 <p class="text-xs md:text-sm lg:text-sm text-[#020721]">Tochukwu Felix Onwuelo</p>
@@ -254,10 +254,10 @@ const user2s = ref<any[]>([
               </div>
             </Card>
             <div class="flex justify-between px-6 my-2">
-              <span class="text-base font-medium lg:text-base text-[#020721]">Contact</span>
+              <span class="text-base font-bold lg:text-base text-[#020721]">Contact</span>
               <div class="flex">
                 <img
-                  class="max-w-[18.05px] max-h-[24px]"
+                  class="max-w-[18.05px] max-h-[20px]"
                   src="https://res.cloudinary.com/dufimctfc/image/upload/v1714310908/edit-4-svgrepo-com_1_iy2nwu.svg"
                   alt="gradient"
                 />
@@ -323,17 +323,17 @@ const user2s = ref<any[]>([
                   </div>
                 </div>
               </Card>
-              <div class="flex justify-between px-3 lg:px-6 py-2">
-                <p class="text-[#02072199] text-xs md:text-sm lg:text-sm">Public Figure</p>
-                <Switch/>
+              <div class="flex justify-between px-3 lg:px-6 py-2 ">
+                <p class="text-[#02072199] text-xs md:text-sm lg:text-sm flex justify-between ">Public Figure </p>
+               <Switch/>
                 <p class="text-xs md:text-sm lg:text-sm text-[#020721]">Influencer</p>
                 <Switch />
               </div>
               <div class="flex justify-between px-3 lg:px-6 py-2">
-                <p class="text-[#02072199] text-xs md:text-sm lg:text-sm">Featured</p>
-                <Switch />
-                <p class="text-xs md:text-sm lg:text-sm text-[#020721]">Verified</p>
-                <Switch />
+                <p class="text-[#02072199] text-xs md:text-sm lg:text-sm">Featured </p>
+               <Switch />
+                <p class="text-xs md:text-sm lg:text-sm text-[#020721] ">Verified </p>
+               <Switch />
               </div>
             </div>
           </CardDescription>
@@ -347,12 +347,12 @@ const user2s = ref<any[]>([
           >
             <TabsTrigger value="weeshes" class="text-[#000000] "> Weeshes </TabsTrigger>
             <TabsTrigger value="bank" class="text-[#000000] "> Bank </TabsTrigger>
-            <TabsTrigger value="support" class="text-[#000000]">Support </TabsTrigger>
-            <TabsTrigger value="activity" class="text-[#000000]"> Activity log </TabsTrigger>
+            <TabsTrigger value="support" class="text-[#000000] " disabled>Support </TabsTrigger>
+            <TabsTrigger value="activity" class="text-[#000000]" disabled> Activity log </TabsTrigger>
           </TabsList>
-          <TabsContent value="weeshes" class="space-y-4">
+          <TabsContent value="weeshes" class="space-y-4 ">
             <div class="overflow-auto bg-white rounded-lg shadow">
-              <Table class="lg:w-[802px] w-[700px]">
+              <Table class="lg:w-[802px] w-[800px]">
                 <TableHeader>
                   <TableRow
                     class="text-xs sm:text-sm md:text-base text-[#02072199] font-semibold bg-gray-200"
