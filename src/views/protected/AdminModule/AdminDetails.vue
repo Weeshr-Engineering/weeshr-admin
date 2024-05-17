@@ -127,7 +127,7 @@ const editProfile = () => {
                   <p class="text-sm text-muted-foreground text-center text-[#000000]">
                     Get an overall stats of Weeshr and a users list at login
                   </p>
-                  <Switch />
+                  <Switch class=" data-[state=unchecked]:bg-[#2A2A4A] data-[state=checked]:bg-[#2A2A4A]"/>
                 </CardContent>
               </Card>
 
@@ -143,7 +143,7 @@ const editProfile = () => {
                   <p class="text-sm text-muted-foreground text-center text-[#000000]">
                     View and manage all Weeshr app users,admin ,vendors and partners
                   </p>
-                  <Switch />
+                  <Switch class=" data-[state=unchecked]:bg-[#2A2A4A] data-[state=checked]:bg-[#2A2A4A]"/>
                 </CardContent>
               </Card>
 
@@ -159,7 +159,7 @@ const editProfile = () => {
                   <p class="text-sm text-muted-foreground text-center text-[#000000]">
                     View and manage all weeshes at different level fulfillement
                   </p>
-                  <Switch />
+                  <Switch class=" data-[state=unchecked]:bg-[#2A2A4A] data-[state=checked]:bg-[#2A2A4A]"/>
                 </CardContent>
               </Card>
 
@@ -175,7 +175,7 @@ const editProfile = () => {
                   <p class="text-sm text-muted-foreground text-center text-[#000000]">
                     Manage fulfilled weeshes and delievery status
                   </p>
-                  <Switch />
+                  <Switch class=" data-[state=unchecked]:bg-[#2A2A4A] data-[state=checked]:bg-[#2A2A4A]"/>
                 </CardContent>
               </Card>
 
@@ -191,7 +191,7 @@ const editProfile = () => {
                   <p class="text-sm text-muted-foreground text-center text-[#000000]">
                     View and manage funds in user's wallet
                   </p>
-                  <Switch />
+                  <Switch class=" data-[state=unchecked]:bg-[#2A2A4A] data-[state=checked]:bg-[#2A2A4A]"/>
                 </CardContent>
               </Card>
 
@@ -207,7 +207,7 @@ const editProfile = () => {
                   <p class="text-sm text-muted-foreground text-center text-[#000000]">
                     View and manage tickets and complaints from users
                   </p>
-                  <Switch />
+                  <Switch class=" data-[state=unchecked]:bg-[#2A2A4A] data-[state=checked]:bg-[#2A2A4A]"/>
                 </CardContent>
               </Card>
 
@@ -223,7 +223,7 @@ const editProfile = () => {
                   <p class="text-sm text-muted-foreground text-center text-[#000000]">
                     Manage the core engine of Weeshr
                   </p>
-                  <Switch />
+                  <Switch class=" data-[state=unchecked]:bg-[#2A2A4A] data-[state=checked]:bg-[#2A2A4A]"/>
                 </CardContent>
               </Card>
 
@@ -239,7 +239,7 @@ const editProfile = () => {
                   <p class="text-sm text-muted-foreground text-center text-[#000000]">
                     Get general data in regards to Weeshr performance
                   </p>
-                  <Switch />
+                  <Switch class=" data-[state=unchecked]:bg-[#2A2A4A] data-[state=checked]:bg-[#2A2A4A]"/>
                 </CardContent>
               </Card>
 
@@ -255,7 +255,7 @@ const editProfile = () => {
                   <p class="text-sm text-muted-foreground text-center text-[#000000]">
                     View all activites of weeshr in record
                   </p>
-                  <Switch />
+                  <Switch class=" data-[state=unchecked]:bg-[#2A2A4A] data-[state=checked]:bg-[#2A2A4A]"/>
                 </CardContent>
               </Card>
             </div>
