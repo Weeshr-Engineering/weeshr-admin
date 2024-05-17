@@ -7,7 +7,7 @@ import DashboardFooter from '@/components/DashboardFooter.vue'
 </script>
 
 <template>
-  <div class="flex-col flex  h-full bg-[#f0f8ff] relative">
+  <div class="flex-col flex h-full bg-[#f0f8ff] relative">
     <div class="flex-1 space-y-4 p-8 pt-6 bg-[#f0f8ff] w-full">
       <MainNav class="mx-6" headingText="Users Hub" />
       <div class="grid gap-7 md:grid-cols-2 lg:grid-cols-4 h-80">
@@ -25,9 +25,8 @@ import DashboardFooter from '@/components/DashboardFooter.vue'
               <p class="text-2xl font-bold text-gray-800">App Users</p>
             </CardHeader>
             <CardContent class="bg-[#020721] h-[80px] pt-2 rounded-bl-[24px] rounded-br-[24px]">
-                <p class="font-semibold tracking-tight text-gray-400">Members</p>
-                <p class="text-2xl font-semibold text-white">586,004</p>
-             
+              <p class="font-semibold tracking-tight text-gray-400">Members</p>
+              <p class="text-2xl font-semibold text-white">586,004</p>
             </CardContent>
           </RouterLink>
         </Card>
@@ -46,10 +45,8 @@ import DashboardFooter from '@/components/DashboardFooter.vue'
               <p class="text-2xl font-bold text-gray-800">Vendors</p>
             </CardHeader>
             <CardContent class="bg-[#020721] h-[80px] pt-2 rounded-bl-[24px] rounded-br-[24px]">
-             
-                <p class="font-semibold tracking-tight text-gray-400">Members</p>
-                <p class="text-2xl font-semibold text-white">3</p>
-              
+              <p class="font-semibold tracking-tight text-gray-400">Members</p>
+              <p class="text-2xl font-semibold text-white">3</p>
             </CardContent>
           </RouterLink>
         </Card>
@@ -68,9 +65,8 @@ import DashboardFooter from '@/components/DashboardFooter.vue'
               <p class="text-2xl font-bold text-gray-800">Admin Staff</p>
             </CardHeader>
             <CardContent class="bg-[#020721] h-[80px] pt-2 rounded-bl-[24px] rounded-br-[24px]">
-                <p class="font-semibold tracking-tight text-gray-400">Members</p>
-                <p class="text-2xl font-semibold text-white">18</p>
-             
+              <p class="font-semibold tracking-tight text-gray-400">Members</p>
+              <p class="text-2xl font-semibold text-white">18</p>
             </CardContent>
           </RouterLink>
         </Card>
@@ -88,17 +84,12 @@ import DashboardFooter from '@/components/DashboardFooter.vue'
             <p class="text-2xl font-bold text-gray-800">Partners</p>
           </CardHeader>
           <CardContent class="bg-[#020721] h-[80px] pt-2 rounded-bl-[24px] rounded-br-[24px]">
-            
-              <p class="font-semibold tracking-tight text-gray-400">Members</p>
-              <p class="text-2xl font-semibold text-white">0</p>
-            
+            <p class="font-semibold tracking-tight text-gray-400">Members</p>
+            <p class="text-2xl font-semibold text-white">0</p>
           </CardContent>
         </Card>
-       
       </div>
-        
     </div>
-<DashboardFooter class="lg:my-4"/>
-   
+    <DashboardFooter class="lg:my-4" />
   </div>
 </template>
