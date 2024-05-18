@@ -108,27 +108,29 @@ onMounted(() => {
 
 </script>
 <template>
-  <div class="container lg:px-0 mx-auto">
-    <div class="flex flex-col lg:flex-row justify-evenly">
+  <div class="container lg:px-0 mx-auto mt-10 md:mt-0">
+    <div class="flex flex-col grid-cols-1 md:grid-cols-1 justify-center items-center lg:flex-row">
       <Card
-        class="sm:col-span-3 md:col-span-3 bg-[#F8F9FF] sm:items-center shadow-2xl mb-auto mr-auto"
+        class="w-5/6 md:w-3/6 md:mr-9 lg:h-screen lg:w-[30%] bg-[#F8F9FF] sm:items-center shadow-2xl mb-auto"
       >
         <CardHeader>
           <CardTitle class="text-xl font-bold">{{ user.firstName }} Profile</CardTitle>
           <CardDescription>
             <img
+              v-if="user.avatar"
               class=""
-              src="https://res.cloudinary.com/dufimctfc/image/upload/v1710684025/images1_wbbxb5.svg"
-              alt="gradient"
+              :src="user.avatar"
+              alt="User Profile Image"
             />
-            <div class="flex justify-between px-6 my-2">
-              <span class="text-sm lg:text-base text-[#020721]">Identity</span>
+            <div class="flex justify-between px-2 pr-6 my-2">
+              <span class="font-semibold text-base text-[#020721]">Identity</span>
               <div class="flex">
                 <img
                   class="max-w-[18.05px] max-h-[24px]"
                   src="https://res.cloudinary.com/dufimctfc/image/upload/v1714310908/edit-4-svgrepo-com_1_iy2nwu.svg"
                   alt="gradient"
                 />
+
                 <span class="text-sm font-medium text-[#02072199]">
                   <a href="#" @click="editProfile">Edit</a>
                 </span>
@@ -136,9 +138,9 @@ onMounted(() => {
             </div>
 
             <Card class="rounded-md">
-              <div class="flex justify-between px-6 md:px-6 py-2 border-b">
+              <div class="flex min-w-62 justify-between px-6 md:px-6 py-2 border-b">
                 <p class="text-[#02072199] text-xs md:text-sm lg:text-sm">First Name</p>
-                <p class="text-xs md:text-sm lg:text-sm text-[#020721]">{{user.firstName}}</p>
+                <p class="text-xs text-left md:text-sm lg:text-sm text-[#020721]">{{user.firstName}}</p>
               </div>
               <div class="flex justify-between px-6 md:px-6 py-2 border-b">
                 <p class="text-[#02072199] text-xs md:text-sm lg:text-sm">Last Name</p>
@@ -166,12 +168,12 @@ onMounted(() => {
               </div>
               <div class="flex justify-between px-6 md:px-6 py-2 border-b">
                 <p class="text-[#02072199] text-xs md:text-sm lg:text-sm">Joined</p>
-                <p class="text-xs md:text-sm lg:text-sm text-[#020721]">3 Aug 2023</p>
+                <p class="text-xs md:text-sm text-left lg:text-sm text-[#020721]">3 Aug 2023</p>
               </div>
             </Card>
 
-            <div class="flex justify-between px-6 my-2">
-              <span class="text-sm lg:text-base text-[#020721]">Contact</span>
+            <div class="flex justify-between px-2 pr-6 my-2">
+              <span class="font-semibold text-base text-[#020721]">Contact</span>
               <div class="flex">
                 <img
                   class="max-w-[18.05px] max-h-[24px]"
@@ -189,11 +191,11 @@ onMounted(() => {
                 <p class="text-[#02072199] text-xs md:text-sm lg:text-sm">Email</p>
                 <p class="text-xs md:text-sm lg:text-sm text-[#020721]">{{user.email}}</p>
               </div>
-              <div class="flex justify-between px-3 lg:px-6 py-2 border-b">
-                <p class="text-[#02072199] text-xs md:text-sm lg:text-sm">phone.no</p>
+              <div class="flex justify-between px-6 lg:px-6 py-2 border-b">
+                <p class="text-[#02072199] text-xs md:text-sm lg:text-sm">Phone no.</p>
                 <p class="text-xs md:text-sm lg:text-sm text-[#020721]">{{user.phone}}</p>
               </div>
-              <div class="flex justify-between px-5 lg:px-6 py-2 border-b">
+              <div class="flex justify-between px-6 lg:px-6 py-2 border-b">
                 <p class="flex grow text-[#02072199] text-xs md:text-sm lg:text-sm">Address:</p>
                 <p class="text-xs md:text-sm lg:text-sm text-[#020721]">
                   {{user.address}}
@@ -204,7 +206,7 @@ onMounted(() => {
         </CardHeader>
       </Card>
 
-      <div class="my-9 lg:mx-auto">
+      <div class="my-9 lg:px-6 lg:w-4/5">
         <Tabs default-value="permission" class="space-y-1">
           <TabsList
             class="border-b-8 border-[#DEDFE8] lg:justify-between px-0 lg:px-6 md:px-6 py-2 bg-transparent"
@@ -213,7 +215,7 @@ onMounted(() => {
             <TabsTrigger value="analytics" disabled> Activity log </TabsTrigger>
           </TabsList>
           <TabsContent value="permission" class="space-y-4">
-            <div class="lg:w-[802px]">
+            <div class="lg:w-full">
               <Card Content class="bg-[#F8F9FF] mt-4">
                 <CardContent
                   class="flex flex-col sm:flex-row items-center justify-between px-2 sm:px-6 py-4"

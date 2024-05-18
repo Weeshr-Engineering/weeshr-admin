@@ -40,6 +40,7 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/comp
 import { Input } from '@/components/ui/input'
 import { toast } from '@/components/ui/toast'
 import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
+import { useCreateUserStore } from '@/stores/create-user/create-user'
 import { useGeneralStore } from '@/stores/general-use'
 
 const formSchema = toTypedSchema(
@@ -59,8 +60,6 @@ const formSchema = toTypedSchema(
     gender: z.string().nonempty('Please select your gender'),
     phone: z.string().nonempty('Please enter your phone number'),
     status: z.boolean().optional()
-    // admin_type: z.string().nonempty('Please select your admin_type'),
-    //permissions: z.string().nonempty('Please select Modular Permission')
   })
 )
 
@@ -82,6 +81,7 @@ const loading = ref(false)
 const currentPage = ref(1)
 const totalPage = ref<any[]>([])
 const superAdminStore = useSuperAdminStore()
+const createUserStore = useCreateUserStore()
 const token = sessionStorage.getItem('token') || ''
 
 const onSubmit = handleSubmit(async (values) => {
@@ -136,7 +136,7 @@ const fetchUsersData = async () => {
     // Set loading to true
 
     const response = await axios.get(
-      'https://api.staging.weeshr.com/api/v1/admin/administrators?per_page=40',
+      'https://api.staging.weeshr.com/api/v1/admin/administrators?per_page=200',
       {
         // params: {
         //   search: 'test_admin',
@@ -218,8 +218,7 @@ const saveUserData = async (user: any) => {
         variant: 'success'
       })
     }
-
-    console.log(response.data)
+    createUserStore.addUser(user)
     loading.value = false
     // Handle success
   } catch (err: any) {
@@ -446,46 +445,6 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
                 </FormItem>
               </FormField>
 
-              <FormField v-slot="{ componentField }" name="permissions">
-                <FormItem>
-                  <FormLabel>Modular Permissions</FormLabel>
-                  <FormControl>
-                    <!-- Example Checkbox Markup -->
-                    <div
-                      v-for="permissions in [
-                        'Dashboard',
-                        'Users',
-                        'Weeshes',
-                        'Deposit',
-                        'Bank',
-                        'Support',
-                        'Configuration',
-                        'Analytics',
-                        'Log'
-                      ]"
-                      :key="permissions"
-                      class="relative flex items-start ml-2"
-                    >
-                      <input
-                        :id="permissions"
-                        type="checkbox"
-                        class="hidden peer"
-                        v-bind="componentField"
-                      />
-                      <label
-                        :for="permissions"
-                        class="inline-flex items-center justify-between w-auto p-2 font-medium tracking-tight border rounded-lg cursor-pointer bg-brand-light text-brand-black border-violet-500 peer-checked:border-violet-400 peer-checked:bg-violet-700 peer-checked:text-white peer-checked:font-semibold peer-checked:decoration-brand-dark decoration-2"
-                      >
-                        <div class="flex items-center justify-center w-full">
-                          <div class="text-sm text-brand-black">{{ permissions }}</div>
-                        </div>
-                      </label>
-                    </div>
-                  </FormControl>
-                  <FormMessage for="permissions" />
-                </FormItem>
-              </FormField>
-
               <Button type="submit">
                 <Loader2
                   color="#ffffff"
@@ -512,7 +471,7 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
         <Search />
       </div>
 
-      <div class="overflow-auto bg-white rounded-lg shadow">
+      <div class="overflow-auto min-h-52 bg-white rounded-lg shadow">
         <Table>
           <TableHeader>
             <TableRow
@@ -570,12 +529,11 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
       </div>
       <div class="flex gap-2 max-w-full flex-wrap justify-end mt-8 mr-4 items-center text-[15px]">
         <Button variant="secondary" @click="prevPage"> <Icon icon="radix-icons:chevron-left" /> </Button>
-        <Button variant="secondary" class="bg-[#020721] text-gray-400" v-for="(item, index) in totalPage" :key="index"> {{ index + 1 }} </Button>
-        <!-- <Button variant="outline"> 2 </Button>
-        <Button variant="outline"> &#8230; </Button>
-        <Button variant="outline"> 57 </Button>
-        <Button variant="outline"> 58 </Button> -->
-        <Button variant="outline" @click="nextPage"> <Icon icon="radix-icons:chevron-right" /> </Button>
+        <span v-for="(item, index) in totalPage" :key="index">
+          <Button v-if="(index + 1) == currentPage" variant="secondary" class="bg-[#020721] text-gray-400" > {{ index + 1 }} </Button>
+          <Button v-else variant="outline" > {{ index + 1 }} </Button>
+        </span>
+        <Button variant="secondary" @click="nextPage"> <Icon icon="radix-icons:chevron-right" /> </Button>
         <!-- <a href="#"><p class="text-[blue]">See all</p></a> -->
       </div>
     </Card>
