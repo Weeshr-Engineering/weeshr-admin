@@ -166,18 +166,12 @@ const fetchUsersData = async () => {
   }
 } // Call the fetchUsersData function when the component is mounted
 
-// onMounted(fetchUsersData);
-
-// onMounted(async () => {
-//   // useGeneralStore().setLoading(true);
-//   fetchUsersData()
-// })
 
 
 </script>
 
 <template>
-  <div class="flex-col flex bg-[#f0f8ff] h-[400px] px-4 sm:px-10 pb-10">
+  <div class="flex-col flex bg-[#f0f8ff] h-full p-8 pt-6 pb-10 w-full">
     <MainNav class="mx-6" headingText="Dashboard" />
     <div class="w-full grid gap-4 md:grid-cols-2 md:gap-6 lg:grid-cols-4">
         <Card class="h-[210px] rounded-[24px] shadow-md transition-transform transform hover:scale-105">

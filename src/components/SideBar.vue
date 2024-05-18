@@ -45,6 +45,7 @@ const logout = async () => {
         </a>
       </li>
 
+
       <li :class="{ 'dashboard-active': $route.path === '/weeshes' }">
         <a @click="$router.push({ name: 'weeshes' })">
           <div class="icon-grid">
@@ -64,6 +65,7 @@ const logout = async () => {
           <span class="nav-text"> Create User </span>
         </a>
       </li>
+
 
       <li>
         <a>
