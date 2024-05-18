@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '@/views/protected/Shared/HomeView.vue'
+// import HomeView from '@/views/protected/Shared/HomeView.vue'
 import SuperAdminLogin from '@/views/unprotected/SuperAdminModule/SuperAdminLogin.vue'
 import configuration from '@/views/protected/AdminModule/UserConfiguration.vue'
 import user from '@/views/protected/AdminModule/UserHub.vue'
@@ -11,6 +11,8 @@ import AdminDashboard from '@/views/protected/AdminModule/AdminDashboard.vue'
 
 import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
 import ErrorPage from '@/views/unprotected/ErrorPageView.vue'
+import WeeshesPage from '@/views/unprotected/UserWeeshes.vue'
+import WeeshesDets from '@/views/unprotected/WeeshesDetails.vue'
 import AdminView from '@/views/protected/AdminModule/AdminList.vue'
 import AdminList from '@/views/protected/SuperAdminModule/AdminList.vue'
 import CreateUser from '@/views/protected/SuperAdminModule/CreateUser.vue'
@@ -100,6 +102,18 @@ const routes = [
     name: 'UserDetails',
     component:  UserDetails,
     meta: { hideSidebar: true }
+  },
+
+  {
+    path: '/weeshes',
+    name: 'weeshes',
+    component:  WeeshesPage,
+  },
+
+  {
+    path: '/weeshes/fulfullied',
+    name: 'weeshesDetails',
+    component:  WeeshesDets,
   },
 
   {

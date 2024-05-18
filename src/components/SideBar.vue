@@ -45,6 +45,28 @@ const logout = async () => {
         </a>
       </li>
 
+
+      <li :class="{ 'dashboard-active': $route.path === '/weeshes' }">
+        <a @click="$router.push({ name: 'weeshes' })">
+          <div class="icon-grid">
+            <Icon icon="codicon:note" width="17" height="17" class="icons-sidebar" />
+          </div>
+
+          <span class="nav-text"> Weeshes </span>
+        </a>
+      </li>
+
+      <li :class="{ 'dashboard-active': $route.path === '/admin-creation' }">
+        <a @click="$router.push({ name: 'admin-creation' })">
+          <div class="icon-grid">
+            <Icon icon="iconoir:add-user" width="16" height="16" class="icons-sidebar" />
+          </div>
+
+          <span class="nav-text"> Create User </span>
+        </a>
+      </li>
+
+
       <li>
         <a>
           <div class="icon-grid">
@@ -149,6 +171,7 @@ nav.main-menu.expanded {
   overflow: hidden;
   -webkit-transition: width 0.05s linear;
   transition: width 0.05s linear;
+  transform: translateZ(0) scale(1, 1);
   -webkit-transform: translateZ(0) scale(1, 1);
   z-index: 1000;
 }
@@ -172,6 +195,7 @@ nav.main-menu.expanded {
   font-family: arial;
   font-size: 14px;
   text-decoration: none;
+  transform: translateZ(0) scale(1, 1);
   -webkit-transform: translateZ(0) scale(1, 1);
   -webkit-transition: all 0.1s linear;
   transition: all 0.1s linear;
