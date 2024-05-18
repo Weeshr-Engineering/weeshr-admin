@@ -111,7 +111,7 @@ onMounted(() => {
   <div class="container lg:px-0 mx-auto mt-10 md:mt-0">
     <div class="flex flex-col grid-cols-1 md:grid-cols-1 justify-center items-center lg:flex-row">
       <Card
-        class="w-5/6 md:w-3/6 md:mr-9 lg:h-screen lg:w-[30%] bg-[#F8F9FF] sm:items-center shadow-2xl mb-auto"
+        class="w-full md:w-3/4 md:mr-9 lg:h-screen lg:w-1/3 bg-[#F8F9FF] sm:items-center shadow-2xl mb-auto"
       >
         <CardHeader>
           <CardTitle class="text-xl font-bold">{{ user.firstName }} Profile</CardTitle>
