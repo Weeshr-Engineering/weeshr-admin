@@ -286,7 +286,7 @@ const user2s = ref<any[]>([
                 <p class="text-[#02072199] text-xs md:text-sm lg:text-sm">Profile Privacy</p>
                 <label class="relative inline-flex cursor-pointer items-center">
   <input type="checkbox" value="" checked class="peer sr-only" />
-  <div class="flex h-[28px] items-center gap-6 rounded-md bg-[#373B4D] px-4 relative after:absolute after:left-0.5 after:h-6 after:w-16 after:rounded-md after:bg-[#F8F9FF]/80 after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-focus:outline-none dark:border-slate-600 dark:bg-slate-700 text-sm text-white">
+  <div class="flex h-[28px] items-center gap-7 rounded-md bg-[#373B4D] px-4 relative after:absolute after:left-1 after:h-6 after:w-16 after:rounded-md after:bg-[#F8F9FF]/80 after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-focus:outline-none dark:border-slate-600 dark:bg-slate-700 text-sm text-white">
     <span class="text-center" >Public</span>
     <span class="text-center">Private</span>
   </div>
