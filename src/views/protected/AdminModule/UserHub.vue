@@ -1,19 +1,28 @@
 <script setup lang="ts">
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
-
+import { onMounted } from 'vue';
+import { useUserhubStore } from '@/stores/userhub-details/userhub-details'
 import MainNav from '@/components/MainNav.vue'
-
 import DashboardFooter from '@/components/DashboardFooter.vue'
+import UserhubSkeleton from '@/components/UserhubSkeleton.vue'
+
+const userHubStore = useUserhubStore() 
+
+onMounted(() => {
+  const userHubStore = useUserhubStore()
+  userHubStore.getUsersNumber()  
+})
 </script>
 
 <template>
-  <div class="flex-col flex h-svh h-full bg-[#f0f8ff] relative">
+  <div class="flex-col flex h-full bg-[#f0f8ff] relative">
     <div class="flex-1 space-y-4 p-8 pt-6 bg-[#f0f8ff] w-full">
       <MainNav class="mx-6" headingText="Users Hub" />
       <div class="grid gap-7 md:grid-cols-2 lg:grid-cols-4 h-80">
         <Card
           class="rounded-xl bg-[#C6F4EB] h-80 shadow-md transition-transform transform hover:scale-105 mb-5"
         >
+        <span v-if="userHubStore.loading">
           <RouterLink to="/user/appuser">
             <CardHeader class="flex items-center justify-between space-y-0">
               <img
@@ -27,15 +36,18 @@ import DashboardFooter from '@/components/DashboardFooter.vue'
             <CardContent class="bg-[#373B4D] rounded-xl pb-4">
               <div class="px-1 pt-4 text-xs">
                 <p class="font-semibold tracking-tight text-gray-400">Members</p>
-                <p class="text-2xl font-semibold text-white">586,004</p>
+                <p class="text-2xl font-semibold text-white">{{userHubStore.usersCount}}</p>
               </div>
             </CardContent>
           </RouterLink>
+          </span>
+          <UserhubSkeleton />
         </Card>
-
+        
         <Card
           class="rounded-xl bg-[#DCDEFF] h-80 shadow-md transition-transform transform hover:scale-105 mb-5"
         >
+        <span v-if="userHubStore.loading">
           <RouterLink to="/user/vendors">
             <CardHeader class="flex items-center justify-between space-y-0">
               <img
@@ -49,15 +61,18 @@ import DashboardFooter from '@/components/DashboardFooter.vue'
             <CardContent class="bg-[#373B4D] rounded-xl pb-4">
               <div class="px-1 pt-4 text-xs">
                 <p class="font-semibold tracking-tight text-gray-400">Members</p>
-                <p class="text-2xl font-semibold text-white">3</p>
+                <p class="text-2xl font-semibold text-white">{{userHubStore.vendorsCount}}</p>
               </div>
             </CardContent>
           </RouterLink>
+          </span>
+          <UserhubSkeleton />
         </Card>
-
+        
         <Card
           class="rounded-xl bg-[#89cff0ee] h-80 shadow-md transition-transform transform hover:scale-105 mb-5"
         >
+        <span v-if="userHubStore.loading">
           <RouterLink to="/user/admin">
             <CardHeader class="flex items-center justify-between space-y-0">
               <img
@@ -71,15 +86,19 @@ import DashboardFooter from '@/components/DashboardFooter.vue'
             <CardContent class="bg-[#373B4D] rounded-xl pb-4">
               <div class="px-1 pt-4 text-xs">
                 <p class="font-semibold tracking-tight text-gray-400">Members</p>
-                <p class="text-2xl font-semibold text-white">18</p>
+                <p class="text-2xl font-semibold text-white">{{userHubStore.adminsCount}}</p>
               </div>
             </CardContent>
           </RouterLink>
+          </span>
+          <UserhubSkeleton />
         </Card>
+        
 
-        <Card
+        <Card 
           class="rounded-xl bg-[#E9F4D1] h-90 shadow-md transition-transform transform hover:scale-105 mb-5"
         >
+        <span v-if="userHubStore.loading">
           <CardHeader class="flex items-center justify-between space-y-0">
             <img
               class=""
@@ -92,13 +111,15 @@ import DashboardFooter from '@/components/DashboardFooter.vue'
           <CardContent class="bg-[#373B4D] rounded-xl pb-4">
             <div class="px-1 pt-4 text-xs">
               <p class="font-semibold tracking-tight text-gray-400">Members</p>
-              <p class="text-2xl font-semibold text-white">0</p>
+              <p class="text-2xl font-semibold text-white">{{userHubStore.partnersCount}}</p>
             </div>
           </CardContent>
+          </span>
+          <UserhubSkeleton />
         </Card>
+        
+        <DashboardFooter></DashboardFooter>
       </div>
     </div>
-
-    <DashboardFooter></DashboardFooter>
   </div>
 </template>

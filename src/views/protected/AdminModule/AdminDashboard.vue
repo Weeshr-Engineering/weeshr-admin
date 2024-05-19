@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Search from '@/components/UseSearch.vue'
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import MainNav from '@/components/MainNav.vue'
 import DashboardFooter from '@/components/DashboardFooter.vue'
 import { Card, CardContent } from '@/components/ui/card'
@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Icon } from '@iconify/vue'
 import axios from 'axios'
 import router from '@/router'
+import { useUserhubStore } from '@/stores/userhub-details/userhub-details'
 
 import {
   Table,
@@ -25,6 +26,7 @@ import { useGeneralStore } from '@/stores/general-use'
 
 const loading = ref(false)
 const superAdminStore = useSuperAdminStore()
+const userHubStore = useUserhubStore() 
 const token = sessionStorage.getItem('token') || ''
 
 // Define a ref to hold the users data
@@ -166,7 +168,9 @@ const fetchUsersData = async () => {
   }
 } // Call the fetchUsersData function when the component is mounted
 
-
+onMounted(() => {
+  userHubStore.getUsersNumber()  
+})
 
 </script>
 
@@ -226,7 +230,7 @@ const fetchUsersData = async () => {
                       alt="gradient"
                     />
       
-                    <p class="text-2xl lg:text-2xl font-medium text-[#020721] absolute bottom-2 left-5">586,004</p>
+                    <p class="text-2xl lg:text-2xl font-medium text-[#020721] absolute bottom-2 left-5">{{userHubStore.usersCount}}</p>
                   </CardContent>
             </div>
             <div class="bg-[#020721] pt-2 h-[80px] rounded-bl-[24px] rounded-br-[24px]">
