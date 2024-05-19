@@ -187,12 +187,12 @@ const user2s = ref<any[]>([
 </script>
 <template>
   <div class="container lg:px-0 mx-auto">
-    <div class="flex-col lg:flex lg:flex-row justify-evenly">
-      <Card class="sm:col-span-3 md:col-span-3 bg-[#F8F9FF] sm:items-center shadow-2xl mr-auto">
+    <div class="flex-col lg:flex lg:flex-row gap-1 ">
+      <Card class="sm:col-span-3 md:col-span-3 bg-[#F8F9FF] sm:items-center shadow-xl  lg:min-w-[398px] ">
         <CardHeader>
           <CardTitle class="text-2xl font-bold text-[#000000] my-4">User Profile</CardTitle>
           <CardDescription>
-            <div class="grid gap-2 grid-cols-3 md:grid-cols-3 lg:grid-cols-5 my-7">
+            <div class="grid gap-2 grid-cols-3 md:grid-cols-5 lg:grid-cols-5 my-7">
               <img
                 class="max-w-[60.66px] h-auto"
                 src="https://res.cloudinary.com/dufimctfc/image/upload/v1710684025/images1_wbbxb5.svg"
@@ -251,7 +251,7 @@ const user2s = ref<any[]>([
                 <p class="text-xs md:text-sm lg:text-sm text-[#020721]">Female</p>
               </div>
             </Card>
-            <div class="flex justify-between px-6 my-2">
+            <div class="flex justify-between px-6 py-4">
               <span class="text-base font-bold lg:text-base text-[#020721]">Contact</span>
               <div class="flex">
                 <img
@@ -285,14 +285,13 @@ const user2s = ref<any[]>([
               <div class="flex justify-between px-3 lg:px-6 py-2">
                 <p class="text-[#02072199] text-xs md:text-sm lg:text-sm">Profile Privacy</p>
                 <label class="relative inline-flex cursor-pointer items-center">
-                  <input type="checkbox" value="" checked class="peer sr-only" />
-                  <div
-                    class="peer flex h-[28px] items-center gap-6 rounded-md bg-[#373B4D] px-4 after:absolute after:left-0.5 after: after:h-6 after:w-16 after:rounded-md after:bg-[#F8F9FF]/80 after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-focus:outline-none dark:border-slate-600 dark:bg-slate-700 text-sm text-white"
-                  >
-                    <span>Public</span>
-                    <span>Private</span>
-                  </div>
-                </label>
+  <input type="checkbox" value="" checked class="peer sr-only" />
+  <div class="flex h-[28px] items-center gap-6 rounded-md bg-[#373B4D] px-4 relative after:absolute after:left-0.5 after:h-6 after:w-16 after:rounded-md after:bg-[#F8F9FF]/80 after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-focus:outline-none dark:border-slate-600 dark:bg-slate-700 text-sm text-white">
+    <span class="text-center" >Public</span>
+    <span class="text-center">Private</span>
+  </div>
+</label>
+
               </div>
             </Card>
             <div>
@@ -320,29 +319,57 @@ const user2s = ref<any[]>([
                   </div>
                 </div>
               </Card>
-              <div class="flex justify-between px-3 lg:px-6 py-2">
-                <p class="text-[#02072199] text-xs md:text-sm lg:text-sm flex justify-between">
-                  Public Figure
-                </p>
-                <Switch />
-                <p class="text-xs md:text-sm lg:text-sm text-[#020721]">Influencer</p>
-                <Switch />
-              </div>
-              <div class="flex justify-between px-3 lg:px-6 py-2">
-                <p class="text-[#02072199] text-xs md:text-sm lg:text-sm">Featured</p>
-                <Switch />
-                <p class="text-xs md:text-sm lg:text-sm text-[#020721]">Verified</p>
-                <Switch />
-              </div>
+  <div class="flex flex-wrap justify-between px-8 lg:px-6 py-4 ">
+  <div class="flex items-center justify-between w-48 mb-2 ">
+    <p class="text-[#02072199] text-xs md:text-sm lg:text-sm mr-2">
+      Public Figure
+    </p>
+      <Switch />
+  </div>
+  <div class="flex items-center justify-between w-48 mb-2">
+    <p class="text-xs md:text-sm lg:text-sm text-[#020721] mr-2">
+      Influencer
+    </p>
+    <div class="flex items-center">
+      <Switch />
+    </div>
+  </div>
+  <div class="flex items-center justify-between w-48 mb-2">
+    <p class="text-[#02072199] text-xs md:text-sm lg:text-sm mr-2">
+      Featured
+    </p>
+    <div class="flex items-center">
+      <Switch />
+    </div>
+  </div>
+  <div class="flex items-center justify-between w-48 mb-2">
+    <p class="text-xs md:text-sm lg:text-sm text-[#020721] mr-2">
+      Verified
+    </p>
+    <div class="flex items-center">
+      <Switch />
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+               
+              
+              
             </div>
           </CardDescription>
         </CardHeader>
       </Card>
 
-      <div class="my-9 lg:mx-auto">
+      <div class="my-9 w-full ">
         <Tabs default-value="weeshes" class="space-y-1">
           <TabsList
-            class="border-[#DEDFE8] bg-transparent lg:w-[560px] lg:flex lg:justify-between px-0 lg:px-6 md:px-6 py-2"
+            class="border-[#DEDFE8] bg-transparent lg:w-[560px] lg:flex lg:justify-between px-0 lg:px-6 md:px-6 py-2 "
           >
             <TabsTrigger value="weeshes" class="text-[#000000]"> Weeshes </TabsTrigger>
             <TabsTrigger value="bank" class="text-[#000000]"> Bank </TabsTrigger>
@@ -352,11 +379,11 @@ const user2s = ref<any[]>([
             </TabsTrigger>
           </TabsList>
           <TabsContent value="weeshes" class="space-y-4">
-            <div class="overflow-auto bg-white rounded-lg shadow">
-              <Table class="lg:w-[802px] w-[800px]">
+            <div class="overflow-auto bg-white md:mx-6 rounded-md">
+              <Table class="min-w-full ">
                 <TableHeader>
                   <TableRow
-                    class="text-xs sm:text-sm md:text-base text-[#02072199] font-semibold bg-gray-200"
+                    class="text-xs sm:text-sm md:text-base text-[#02072199]  font-semibold bg-gray-200"
                   >
                     <TableHead> Name of Weesh </TableHead>
                     <TableHead>Category</TableHead>
@@ -380,7 +407,7 @@ const user2s = ref<any[]>([
                             'bg-[#6A70FF] text-[#F8F9FF]': status === 'Fulfiled',
                             'bg-[#373B4D] text-[#F8F9FF]': status === 'Added',
                             'bg-[#EE9F39] text-[#F8F9FF]': status === 'Initiated',
-                            'bg-[#00c3a6] text-[#F8F9FF]': status === 'Delivered'
+                            'bg-[#53eeb8] text-[#F8F9FF]': status === 'Delivered'
                           }"
                           class="inline-block bg-[#373B4D] text-[#F8F9FF] rounded-full px-2 py-1 text-sm"
                           >{{ status }}</span
@@ -413,8 +440,8 @@ const user2s = ref<any[]>([
           </TabsContent>
 
           <TabsContent value="bank" class="space-y-4">
-            <div class="overflow-auto bg-white rounded-lg shadow">
-              <Table class="w-[802px]">
+            <div class="overflow-auto bg-white rounded-md md:mx-6">
+              <Table class=" min-w-full ">
                 <TableHeader>
                   <TableRow
                     class="text-xs sm:text-sm md:text-base text-[#02072199] font-semibold bg-gray-200"
@@ -436,7 +463,7 @@ const user2s = ref<any[]>([
                       <template v-for="status in user2.status" :key="status">
                         <span
                           :class="{
-                            'bg-[#00c3a6] text-[#F8F9FF]': status === 'Successful',
+                            'bg-[#53eeb8] text-[#F8F9FF]': status === 'Successful',
                             'bg-[#373B4D] text-[#F8F9FF]': status === ' Pending',
                             'bg-[#EE9F39] text-[#F8F9FF]': status === 'Failed'
                           }"
