@@ -526,8 +526,8 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
               <TableCell>{{ user.gender }}</TableCell>
               <TableCell>{{user.phoneNumber.normalizedNumber}}</TableCell>
               <TableCell @click="toggleStatus(user._id, user.disabled)">
-                <Button v-if="user.disabled" class="bg-gray-300">Disabled</Button>
-                <Button v-else class="bg-green-400">Active</Button>
+                <Button v-if="user.disabled" class="bg-[#020721]">Disabled</Button>
+                <Button v-else class="bg-[#00C37F]">Active</Button>
               </TableCell>
               <TableCell>{{user.phoneNumber.normalizedNumber}}</TableCell>
               <TableCell>
