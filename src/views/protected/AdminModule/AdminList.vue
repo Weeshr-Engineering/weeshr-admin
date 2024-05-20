@@ -529,7 +529,6 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
                 <Button v-if="user.disabled" class="bg-[#020721]">Disabled</Button>
                 <Button v-else class="bg-[#00C37F]">Active</Button>
               </TableCell>
-              <TableCell>{{user.phoneNumber.normalizedNumber}}</TableCell>
               <TableCell>
                 <div class="flex flex-wrap gap-2">
                   <!-- Display each permission as a pill -->
