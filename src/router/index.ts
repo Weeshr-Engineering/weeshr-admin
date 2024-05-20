@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '@/views/protected/Shared/HomeView.vue'
+// import HomeView from '@/views/protected/Shared/HomeView.vue'
 import SuperAdminLogin from '@/views/unprotected/SuperAdminModule/SuperAdminLogin.vue'
 import configuration from '@/views/protected/AdminModule/UserConfiguration.vue'
 import user from '@/views/protected/AdminModule/UserHub.vue'
@@ -10,8 +10,9 @@ import UserDetails from '@/views/protected/AdminModule/UserDetails.vue'
 import AdminDashboard from '@/views/protected/AdminModule/AdminDashboard.vue'
 
 import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
-
 import ErrorPage from '@/views/unprotected/ErrorPageView.vue'
+import WeeshesPage from '@/views/unprotected/UserWeeshes.vue'
+import WeeshesDets from '@/views/unprotected/WeeshesDetails.vue'
 import AdminView from '@/views/protected/AdminModule/AdminList.vue'
 import AdminList from '@/views/protected/SuperAdminModule/AdminList.vue'
 import CreateUser from '@/views/protected/SuperAdminModule/CreateUser.vue'
@@ -30,6 +31,8 @@ const routes = [
   //   component: HomeView,
   //   meta: { requiresAuth: true }
   // },
+
+  
 
   {
     path: '/login',
@@ -73,34 +76,56 @@ const routes = [
   {
     path: '/user/admin',
     name: 'admin',
-    component: AdminView,
+
+    component:  AdminView,
+
     meta: { requiresAuth: true }
   },
   {
     path: '/admin-creation',
     name: 'admin-creation',
-    component: CreateUser,
+
+    component:  CreateUser,
+
     meta: { requiresAuth: true }
   },
   {
     path: '/admin-list',
     name: 'admin-list',
-    component: AdminList,
+
+    component:  AdminList,
+
     meta: { requiresAuth: true }
   },
 
   {
     path: '/admindetails/:Id',
     name: 'AdminDetails',
-    component: AdminDetails,
+
+    component:  AdminDetails,
+
     meta: { hideSidebar: true }
   },
 
   {
     path: '/usersdetails/:Id',
     name: 'UserDetails',
-    component: UserDetails,
+
+    component:  UserDetails,
+
     meta: { hideSidebar: true }
+  },
+
+  {
+    path: '/weeshes',
+    name: 'weeshes',
+    component:  WeeshesPage,
+  },
+
+  {
+    path: '/weeshes/fulfullied',
+    name: 'weeshesDetails',
+    component:  WeeshesDets,
   },
 
   {

@@ -9,6 +9,8 @@ import MainNav from '@/components/MainNav.vue'
 import axios from 'axios'
 import { Loader2 } from 'lucide-vue-next'
 import router from '@/router'
+import { Button } from "@/components/ui/button"
+import { Icon } from '@iconify/vue'
 import {
   Sheet,
   SheetContent,
@@ -26,11 +28,19 @@ import {
   TableHead
 } from '@/components/ui/table'
 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
 import { toast } from '@/components/ui/toast'
 import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
+import { useCreateUserStore } from '@/stores/create-user/create-user'
 import { useGeneralStore } from '@/stores/general-use'
 
 const formSchema = toTypedSchema(
@@ -49,8 +59,7 @@ const formSchema = toTypedSchema(
     dob: z.string().nonempty('Please enter your date of birth'),
     gender: z.string().nonempty('Please select your gender'),
     phone: z.string().nonempty('Please enter your phone number'),
-    admin_type: z.string().nonempty('Please select your admin_type'),
-    permissions: z.string().nonempty('Please select Modular Permission')
+    status: z.boolean().optional()
   })
 )
 
@@ -64,17 +73,20 @@ const newUser = ref({
   lastName: '',
   gender: '',
   dob: '',
-  permissions: ''
+  phone: '',
 })
 
 const sheetOpen = ref(false)
 const loading = ref(false)
+const currentPage = ref(1)
+const totalPage = ref<any[]>([])
 const superAdminStore = useSuperAdminStore()
+const createUserStore = useCreateUserStore()
 const token = sessionStorage.getItem('token') || ''
 
 const onSubmit = handleSubmit(async (values) => {
   loading.value = true
-
+console.log('submitting')
   const user = {
     firstName: values.firstName,
     lastName: values.lastName,
@@ -86,10 +98,10 @@ const onSubmit = handleSubmit(async (values) => {
       phoneNumber: values.phone
     },
     dateJoined: formattedDate.value,
-    permissions: values.permissions,
-    admin_type: values.admin_type
+    disabled: values.status || false
   }
 
+  // console.log(user)
   await saveUserData(user)
 
   sheetOpen.value = false
@@ -103,50 +115,13 @@ const onSubmit = handleSubmit(async (values) => {
     userEmail: '',
     gender: '',
     dob: '',
-    permissions: ''
+    phone: '',
   }
 })
 
 // Define a ref to hold the users data
 // const users = ref([]);
-const users = ref<any[]>([
-  {
-    _id: 1,
-    firstName: 'Abiola',
-    lastName: 'Tendox',
-    admin_type: 'Super Admin',
-    permissions:
-      'Dashboard, Users, Weeshes, Deport, Bank,Support,Configuration,Analysics,Activity log'
-  },
-  {
-    _id: 2,
-    firstName: 'Saloni',
-    lastName: 'Smith',
-    admin_type: 'Admin',
-    permissions: 'Dashboard, Users, Weeshes, Deport, Bank,Support,Activity log'
-  },
-  {
-    _id: 3,
-    firstName: 'Bada',
-    lastName: 'Right',
-    admin_type: 'Admin',
-    permissions: 'Dashboard, Weeshes, Deport, Bank,Support,Configuration,Activity log'
-  },
-  {
-    _id: 4,
-    firstName: 'Emily',
-    lastName: 'Stone',
-    admin_type: 'Flutter',
-    permissions: 'Dashboard, Weeshes, Deport, Bank,Support,Configuration,Activity log'
-  },
-  {
-    _id: 5,
-    firstName: ' Kunle',
-    lastName: 'Blue',
-    admin_type: 'Cxperience',
-    permissions: 'Dashboard, Weeshes, Deport, Bank,Support,Configuration,Activity log'
-  }
-])
+const users = ref<any[]>([])
 
 // Define a function to fetch users data
 const fetchUsersData = async () => {
@@ -161,7 +136,7 @@ const fetchUsersData = async () => {
     // Set loading to true
 
     const response = await axios.get(
-      'https:{{host}}/administrators?search=test_admin&disabled_status=disabled',
+      'https://api.staging.weeshr.com/api/v1/admin/administrators?per_page=200',
       {
         // params: {
         //   search: 'test_admin',
@@ -174,7 +149,6 @@ const fetchUsersData = async () => {
     )
 
     if (response.status === 200 || response.status === 201) {
-      useGeneralStore().setLoadingToFalse()
       // Show success toast
       toast({
         title: 'Success',
@@ -182,12 +156,20 @@ const fetchUsersData = async () => {
         variant: 'success'
       })
 
-      console.log('jiji' + JSON.stringify(response.data))
+      console.log(response.data)
     }
 
     // Update the users data with the response
+    const data = response.data.data.data
+    users.value = data.reverse()
 
-    users.value = response.data.data.data
+    // set page data
+    currentPage.value = response.data.data.currentPage
+    const totalPageValue = await response.data.data.totalPages
+    totalPage.value = new Array(totalPageValue).fill(null)
+    
+    // close loading screen
+    // useGeneralStore().setLoading(false)
   } catch (error: any) {
     if (error.response.status === 401) {
       sessionStorage.removeItem('token')
@@ -218,7 +200,7 @@ const saveUserData = async (user: any) => {
   loading.value = true
   try {
     const response = await axios.post(
-      'https:{{host}}/administrators?search=test_admin&disabled_status=disabled',
+      'https://api.staging.weeshr.com/api/v1/admin/administrator',
       user,
       {
         headers: {
@@ -236,8 +218,7 @@ const saveUserData = async (user: any) => {
         variant: 'success'
       })
     }
-
-    console.log(response.data)
+    createUserStore.addUser(user)
     loading.value = false
     // Handle success
   } catch (err: any) {
@@ -267,6 +248,18 @@ const saveUserData = async (user: any) => {
   }
 }
 
+const prevPage = ()=>{
+  if(currentPage.value > 1){
+    console.log(currentPage.value++)
+  }
+}
+
+const nextPage = ()=>{
+  if(currentPage.value < totalPage.value.length - 1){
+    console.log(currentPage.value++)
+  }
+}
+
 const toggleStatus = (user: { status: boolean }) => {
   user.status = !user.status
 }
@@ -283,7 +276,7 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
 
 <template>
   <div class="flex-col flex bg-[#f0f8ff] min-h-[400px] px-4 sm:px-10 pb-10">
-    <MainNav class="mx-6" headingText="wae" />
+    <MainNav class="mx-6" headingText="Admin List" />
     <div class="px-10 py-10 ml-auto">
       <Sheet :close="sheetOpen">
         <SheetTrigger as-child>
@@ -314,7 +307,7 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
             </SheetDescription>
           </SheetHeader>
           <CardContent class="grid gap-4 pt-10">
-            <form class="space-y-4" @submit="onSubmit">
+            <form class="space-y-4" @submit.prevent="onSubmit">
               <FormField v-slot="{ componentField }" name="firstName">
                 <FormItem v-auto-animate>
                   <FormLabel class="text-blue-900">First Name</FormLabel>
@@ -369,16 +362,22 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
                 <FormField v-slot="{ componentField }" name="gender" class="w-[40%]">
                   <FormItem>
                     <FormLabel>Gender</FormLabel>
-                    <select
+                    
+                      <Select
                       v-bind="componentField"
                       id="gender"
-                      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                      placeholder="Select a category"
-                    >
-                      <option value="" disabled selected hidden>Gender</option>
-                      <option value="Male">Male</option>
-                      <option value="Female">Female</option>
-                    </select>
+                      class='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'>
+                      <FormControl>
+                        <SelectTrigger class="">
+                            <SelectValue placeholder="Gender" />
+                          </SelectTrigger>
+                      </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Female">Female</SelectItem>
+                          <SelectItem value="Male">Male</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    
                     <FormMessage for="gender" />
                   </FormItem>
                 </FormField>
@@ -403,66 +402,50 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
                 </div>
               </div>
 
+              <FormField v-slot="{ componentField }" name="phone">
+                <FormItem v-auto-animate>
+                  <FormLabel class="text-blue-900">Phone Number</FormLabel>
+                  <FormControl>
+                    <div>
+                      <Input
+                        id="phone"
+                        type="tel"
+                        placeholder="Phone Number"
+                        class="focus-visible:ring-blue-600"
+                        v-bind="componentField"
+                      />
+                    </div>
+                  </FormControl>
+
+                  <FormMessage for="phone" />
+                </FormItem>
+              </FormField>
+
               <FormField v-slot="{ componentField }" name="type">
                 <FormItem>
                   <FormLabel>Admin Type</FormLabel>
-                  <select
-                    v-bind="componentField"
-                    id="type"
+                  
+                    <Select
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                    placeholder="Select Admin type"
-                  >
-                    <option value="" disabled selected hidden>Select Admin Type</option>
-                    <option value="super_admin">Super Admin</option>
-                    <option value="admin">Admin</option>
-                    <option value="cxperience">Cxperience</option>
-                    <option value="flutter">Flutter</option>
-                  </select>
+                    v-bind="componentField"
+                    id="type">
+                    <FormControl>
+                      <SelectTrigger class="w-full">
+                        <SelectValue placeholder="Select Admin Type" />
+                      </SelectTrigger>
+                    </FormControl>
+                      <SelectContent>
+                        <SelectItem value="super_admin">Super Admin</SelectItem>
+                        <SelectItem value="admin">Admin</SelectItem>
+                        <SelectItem value="cxperience">Cxperience</SelectItem>
+                        <SelectItem value="flutter">Flutter</SelectItem>
+                      </SelectContent>
+                  </Select>
                   <FormMessage for="gender" />
                 </FormItem>
               </FormField>
 
-              <FormField v-slot="{ componentField }" name="permissions">
-                <FormItem>
-                  <FormLabel>Modular Permissions</FormLabel>
-                  <FormControl>
-                    <!-- Example Checkbox Markup -->
-                    <div
-                      v-for="permissions in [
-                        'Dashboard',
-                        'Users',
-                        'Weeshes',
-                        'Deposit',
-                        'Bank',
-                        'Support',
-                        'Configuration',
-                        'Analytics',
-                        'Log'
-                      ]"
-                      :key="permissions"
-                      class="relative flex items-start ml-2"
-                    >
-                      <input
-                        :id="permissions"
-                        type="checkbox"
-                        class="hidden peer"
-                        v-bind="componentField"
-                      />
-                      <label
-                        :for="permissions"
-                        class="inline-flex items-center justify-between w-auto p-2 font-medium tracking-tight border rounded-lg cursor-pointer bg-brand-light text-brand-black border-violet-500 peer-checked:border-violet-400 peer-checked:bg-violet-700 peer-checked:text-white peer-checked:font-semibold peer-checked:decoration-brand-dark decoration-2"
-                      >
-                        <div class="flex items-center justify-center w-full">
-                          <div class="text-sm text-brand-black">{{ permissions }}</div>
-                        </div>
-                      </label>
-                    </div>
-                  </FormControl>
-                  <FormMessage for="permissions" />
-                </FormItem>
-              </FormField>
-
-              <Button :disabled="loading" type="submit">
+              <Button type="submit">
                 <Loader2
                   color="#ffffff"
                   v-if="loading"
@@ -479,23 +462,25 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
     </div>
 
     <Card class="container px-4 pt-6 pb-10 mx-auto sm:px-6 lg:px-8 bg-[#FFFFFF] rounded-2xl">
-      <div class="flex flex-col sm:flex-row items-center justify-between px-2 sm:px-6 py-4">
+      <div class="flex items-center justify-between px-6 py-4">
         <div class="text-2xl font-bold tracking-tight text-[#020721]">
           Admin
           <p class="text-xs text-[#02072199] py-2">List of Weehr Admin</p>
         </div>
-
+        <div class="flex flex-col"></div>
         <Search />
       </div>
 
-      <div class="overflow-auto bg-white rounded-lg shadow">
-        <Table class="lg:w-[1140px] w-[1100px]">
+      <div class="overflow-auto min-h-52 bg-white rounded-lg shadow">
+        <Table>
           <TableHeader>
             <TableRow
               class="text-xs sm:text-sm md:text-base text-[#02072199] font-semibold bg-gray-200"
             >
               <TableHead> Name </TableHead>
-              <TableHead>Admin Type</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>Gender</TableHead>
+              <TableHead>Phone Number</TableHead>
               <TableHead>Modular Permission</TableHead>
               <TableHead></TableHead>
             </TableRow>
@@ -503,17 +488,18 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
           <TableBody>
             <TableRow v-for="user in users" :key="user._id">
               <TableCell class="font-medium">{{ user.firstName }} {{ user.lastName }}</TableCell>
-              <TableCell>{{ user.admin_type }}</TableCell>
-
+              <TableCell>{{ user.email }}</TableCell>
+              <TableCell>{{ user.gender }}</TableCell>
+              <TableCell>{{user.phoneNumber.normalizedNumber}}</TableCell>
               <TableCell>
                 <div class="flex flex-wrap gap-2">
                   <!-- Display each permission as a pill -->
-                  <template v-for="permission in user.permissions.split(',')" :key="permission">
+                  <!-- <template v-for="permission in users" :key="permission"> -->
                     <span
                       class="inline-block bg-[#373B4D] text-[#F8F9FF] rounded-full px-2 py-1 text-sm"
-                      >{{ permission }}</span
+                      >Dashboard</span
                     >
-                  </template>
+                  <!-- </template> -->
                 </div>
               </TableCell>
               <TableCell>
@@ -541,7 +527,18 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
           </TableBody>
         </Table>
       </div>
+      <div class="flex gap-2 max-w-full flex-wrap justify-end mt-8 mr-4 items-center text-[15px]">
+        <Button variant="secondary" @click="prevPage"> <Icon icon="radix-icons:chevron-left" /> </Button>
+        <span v-for="(item, index) in totalPage" :key="index">
+          <Button v-if="(index + 1) == currentPage" variant="secondary" class="bg-[#020721] text-gray-400" > {{ index + 1 }} </Button>
+          <Button v-else variant="outline" > {{ index + 1 }} </Button>
+        </span>
+        <Button variant="secondary" @click="nextPage"> <Icon icon="radix-icons:chevron-right" /> </Button>
+        <!-- <a href="#"><p class="text-[blue]">See all</p></a> -->
+      </div>
     </Card>
   </div>
 </template>
-@/stores/super-admin/super-admin@/stores/super-admin/super-admin admin
+<!-- @/stores/super-admin/super-admin@/stores/super-admin/super-admin admin -->
+
+@/stores/super-admin/super-admin@/stores/super-admin/super-admin
