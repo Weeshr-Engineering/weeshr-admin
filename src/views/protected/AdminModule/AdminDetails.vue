@@ -7,18 +7,20 @@ import { toast } from '@/components/ui/toast'
 import axios from 'axios'
 import { useRoute } from 'vue-router';
 import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
-import { useGeneralStore } from '@/stores/general-use'
+import { useAdminListStore } from '@/stores/admin-list/admin-list'
+import { Loader2 } from 'lucide-vue-next'
 import router from '@/router'
-
 
 const route = useRoute();
 const id = route.params.Id;
 const superAdminStore = useSuperAdminStore()
 const token = sessionStorage.getItem('token') || ''
 const user = ref<any>({})
+const adminListStore = useAdminListStore()
 
 // Define a function to fetch users data
 const fetchUsersData = async () => {
+  adminListStore.setDetailLoading(false)
   toast({
     title: 'Loading Data',
     description: 'Fetching data...',
@@ -55,7 +57,8 @@ const fetchUsersData = async () => {
     const data = {...responseData, phone:phoneData, dob:dobData}
     // fill user data with response data
     user.value = data
-
+    adminListStore.setAdminStatus(responseData.disabled)
+    adminListStore.setDetailLoading(false)
     // set Loading to false
     // useGeneralStore().setLoading(false)
   } catch (error: any) {
@@ -201,6 +204,27 @@ onMounted(() => {
                   {{user.address}}
                 </p>
               </div>
+            </Card>
+
+            <div class="w-full px-2 pr-6 my-2">
+              <span class="font-semibold text-base text-[#020721]">Status</span>
+            </div>
+
+            <Card class="bg-[#F8F9FF] flex justify-between">
+              <CardHeader><span v-if="!adminListStore.detailLoading">{{ adminListStore.adminStatus ? 'Disabled' : 'Active' }}</span>
+                <Loader2 v-else class="w-4 h-4 mr-2 text-black animate-spin" />
+              </CardHeader>
+              
+              <CardContent
+                class="flex flex-col sm:flex-row items-center justify-between px-2 sm:px-6 py-4"
+              >
+                <Switch
+                v-if="!adminListStore.detailLoading"
+                v-bind:checked="!adminListStore.adminStatus"
+                :onclick="()=>adminListStore.toggleStatus(user._id, adminListStore.adminStatus, user.firstName)"
+                />
+                <Loader2 v-else class="w-4 h-4 mr-2 text-black animate-spin" />
+              </CardContent>
             </Card>
           </CardDescription>
         </CardHeader>

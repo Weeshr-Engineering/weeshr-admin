@@ -10,6 +10,7 @@ import axios from 'axios'
 import { Loader2 } from 'lucide-vue-next'
 import router from '@/router'
 import { Button } from "@/components/ui/button"
+import { Badge } from '@/components/ui/badge'
 import { Icon } from '@iconify/vue'
 import {
   Sheet,
@@ -167,6 +168,7 @@ const fetchUsersData = async () => {
     // Update the users data with the response
     const data = response.data.data.data
     users.value = data.reverse()
+    // adminListStore.setUsers(data.reverse())
 
     // set page data
     currentPage.value = response.data.data.currentPage
@@ -264,39 +266,6 @@ const nextPage = ()=>{
     console.log(currentPage.value++)
   }
 }
-
-const toggleStatus = (value: string, status: boolean) => {
-  let data = JSON.stringify({
-    "status": !status
-  });
-
-  let config = {
-    method: 'patch',
-    maxBodyLength: Infinity,
-    url: `https://api.staging.weeshr.com/api/v1/admin/administrator/${value}/disabled_status`,
-    headers: { 
-      'Content-Type': 'application/json', 
-      'Authorization': `Bearer ${token}`
-    },
-    data : data
-  };
-
-  axios.request(config)
-  .then((response) => {
-    // Check if response status is 200 or 201
-    if (response.status === 200 || response.status === 201) {
-      // Show success toast
-      const item = users.value.find(item => item._id === value);
-      if (item) {
-        item.disabled = !item.disabled;
-      }
-    }
-  })
-  .catch((error) => {
-    console.log(error);
-  });
-}
-
 // onMounted(fetchUsersData);
 
 onMounted(async () => {
@@ -525,9 +494,17 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
               <TableCell>{{ user.email }}</TableCell>
               <TableCell>{{ user.gender }}</TableCell>
               <TableCell>{{user.phoneNumber.normalizedNumber}}</TableCell>
-              <TableCell @click="toggleStatus(user._id, user.disabled)">
+              <!-- <TableCell @click="toggleStatus(user._id, user.disabled)">
                 <Button v-if="user.disabled" class="bg-gray-300">Disabled</Button>
                 <Button v-else class="bg-green-400">Active</Button>
+              </TableCell> -->
+              <TableCell>
+                <Badge
+                  :class="{ 'bg-[#00C37F]': !user.disabled, 'bg-[#020721]': user.disabled }"
+                  
+                >
+                  {{ user.disabled ? 'Disabled' : 'Active' }}
+              </Badge>
               </TableCell>
               <TableCell>{{user.phoneNumber.normalizedNumber}}</TableCell>
               <TableCell>
