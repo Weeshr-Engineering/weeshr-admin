@@ -34,8 +34,6 @@ const routes = [
   //   meta: { requiresAuth: true }
   // },
 
-  
-
   {
     path: '/login',
     name: 'superAdmin-login',
@@ -79,7 +77,7 @@ const routes = [
     path: '/user/admin',
     name: 'admin',
 
-    component:  AdminView,
+    component: AdminView,
 
     meta: { requiresAuth: true }
   },
@@ -87,7 +85,7 @@ const routes = [
     path: '/admin-creation',
     name: 'admin-creation',
 
-    component:  CreateUser,
+    component: CreateUser,
 
     meta: { requiresAuth: true }
   },
@@ -95,7 +93,7 @@ const routes = [
     path: '/admin-list',
     name: 'admin-list',
 
-    component:  AdminList,
+    component: AdminList,
 
     meta: { requiresAuth: true }
   },
@@ -104,7 +102,7 @@ const routes = [
     path: '/admindetails/:Id',
     name: 'AdminDetails',
 
-    component:  AdminDetails,
+    component: AdminDetails,
 
     meta: { hideSidebar: true }
   },
@@ -113,7 +111,7 @@ const routes = [
     path: '/usersdetails/:Id',
     name: 'UserDetails',
 
-    component:  UserDetails,
+    component: UserDetails,
 
     meta: { hideSidebar: true }
   },
@@ -121,24 +119,26 @@ const routes = [
   {
     path: '/weeshes',
     name: 'weeshes',
-    component:  WeeshesPage,
+    component: WeeshesPage
   },
 
   {
     path: '/weeshes/fulfullied',
     name: 'weeshesDetails',
-    component:  WeeshesDets,
+    component: WeeshesDets
   },
 
   {
     path: '/depot',
     name: 'depot',
-    component:  DepotPage,
+    component: DepotPage,
+    meta: { requiresAuth: true }
   },
   {
     path: '/bank',
     name: 'bank',
-    component:  BankPage,
+    component: BankPage,
+    meta: { requiresAuth: true }
   },
 
   {

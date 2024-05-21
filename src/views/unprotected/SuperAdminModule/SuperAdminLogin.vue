@@ -110,7 +110,6 @@ const onSubmit = form.handleSubmit(async () => {
         // Save the token in Pinia store
         superAdminStore.setToken(token)
 
-
         // Save the token in sessionStorage
 
         router.push({ name: 'home' })

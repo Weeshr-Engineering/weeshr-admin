@@ -187,8 +187,10 @@ const user2s = ref<any[]>([
 </script>
 <template>
   <div class="container lg:px-0 mx-auto">
-    <div class="flex-col lg:flex lg:flex-row gap-1 ">
-      <Card class="sm:col-span-3 md:col-span-3 bg-[#F8F9FF] sm:items-center shadow-xl  lg:min-w-[398px] ">
+    <div class="flex-col lg:flex lg:flex-row gap-1">
+      <Card
+        class="sm:col-span-3 md:col-span-3 bg-[#F8F9FF] sm:items-center shadow-xl lg:min-w-[398px]"
+      >
         <CardHeader>
           <CardTitle class="text-2xl font-bold text-[#000000] my-4">User Profile</CardTitle>
           <CardDescription>
@@ -285,13 +287,14 @@ const user2s = ref<any[]>([
               <div class="flex justify-between px-3 lg:px-6 py-2">
                 <p class="text-[#02072199] text-xs md:text-sm lg:text-sm">Profile Privacy</p>
                 <label class="relative inline-flex cursor-pointer items-center">
-  <input type="checkbox" value="" checked class="peer sr-only" />
-  <div class="flex h-[28px] items-center gap-7 rounded-md bg-[#373B4D] px-4 relative after:absolute after:left-1 after:h-6 after:w-16 after:rounded-md after:bg-[#F8F9FF]/80 after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-focus:outline-none dark:border-slate-600 dark:bg-slate-700 text-sm text-white">
-    <span class="text-center" >Public</span>
-    <span class="text-center">Private</span>
-  </div>
-</label>
-
+                  <input type="checkbox" value="" checked class="peer sr-only" />
+                  <div
+                    class="flex h-[28px] items-center gap-7 rounded-md bg-[#373B4D] px-4 relative after:absolute after:left-1 after:h-6 after:w-16 after:rounded-md after:bg-[#F8F9FF]/80 after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-focus:outline-none dark:border-slate-600 dark:bg-slate-700 text-sm text-white"
+                  >
+                    <span class="text-center">Public</span>
+                    <span class="text-center">Private</span>
+                  </div>
+                </label>
               </div>
             </Card>
             <div>
@@ -319,57 +322,39 @@ const user2s = ref<any[]>([
                   </div>
                 </div>
               </Card>
-  <div class="flex flex-wrap justify-between px-8 lg:px-6 py-4 ">
-  <div class="flex items-center justify-between w-48 mb-2 ">
-    <p class="text-[#02072199] text-xs md:text-sm lg:text-sm mr-2">
-      Public Figure
-    </p>
-      <Switch />
-  </div>
-  <div class="flex items-center justify-between w-48 mb-2">
-    <p class="text-xs md:text-sm lg:text-sm text-[#020721] mr-2">
-      Influencer
-    </p>
-    <div class="flex items-center">
-      <Switch />
-    </div>
-  </div>
-  <div class="flex items-center justify-between w-48 mb-2">
-    <p class="text-[#02072199] text-xs md:text-sm lg:text-sm mr-2">
-      Featured
-    </p>
-    <div class="flex items-center">
-      <Switch />
-    </div>
-  </div>
-  <div class="flex items-center justify-between w-48 mb-2">
-    <p class="text-xs md:text-sm lg:text-sm text-[#020721] mr-2">
-      Verified
-    </p>
-    <div class="flex items-center">
-      <Switch />
-    </div>
-  </div>
-</div>
-
-
-
-
-
-
-
-               
-              
-              
+              <div class="flex flex-wrap justify-between px-8 lg:px-6 py-4">
+                <div class="flex items-center justify-between w-48 mb-2">
+                  <p class="text-[#02072199] text-xs md:text-sm lg:text-sm mr-2">Public Figure</p>
+                  <Switch />
+                </div>
+                <div class="flex items-center justify-between w-48 mb-2">
+                  <p class="text-xs md:text-sm lg:text-sm text-[#020721] mr-2">Influencer</p>
+                  <div class="flex items-center">
+                    <Switch />
+                  </div>
+                </div>
+                <div class="flex items-center justify-between w-48 mb-2">
+                  <p class="text-[#02072199] text-xs md:text-sm lg:text-sm mr-2">Featured</p>
+                  <div class="flex items-center">
+                    <Switch />
+                  </div>
+                </div>
+                <div class="flex items-center justify-between w-48 mb-2">
+                  <p class="text-xs md:text-sm lg:text-sm text-[#020721] mr-2">Verified</p>
+                  <div class="flex items-center">
+                    <Switch />
+                  </div>
+                </div>
+              </div>
             </div>
           </CardDescription>
         </CardHeader>
       </Card>
 
-      <div class="my-9 w-full ">
+      <div class="my-9 w-full">
         <Tabs default-value="weeshes" class="space-y-1">
           <TabsList
-            class="border-[#DEDFE8] bg-transparent lg:w-[560px] lg:flex lg:justify-between px-0 lg:px-6 md:px-6 py-2 "
+            class="border-[#DEDFE8] bg-transparent lg:w-[560px] lg:flex lg:justify-between px-0 lg:px-6 md:px-6 py-2"
           >
             <TabsTrigger value="weeshes" class="text-[#000000]"> Weeshes </TabsTrigger>
             <TabsTrigger value="bank" class="text-[#000000]"> Bank </TabsTrigger>
@@ -380,10 +365,10 @@ const user2s = ref<any[]>([
           </TabsList>
           <TabsContent value="weeshes" class="space-y-4">
             <div class="overflow-auto bg-white md:mx-6 rounded-md">
-              <Table class="min-w-full ">
+              <Table class="min-w-full">
                 <TableHeader>
                   <TableRow
-                    class="text-xs sm:text-sm md:text-base text-[#02072199]  font-semibold bg-gray-200"
+                    class="text-xs sm:text-sm md:text-base text-[#02072199] font-semibold bg-gray-200"
                   >
                     <TableHead> Name of Weesh </TableHead>
                     <TableHead>Category</TableHead>
@@ -441,7 +426,7 @@ const user2s = ref<any[]>([
 
           <TabsContent value="bank" class="space-y-4">
             <div class="overflow-auto bg-white rounded-md md:mx-6">
-              <Table class=" min-w-full ">
+              <Table class="min-w-full">
                 <TableHeader>
                   <TableRow
                     class="text-xs sm:text-sm md:text-base text-[#02072199] font-semibold bg-gray-200"
