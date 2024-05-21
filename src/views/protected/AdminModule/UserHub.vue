@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { Card, CardContent, CardHeader } from '@/components/ui/card'import { onMounted } from 'vue'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { onMounted } from 'vue'
 import { useUserhubStore } from '@/stores/userhub-details/userhub-details'
 import MainNav from '@/components/MainNav.vue'
 import DashboardFooter from '@/components/DashboardFooter.vue'
@@ -46,10 +47,10 @@ onMounted(() => {
       </Card>
 
       <Card
-        class="rounded-xl bg-[#DCDEFF] h-80 shadow-md transition-transform transform hover:scale-105 mb-5"
+        class="rounded-xl bg-[#DCDEFF] h-[450px] shadow-md transition-transform transform hover:scale-105 mb-5"
       >
-        <span v-if="userHubStore.loading">
-          <RouterLink to="/user/vendors">
+        <span v-if="userHubStore.loading" class="flex flex-col justify-between h-full">
+          <RouterLink to="/user/vendors" class="flex flex-col h-full">
             <CardHeader class="flex items-center justify-between space-y-0">
               <img
                 class=""
@@ -72,7 +73,7 @@ onMounted(() => {
       </Card>
 
       <Card
-        class="rounded-xl bg-[#89cff0ee] h-80 shadow-md transition-transform transform hover:scale-105 mb-5"
+        class="rounded-xl bg-[#89cff0ee] h-[450px] shadow-md transition-transform transform hover:scale-105 mb-5"
       >
         <span v-if="userHubStore.loading">
           <RouterLink to="/user/admin">
@@ -98,7 +99,7 @@ onMounted(() => {
       </Card>
 
       <Card
-        class="rounded-xl bg-[#E9F4D1] h-90 shadow-md transition-transform transform hover:scale-105 mb-5"
+        class="rounded-xl bg-[#E9F4D1] h-[450px] shadow-md transition-transform transform hover:scale-105 mb-5"
       >
         <span v-if="userHubStore.loading">
           <CardHeader class="flex items-center justify-between space-y-0">
@@ -122,14 +123,7 @@ onMounted(() => {
     </div>
 
     <DashboardFooter />
-Content>
-          </span>
-          <UserhubSkeleton />
-        </Card>
-        
-      </div>
 
-     <DashboardFooter/>
-
+          
   </div>
 </template>
