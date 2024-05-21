@@ -506,7 +506,6 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
                   {{ user.disabled ? 'Disabled' : 'Active' }}
               </Badge>
               </TableCell>
-              <TableCell>{{user.phoneNumber.normalizedNumber}}</TableCell>
               <TableCell>
                 <div class="flex flex-wrap gap-2">
                   <!-- Display each permission as a pill -->
