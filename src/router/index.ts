@@ -16,6 +16,8 @@ import WeeshesDets from '@/views/unprotected/WeeshesDetails.vue'
 import AdminView from '@/views/protected/AdminModule/AdminList.vue'
 import AdminList from '@/views/protected/SuperAdminModule/AdminList.vue'
 import CreateUser from '@/views/protected/SuperAdminModule/CreateUser.vue'
+import DepotPage from '@/views/protected/AdminModule/DepotPage.vue'
+import BankPage from '@/views/protected/AdminModule/BankPage.vue'
 
 const routes = [
   {
@@ -126,6 +128,17 @@ const routes = [
     path: '/weeshes/fulfullied',
     name: 'weeshesDetails',
     component:  WeeshesDets,
+  },
+
+  {
+    path: '/depot',
+    name: 'depot',
+    component:  DepotPage,
+  },
+  {
+    path: '/bank',
+    name: 'bank',
+    component:  BankPage,
   },
 
   {

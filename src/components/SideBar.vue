@@ -56,6 +56,26 @@ const logout = async () => {
         </a>
       </li>
 
+      <li :class="{ 'dashboard-active': $route.path === '/depot' }">
+        <a @click="$router.push({ name: 'depot' })">
+          <div class="icon-grid">
+            <Icon icon="codicon:truck-fas" width="17" height="17" class="icons-sidebar" />
+          </div>
+
+          <span class="nav-text"> Depot </span>
+        </a>
+      </li>
+
+      <li :class="{ 'dashboard-active': $route.path === '/bank' }">
+        <a @click="$router.push({ name: 'bank' })">
+          <div class="icon-grid">
+            <Icon icon="codicon:truck-fas" width="17" height="17" class="icons-sidebar" />
+          </div>
+
+          <span class="nav-text"> Bank </span>
+        </a>
+      </li>
+
       <li>
         <a>
           <div class="icon-grid">
