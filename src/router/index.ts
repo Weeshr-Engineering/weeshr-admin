@@ -1,3 +1,4 @@
+
 import { createRouter, createWebHistory } from 'vue-router'
 // import HomeView from '@/views/protected/Shared/HomeView.vue'
 import SuperAdminLogin from '@/views/unprotected/SuperAdminModule/SuperAdminLogin.vue'
@@ -16,6 +17,8 @@ import WeeshesDets from '@/views/unprotected/WeeshesDetails.vue'
 import AdminView from '@/views/protected/AdminModule/AdminList.vue'
 import AdminList from '@/views/protected/SuperAdminModule/AdminList.vue'
 import CreateUser from '@/views/protected/SuperAdminModule/CreateUser.vue'
+import DepotPage from '@/views/protected/AdminModule/DepotPage.vue'
+import BankPage from '@/views/protected/AdminModule/BankPage.vue'
 
 const routes = [
   {
@@ -31,7 +34,7 @@ const routes = [
   //   component: HomeView,
   //   meta: { requiresAuth: true }
   // },
-  
+
   {
     path: '/login',
     name: 'superAdmin-login',
@@ -74,46 +77,69 @@ const routes = [
   {
     path: '/user/admin',
     name: 'admin',
-    component:  AdminView,
+
+    component: AdminView,
+
     meta: { requiresAuth: true }
   },
   {
     path: '/admin-creation',
     name: 'admin-creation',
-    component:  CreateUser,
+
+    component: CreateUser,
+
     meta: { requiresAuth: true }
   },
   {
     path: '/admin-list',
     name: 'admin-list',
-    component:  AdminList,
+
+    component: AdminList,
+
     meta: { requiresAuth: true }
   },
 
   {
     path: '/admindetails/:Id',
     name: 'AdminDetails',
-    component:  AdminDetails,
+
+    component: AdminDetails,
+
     meta: { hideSidebar: true }
   },
 
   {
     path: '/usersdetails/:Id',
     name: 'UserDetails',
-    component:  UserDetails,
+
+    component: UserDetails,
+
     meta: { hideSidebar: true }
   },
 
   {
     path: '/weeshes',
     name: 'weeshes',
-    component:  WeeshesPage,
+    component: WeeshesPage
   },
 
   {
     path: '/weeshes/fulfullied',
     name: 'weeshesDetails',
-    component:  WeeshesDets,
+    component: WeeshesDets
+  },
+
+  {
+    path: '/depot',
+    name: 'depot',
+    component: DepotPage,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/bank',
+    name: 'bank',
+    component: BankPage,
+    meta: { requiresAuth: true }
   },
 
   {
