@@ -9,7 +9,7 @@ import MainNav from '@/components/MainNav.vue'
 import axios from 'axios'
 import { Loader2 } from 'lucide-vue-next'
 import router from '@/router'
-import { Button } from "@/components/ui/button"
+import { Button } from '@/components/ui/button'
 import { Icon } from '@iconify/vue'
 import {
   Sheet,
@@ -33,8 +33,8 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+  SelectValue
+} from '@/components/ui/select'
 
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
@@ -73,7 +73,7 @@ const newUser = ref({
   lastName: '',
   gender: '',
   dob: '',
-  phone: '',
+  phone: ''
 })
 
 const sheetOpen = ref(false)
@@ -86,7 +86,7 @@ const token = sessionStorage.getItem('token') || ''
 
 const onSubmit = handleSubmit(async (values) => {
   loading.value = true
-console.log('submitting')
+  console.log('submitting')
   const user = {
     firstName: values.firstName,
     lastName: values.lastName,
@@ -115,7 +115,7 @@ console.log('submitting')
     userEmail: '',
     gender: '',
     dob: '',
-    phone: '',
+    phone: ''
   }
 })
 
@@ -167,7 +167,7 @@ const fetchUsersData = async () => {
     currentPage.value = response.data.data.currentPage
     const totalPageValue = await response.data.data.totalPages
     totalPage.value = new Array(totalPageValue).fill(null)
-    
+
     // close loading screen
     // useGeneralStore().setLoading(false)
   } catch (error: any) {
@@ -248,14 +248,14 @@ const saveUserData = async (user: any) => {
   }
 }
 
-const prevPage = ()=>{
-  if(currentPage.value > 1){
+const prevPage = () => {
+  if (currentPage.value > 1) {
     console.log(currentPage.value++)
   }
 }
 
-const nextPage = ()=>{
-  if(currentPage.value < totalPage.value.length - 1){
+const nextPage = () => {
+  if (currentPage.value < totalPage.value.length - 1) {
     console.log(currentPage.value++)
   }
 }
@@ -362,22 +362,23 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
                 <FormField v-slot="{ componentField }" name="gender" class="w-[40%]">
                   <FormItem>
                     <FormLabel>Gender</FormLabel>
-                    
-                      <Select
+
+                    <Select
                       v-bind="componentField"
                       id="gender"
-                      class='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'>
+                      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    >
                       <FormControl>
                         <SelectTrigger class="">
-                            <SelectValue placeholder="Gender" />
-                          </SelectTrigger>
+                          <SelectValue placeholder="Gender" />
+                        </SelectTrigger>
                       </FormControl>
-                        <SelectContent>
-                          <SelectItem value="Female">Female</SelectItem>
-                          <SelectItem value="Male">Male</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    
+                      <SelectContent>
+                        <SelectItem value="Female">Female</SelectItem>
+                        <SelectItem value="Male">Male</SelectItem>
+                      </SelectContent>
+                    </Select>
+
                     <FormMessage for="gender" />
                   </FormItem>
                 </FormField>
@@ -424,22 +425,23 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
               <FormField v-slot="{ componentField }" name="type">
                 <FormItem>
                   <FormLabel>Admin Type</FormLabel>
-                  
-                    <Select
+
+                  <Select
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                     v-bind="componentField"
-                    id="type">
+                    id="type"
+                  >
                     <FormControl>
                       <SelectTrigger class="w-full">
                         <SelectValue placeholder="Select Admin Type" />
                       </SelectTrigger>
                     </FormControl>
-                      <SelectContent>
-                        <SelectItem value="super_admin">Super Admin</SelectItem>
-                        <SelectItem value="admin">Admin</SelectItem>
-                        <SelectItem value="cxperience">Cxperience</SelectItem>
-                        <SelectItem value="flutter">Flutter</SelectItem>
-                      </SelectContent>
+                    <SelectContent>
+                      <SelectItem value="super_admin">Super Admin</SelectItem>
+                      <SelectItem value="admin">Admin</SelectItem>
+                      <SelectItem value="cxperience">Cxperience</SelectItem>
+                      <SelectItem value="flutter">Flutter</SelectItem>
+                    </SelectContent>
                   </Select>
                   <FormMessage for="gender" />
                 </FormItem>
@@ -490,15 +492,15 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
               <TableCell class="font-medium">{{ user.firstName }} {{ user.lastName }}</TableCell>
               <TableCell>{{ user.email }}</TableCell>
               <TableCell>{{ user.gender }}</TableCell>
-              <TableCell>{{user.phoneNumber.normalizedNumber}}</TableCell>
+              <TableCell>{{ user.phoneNumber.normalizedNumber }}</TableCell>
               <TableCell>
                 <div class="flex flex-wrap gap-2">
                   <!-- Display each permission as a pill -->
                   <!-- <template v-for="permission in users" :key="permission"> -->
-                    <span
-                      class="inline-block bg-[#373B4D] text-[#F8F9FF] rounded-full px-2 py-1 text-sm"
-                      >Dashboard</span
-                    >
+                  <span
+                    class="inline-block bg-[#373B4D] text-[#F8F9FF] rounded-full px-2 py-1 text-sm"
+                    >Dashboard</span
+                  >
                   <!-- </template> -->
                 </div>
               </TableCell>
@@ -528,12 +530,22 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
         </Table>
       </div>
       <div class="flex gap-2 max-w-full flex-wrap justify-end mt-8 mr-4 items-center text-[15px]">
-        <Button variant="secondary" @click="prevPage"> <Icon icon="radix-icons:chevron-left" /> </Button>
+        <Button variant="secondary" @click="prevPage">
+          <Icon icon="radix-icons:chevron-left" />
+        </Button>
         <span v-for="(item, index) in totalPage" :key="index">
-          <Button v-if="(index + 1) == currentPage" variant="secondary" class="bg-[#020721] text-gray-400" > {{ index + 1 }} </Button>
-          <Button v-else variant="outline" > {{ index + 1 }} </Button>
+          <Button
+            v-if="index + 1 == currentPage"
+            variant="secondary"
+            class="bg-[#020721] text-gray-400"
+          >
+            {{ index + 1 }}
+          </Button>
+          <Button v-else variant="outline"> {{ index + 1 }} </Button>
         </span>
-        <Button variant="secondary" @click="nextPage"> <Icon icon="radix-icons:chevron-right" /> </Button>
+        <Button variant="secondary" @click="nextPage">
+          <Icon icon="radix-icons:chevron-right" />
+        </Button>
         <!-- <a href="#"><p class="text-[blue]">See all</p></a> -->
       </div>
     </Card>

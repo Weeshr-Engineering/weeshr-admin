@@ -486,7 +486,7 @@ const birthMonthOptions = computed<string[]>(() => [
               <TableCell class="text-xs md:text-sm lg:text-sm">{{ user.dob }} </TableCell>
               <TableCell class="text-xs md:text-sm lg:text-sm">{{ user.gender }} </TableCell>
               <TableCell class="text-xs md:text-sm lg:text-sm">{{ user.balance }}</TableCell>
-              <TableCell class="flex items-center  ">
+              <TableCell class="flex items-center">
                 <!-- Render multiple status icons based on user's status array -->
                 <template v-for="status in user.status" :key="status">
                   <img

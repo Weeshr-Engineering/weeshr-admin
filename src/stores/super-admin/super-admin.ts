@@ -34,7 +34,7 @@ export const useSuperAdminStore = defineStore({
       this.token = token
       sessionStorage.setItem('token', token)
     },
-    setLocalStorage(firstname: string, lastname: string, email: string){
+    setLocalStorage(firstname: string, lastname: string, email: string) {
       const user = {
         firstname,
         lastname,
@@ -43,7 +43,7 @@ export const useSuperAdminStore = defineStore({
       // store basic user data in local storage
       localStorage.setItem('user', JSON.stringify(user))
     },
-    getLocalstorageData (){
+    getLocalstorageData() {
       const data = localStorage.getItem('user')!
       return JSON.parse(data)
     },
@@ -74,8 +74,8 @@ export const useSuperAdminStore = defineStore({
         // Clear the token
         this.clearToken()
         // clear localstorage
-        localStorage.removeItem('user');
-        
+        localStorage.removeItem('user')
+
         useGeneralStore().setLoading(false)
 
         router.push({ name: 'superAdmin-login' })
