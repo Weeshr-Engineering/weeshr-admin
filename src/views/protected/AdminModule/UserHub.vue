@@ -51,9 +51,9 @@ onMounted(() => {
       >
         <span v-if="userHubStore.loading" class="flex flex-col justify-between h-full">
           <RouterLink to="/user/vendors" class="flex flex-col h-full">
-            <CardHeader class="flex items-center justify-between space-y-0">
+            <CardHeader class="flex flex-col items-center justify-center flex-grow">
               <img
-                class=""
+                class="mb-2"
                 src="https://res.cloudinary.com/dufimctfc/image/upload/v1712066752/user2_gygznz.svg"
                 alt="gradient"
               />
@@ -61,8 +61,8 @@ onMounted(() => {
               <p class="text-2xl font-bold text-gray-800">Vendors</p>
             </CardHeader>
 
-            <CardContent class="bg-[#373B4D] rounded-xl pb-4">
-              <div class="px-1 pt-4 text-xs">
+            <CardContent class="bg-[#020721] pt-2 h-[80px] rounded-bl-[24px] rounded-br-[24px] px-1 text-xs pb-4">
+              <div class="pt-2 px-4 text-xs">
                 <p class="font-semibold tracking-tight text-gray-400">Members</p>
                 <p class="text-2xl font-semibold text-white">{{ userHubStore.vendorsCount }}</p>
               </div>
@@ -75,11 +75,11 @@ onMounted(() => {
       <Card
         class="rounded-xl bg-[#89cff0ee] h-[450px] shadow-md transition-transform transform hover:scale-105 mb-5"
       >
-        <span v-if="userHubStore.loading">
-          <RouterLink to="/user/admin">
-            <CardHeader class="flex items-center justify-between space-y-0">
+        <span v-if="userHubStore.loading" class="flex flex-col justify-between h-full">
+          <RouterLink to="/user/admin" class="flex flex-col h-full">
+            <CardHeader class="flex flex-col items-center justify-center flex-grow">
               <img
-                class=""
+                class="mb-2"
                 src="https://res.cloudinary.com/dufimctfc/image/upload/v1712066752/user3_hpnxmx.svg"
                 alt="gradient"
               />
@@ -87,8 +87,8 @@ onMounted(() => {
               <p class="text-2xl font-bold text-gray-800">Admin Staff</p>
             </CardHeader>
 
-            <CardContent class="bg-[#373B4D] rounded-xl pb-4">
-              <div class="px-1 pt-4 text-xs">
+            <CardContent class="bg-[#020721] pt-2 h-[80px] rounded-bl-[24px] rounded-br-[24px] px-1 text-xs pb-4">
+              <div class="pt-2 px-4 text-xs">
                 <p class="font-semibold tracking-tight text-gray-400">Members</p>
                 <p class="text-2xl font-semibold text-white">{{ userHubStore.adminsCount }}</p>
               </div>
@@ -101,18 +101,18 @@ onMounted(() => {
       <Card
         class="rounded-xl bg-[#E9F4D1] h-[450px] shadow-md transition-transform transform hover:scale-105 mb-5"
       >
-        <span v-if="userHubStore.loading">
-          <CardHeader class="flex items-center justify-between space-y-0">
+        <span v-if="userHubStore.loading" class="flex flex-col justify-between h-full">
+          <CardHeader class="flex flex-col items-center justify-center flex-grow">
             <img
-              class=""
+              class="mb-2"
               src="https://res.cloudinary.com/dufimctfc/image/upload/v1712066752/user4_a9k8bm.svg"
               alt="gradient"
             />
 
             <p class="text-2xl font-bold text-gray-800">Partners</p>
           </CardHeader>
-          <CardContent class="bg-[#373B4D] rounded-xl pb-4">
-            <div class="px-1 pt-4 text-xs">
+          <CardContent class="bg-[#020721] pt-2 h-[80px] rounded-bl-[24px] rounded-br-[24px] px-1 text-xs pb-4">
+            <div class="pt-2 px-4 text-xs">
               <p class="font-semibold tracking-tight text-gray-400">Members</p>
               <p class="text-2xl font-semibold text-white">{{ userHubStore.partnersCount }}</p>
             </div>
