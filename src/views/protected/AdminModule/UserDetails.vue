@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { Switch } from '@/components/ui/switch'
+import { Icon } from '@iconify/vue'
+
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -196,27 +198,27 @@ const user2s = ref<any[]>([
           <CardDescription>
             <div class="grid gap-2 grid-cols-3 md:grid-cols-5 lg:grid-cols-5 my-7">
               <img
-                class="max-w-[60.66px] h-auto"
+                class="max-w-[70.66px] h-auto"
                 src="https://res.cloudinary.com/dufimctfc/image/upload/v1710684025/images1_wbbxb5.svg"
                 alt="gradient"
               />
               <img
-                class="max-w-[60.66px] h-auto"
+                class="max-w-[70.66px] h-auto"
                 src="https://res.cloudinary.com/dufimctfc/image/upload/v1710684023/images2_ma998k.svg"
                 alt="gradient"
               />
               <img
-                class="max-w-[60.66px] h-auto"
+                class="max-w-[70.66px] h-auto"
                 src="https://res.cloudinary.com/dufimctfc/image/upload/v1710693199/image5_lwx2g1.svg"
                 alt="gradient"
               />
               <img
-                class="max-w-[60.66px] h-auto"
+                class="max-w-[70.66px] h-auto"
                 src="https://res.cloudinary.com/dufimctfc/image/upload/v1710684024/image4_v8krvl.svg"
                 alt="gradient"
               />
               <img
-                class="max-w-[60.66px] h-auto"
+                class="max-w-[70.66px] h-auto"
                 src="https://res.cloudinary.com/dufimctfc/image/upload/v1710684023/images2_ma998k.svg"
                 alt="gradient"
               />
@@ -372,9 +374,25 @@ const user2s = ref<any[]>([
                   >
                     <TableHead> Name of Weesh </TableHead>
                     <TableHead>Category</TableHead>
-                    <TableHead>Price</TableHead>
-                    <TableHead> Changes</TableHead>
-                    <TableHead>Status</TableHead>
+                    <TableHead>
+                      <div class="flex items-center">
+                  Price
+                  <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
+                </div> 
+                    </TableHead>
+                    <TableHead> 
+                      <div class="flex items-center">
+                  Changes
+                  <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
+                      </div>
+                    </TableHead>
+
+                    <TableHead>
+                      <div class="flex items-center">
+                  Status
+                  <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
+                      </div>
+                </TableHead>
                     <TableHead></TableHead>
                   </TableRow>
                 </TableHeader>
@@ -431,10 +449,30 @@ const user2s = ref<any[]>([
                   <TableRow
                     class="text-xs sm:text-sm md:text-base text-[#02072199] font-semibold bg-gray-200"
                   >
-                    <TableHead> Type </TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Amount</TableHead>
-                    <TableHead>Status</TableHead>
+                    <TableHead>
+                        <div class="flex items-center">
+                  Type
+                  <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
+                      </div>
+                      </TableHead>
+                    <TableHead>
+                      <div class="flex items-center">
+                  Date
+                  <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
+                      </div>
+                    </TableHead>
+                    <TableHead>
+                      <div class="flex items-center">
+                  Amount
+                  <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
+                      </div>
+                    </TableHead>
+                    <TableHead>
+                       <div class="flex items-center">
+                  Status
+                  <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
+                      </div>
+                    </TableHead>
                     <TableHead></TableHead>
                   </TableRow>
                 </TableHeader>
