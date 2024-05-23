@@ -5,6 +5,8 @@ import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import * as z from 'zod'
 import MainNav from '@/components/MainNav.vue'
+import { Icon } from '@iconify/vue'
+
 
 import axios from 'axios'
 import { Loader2 } from 'lucide-vue-next'
@@ -345,29 +347,19 @@ const birthMonthOptions = computed<string[]>(() => [
     <MainNav class="mx-6" headingText="User" />
 
     <Card class="container px-4 pt-6 pb-10 mx-auto sm:px-6 lg:px-8 bg-[#FFFFFF] rounded-2xl">
-      <div class="flex flex-col sm:flex-row items-center justify-between px-2 sm:px-6 py-4">
-        <div class="text-xl sm:text-xl font-bold tracking-tight text-[#020721] mb-2 sm:mb-0">
+      <div class="flex flex-col  gap-4 sm:flex-row items-center justify-between px-2 sm:px-6 py-4">
+        <div class="text-xl sm:text-xl font-bold  text-[#020721] mb-2 sm:mb-0">
           App Users
           <p class="text-xs sm:text-sm text-[#02072199]">List of Weeshr App Users</p>
         </div>
-        <div class="items-center space-x-1 flex flex-row md:items-center md:space-x-3">
+        <div class="items-center  grid grid-cols-3 md:grid-cols-3 gap-4  flex-row ">
           <DropdownMenu>
-            <DropdownMenuTrigger as-child class="rounded-2xl bg-[#EEEFF5]">
+            <DropdownMenuTrigger as-child class="rounded-2xl bg-[#EEEFF5] ">
               <Button variant="outline">
-                Gender
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="w-5 h-5 ml-2 -mr-1"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    d="M6.293 9.293a1 1 0 011.414 0L10 11.586l2.293-2.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
-                    clip-rule="evenodd"
-                  />
-                </svg>
+                <div class="flex items-center text-[10px] md:text-xs">
+                  Gender
+                  <Icon icon="ion:chevron-down-outline" class="ml-1" />
+                </div>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent class="item-center justify-between">
@@ -388,22 +380,13 @@ const birthMonthOptions = computed<string[]>(() => [
             </DropdownMenuContent>
           </DropdownMenu>
           <DropdownMenu>
-            <DropdownMenuTrigger as-child class="rounded-2xl bg-[#EEEFF5]">
+            <DropdownMenuTrigger as-child class="rounded-2xl bg-[#EEEFF5] ">
               <Button variant="outline">
-                Birth Month
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="w-5 h-5 ml-2 -mr-1"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    d="M6.293 9.293a1 1 0 011.414 0L10 11.586l2.293-2.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
-                    clip-rule="evenodd"
-                  />
-                </svg>
+                
+                <div class="flex items-center text-[9px] md:text-xs">
+                 Birth Month
+                  <Icon icon="ion:chevron-down-outline" class="ml-1" />
+                </div>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent class="">
@@ -425,20 +408,11 @@ const birthMonthOptions = computed<string[]>(() => [
           <DropdownMenu>
             <DropdownMenuTrigger as-child class="rounded-2xl bg-[#EEEFF5]">
               <Button variant="outline">
+               
+                <div class="flex items-center text-[10px] md:text-xs">
                 Status
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="w-5 h-5 ml-2 -mr-1"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    d="M6.293 9.293a1 1 0 011.414 0L10 11.586l2.293-2.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
-                    clip-rule="evenodd"
-                  />
-                </svg>
+                  <Icon icon="ion:chevron-down-outline" class="ml-1" />
+                </div>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
@@ -459,7 +433,7 @@ const birthMonthOptions = computed<string[]>(() => [
           </DropdownMenu>
         </div>
 
-        <Search class="mt-3 lg:mt-0" />
+        <Search />
       </div>
 
       <div class="overflow-auto bg-white rounded-lg shadow">
