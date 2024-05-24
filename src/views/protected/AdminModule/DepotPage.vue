@@ -1,44 +1,44 @@
 <template>
   <div class="flex-col flex bg-[#f0f8ff] h-full px-4 sm:px-10 pb-10">
     <MainNav class="mx-6" headingText="Depot" />
-    <div class="w-full grid gap-4 md:grid-cols-4 md:gap-6 lg:grid-cols-8">
+    <div class="min-w-[164px] grid grid-cols-2 gap-4 md:grid-cols-4  lg:grid-cols-8 ">
       <Button
-        class="bg-[#020721] text-l font-medium text-[#FFFFFF] rounded-3xl min-w-[145px] h-[30px] md:h-[60px]"
+        class="bg-[#020721] text-l font-medium text-[#FFFFFF] rounded-3xl  h-[30px] md:h-[60px] lg:145px"
       >
         Today
       </Button>
       <Button
-        class="bg-[#FFFFFF] text-l font-medium text-[#020721] rounded-3xl min-w-[145px] h-[30px] md:h-[60px]"
+        class="bg-[#FFFFFF] text-l font-medium text-[#020721] rounded-3xl  h-[30px] md:h-[60px] lg:145px"
       >
         6 Feb 2023
       </Button>
       <Button
-        class="bg-[#FFFFFF] text-l font-medium text-[#020721] rounded-3xl min-w-[145px] h-[30px] md:h-[60px]"
+        class="bg-[#FFFFFF] text-l font-medium text-[#020721] rounded-3xl  h-[30px] md:h-[60px] lg:145px"
       >
         7 Feb 2023
       </Button>
       <Button
-        class="bg-[#FFFFFF] text-l font-medium text-[#020721] rounded-3xl min-w-[145px] h-[30px] md:h-[60px]"
+        class="bg-[#FFFFFF] text-l font-medium text-[#020721] rounded-3xl  h-[30px] md:h-[60px] lg:145px"
       >
         8 Feb 2023
       </Button>
       <Button
-        class="bg-[#FFFFFF] text-l font-medium text-[#020721] rounded-3xl min-w-[145px] h-[30px] md:h-[60px]"
+        class="bg-[#FFFFFF] text-l font-medium text-[#020721] rounded-3xl  h-[30px] md:h-[60px] lg:145px"
       >
         9 Feb 2023
       </Button>
       <Button
-        class="bg-[#FFFFFF] text-l font-medium text-[#020721] rounded-3xl min-w-[145px] h-[30px] md:h-[60px]"
+        class="bg-[#FFFFFF] text-l font-medium text-[#020721] rounded-3xl  h-[30px] md:h-[60px] lg:145px"
       >
         10 Feb 2023
       </Button>
       <Button
-        class="bg-[#FFFFFF] text-l font-medium text-[#020721] rounded-3xl min-w-[145px] h-[30px] md:h-[60px]"
+        class="bg-[#FFFFFF] text-l font-medium text-[#020721] rounded-3xl  h-[30px] md:h-[60px] lg:145px"
       >
         11 Feb 2023
       </Button>
       <Button
-        class="bg-[#FFFFFF] text-l font-medium text-[#020721] rounded-3xl min-w-[145px] h-[30px] md:h-[60px]"
+        class="bg-[#FFFFFF] text-l font-medium text-[#020721] rounded-3xl  h-[30px] md:h-[60px] lg:145px"
       >
         12 Feb 2023
       </Button>
