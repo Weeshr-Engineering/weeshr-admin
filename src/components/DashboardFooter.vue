@@ -30,6 +30,7 @@
           src="https://res.cloudinary.com/drykej1am/image/upload/v1708288265/weeshr_website/IG_jw9rir.svg"
           style="color: transparent"
       /></a>
+      
       <a href="https://x.com/Weeshr_app" target="_blank" rel="noopener noreferrer"
         ><img
           alt="Twitter"
