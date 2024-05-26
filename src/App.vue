@@ -12,11 +12,11 @@ const superAdminStore = useGeneralStore()
   <div>
     <LoadingSpinner v-if="superAdminStore.loading" />
 
-    <div v-else>
+    <div v-else class="h-screen w-screen overflow-hidden">
       <SideBar v-if="!$route.meta.hideSidebar" />
 
-      <div :class="{ 'ml-[4rem]': !$route.meta.hideSidebar }">
-        <RouterView />
+      <div class="relative !overflow-auto !h-full" :class="{ 'ml-[4rem]': !$route.meta.hideSidebar }">
+        <RouterView  class="!overflow-auto"/>
       </div>
 
       <Toaster />
