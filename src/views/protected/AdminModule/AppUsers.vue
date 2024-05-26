@@ -11,8 +11,8 @@ import router from '@/router'
 import { Icon } from '@iconify/vue'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Switch } from '@/components/ui/switch';
-import 'intl-tel-input/build/css/intlTelInput.css';
 import intlTelInput from 'intl-tel-input';
+import 'intl-tel-input/build/css/intlTelInput.css';
 
 
 import {
@@ -312,19 +312,24 @@ const saveUserData = async (user: any) => {
   }
 }
 
-const iti = ref({})
+type IntlTelInputPlugin = ReturnType<typeof intlTelInput>;
 
+const iti = ref<IntlTelInputPlugin | null>(null);
 
 // onMounted(fetchUsersData);\
 onMounted(async () => {
   // useGeneralStore().setLoading(true);
   fetchUsersData()
-  const input = document.querySelector("#phone");
+
+  const input = document.querySelector("#phone") as HTMLInputElement;
   iti.value = intlTelInput(input, {
-      utilsScript: "../node_modules/intl-tel-input/build/js/utils.js",
-      containerClass: "w-full"
+    utilsScript: "../node_modules/intl-tel-input/build/js/utils.js",
+    containerClass: "w-full",
+    separateDialCode: true 
   });
-})
+});
+
+
 
 const selectedGender = ref('')
 const genderOptions = computed<string[]>(() => {
@@ -576,7 +581,7 @@ const toggleDisplayForm = () => {
                     <h3 class="text-2xl font-medium mb-4 pt-2.5">User Form</h3>
                     <div class="flex items-center">
                         <p class="me-2 text-xs font-semibold">Active</p>
-                        <Switch v-bind:checked="componentField" class="dark:bg-gray-700"/>
+                        <Switch class="dark:bg-gray-700"/>
                     </div>
                 </div>
                 <FormField v-slot="{ componentField }" name="firstName">
@@ -747,7 +752,7 @@ const toggleDisplayForm = () => {
                         v-if="loading"
                         class="w-4 h-4 mr-2 text-black animate-spin"
                     />
-                    Submit
+                    Save
 
                     <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" />
                     </Button>
