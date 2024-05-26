@@ -121,7 +121,8 @@ function formatDate(inputDate: string) {
 }
 
 const editProfile = async (values: any) => {
-const adminProfile = JSON.stringify({
+console.log(user.value)
+  const adminProfile = JSON.stringify({
     'firstName': values.firstName || user.value.firstName,
     'lastName': values.lastName || user.value.lastName,
     'gender': values.gender || user.value.gender,
@@ -129,7 +130,7 @@ const adminProfile = JSON.stringify({
     'dob': values.dob && values.dob.substring(0, 10) || user.value.dob.substring(0, 10),
     'phone': {
       'countryCode': '+234',
-      'phoneNumber': values.phone || '0987876543'
+      'phoneNumber': values.phone || user.value.phoneNumber.phoneNumber
     },
     "disabled": adminListStore.adminStatus
   })
@@ -185,6 +186,13 @@ const contactFormSchema = toTypedSchema(z.object({
 }))
 const { handleSubmit: contactForm } = useForm({
   validationSchema: contactFormSchema,
+  // initialValues: {
+  //   'firstName': user.value.firstName,
+  //   'lastName': user.value.lastName,
+  //   'gender': user.value.gender,
+  //   'email': user.value.email,
+  //   'phone':  user.value.phoneNumber.phoneNumber,
+  // }
 })
 
 const onSubmit = contactForm((values) => {
