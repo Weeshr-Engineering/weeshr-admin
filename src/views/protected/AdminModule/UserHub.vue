@@ -34,7 +34,7 @@ onMounted(() => {
             </CardHeader>
 
             <CardContent
-              class="bg-[#020721] pt-2 h-[80px] rounded-bl-[24px] rounded-br-[24px] px-1 text-xs pb-4"
+              class="bg-[#020721] pt-2 h-[80px] rounded-bl-[12px] rounded-br-[12px] px-1 text-xs pb-4"
             >
               <div class="pt-2 px-4 text-xs">
                 <p class="font-semibold tracking-tight text-gray-400">Members</p>
@@ -61,7 +61,7 @@ onMounted(() => {
               <p class="text-2xl font-bold text-gray-800">Vendors</p>
             </CardHeader>
 
-            <CardContent class="bg-[#020721] pt-2 h-[80px] rounded-bl-[24px] rounded-br-[24px] px-1 text-xs pb-4">
+            <CardContent class="bg-[#020721] pt-2 h-[80px] rounded-bl-[12px] rounded-br-[12px] px-1 text-xs pb-4">
               <div class="pt-2 px-4 text-xs">
                 <p class="font-semibold tracking-tight text-gray-400">Members</p>
                 <p class="text-2xl font-semibold text-white">{{ userHubStore.vendorsCount }}</p>
@@ -87,7 +87,7 @@ onMounted(() => {
               <p class="text-2xl font-bold text-gray-800">Admin Staff</p>
             </CardHeader>
 
-            <CardContent class="bg-[#020721] pt-2 h-[80px] rounded-bl-[24px] rounded-br-[24px] px-1 text-xs pb-4">
+            <CardContent class="bg-[#020721] pt-2 h-[80px] rounded-bl-[12px] rounded-br-[12px] px-1 text-xs pb-4">
               <div class="pt-2 px-4 text-xs">
                 <p class="font-semibold tracking-tight text-gray-400">Members</p>
                 <p class="text-2xl font-semibold text-white">{{ userHubStore.adminsCount }}</p>
@@ -111,7 +111,7 @@ onMounted(() => {
 
             <p class="text-2xl font-bold text-gray-800">Partners</p>
           </CardHeader>
-          <CardContent class="bg-[#020721] pt-2 h-[80px] rounded-bl-[24px] rounded-br-[24px] px-1 text-xs pb-4">
+          <CardContent class="bg-[#020721] pt-2 h-[80px] rounded-bl-[12px] rounded-br-[12px] px-1 text-xs pb-4">
             <div class="pt-2 px-4 text-xs">
               <p class="font-semibold tracking-tight text-gray-400">Members</p>
               <p class="text-2xl font-semibold text-white">{{ userHubStore.partnersCount }}</p>
