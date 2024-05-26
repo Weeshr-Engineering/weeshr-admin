@@ -29,10 +29,4 @@
     overflow-y: auto;
     scrollbar-width: none;
 }
-.iti {
-    --iti-path-flags-1x: url('../node_modules/intl-tel-input/build/img/flags.png');
-    --iti-path-flags-2x: url('../node_modules/intl-tel-input/build/img/flags@2x.png');
-    --iti-path-globe-1x: url('../node_modules/intl-tel-input/build/img/globe.png');
-    --iti-path-globe-2x: url('../node_modules/intl-tel-input/build/img/globe@2x.png');
-}
 </style>

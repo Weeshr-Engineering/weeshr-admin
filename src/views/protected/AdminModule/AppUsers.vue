@@ -6,13 +6,11 @@ import { toTypedSchema } from '@vee-validate/zod'
 import * as z from 'zod'
 import MainNav from '@/components/MainNav.vue'
 import axios from 'axios'
-import { Component, Loader2 } from 'lucide-vue-next'
+import { Loader2 } from 'lucide-vue-next'
 import router from '@/router'
 import { Icon } from '@iconify/vue'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Switch } from '@/components/ui/switch';
-import intlTelInput from 'intl-tel-input';
-import 'intl-tel-input/build/css/intlTelInput.css';
 
 
 import {
@@ -39,6 +37,7 @@ import { toast } from '@/components/ui/toast'
 import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
 import { useGeneralStore } from '@/stores/general-use'
 import ModalForm from '@/components/ModalForm.vue'
+
 
 const formSchema = toTypedSchema(
   z.object({
@@ -312,21 +311,11 @@ const saveUserData = async (user: any) => {
   }
 }
 
-type IntlTelInputPlugin = ReturnType<typeof intlTelInput>;
-
-const iti = ref<IntlTelInputPlugin | null>(null);
-
 // onMounted(fetchUsersData);\
 onMounted(async () => {
   // useGeneralStore().setLoading(true);
   fetchUsersData()
-
-  const input = document.querySelector("#phone") as HTMLInputElement;
-  iti.value = intlTelInput(input, {
-    utilsScript: "../node_modules/intl-tel-input/build/js/utils.js",
-    containerClass: "w-full",
-    separateDialCode: true 
-  });
+  
 });
 
 
@@ -746,7 +735,7 @@ const toggleDisplayForm = () => {
                         Cancel
                     </Button>
 
-                    <Button :disabled="loading" type="submit" class="rounded-lg px-2 py-1 bg-[#4145a7] ms-2">
+                    <Button :disabled="loading" type="submit" class="rounded-lg px-4 py-1 bg-[#4145a7] ms-2">
                     <Loader2
                         color="#ffffff"
                         v-if="loading"
