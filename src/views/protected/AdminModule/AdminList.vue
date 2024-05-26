@@ -10,6 +10,7 @@ import axios from 'axios'
 import { Loader2 } from 'lucide-vue-next'
 import router from '@/router'
 import { Button } from "@/components/ui/button"
+import { Badge } from '@/components/ui/badge'
 import { Icon } from '@iconify/vue'
 import {
   Sheet,
@@ -42,6 +43,7 @@ import { toast } from '@/components/ui/toast'
 import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
 import { useCreateUserStore } from '@/stores/create-user/create-user'
 import { useGeneralStore } from '@/stores/general-use'
+import { useAdminListStore } from '@/stores/admin-list/admin-list'
 
 const formSchema = toTypedSchema(
   z.object({
@@ -76,8 +78,9 @@ const newUser = ref({
   phone: '',
 })
 
-const sheetOpen = ref(false)
-const loading = ref(false)
+const adminListStore = useAdminListStore()
+const sheetOpen = adminListStore.sheetOpen
+const loading = adminListStore.loading
 const currentPage = ref(1)
 const totalPage = ref<any[]>([])
 const superAdminStore = useSuperAdminStore()
@@ -85,7 +88,7 @@ const createUserStore = useCreateUserStore()
 const token = sessionStorage.getItem('token') || ''
 
 const onSubmit = handleSubmit(async (values) => {
-  loading.value = true
+  adminListStore.loadingControl(true)
 console.log('submitting')
   const user = {
     firstName: values.firstName,
@@ -104,7 +107,8 @@ console.log('submitting')
   // console.log(user)
   await saveUserData(user)
 
-  sheetOpen.value = false
+  // sheetOpen = false
+  adminListStore.sheetControl(false)
 
   // Show success toast
 
@@ -120,8 +124,10 @@ console.log('submitting')
 })
 
 // Define a ref to hold the users data
-// const users = ref([]);
 const users = ref<any[]>([])
+
+// define a ref to hold user status
+// const userStatus = ref<any>();
 
 // Define a function to fetch users data
 const fetchUsersData = async () => {
@@ -162,6 +168,7 @@ const fetchUsersData = async () => {
     // Update the users data with the response
     const data = response.data.data.data
     users.value = data.reverse()
+    // adminListStore.setUsers(data.reverse())
 
     // set page data
     currentPage.value = response.data.data.currentPage
@@ -197,7 +204,7 @@ const fetchUsersData = async () => {
 
 // Save user data to the /administrator endpoint
 const saveUserData = async (user: any) => {
-  loading.value = true
+  adminListStore.loadingControl(true)
   try {
     const response = await axios.post(
       'https://api.staging.weeshr.com/api/v1/admin/administrator',
@@ -219,10 +226,10 @@ const saveUserData = async (user: any) => {
       })
     }
     createUserStore.addUser(user)
-    loading.value = false
+    adminListStore.loadingControl(false)
     // Handle success
   } catch (err: any) {
-    loading.value = false
+    adminListStore.loadingControl(false)
     if (err.response.data.code === 401) {
       sessionStorage.removeItem('token')
       // Clear token from superAdminStore
@@ -259,11 +266,6 @@ const nextPage = ()=>{
     console.log(currentPage.value++)
   }
 }
-
-const toggleStatus = (user: { status: boolean }) => {
-  user.status = !user.status
-}
-
 // onMounted(fetchUsersData);
 
 onMounted(async () => {
@@ -280,7 +282,7 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
     <div class="px-10 py-10 ml-auto">
       <Sheet :close="sheetOpen">
         <SheetTrigger as-child>
-          <button @click="sheetOpen = true" class="bg-[#020721] px-4 py-2 rounded-xl w-50 h-12">
+          <button @click="adminListStore.sheetControl(true)" class="bg-[#020721] px-4 py-2 rounded-xl w-50 h-12">
             <div class="text-base text-[#F8F9FF] text-center flex items-center">
               Add New Admin
               <svg
@@ -481,6 +483,7 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
               <TableHead>Email</TableHead>
               <TableHead>Gender</TableHead>
               <TableHead>Phone Number</TableHead>
+              <TableHead>Status</TableHead>
               <TableHead>Modular Permission</TableHead>
               <TableHead></TableHead>
             </TableRow>
@@ -491,6 +494,18 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
               <TableCell>{{ user.email }}</TableCell>
               <TableCell>{{ user.gender }}</TableCell>
               <TableCell>{{user.phoneNumber.normalizedNumber}}</TableCell>
+              <!-- <TableCell @click="toggleStatus(user._id, user.disabled)">
+                <Button v-if="user.disabled" class="bg-gray-300">Disabled</Button>
+                <Button v-else class="bg-green-400">Active</Button>
+              </TableCell> -->
+              <TableCell>
+                <Badge
+                  :class="{ 'bg-[#00C37F]': !user.disabled, 'bg-[#020721]': user.disabled }"
+                  
+                >
+                  {{ user.disabled ? 'Disabled' : 'Active' }}
+              </Badge>
+              </TableCell>
               <TableCell>
                 <div class="flex flex-wrap gap-2">
                   <!-- Display each permission as a pill -->
