@@ -31,6 +31,7 @@
     "vue-axios": "^3.5.2",
     "vue-router": "^4.3.0",
     "vue-tel-input": "^8.3.1",
+    "vue-toast-notification": "^3.1.2",
     "zod": "^3.22.5"
   },
   "devDependencies": {
