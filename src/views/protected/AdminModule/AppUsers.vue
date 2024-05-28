@@ -17,6 +17,15 @@ import {
   SheetTrigger,
   SheetClose
 } from "@/components/ui/sheet"
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+
 
 
 
@@ -628,17 +637,18 @@ const birthMonthOptions = computed<string[]>(() => [
           <FormField v-slot="{ componentField }" name="role">
           <FormItem v-auto-animate>
               <FormLabel>Role</FormLabel>
-              <select
-              v-bind="componentField"
-              id="category"
-              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-              placeholder=""
-              >
-              <option value="" disabled selected hidden>Select Role</option>
-              <option value="role1">role 1</option>
-              <option value="role2">role 2</option>
-              <option value="role3">role 3</option>
-              </select>
+              <Select v-bind="componentField"  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+            <SelectTrigger class="bg-gray-50 text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+              <SelectValue placeholder="Role" />
+            </SelectTrigger>
+            <SelectContent class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+              <SelectGroup>
+                <SelectItem value="role1">Role 1</SelectItem>
+                <SelectItem value="role2">Role 2</SelectItem>
+                <SelectItem value="role3">Role 3</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+            </Select>
               <FormMessage for="role" />
           </FormItem>
           </FormField>
@@ -661,39 +671,40 @@ const birthMonthOptions = computed<string[]>(() => [
           </FormField>
 
           <div class="flex flex-col lg:flex-row gap-2">
-              <FormField v-slot="{ componentField }" name="gender">
-              <FormItem>
-              <FormLabel>Gender</FormLabel>
-              <select
-              v-bind="componentField"
-              id="gender"
-              class="bg-gray-50 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-              placeholder=""
-              >
-              <option value="" disabled selected hidden>Gender</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="other">Prefer not to say</option>
-              </select>
-              <FormMessage for="gender" />
-              </FormItem>
-              </FormField>
+            <FormField v-slot="{ componentField }" name="gender">
+            <FormItem>
+            <FormLabel>Gender</FormLabel>
+            <Select v-bind="componentField">
+            <SelectTrigger class="bg-gray-50 text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+              <SelectValue placeholder="Gender" />
+            </SelectTrigger>
+            <SelectContent class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+              <SelectGroup>
+                <SelectItem value="male">Male</SelectItem>
+                <SelectItem value="female">Female</SelectItem>
+                <SelectItem value="prefer not to say">Prefer not to say</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+            </Select>
+            <FormMessage for="gender" />
+            </FormItem>
+            </FormField>
 
-              <FormField v-slot="{ componentField }" name="birthday">
-              <FormItem v-auto-animate>
-                  <FormLabel>Date of Birth</FormLabel>
-                  <FormControl>
-                  <Input
-                      id="dob"
-                      type="date"
-                      class="focus-visible:ring-blue-600 w-full bg-[#000000] bg-opacity-5 p-1.5 dark:bg-gray-700 dark:text-white rounded-lg"
-                      v-bind="componentField"
-                  />
-                  </FormControl>
+            <FormField v-slot="{ componentField }" name="birthday">
+            <FormItem v-auto-animate>
+                <FormLabel>Date of Birth</FormLabel>
+                <FormControl>
+                <Input
+                    id="dob"
+                    type="date"
+                    class="focus-visible:ring-blue-600 w-full bg-[#000000] bg-opacity-5 p-1.5 dark:bg-gray-700 dark:text-white rounded-lg"
+                    v-bind="componentField"
+                />
+                </FormControl>
 
-                  <FormMessage for="dob" />
-              </FormItem>
-              </FormField>
+                <FormMessage for="dob" />
+            </FormItem>
+            </FormField>
           </div>
 
           <FormField v-slot="{ componentField }" name="phone">
@@ -711,7 +722,7 @@ const birthMonthOptions = computed<string[]>(() => [
               </div>
             </FormControl>
 
-              <FormMessage for="phone" />
+            <FormMessage for="phone" />
           </FormItem>
           </FormField>
 
