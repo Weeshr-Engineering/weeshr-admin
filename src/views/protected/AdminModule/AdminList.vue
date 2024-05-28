@@ -12,6 +12,7 @@ import router from '@/router'
 import { Button } from "@/components/ui/button"
 import { Badge } from '@/components/ui/badge'
 import { Icon } from '@iconify/vue'
+import CountryCodes from '@/lib/CountryCodes'
 import {
   Sheet,
   SheetContent,
@@ -60,8 +61,9 @@ const formSchema = toTypedSchema(
     userEmail: z.string().email('Please enter a valid email address'),
     dob: z.string().nonempty('Please enter your date of birth'),
     gender: z.string().nonempty('Please select your gender'),
-    phone: z.string().nonempty('Please enter your phone number'),
-    status: z.boolean().optional()
+    phone: z.string().nonempty('Please enter your phone number').min(10, { message: 'Phone number must be 10 characters' }).max(10, { message: 'Phone number must be 10 characters' }).optional(),
+    status: z.boolean().optional(),
+    countrycode: z.string().optional()
   })
 )
 
@@ -89,7 +91,7 @@ const token = sessionStorage.getItem('token') || ''
 
 const onSubmit = handleSubmit(async (values) => {
   adminListStore.loadingControl(true)
-console.log('submitting')
+// console.log(values)
   const user = {
     firstName: values.firstName,
     lastName: values.lastName,
@@ -97,7 +99,7 @@ console.log('submitting')
     gender: values.gender,
     dob: values.dob,
     phone: {
-      countryCode: '+234',
+      countryCode: values.countrycode  || '+234',
       phoneNumber: values.phone
     },
     dateJoined: formattedDate.value,
@@ -224,6 +226,7 @@ const saveUserData = async (user: any) => {
         description: `${user.firstName} User profile created successfully.`,
         variant: 'success'
       })
+      fetchUsersData()
     }
     createUserStore.addUser(user)
     adminListStore.loadingControl(false)
@@ -403,26 +406,56 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
                   </FormField>
                 </div>
               </div>
-
-              <FormField v-slot="{ componentField }" name="phone">
-                <FormItem v-auto-animate>
-                  <FormLabel class="text-blue-900">Phone Number</FormLabel>
-                  <FormControl>
-                    <div>
-                      <Input
-                        id="phone"
-                        type="tel"
-                        placeholder="Phone Number"
-                        class="focus-visible:ring-blue-600"
+              <div class="">
+                <h5 class='text-blue-900 text-sm font-medium mb-3'>Phone Number</h5>
+                <div class='flex flex-row md:justify-between md:items-center gap-2 relative'>
+                  <FormField v-slot="{ componentField }" name="countrycode" class="mt-6 w-[50%]">
+                    <FormItem>
+                        <Select
                         v-bind="componentField"
-                      />
-                    </div>
-                  </FormControl>
-
-                  <FormMessage for="phone" />
-                </FormItem>
-              </FormField>
-
+                        id="gender"
+                        class='bg-gray-50 w-auto mt-3 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white'>
+                        <FormControl>
+                          <SelectTrigger class="">
+                              <SelectValue placeholder="+234" />
+                            </SelectTrigger>
+                        </FormControl>
+                          <SelectContent>
+                            <SelectItem v-for="(code, key ) in CountryCodes" :value="code.dial_code" :key="key" class='flex justify-center items-center gap-2'>
+                              {{code.dial_code}} 
+                              <img
+                              class="w-[18px] h-[18px] hidden md:inline-block"
+                              :src="'https://flagcdn.com/16x12/'+code.code.toLowerCase()+'.png'"
+                              alt="gradient"/>
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      
+                      <FormMessage for="countrycode" />
+                    </FormItem>
+                  </FormField>
+                  <div class='lg:w-[70%]'>
+                    <FormField v-slot="{ componentField }" name="phone">
+                      <FormItem v-auto-animate>
+                        <FormControl>
+                          <div>
+                            <Input
+                              id="phone"
+                              type="tel"
+                              placeholder="Phone Number"
+                              class="focus-visible:ring-blue-600"
+                              v-bind="componentField"
+                            />
+                          </div>
+                        </FormControl>
+      
+                        <FormMessage for="phone" />
+                      </FormItem>
+                    </FormField>
+                  </div>
+                </div>
+              </div>
+              
               <FormField v-slot="{ componentField }" name="type">
                 <FormItem>
                   <FormLabel>Admin Type</FormLabel>

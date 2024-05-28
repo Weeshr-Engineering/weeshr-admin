@@ -14,6 +14,7 @@ import { toTypedSchema } from '@vee-validate/zod'
 import { Button } from "@/components/ui/button"
 import * as z from 'zod'
 import router from '@/router'
+import CountryCodes from '@/lib/CountryCodes'
 import {
   Popover,
   PopoverContent,
@@ -121,7 +122,6 @@ function formatDate(inputDate: string) {
 }
 
 const editProfile = async (values: any) => {
-console.log(user.value)
   const adminProfile = JSON.stringify({
     'firstName': values.firstName || user.value.firstName,
     'lastName': values.lastName || user.value.lastName,
@@ -129,12 +129,12 @@ console.log(user.value)
     'email': values.email || user.value.email,
     'dob': values.dob && values.dob.substring(0, 10) || user.value.dob.substring(0, 10),
     'phone': {
-      'countryCode': '+234',
+      countryCode: values.countrycode  || user.value.phoneNumber.countryCode,
       'phoneNumber': values.phone || user.value.phoneNumber.phoneNumber
     },
     "disabled": adminListStore.adminStatus
   })
-
+  console.log(adminProfile)
 let config = {
   method: 'patch',
   maxBodyLength: Infinity,
@@ -182,6 +182,7 @@ const contactFormSchema = toTypedSchema(z.object({
     dob: z.string().nonempty('Please enter your date of birth').optional(),
     gender: z.string().nonempty('Please select your gender').optional(),
     phone: z.string().min(10, { message: 'Phone number must be 10 characters' }).max(10, { message: 'Phone number must be 10 characters' }).optional(),
+    countrycode: z.string().optional(),
     email: z.string().email({ message: 'Invalid email address' }).optional(),
 }))
 const { handleSubmit: contactForm } = useForm({
@@ -196,7 +197,6 @@ const { handleSubmit: contactForm } = useForm({
 })
 
 const onSubmit = contactForm((values) => {
-  // console.log(adminProfile)
   editProfile(values)
 })
 
@@ -218,18 +218,19 @@ const onSubmit = contactForm((values) => {
             />
             <div class="flex justify-between px-2 pr-6 my-2">
               <span class="font-semibold text-base text-[#020721]">Identity</span>
-              <div class="flex">
-                <img
-                  class="max-w-[18.05px] max-h-[24px]"
-                  src="https://res.cloudinary.com/dufimctfc/image/upload/v1714310908/edit-4-svgrepo-com_1_iy2nwu.svg"
-                  alt="gradient"
-                />
-
+              
                 <Popover>
                   <PopoverTrigger>
-                    <span class="text-sm font-medium text-[#02072199]">
-                      <p>Edit</p>
-                    </span>
+                    <div class="flex">
+                      <img
+                        class="max-w-[18.05px] max-h-[24px]"
+                        src="https://res.cloudinary.com/dufimctfc/image/upload/v1714310908/edit-4-svgrepo-com_1_iy2nwu.svg"
+                        alt="gradient"
+                      />
+                      <span class="text-sm font-medium text-[#02072199]">
+                        <p>Edit</p>
+                      </span>
+                    </div>
                   </PopoverTrigger>
                   <PopoverContent>
                       <form class="space-y-8" @submit="onSubmit">
@@ -318,8 +319,6 @@ const onSubmit = contactForm((values) => {
                         </form>
                   </PopoverContent>
                 </Popover>
-                
-              </div>
             </div>
 
             <Card class="rounded-md">
@@ -359,37 +358,76 @@ const onSubmit = contactForm((values) => {
 
             <div class="flex justify-between px-2 pr-6 my-2">
               <span class="font-semibold text-base text-[#020721]">Contact</span>
-              <div class="flex">
-                <img
-                  class="max-w-[18.05px] max-h-[24px]"
-                  src="https://res.cloudinary.com/dufimctfc/image/upload/v1714310908/edit-4-svgrepo-com_1_iy2nwu.svg"
-                  alt="gradient"
-                />
+                
                 <Popover>
                   <PopoverTrigger>
-                    <span class="text-sm font-medium text-[#02072199]">
-                      <p>Edit</p>
-                    </span>
+                    <div class="flex">
+                      <img
+                        class="max-w-[18.05px] max-h-[24px]"
+                        src="https://res.cloudinary.com/dufimctfc/image/upload/v1714310908/edit-4-svgrepo-com_1_iy2nwu.svg"
+                        alt="gradient"
+                      />
+                      <span class="text-sm font-medium text-[#02072199]">
+                        <p>Edit</p>
+                      </span>
+                  </div>
                   </PopoverTrigger>
-                  <PopoverContent>
-                      <form class="space-y-4" @submit.prevent="onSubmit">
-                        <FormField v-slot="{ componentField }" name="phone">
-                          <FormItem v-auto-animate>
-                            <FormLabel class="text-blue-900">Phone Number</FormLabel>
-                            <FormControl>
-                              <div>
-                                <Input
-                                  id="phone"
-                                  type="tel"
-                                  placeholder="Phone Number"
-                                  class="focus-visible:ring-blue-600"
-                                  v-bind="componentField"
-                                />
-                              </div>
-                            </FormControl>
-                            <FormMessage for="phone" />
-                          </FormItem>
-                        </FormField>
+                  <PopoverContent>  
+                    <form class="space-y-4" @submit.prevent="onSubmit">
+                      <div class="">
+                        <h5 class='text-blue-900 text-sm font-medium mb-5'>Phone Number</h5>
+                        <div class='flex flex-row md:justify-between md:items-center gap-2 relative'>
+                          <FormField v-slot="{ componentField }" name="countrycode" class="mt-6 w-[50%]">
+                            <FormItem>
+                              <!-- <FormLabel>
+                                <span class="hidden md:inline-block">Country Code</span><span class="md:hidden inline-block">CC</span>
+                              </FormLabel> -->
+                                <Select
+                                v-bind="componentField"
+                                id="gender"
+                                class='bg-gray-50 w-auto mt-3 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white'>
+                                <FormControl>
+                                  <SelectTrigger class="">
+                                      <SelectValue placeholder="+234" />
+                                    </SelectTrigger>
+                                </FormControl>
+                                  <SelectContent>
+                                    <SelectItem v-for="(code, key ) in CountryCodes" :value="code.dial_code" :key="key" class='flex justify-center items-center gap-2'>
+                                      {{code.dial_code}} 
+                                      <img
+                                      class="w-[18px] h-[18px] hidden md:inline-block"
+                                      :src="'https://flagcdn.com/16x12/'+code.code.toLowerCase()+'.png'"
+                                      alt="gradient"/>
+                                    </SelectItem>
+                                    <!-- <SelectItem value="Male">+44</SelectItem> -->
+                                  </SelectContent>
+                                </Select>
+                              
+                              <FormMessage for="countrycode" />
+                            </FormItem>
+                          </FormField>
+                          <div class='lg:w-[70%]'>
+                            <FormField v-slot="{ componentField }" name="phone">
+                              <FormItem v-auto-animate>
+                                <!-- <FormLabel class="text-blue-900">Phone Number</FormLabel> -->
+                                <FormControl>
+                                  <div>
+                                    <Input
+                                      id="phone"
+                                      type="tel"
+                                      placeholder="Phone Number"
+                                      class="focus-visible:ring-blue-600"
+                                      v-bind="componentField"
+                                    />
+                                  </div>
+                                </FormControl>
+              
+                                <FormMessage for="phone" />
+                              </FormItem>
+                            </FormField>
+                          </div>
+                        </div>
+                      </div>
 
                         <FormField v-slot="{ componentField }" name="email">
                           <FormItem v-auto-animate>
@@ -420,7 +458,6 @@ const onSubmit = contactForm((values) => {
                       </form>
                   </PopoverContent>
                 </Popover>
-              </div>
             </div>
 
             <Card class="rounded-md">
