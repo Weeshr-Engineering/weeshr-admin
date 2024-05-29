@@ -90,15 +90,18 @@ const logout = async () => {
         </a>
       </li>
 
-      <li>
-        <a>
+      <li :class="{ 'dashboard-active': $route.path === '/activity' }">
+        <a @click="$router.push({ name: 'activity' })">
           <div class="icon-grid">
             <Icon icon="octicon:log-24" width="16" height="16" class="icons-sidebar" />
+
           </div>
 
           <span class="nav-text"> Activity Log </span>
         </a>
       </li>
+
+     
     </ul>
 
     <ul class="logout">

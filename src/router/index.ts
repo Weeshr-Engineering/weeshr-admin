@@ -19,6 +19,7 @@ import AdminList from '@/views/protected/SuperAdminModule/AdminList.vue'
 import CreateUser from '@/views/protected/SuperAdminModule/CreateUser.vue'
 import DepotPage from '@/views/protected/AdminModule/DepotPage.vue'
 import BankPage from '@/views/protected/AdminModule/BankPage.vue'
+import ActivityLog from '@/views/protected/AdminModule/ActivityLog.vue'
 
 const routes = [
   {
@@ -139,6 +140,12 @@ const routes = [
     path: '/bank',
     name: 'bank',
     component: BankPage,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/activity',
+    name: 'activity',
+    component: ActivityLog,
     meta: { requiresAuth: true }
   },
 
