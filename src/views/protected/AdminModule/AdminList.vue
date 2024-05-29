@@ -389,7 +389,7 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
                   </FormField>
                 </div>
 
-                <div class="w-[70%]">
+                <div class="min-w-[70%]">
                   <FormField v-slot="{ componentField }" name="dob">
                     <FormItem v-auto-animate>
                       <FormLabel class="text-blue-900">Date of Birth</FormLabel>
