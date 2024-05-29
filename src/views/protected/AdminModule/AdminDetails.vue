@@ -179,12 +179,13 @@ const contactFormSchema = toTypedSchema(z.object({
     .max(30, {
       message: 'Username must not be longer than 30 characters.',
     }).optional(),
-    dob: z.string().nonempty('Please enter your date of birth').optional(),
-    gender: z.string().nonempty('Please select your gender').optional(),
+    dob: z.string().optional(),
+    gender: z.string().optional(),
     phone: z.string().min(10, { message: 'Phone number must be 10 characters' }).max(10, { message: 'Phone number must be 10 characters' }).optional(),
     countrycode: z.string().optional(),
     email: z.string().email({ message: 'Invalid email address' }).optional(),
 }))
+
 const { handleSubmit: contactForm } = useForm({
   validationSchema: contactFormSchema,
   // initialValues: {
@@ -196,9 +197,24 @@ const { handleSubmit: contactForm } = useForm({
   // }
 })
 
+// console.log(contactForm((values)=>{return values}))
 const onSubmit = contactForm((values) => {
-  editProfile(values)
+  function valueChecker<T extends Record<string, any>>(obj: T): boolean {
+  return Object.values(obj).some(value => value !== undefined);
+}
+  if(valueChecker(values)){
+    editProfile(values)  
+  }else{
+    toast({
+        title: 'Form Input Is Empty',
+        description: `Make a change: There is nothing to update`,
+        variant: 'destructive'
+      })
+  }
 })
+// const handleChange = ()=>{
+//   console.log('it changed')
+// }
 
 </script>
 <template>
@@ -313,7 +329,7 @@ const onSubmit = contactForm((values) => {
                             v-if="loading"
                             class="w-4 h-4 mr-2 text-black animate-spin"
                           />
-                          Submit
+                          Update
                           <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" />
                         </Button>
                         </form>
@@ -376,8 +392,8 @@ const onSubmit = contactForm((values) => {
                     <form class="space-y-4" @submit.prevent="onSubmit">
                       <div class="">
                         <h5 class='text-blue-900 text-sm font-medium mb-5'>Phone Number</h5>
-                        <div class='flex flex-row md:justify-between md:items-center gap-2 relative'>
-                          <FormField v-slot="{ componentField }" name="countrycode" class="mt-6 w-[50%]">
+                        <div class='flex items-start flex-row md:justify-between md:items-start gap-2 relative'>
+                          <FormField v-slot="{ componentField }" name="countrycode" class="bg-[teal] mt-6 w-[50%]">
                             <FormItem>
                               <!-- <FormLabel>
                                 <span class="hidden md:inline-block">Country Code</span><span class="md:hidden inline-block">CC</span>
@@ -407,7 +423,7 @@ const onSubmit = contactForm((values) => {
                             </FormItem>
                           </FormField>
                           <div class='lg:w-[70%]'>
-                            <FormField v-slot="{ componentField }" name="phone">
+                            <FormField v-slot="{ componentField }" name="phone" class='lg:w-[70%]'>
                               <FormItem v-auto-animate>
                                 <!-- <FormLabel class="text-blue-900">Phone Number</FormLabel> -->
                                 <FormControl>
@@ -451,8 +467,7 @@ const onSubmit = contactForm((values) => {
                             v-if="loading"
                             class="w-4 h-4 mr-2 text-black animate-spin"
                           />
-                          Submit
-          
+                          Update
                           <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" />
                         </Button>
                       </form>
