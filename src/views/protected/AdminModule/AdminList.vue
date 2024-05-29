@@ -411,7 +411,7 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
               <div class="">
                 <h5 class='text-blue-900 text-sm font-medium mb-3'>Phone Number</h5>
                 <div class='flex flex-row md:justify-between md:items-start gap-2 relative'>
-                  <div class="w-[35%]">
+                  <div class="min-w-[35%]">
                     <FormField v-slot="{ componentField }" name="countrycode">
                       <FormItem>
                           <Select
