@@ -364,28 +364,30 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
                 </FormItem>
               </FormField>
               <div class="flex flex-row justify-between gap-2">
-                <FormField v-slot="{ componentField }" name="gender" class="w-[40%]">
-                  <FormItem>
-                    <FormLabel>Gender</FormLabel>
-                    
-                      <Select
-                      v-bind="componentField"
-                      id="gender"
-                      class='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'>
-                      <FormControl>
-                        <SelectTrigger class="">
-                            <SelectValue placeholder="Gender" />
-                          </SelectTrigger>
-                      </FormControl>
-                        <SelectContent class="min-w-32">
-                          <SelectItem value="Female">Female</SelectItem>
-                          <SelectItem value="Male">Male</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    
-                    <FormMessage for="gender" />
-                  </FormItem>
-                </FormField>
+                <div class="min-w-[35%]">
+                  <FormField v-slot="{ componentField }" name="gender">
+                    <FormItem>
+                      <FormLabel>Gender</FormLabel>
+                      
+                        <Select
+                        v-bind="componentField"
+                        id="gender"
+                        class='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block min-w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'>
+                        <FormControl>
+                          <SelectTrigger class="">
+                              <SelectValue placeholder="Gender" />
+                            </SelectTrigger>
+                        </FormControl>
+                          <SelectContent>
+                            <SelectItem value="Female">Female</SelectItem>
+                            <SelectItem value="Male">Male</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      
+                      <FormMessage for="gender" />
+                    </FormItem>
+                  </FormField>
+                </div>
 
                 <div class="w-[70%]">
                   <FormField v-slot="{ componentField }" name="dob">
@@ -408,32 +410,34 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
               </div>
               <div class="">
                 <h5 class='text-blue-900 text-sm font-medium mb-3'>Phone Number</h5>
-                <div class='flex flex-row md:justify-between md:items-center gap-2 relative'>
-                  <FormField v-slot="{ componentField }" name="countrycode" class="mt-6 w-[50%]">
-                    <FormItem>
-                        <Select
-                        v-bind="componentField"
-                        id="gender"
-                        class='bg-gray-50 w-auto mt-3 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white'>
-                        <FormControl>
-                          <SelectTrigger class="">
-                              <SelectValue placeholder="+234" />
-                            </SelectTrigger>
-                        </FormControl>
-                          <SelectContent>
-                            <SelectItem v-for="(code, key ) in CountryCodes" :value="code.dial_code" :key="key" class='flex justify-center items-center gap-2'>
-                              {{code.dial_code}} 
-                              <img
-                              class="w-[18px] h-[18px] hidden md:inline-block"
-                              :src="'https://flagcdn.com/16x12/'+code.code.toLowerCase()+'.png'"
-                              alt="gradient"/>
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
-                      
-                      <FormMessage for="countrycode" />
-                    </FormItem>
-                  </FormField>
+                <div class='flex flex-row md:justify-between md:items-start gap-2 relative'>
+                  <div class="w-[35%]">
+                    <FormField v-slot="{ componentField }" name="countrycode">
+                      <FormItem>
+                          <Select
+                          v-bind="componentField"
+                          id="gender"
+                          class='bg-gray-50 w-auto mt-3 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white'>
+                          <FormControl>
+                            <SelectTrigger class="">
+                                <SelectValue placeholder="+234" />
+                              </SelectTrigger>
+                          </FormControl>
+                            <SelectContent>
+                              <SelectItem v-for="(code, key ) in CountryCodes" :value="code.dial_code" :key="key" class='flex justify-center items-center gap-2'>
+                                {{code.dial_code}} 
+                                <img
+                                class="w-[18px] h-[18px] hidden md:inline-block"
+                                :src="'https://flagcdn.com/16x12/'+code.code.toLowerCase()+'.png'"
+                                alt="gradient"/>
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
+                        
+                        <FormMessage for="countrycode" />
+                      </FormItem>
+                    </FormField>
+                  </div>
                   <div class='lg:w-[70%]'>
                     <FormField v-slot="{ componentField }" name="phone">
                       <FormItem v-auto-animate>

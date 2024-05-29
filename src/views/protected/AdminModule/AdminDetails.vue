@@ -281,30 +281,32 @@ const onSubmit = contactForm((values) => {
                           </FormItem>
                         </FormField>
                         <div class="flex flex-row justify-between gap-2">
-                          <FormField v-slot="{ componentField }" name="gender" class="w-[40%]">
-                            <FormItem>
-                              <FormLabel>Gender</FormLabel>
-                              
-                                <Select
-                                v-bind="componentField"
-                                id="gender"
-                                class='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'>
-                                <FormControl>
-                                  <SelectTrigger class="">
-                                      <SelectValue placeholder="Gender" />
-                                    </SelectTrigger>
-                                </FormControl>
-                                  <SelectContent class="min-w-32">
-                                    <SelectItem value="Female">Female</SelectItem>
-                                    <SelectItem value="Male">Male</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                              
-                              <FormMessage for="gender" />
-                            </FormItem>
-                          </FormField>
+                          <div class="min-w-[35%]">
+                            <FormField v-slot="{ componentField }" name="gender">
+                              <FormItem>
+                                <FormLabel>Gender</FormLabel>
+                                
+                                  <Select
+                                  v-bind="componentField"
+                                  id="gender"
+                                  class='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block min-w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'>
+                                  <FormControl>
+                                    <SelectTrigger class="">
+                                        <SelectValue placeholder="Gender" />
+                                      </SelectTrigger>
+                                  </FormControl>
+                                    <SelectContent>
+                                      <SelectItem value="Female">Female</SelectItem>
+                                      <SelectItem value="Male">Male</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                
+                                <FormMessage for="gender" />
+                              </FormItem>
+                            </FormField>
+                          </div>
           
-                          <div class="w-[70%]">
+                          <div class="">
                             <FormField v-slot="{ componentField }" name="dob">
                               <FormItem v-auto-animate>
                                 <FormLabel class="text-blue-900">Date of Birth</FormLabel>
