@@ -294,7 +294,7 @@ const onSubmit = contactForm((values) => {
                                       <SelectValue placeholder="Gender" />
                                     </SelectTrigger>
                                 </FormControl>
-                                  <SelectContent>
+                                  <SelectContent class="min-w-32">
                                     <SelectItem value="Female">Female</SelectItem>
                                     <SelectItem value="Male">Male</SelectItem>
                                   </SelectContent>

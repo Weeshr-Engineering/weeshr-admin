@@ -377,7 +377,7 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
                             <SelectValue placeholder="Gender" />
                           </SelectTrigger>
                       </FormControl>
-                        <SelectContent>
+                        <SelectContent class="min-w-32">
                           <SelectItem value="Female">Female</SelectItem>
                           <SelectItem value="Male">Male</SelectItem>
                         </SelectContent>
