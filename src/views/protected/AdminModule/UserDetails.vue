@@ -279,6 +279,7 @@ const user2s = ref<any[]>([
               </div>
               <div class="flex justify-between px-5 lg:px-6 py-2 border-b">
                 <p class="flex grow text-[#02072199] text-xs md:text-sm lg:text-sm">Address:</p>
+                
                 <p class="text-xs md:text-sm lg:text-sm text-[#020721]">
                   No. 51, Briswood Ipaja Rd, Ikeja
                 </p>

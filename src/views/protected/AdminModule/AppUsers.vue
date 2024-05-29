@@ -5,12 +5,10 @@ import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import * as z from 'zod'
 import MainNav from '@/components/MainNav.vue'
+import { Icon } from '@iconify/vue'
 import axios from 'axios'
 import { Loader2 } from 'lucide-vue-next'
 import router from '@/router'
-
-
-import { Icon } from '@iconify/vue'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Switch } from '@/components/ui/switch';
 import {
@@ -392,123 +390,92 @@ const birthMonthOptions = computed<string[]>(() => [
         </div>
       </SheetTrigger>
       <Card class="container px-4 pt-6 pb-10 mx-auto sm:px-6 lg:px-8 bg-[#FFFFFF] rounded-2xl">
-        <div class="flex flex-col md:flex-row items-center justify-between sm:px-6 py-4 w-full">
+        <div class="flex flex-col gap-4 md:flex-row items-center justify-between px-2 sm:px-6 py-4 w-full">
           <div class="text-xl sm:text-xl font-bold tracking-tight text-[#020721] mb-4 sm:mb-0">
             App Users
             <p class="text-xs sm:text-sm text-[#02072199]">List of Weeshr App Users</p>
           </div>
-          <div class="flex justify-center items-center flex-col lg:flex-row lg:my-4 lg:mx-4 w-full me-2 md:justify-end md:w-4/5">
-            <div class="items-center justify-center flex-wrap space-x-1 flex flex-row md:items-center md:space-x-3">
-              <DropdownMenu>
-                <DropdownMenuTrigger as-child class="rounded-2xl bg-[#EEEFF5]">
-                  <Button variant="outline">
-                    Gender
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      class="w-5 h-5 ml-2 -mr-1"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                      aria-hidden="true"
-                    >
-                      <path
-                        fill-rule="evenodd"
-                        d="M6.293 9.293a1 1 0 011.414 0L10 11.586l2.293-2.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
-                        clip-rule="evenodd"
-                      />
-                    </svg>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent class="item-center justify-between">
-                  <DropdownMenuLabel class="item-center justify-center text-center"
-                    >Gender</DropdownMenuLabel
-                  >
-                  <DropdownMenuSeparator />
-                  <DropdownMenuRadioGroup v-model="selectedGender">
-                    <DropdownMenuRadioItem
-                      v-for="(genderOption, index) in genderOptions"
-                      :key="index"
-                      :value="genderOption"
-                      class="item-center text-center"
-                    >
-                      {{ genderOption }}
-                    </DropdownMenuRadioItem>
-                  </DropdownMenuRadioGroup>
-                </DropdownMenuContent>
-              </DropdownMenu>
-              <DropdownMenu>
-                <DropdownMenuTrigger as-child class="rounded-2xl bg-[#EEEFF5]">
-                  <Button variant="outline">
-                    Birth Month
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      class="w-5 h-5 ml-2 -mr-1"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                      aria-hidden="true"
-                    >
-                      <path
-                        fill-rule="evenodd"
-                        d="M6.293 9.293a1 1 0 011.414 0L10 11.586l2.293-2.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
-                        clip-rule="evenodd"
-                      />
-                    </svg>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent class="">
-                  <DropdownMenuLabel class="item-center justify-center text-center"
-                    >Birth Month</DropdownMenuLabel
-                  >
-                  <DropdownMenuSeparator />
-                  <DropdownMenuRadioGroup v-model="selectedMonth">
-                    <DropdownMenuRadioItem
-                      v-for="(monthOption, index) in birthMonthOptions"
-                      :key="index"
-                      :value="monthOption"
-                    >
-                      {{ monthOption }}
-                    </DropdownMenuRadioItem>
-                  </DropdownMenuRadioGroup>
-                </DropdownMenuContent>
-              </DropdownMenu>
-              <DropdownMenu>
-                <DropdownMenuTrigger as-child class="rounded-2xl bg-[#EEEFF5]">
-                  <Button variant="outline">
-                    Status
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      class="w-5 h-5 ml-2 -mr-1"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                      aria-hidden="true"
-                    >
-                      <path
-                        fill-rule="evenodd"
-                        d="M6.293 9.293a1 1 0 011.414 0L10 11.586l2.293-2.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
-                        clip-rule="evenodd"
-                      />
-                    </svg>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  <DropdownMenuLabel class="item-center justify-center text-center"
-                    >Status</DropdownMenuLabel
-                  >
-                  <DropdownMenuSeparator />
-                  <DropdownMenuRadioGroup v-model="selectedStatus">
-                    <DropdownMenuRadioItem
-                      v-for="(statusOption, index) in statusOptions"
-                      :key="index"
-                      :value="statusOption"
-                    >
-                      {{ statusOption }}
-                    </DropdownMenuRadioItem>
-                  </DropdownMenuRadioGroup>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-    
-            <Search class="mt-3 ml-3 lg:mt-0 h-full w-11/12" />
-          </div>
+          <div class="items-center  grid grid-cols-3 md:grid-cols-3 gap-4  flex-row ">
+          <DropdownMenu>
+            <DropdownMenuTrigger as-child class="rounded-2xl bg-[#EEEFF5] ">
+              <Button variant="outline">
+                <div class="flex items-center text-[10px] md:text-xs">
+                  Gender
+                  <Icon icon="ion:chevron-down-outline" class="ml-1" />
+                </div>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent class="item-center justify-between">
+              <DropdownMenuLabel class="item-center justify-center text-center"
+                >Gender</DropdownMenuLabel
+              >
+              <DropdownMenuSeparator />
+              <DropdownMenuRadioGroup v-model="selectedGender">
+                <DropdownMenuRadioItem
+                  v-for="(genderOption, index) in genderOptions"
+                  :key="index"
+                  :value="genderOption"
+                  class="item-center text-center"
+                >
+                  {{ genderOption }}
+                </DropdownMenuRadioItem>
+              </DropdownMenuRadioGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <DropdownMenu>
+            <DropdownMenuTrigger as-child class="rounded-2xl bg-[#EEEFF5] ">
+              <Button variant="outline">
+                
+                <div class="flex items-center text-[9px] md:text-xs">
+                 Birth Month
+                  <Icon icon="ion:chevron-down-outline" class="ml-1" />
+                </div>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent class="">
+              <DropdownMenuLabel class="item-center justify-center text-center"
+                >Birth Month</DropdownMenuLabel
+              >
+              <DropdownMenuSeparator />
+              <DropdownMenuRadioGroup v-model="selectedMonth">
+                <DropdownMenuRadioItem
+                  v-for="(monthOption, index) in birthMonthOptions"
+                  :key="index"
+                  :value="monthOption"
+                >
+                  {{ monthOption }}
+                </DropdownMenuRadioItem>
+              </DropdownMenuRadioGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <DropdownMenu>
+            <DropdownMenuTrigger as-child class="rounded-2xl bg-[#EEEFF5]">
+              <Button variant="outline">
+                <div class="flex items-center text-[10px] md:text-xs">
+                Status
+                  <Icon icon="ion:chevron-down-outline" class="ml-1" />
+                </div>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuLabel class="item-center justify-center text-center"
+                >Status</DropdownMenuLabel
+              >
+              <DropdownMenuSeparator />
+              <DropdownMenuRadioGroup v-model="selectedStatus">
+                <DropdownMenuRadioItem
+                  v-for="(statusOption, index) in statusOptions"
+                  :key="index"
+                  :value="statusOption"
+                >
+                  {{ statusOption }}
+                </DropdownMenuRadioItem>
+              </DropdownMenuRadioGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+
+        <Search />
         </div>
 
         <div class="overflow-auto bg-white rounded-lg shadow">
@@ -576,7 +543,7 @@ const birthMonthOptions = computed<string[]>(() => [
           </Table>
         </div>
       </Card>
-      <SheetContent class="bg-[#FFFFFF] overflow-y-scroll">
+      <SheetContent class="bg-[#FFFFFF] overflow-y-scroll w-full">
         <h2 class="text-3xl font-bold ml-4 mt-8">Add User</h2>
         <form class="space-y-4 rounded-xl my-8 mx-auto py-4 px-4 border-solid border border-black border-opacity-50" @submit="onSubmit">
           <div class="flex justify-between items-center">
