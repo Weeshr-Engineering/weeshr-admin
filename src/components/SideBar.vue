@@ -175,10 +175,10 @@ nav.main-menu.expanded {
 .main-menu {
   background: #020721;
   border-right: 1px solid #e5e5e5;
-  position: absolute;
+  position: fixed;
   top: 0;
   bottom: 0;
-  height: 100%;
+  height: 100vh;
   left: 0;
   width: 65px;
   overflow: hidden;
