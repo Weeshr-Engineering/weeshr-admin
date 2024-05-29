@@ -63,7 +63,7 @@
             </TableRow>
           </TableHeader>
           <TableBody>
-            <TableRow v-for="log in logs" :key="log.id">
+            <TableRow v-for="log in paginatedLogs" :key="log.id">
               <TableCell class="text-xs md:text-sm lg:text-xs">{{ log.id }}</TableCell>
               <TableCell class="text-xs md:text-sm lg:text-xs">{{ new Date(log.timestamp).toLocaleString() }}</TableCell>
               <TableCell class="text-xs md:text-sm lg:text-xs">{{ log.user.id }}</TableCell>
@@ -87,20 +87,24 @@
         </Table>
       </div>
       <div class="flex gap-2 max-w-full flex-wrap justify-end mt-8 mr-4 items-center text-[15px]">
-        <Button variant="secondary">
-          <Icon icon="radix-icons:chevron-left" />
-        </Button>
-        <Button variant="secondary" class="bg-[#020721] text-gray-400">1</Button>
-        <Button variant="outline">2</Button>
-        <Button variant="outline">&#8230;</Button>
-        <Button variant="outline">74</Button>
-        <Button variant="outline">75</Button>
-        <Button variant="outline">
-          <Icon icon="radix-icons:chevron-right" />
-        </Button>
-        <a href="#">
-          <p class="text-[blue]">See all</p>
-        </a>
+        <Pagination :total="totalPages" :sibling-count="1" show-edges :default-page="1" @change="handlePageChange">
+          <PaginationList class="flex items-center gap-1">
+            <PaginationFirst @click="handlePageChange(1)" />
+            <PaginationPrev @click="handlePageChange(Math.max(currentPage - 1, 1))" />
+            
+            <template v-for="(item, index) in paginationItems" :key="index">
+              <PaginationListItem v-if="item.type === 'page'" :value="item.value" as-child>
+                <Button class="w-10 h-10 p-0" :variant="item.value === currentPage ? 'default' : 'outline'" @click="handlePageChange(item.value)">
+                  {{ item.value }}
+                </Button>
+              </PaginationListItem>
+              <PaginationEllipsis v-else :index="index" />
+            </template>
+            
+            <PaginationNext @click="handlePageChange(Math.min(currentPage + 1, totalPages))" />
+            <PaginationLast @click="handlePageChange(totalPages)" />
+          </PaginationList>
+        </Pagination>
       </div>
     </Card>
     <DashboardFooter />
@@ -108,7 +112,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { useActivityLogStore } from '@/stores/activity-log/activity-log';
 import MainNav from '@/components/MainNav.vue';
@@ -124,6 +128,16 @@ import {
   TableCell,
   TableHead
 } from '@/components/ui/table';
+import {
+  Pagination,
+  PaginationEllipsis,
+  PaginationFirst,
+  PaginationLast,
+  PaginationList,
+  PaginationListItem,
+  PaginationNext,
+  PaginationPrev,
+} from '@/components/ui/pagination';
 import Search from '@/components/UseSearch.vue';
 
 const route = useRoute();
@@ -132,14 +146,30 @@ const store = useActivityLogStore();
 const logs = ref(store.logs);
 const loading = ref(store.loading);
 const error = ref(store.error);
-const userId = route.params.Id;
+
+const perPage = 10;
+const currentPage = ref(1);
+const totalLogs = computed(() => logs.value.length);
+const totalPages = computed(() => Math.ceil(totalLogs.value / perPage));
+
+const paginatedLogs = computed(() => {
+  const start = (currentPage.value - 1) * perPage;
+  const end = start + perPage;
+  return logs.value.slice(start, end);
+});
+
+const paginationItems = computed(() => {
+  const pages = [];
+  for (let i = 1; i <= totalPages.value; i++) {
+    pages.push({ type: 'page', value: i });
+  }
+  return pages;
+});
 
 onMounted(() => {
- 
-    store.fetchActivityLogs('65a41c16e7004dd9b408b60c');
- 
+  store.fetchActivityLogs('65a41c16e7004dd9b408b60c');
 });
-console.log(userId)
+
 watch(
   () => store.logs,
   (newLogs) => {
@@ -164,15 +194,21 @@ watch(
 const statusBg = (status: string) => {
   switch (status) {
     case 'PENDING':
-      return 'bg-[#EE9F39]'
+      return 'bg-[#EE9F39]';
     case 'FAILED':
-      return 'bg-[#E45044]'
+      return 'bg-[#E45044]';
     case 'SUCCESS':
-      return 'bg-[#00c37f]'
+      return 'bg-[#00c37f]';
     default:
-      return ''
+      return '';
   }
-}
+};
+
+const handlePageChange = (newPage: number) => {
+  if (newPage > 0 && newPage <= totalPages.value) {
+    currentPage.value = newPage;
+  }
+};
 </script>
 
 
