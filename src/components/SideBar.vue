@@ -80,6 +80,21 @@ const logout = async () => {
         </a>
       </li>
 
+      <li :class="{ 'dashboard-active': $route.path === '/config' }">
+        <a @click="$router.push({ name: 'config' })">
+          <div class="icon-grid">
+            <Icon
+              icon="mdi:settings"
+              width="17"
+              height="17"
+              class="icons-sidebar"
+            />
+          </div>
+
+          <span class="nav-text"> Configuration </span>
+        </a>
+      </li>
+
       <li>
         <a>
           <div class="icon-grid">
