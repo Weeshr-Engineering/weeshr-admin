@@ -218,13 +218,13 @@ const onSubmit = contactForm((values) => {
 
 </script>
 <template>
-  <div class="container lg:px-0 mx-auto mt-10 md:mt-0">
-    <div class="flex flex-col grid-cols-1 md:grid-cols-1 justify-center items-center lg:flex-row">
+  <div class="container lg:px-0 mx-auto">
+    <div class="flex-col lg:flex lg:flex-row gap-1">
       <Card
-        class="w-full md:w-3/4 md:mr-9 lg:h-screen lg:w-1/3 bg-[#F8F9FF] sm:items-center shadow-2xl mb-auto"
+      class="sm:col-span-3 md:col-span-3 bg-[#F8F9FF] sm:items-center shadow-xl lg:min-w-[398px]"
       >
         <CardHeader>
-          <CardTitle class="text-xl font-bold">{{ user.firstName }} Profile</CardTitle>
+          <CardTitle class="text-2xl font-bold text-[#000000] my-4">{{ user.firstName }} Profile</CardTitle>
           <CardDescription>
             <img
               v-if="user.avatar"
@@ -519,160 +519,13 @@ const onSubmit = contactForm((values) => {
       </Card>
 
       <div class="my-9 lg:px-6 lg:w-4/5">
-        <Tabs default-value="permission" class="space-y-1">
+        <Tabs default-value="activity" class="space-y-1">
           <TabsList
-            class="border-b-8 border-[#DEDFE8] lg:justify-between px-0 lg:px-6 md:px-6 py-2 bg-transparent"
+          class="border-[#DEDFE8] bg-transparent lg:w-[560px] lg:flex lg:justify-between px-0 lg:px-6 md:px-6 py-2"
           >
-            <TabsTrigger value="permission" class="text-[#000000]"> Permission </TabsTrigger>
-            <TabsTrigger value="analytics" disabled> Activity log </TabsTrigger>
+            <TabsTrigger value="activity" disabled> Activity log </TabsTrigger>
           </TabsList>
-          <TabsContent value="permission" class="space-y-4">
-            <div class="lg:w-full">
-              <Card Content class="bg-[#F8F9FF] mt-4">
-                <CardContent
-                  class="flex flex-col sm:flex-row items-center justify-between px-2 sm:px-6 py-4"
-                >
-                  <div
-                    class="inline-block bg-[#373B4D] text-[#F8F9FF] rounded-full px-2 py-1 text-sm"
-                  >
-                    Dashboard
-                  </div>
-                  <p class="text-sm text-muted-foreground text-center text-[#000000]">
-                    Get an overall stats of Weeshr and a users list at login
-                  </p>
-                  <Switch />
-                </CardContent>
-              </Card>
-
-              <Card Content class="bg-[#F8F9FF] mt-4">
-                <CardContent
-                  class="flex flex-col sm:flex-row items-center justify-between px-2 sm:px-6 py-4"
-                >
-                  <div
-                    class="inline-block bg-[#373B4D] text-[#F8F9FF] rounded-full px-2 py-1 text-sm"
-                  >
-                    Users
-                  </div>
-                  <p class="text-sm text-muted-foreground text-center text-[#000000]">
-                    View and manage all Weeshr app users,admin ,vendors and partners
-                  </p>
-                  <Switch />
-                </CardContent>
-              </Card>
-
-              <Card Content class="bg-[#F8F9FF] mt-4">
-                <CardContent
-                  class="flex flex-col sm:flex-row items-center justify-between px-2 sm:px-6 py-4"
-                >
-                  <div
-                    class="inline-block bg-[#373B4D] text-[#F8F9FF] rounded-full px-2 py-1 text-sm"
-                  >
-                    Weeshes
-                  </div>
-                  <p class="text-sm text-muted-foreground text-center text-[#000000]">
-                    View and manage all weeshes at different level fulfillement
-                  </p>
-                  <Switch />
-                </CardContent>
-              </Card>
-
-              <Card Content class="bg-[#F8F9FF] mt-4">
-                <CardContent
-                  class="flex flex-col sm:flex-row items-center justify-between px-2 sm:px-6 py-4"
-                >
-                  <div
-                    class="inline-block bg-[#373B4D] text-[#F8F9FF] rounded-full px-2 py-1 text-sm"
-                  >
-                    Depot
-                  </div>
-                  <p class="text-sm text-muted-foreground text-center text-[#000000]">
-                    Manage fulfilled weeshes and delievery status
-                  </p>
-                  <Switch />
-                </CardContent>
-              </Card>
-
-              <Card Content class="bg-[#F8F9FF] mt-4">
-                <CardContent
-                  class="flex flex-col sm:flex-row items-center justify-between px-2 sm:px-6 py-4"
-                >
-                  <div
-                    class="inline-block bg-[#373B4D] text-[#F8F9FF] rounded-full px-2 py-1 text-sm"
-                  >
-                    Bank
-                  </div>
-                  <p class="text-sm text-muted-foreground text-center text-[#000000]">
-                    View and manage funds in user's wallet
-                  </p>
-                  <Switch />
-                </CardContent>
-              </Card>
-
-              <Card Content class="bg-[#F8F9FF] mt-4">
-                <CardContent
-                  class="flex flex-col sm:flex-row items-center justify-between px-2 sm:px-6 py-4"
-                >
-                  <div
-                    class="inline-block bg-[#373B4D] text-[#F8F9FF] rounded-full px-2 py-1 text-sm"
-                  >
-                    Support
-                  </div>
-                  <p class="text-sm text-muted-foreground text-center text-[#000000]">
-                    View and manage tickets and complaints from users
-                  </p>
-                  <Switch />
-                </CardContent>
-              </Card>
-
-              <Card Content class="bg-[#F8F9FF] mt-4">
-                <CardContent
-                  class="flex flex-col sm:flex-row items-center justify-between px-2 sm:px-6 py-4"
-                >
-                  <div
-                    class="inline-block bg-[#373B4D] text-[#F8F9FF] rounded-full px-2 py-1 text-sm"
-                  >
-                    Configuration
-                  </div>
-                  <p class="text-sm text-muted-foreground text-center text-[#000000]">
-                    Manage the core engine of Weeshr
-                  </p>
-                  <Switch />
-                </CardContent>
-              </Card>
-
-              <Card Content class="bg-[#F8F9FF] mt-4">
-                <CardContent
-                  class="flex flex-col sm:flex-row items-center justify-between px-2 sm:px-6 py-4"
-                >
-                  <div
-                    class="inline-block bg-[#373B4D] text-[#F8F9FF] rounded-full px-2 py-1 text-sm"
-                  >
-                    Analytics
-                  </div>
-                  <p class="text-sm text-muted-foreground text-center text-[#000000]">
-                    Get general data in regards to Weeshr performance
-                  </p>
-                  <Switch />
-                </CardContent>
-              </Card>
-
-              <Card Content class="bg-[#F8F9FF] mt-4">
-                <CardContent
-                  class="flex flex-col sm:flex-row items-center justify-between px-2 sm:px-6 py-4"
-                >
-                  <div
-                    class="inline-block bg-[#373B4D] text-[#F8F9FF] rounded-full px-2 py-1 text-sm"
-                  >
-                    Activity logs
-                  </div>
-                  <p class="text-sm text-muted-foreground text-center text-[#000000]">
-                    View all activites of weeshr in record
-                  </p>
-                  <Switch />
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
+         
         </Tabs>
       </div>
     </div>
