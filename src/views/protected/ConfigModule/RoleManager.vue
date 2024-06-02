@@ -162,7 +162,7 @@ onMounted(async()=>{
             </Sheet>
         </div>
         <div class="w-full flex justify-center">
-            <div class="w-3/4 min-h-72">
+            <div class="min-h-72 w-5/6">
                 <div class="flex justify-end w-full text-sm text-[#6A70FF]">
                     <p>Only show active</p>
                 </div>

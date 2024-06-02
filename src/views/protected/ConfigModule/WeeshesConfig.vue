@@ -25,7 +25,7 @@ const onSubmit=()=>{
 const categories = ref<any[]>([])
 
 onMounted(async()=>{
-    // useConfigStore().getWeesheCategories()
+    useConfigStore().getWeesheCategories()
 })
 </script>
 
@@ -33,7 +33,7 @@ onMounted(async()=>{
     <div class="w-full">
         <MainNav class="mx-6" headingText="Weesh Categories" />
         <div class="px-10 py-10 ml-auto w-full flex justify-end">
-            <Sheet :close='sheetCLose'>
+            <Sheet :close='false'>
               <SheetTrigger as-child>
                 <button @click="handleSheet" class="bg-[#020721] px-4 py-2 rounded-xl w-50 h-12">
                   <div class="text-base text-[#F8F9FF] text-center flex items-center">

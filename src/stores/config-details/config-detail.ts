@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import axios from "axios";
 import { toast } from '@/components/ui/toast'
-
+import router from '@/router'
 
 const token = sessionStorage.getItem('token') || ''
 
@@ -17,8 +17,6 @@ export const useConfigStore = defineStore({
                 description: 'Fetching data...',
                 duration: 0 // Set duration to 0 to make it indefinite until manually closed
               })
-            
-              
               const config = {
                 method: 'post',
                 maxBodyLength: Infinity,
@@ -32,13 +30,35 @@ export const useConfigStore = defineStore({
               
               axios.request(config)
               .then((response) => {
+                toast({
+                  title: 'Success',
+                  description: `Successful: New Role Created`,
+                  variant: 'success'
+                })
                 console.log(JSON.stringify(response.data));
                 this.getRoles()
               })
               .catch((error) => {
-                console.log(error);
+                if (error.response.status === 401) {
+                  sessionStorage.removeItem('token')
+  
+                  setTimeout(() => {
+                    router.push({ name: 'home' })
+                  }, 3000)
+            
+                  toast({
+                    title: 'Unauthorized',
+                    description: 'You are not authorized to perform this action. Redirecting to home page...',
+                    variant: 'destructive'
+                  })
+                  // Redirect after 3 seconds
+                } else {
+                  toast({
+                    title: error.response.data.message || 'An error occurred',
+                    variant: 'destructive'
+                  })
+                }
               });
-              
         },
         async getRoles (){
             toast({
@@ -57,7 +77,6 @@ export const useConfigStore = defineStore({
                 )
             
                 if (response.status === 200 || response.status === 201) {
-                //  console.log(response)
                   toast({
                     title: 'Success',
                     description: `Gotten data`,
@@ -71,9 +90,9 @@ export const useConfigStore = defineStore({
                 if (error.response.status === 401) {
                   sessionStorage.removeItem('token')
 
-                //   setTimeout(() => {
-                //     router.push({ name: 'super-admin-login' })
-                //   }, 3000)
+                  setTimeout(() => {
+                    router.push({ name: 'home' })
+                  }, 3000)
             
                   toast({
                     title: 'Unauthorized',
@@ -111,10 +130,32 @@ export const useConfigStore = defineStore({
               axios.request(config)
               .then((response) => {
                 console.log(JSON.stringify(response.data));
-                // fetchUsersData('data updated')
+                toast({
+                  title: 'Success',
+                  description: `Successful: Data Edited`,
+                  variant: 'success'
+                })
               })
               .catch((error) => {
-                console.log(error);
+                if (error.response.status === 401) {
+                  sessionStorage.removeItem('token')
+  
+                  setTimeout(() => {
+                    router.push({ name: 'home' })
+                  }, 3000)
+            
+                  toast({
+                    title: 'Unauthorized',
+                    description: 'You are not authorized to perform this action. Redirecting to home page...',
+                    variant: 'destructive'
+                  })
+                  // Redirect after 3 seconds
+                } else {
+                  toast({
+                    title: error.response.data.message || 'An error occurred',
+                    variant: 'destructive'
+                  })
+                }
               });            
         },
         deleteRole(id: string){
@@ -137,12 +178,33 @@ export const useConfigStore = defineStore({
               axios.request(config)
               .then((response) => {
                 console.log(JSON.stringify(response.data));
-                // fetchUsersData('data updated')
+                toast({
+                  title: 'Success',
+                  description: `Successful: data deleted`,
+                  variant: 'success'
+                })
               })
               .catch((error) => {
-                console.log(error);
-              });
+                if (error.response.status === 401) {
+                  sessionStorage.removeItem('token')
+  
+                  setTimeout(() => {
+                    router.push({ name: 'home' })
+                  }, 3000)
             
+                  toast({
+                    title: 'Unauthorized',
+                    description: 'You are not authorized to perform this action. Redirecting to home page...',
+                    variant: 'destructive'
+                  })
+                  // Redirect after 3 seconds
+                } else {
+                  toast({
+                    title: error.response.data.message || 'An error occurred',
+                    variant: 'destructive'
+                  })
+                }
+              });
         },
         async getPermissions (){
           toast({
@@ -150,8 +212,6 @@ export const useConfigStore = defineStore({
               description: 'Fetching data...',
               duration: 0 // Set duration to 0 to make it indefinite until manually closed
             })
-          
-            
             try {
               const response = await axios.get(
                 `https://api.staging.weeshr.com/api/v1/admin/role/permissions`,
@@ -165,10 +225,10 @@ export const useConfigStore = defineStore({
               if (response.status === 200 || response.status === 201) {
                 toast({
                   title: 'Success',
-                  description: `Gotten data`,
+                  description: `Successful: data retrieved`,
                   variant: 'success'
                 })
-                // console.log(response.data.data)
+                console.log(response.data.data)
                 return response.data.data
                 
               }
@@ -176,9 +236,9 @@ export const useConfigStore = defineStore({
               if (error.response.status === 401) {
                 sessionStorage.removeItem('token')
 
-              //   setTimeout(() => {
-              //     router.push({ name: 'super-admin-login' })
-              //   }, 3000)
+                setTimeout(() => {
+                  router.push({ name: 'home' })
+                }, 3000)
           
                 toast({
                   title: 'Unauthorized',
@@ -212,10 +272,33 @@ export const useConfigStore = defineStore({
           axios.request(config)
           .then((response) => {
             console.log(JSON.stringify(response.data));
+            toast({
+              title: 'Success',
+              description: `Successful: data retrieved`,
+              variant: 'success'
+            })
             return response.data.data
           })
           .catch((error) => {
-            console.log(error);
+            if (error.response.status === 401) {
+              sessionStorage.removeItem('token')
+
+              setTimeout(() => {
+                router.push({ name: 'home' })
+              }, 3000)
+        
+              toast({
+                title: 'Unauthorized',
+                description: 'You are not authorized to perform this action. Redirecting to home page...',
+                variant: 'destructive'
+              })
+              // Redirect after 3 seconds
+            } else {
+              toast({
+                title: error.response.data.message || 'An error occurred',
+                variant: 'destructive'
+              })
+            }
           });          
       }
     }
@@ -223,10 +306,4 @@ export const useConfigStore = defineStore({
 
 interface ConfigStore {
   permissions: any[],
-  // adminStatus: boolean, //single admin id gotten from admin details page
-  // sheetOpen: boolean,
-  // loading: boolean,
-  // currentpage: number,
-  // totalpage: any[],
-  // detailLoading: boolean
 }
