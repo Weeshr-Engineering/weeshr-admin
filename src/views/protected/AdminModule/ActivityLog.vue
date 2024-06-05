@@ -15,50 +15,23 @@
         <Table class="lg:w-full w-[800px]">
           <TableHeader>
             <TableRow class="text-[#02072199] font-semibold bg-gray-200">
-              <TableHead class="text-sm">
-                ID
-              </TableHead >
-              <TableHead class="text-sm">
-                 Timestamp  
-              </TableHead>
-              <TableHead class="text-sm">
-                <div class="flex items-center text-sm">
-                 User ID
-                  <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
-                </div>  
-              </TableHead>
-              <TableHead class="text-sm">  
-              Username
-                
-              </TableHead>
+              <TableHead class="text-sm">ID</TableHead>
+              <TableHead class="text-sm">Timestamp</TableHead>
+              <TableHead class="text-sm">User ID</TableHead>
               <TableHead class="text-sm">
                 <div class="flex items-center">
                  Action 
                   <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
                 </div> 
+              </TableHead>
+              <TableHead class="text-sm">
                 
-              </TableHead>
-              <TableHead class="text-sm">
-                 IP Address
-                
-              </TableHead>
-
-              <TableHead class="text-sm">
-                <div class="flex items-center">
-                User Agent
-                  <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
-                </div>
-              </TableHead>
-
-              <TableHead class="text-sm">
                 <div class="flex items-center">
                  Status
                   <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
-                </div>  
-              </TableHead>
-              <TableHead class="text-sm">
-                Description
-              </TableHead>
+                </div>     
+                        </TableHead>
+              <TableHead class="text-sm">Description</TableHead>
               <TableHead></TableHead>
             </TableRow>
           </TableHeader>
@@ -67,16 +40,14 @@
               <TableCell class="text-xs md:text-sm lg:text-xs">{{ log.id }}</TableCell>
               <TableCell class="text-xs md:text-sm lg:text-xs">{{ new Date(log.timestamp).toLocaleString() }}</TableCell>
               <TableCell class="text-xs md:text-sm lg:text-xs">{{ log.user.id }}</TableCell>
-              <TableCell class="text-xs md:text-sm lg:text-xs">{{ log.user.extras.userName }}</TableCell>
               <TableCell class="text-xs md:text-sm lg:text-xs">{{ log.action }}</TableCell>
-              <TableCell class="text-xs md:text-sm lg:text-xs">{{ log.resource.ip }}</TableCell>
-              <TableCell class="text-xs md:text-sm lg:text-xs">{{ log.resource.user_agent }}</TableCell>
               <TableCell>
                 <div
                   :class="statusBg(log.status)"
                   class="rounded-[10px] w-fit px-1.5 py-0.5 text-white text-xs capitalize"
-                >{{ log.status }}
-              </div>
+                >
+                  {{ log.status }}
+                </div>
               </TableCell>
               <TableCell class="text-xs md:text-sm lg:text-xs">{{ log.description }}</TableCell>
               <TableCell>
@@ -167,7 +138,7 @@ const paginationItems = computed(() => {
 });
 
 onMounted(() => {
-  store.fetchActivityLogs('65a41c16e7004dd9b408b60c');
+  store.fetchActivityLogs();
 });
 
 watch(
@@ -193,8 +164,8 @@ watch(
 
 const statusBg = (status: string) => {
   switch (status) {
-    case 'PENDING':
-      return 'bg-[#EE9F39]';
+    case 'ERROR':
+      return 'bg-[#E45044]';
     case 'FAILED':
       return 'bg-[#E45044]';
     case 'SUCCESS':
@@ -210,5 +181,3 @@ const handlePageChange = (newPage: number) => {
   }
 };
 </script>
-
-
