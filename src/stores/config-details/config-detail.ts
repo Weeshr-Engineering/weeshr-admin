@@ -8,7 +8,8 @@ const token = sessionStorage.getItem('token') || ''
 export const useConfigStore = defineStore({
     id: 'admin-list',
     state: ():ConfigStore=>({
-      permissions: []
+      permissions: [],
+      roles: []
     }),
     actions: {
         async createRole (data: any){
@@ -30,13 +31,13 @@ export const useConfigStore = defineStore({
               
               axios.request(config)
               .then((response) => {
-                toast({
-                  title: 'Success',
-                  description: `Successful: New Role Created`,
-                  variant: 'success'
-                })
-                console.log(JSON.stringify(response.data));
-                this.getRoles()
+                if (response.status === 200 || response.status === 201) {
+                  toast({
+                    title: 'Success',
+                    description: `A New Role Created`,
+                    variant: 'success'
+                  })
+                }
               })
               .catch((error) => {
                 if (error.response.status === 401) {
@@ -59,54 +60,6 @@ export const useConfigStore = defineStore({
                   })
                 }
               });
-        },
-        async getRoles (){
-            toast({
-                title: 'Loading Data',
-                description: 'Fetching data...',
-                duration: 0 // Set duration to 0 to make it indefinite until manually closed
-              })  
-              try {
-                const response = await axios.get(
-                  `https://api.staging.weeshr.com/api/v1/admin/roles`,
-                  {
-                    headers: {
-                      Authorization: `Bearer ${token}`
-                    }
-                  }
-                )
-            
-                if (response.status === 200 || response.status === 201) {
-                  toast({
-                    title: 'Success',
-                    description: `Gotten data`,
-                    variant: 'success'
-                  })
-                }
-                return response.data.data.data.reverse()
-                // set Loading to false
-    
-              } catch (error: any) {
-                if (error.response.status === 401) {
-                  sessionStorage.removeItem('token')
-
-                  setTimeout(() => {
-                    router.push({ name: 'home' })
-                  }, 3000)
-            
-                  toast({
-                    title: 'Unauthorized',
-                    description: 'You are not authorized to perform this action. Redirecting to home page...',
-                    variant: 'destructive'
-                  })
-                  // Redirect after 3 seconds
-                } else {
-                  toast({
-                    title: error.response.data.message || 'An error occurred',
-                    variant: 'destructive'
-                  })
-                }
-              }
         },
         updateRole (data: any, id='656ffd8156c96f7cf43b0441'){
             toast({
@@ -137,8 +90,23 @@ export const useConfigStore = defineStore({
                 })
               })
               .catch((error) => {
-                if (error.response.status === 401) {
-                  sessionStorage.removeItem('token')
+                console.log(error)
+                if(error.response.status == 422){
+                  toast({
+                    title: 'Unmodified data',
+                    description: 'Modify the data before you try to update role',
+                    variant: 'destructive'
+                  })
+                }
+                else if(error.response.status == 400){
+                  toast({
+                    title: error.response.data.message || 'You cannot edit this role',
+                    description: 'Create another role instead or delete this if not needed',
+                    variant: 'destructive'
+                  })
+                }
+                else if (error.response.status === 401) {
+                  // sessionStorage.removeItem('token')
   
                   setTimeout(() => {
                     router.push({ name: 'home' })
@@ -158,7 +126,7 @@ export const useConfigStore = defineStore({
                 }
               });            
         },
-        deleteRole(id: string){
+        async deleteRole(id: string){
             toast({
                 title: 'Loading Data',
                 description: 'Fetching data...',
@@ -186,7 +154,7 @@ export const useConfigStore = defineStore({
               })
               .catch((error) => {
                 if (error.response.status === 401) {
-                  sessionStorage.removeItem('token')
+                  // sessionStorage.removeItem('token')
   
                   setTimeout(() => {
                     router.push({ name: 'home' })
@@ -214,7 +182,7 @@ export const useConfigStore = defineStore({
             })
             try {
               const response = await axios.get(
-                `https://api.staging.weeshr.com/api/v1/admin/role/permissions`,
+                `https://api.staging.weeshr.com/api/v1/admin/role/permissions?group_by=model`,
                 {
                   headers: {
                     Authorization: `Bearer ${token}`
@@ -228,17 +196,18 @@ export const useConfigStore = defineStore({
                   description: `Successful: data retrieved`,
                   variant: 'success'
                 })
-                console.log(response.data.data)
-                return response.data.data
+                // console.log(response.data.data)
+                const data = response.data.data
+                return data
                 
               }
             } catch (error: any) {
               if (error.response.status === 401) {
-                sessionStorage.removeItem('token')
+                // sessionStorage.removeItem('token')
 
-                setTimeout(() => {
-                  router.push({ name: 'home' })
-                }, 3000)
+                // setTimeout(() => {
+                //   router.push({ name: 'home' })
+                // }, 3000)
           
                 toast({
                   title: 'Unauthorized',
@@ -306,4 +275,5 @@ export const useConfigStore = defineStore({
 
 interface ConfigStore {
   permissions: any[],
+  roles: any[]
 }

@@ -20,9 +20,9 @@ import CreateUser from '@/views/protected/SuperAdminModule/CreateUser.vue'
 import DepotPage from '@/views/protected/AdminModule/DepotPage.vue'
 import BankPage from '@/views/protected/AdminModule/BankPage.vue'
 import ActivityLog from '@/views/protected/AdminModule/ActivityLog.vue'
-import ConfigHub from '@/views/protected/ConfigModule/ConfigHub.vue'
-import RoleManager from '@/views/protected/ConfigModule/RoleManager.vue'
-import WeeshesConfig from '@/views/protected/ConfigModule/WeeshesConfig.vue'
+import ConfigHub from '@/views/protected/ConfigModule/RoleModule/ConfigHub.vue'
+import RoleManager from '@/views/protected/ConfigModule/RoleModule/RoleManager.vue'
+import WeeshesConfig from '@/views/protected/ConfigModule/WeeshesCategories/WeeshesConfig.vue'
 const routes = [
   {
     path: '/',
