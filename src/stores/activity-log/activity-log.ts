@@ -47,14 +47,17 @@ export const useActivityLogStore = defineStore('activityLog', {
       this.error = null;
 
       const token = sessionStorage.getItem('token') || '';
-      
+
       try {
-        const response = await axios.get('https://api.staging.weeshr.com/api/v1/admin/logs/activity-logs', {
-          headers: {
-            Authorization: `Bearer ${token}`
+        const response = await axios.get(
+          'https://api.staging.weeshr.com/api/v1/admin/logs/activity-logs',
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
           }
-        });
-        
+        );
+
         if (response.status === 200) {
           this.logs = response.data.data.data;
         } else {
@@ -68,4 +71,3 @@ export const useActivityLogStore = defineStore('activityLog', {
     },
   },
 });
- 
