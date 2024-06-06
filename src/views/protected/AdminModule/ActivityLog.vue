@@ -3,7 +3,7 @@
     <MainNav class="mx-6" headingText="Activity Log" />
 
     <Card class="container px-4 pt-6 pb-10 mx-auto sm:px-6 lg:px-8 bg-[#FFFFFF] rounded-2xl mt-14 mb-4">
-      <div class="flex flex-col sm:flex-row items-center justify-between py-4">
+      <div class="flex flex-col gap-4 lg:flex-row items-center justify-between px-2 sm:px-6 py-4 w-full">
         <div class="text-xl sm:text-xl font-bold tracking-tight text-[#020721] mb-2 sm:mb-0">
           Activity Log
           <p class="text-xs sm:text-sm font-normal text-[#02072199]">
