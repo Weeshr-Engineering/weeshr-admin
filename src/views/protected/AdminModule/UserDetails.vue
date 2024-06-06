@@ -5,7 +5,7 @@ import { Icon } from '@iconify/vue'
 
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardDescription, CardHeader } from '@/components/ui/card'
 import {
   Table,
   TableRow,
@@ -14,6 +14,9 @@ import {
   TableCell,
   TableHead
 } from '@/components/ui/table'
+
+import getUser from '@/composables/getUser';
+import { useRoute } from 'vue-router';
 
 const editProfile = () => {
   // Your logic for handling the edit click goes here
@@ -186,7 +189,36 @@ const user2s = ref<any[]>([
     status: ['Failed']
   }
 ])
+
+//get User
+
+const route = useRoute();
+const _id = route.params.id;
+
+const { appUser, error, load } = getUser()
+
+console.log(_id)
+
+load(_id)
+
+const dateOfBirth = (dob: string) => {
+  const date = new Date(dob)
+
+  const day = String(date.getUTCDate()).padStart(2, '0');
+  const monthNames = [
+    "January", "February", "March", "April", "May", "June", 
+    "July", "August", "September", "October", "November", "December"
+  ];
+  const month = monthNames[date.getUTCMonth()];
+  const year = date.getUTCFullYear();
+
+  const formattedDate = `${day} - ${month} - ${year}`;
+
+  return formattedDate
+}
+
 </script>
+
 <template>
   <div class="container lg:px-0 mx-auto">
     <div class="flex-col lg:flex lg:flex-row gap-1">
@@ -194,7 +226,11 @@ const user2s = ref<any[]>([
         class="sm:col-span-3 md:col-span-3 bg-[#F8F9FF] sm:items-center shadow-xl lg:min-w-[398px]"
       >
         <CardHeader>
-          <CardTitle class="text-2xl font-bold text-[#000000] my-4">User Profile</CardTitle>
+          <div class="flex items-center text-xl md:mx-10 md:text-3xl mb-4">
+              <RouterLink :to="{name: 'appuser'}" class="text-gray-500">App Users</RouterLink>
+              <Icon icon="tabler:chevron-right" width="22px" height="22px" class="ml-1 pt-1"/>
+              <RouterLink :to="{name: 'appuserDetails'}">Users Details</RouterLink>
+          </div>
           <CardDescription>
             <div class="grid gap-2 grid-cols-3 md:grid-cols-5 lg:grid-cols-5 my-7">
               <img
@@ -236,23 +272,26 @@ const user2s = ref<any[]>([
                 </span>
               </div>
             </div>
-
-            <Card class="rounded-md">
+            <div v-if="error" class="text-[#02072199] p-10">
+            <p>{{ error }}</p>
+            </div>
+            <div v-else-if="appUser">
+              <Card class="rounded-md">
               <div class="flex justify-between px-6 md:px-6 py-2 border-b">
                 <p class="text-[#02072199] text-xs md:text-sm lg:text-sm">Full Name</p>
-                <p class="text-xs md:text-sm lg:text-sm text-[#020721]">Tochukwu Felix Onwuelo</p>
+                <p class="text-xs md:text-sm lg:text-sm text-[#020721]">{{ appUser.firstName }} {{ appUser.middleName }} {{ appUser.lastName }}</p>
               </div>
               <div class="flex justify-between px-6 py-2 border-b">
                 <p class="text-[#02072199] text-xs md:text-sm lg:text-sm">Preferred</p>
-                <p class="text-xs md:text-sm lg:text-sm text-[#020721]">Felixont</p>
+                <p class="text-xs md:text-sm lg:text-sm text-[#020721]">{{ appUser.userName }}</p>
               </div>
               <div class="flex justify-between px-6 py-2 border-b">
                 <p class="flex grow text-[#02072199] text-xs md:text-sm lg:text-sm">Birthday</p>
-                <p class="text-xs md:text-sm lg:text-sm text-[#020721]">July 28</p>
+                <p class="text-xs md:text-sm lg:text-sm text-[#020721]">{{ dateOfBirth(appUser.dob) }}</p>
               </div>
               <div class="flex justify-between px-6 py-2 border-b">
                 <p class="flex grow text-[#02072199] text-xs md:text-sm lg:text-sm">Gender</p>
-                <p class="text-xs md:text-sm lg:text-sm text-[#020721]">Female</p>
+                <p class="text-xs md:text-sm lg:text-sm text-[#020721]">{{ appUser.gender }}</p>
               </div>
             </Card>
             <div class="flex justify-between px-6 py-4">
@@ -271,18 +310,11 @@ const user2s = ref<any[]>([
             <Card class="rounded-md">
               <div class="flex justify-between px-6 py-2 border-b">
                 <p class="text-[#02072199] text-xs md:text-sm lg:text-sm">Email</p>
-                <p class="text-xs md:text-sm lg:text-sm text-[#020721]">felixont@email.uk</p>
+                <p class="text-xs md:text-sm lg:text-sm text-[#020721]">{{ appUser.email }}</p>
               </div>
               <div class="flex justify-between px-3 lg:px-6 py-2 border-b">
-                <p class="text-[#02072199] text-xs md:text-sm lg:text-sm">phone.no</p>
+                <p class="text-[#02072199] text-xs md:text-sm lg:text-sm">Phone</p>
                 <p class="text-xs md:text-sm lg:text-sm text-[#020721]">+234 818 100 8221</p>
-              </div>
-              <div class="flex justify-between px-5 lg:px-6 py-2 border-b">
-                <p class="flex grow text-[#02072199] text-xs md:text-sm lg:text-sm">Address:</p>
-                
-                <p class="text-xs md:text-sm lg:text-sm text-[#020721]">
-                  No. 51, Briswood Ipaja Rd, Ikeja
-                </p>
               </div>
             </Card>
 
@@ -350,6 +382,10 @@ const user2s = ref<any[]>([
                 </div>
               </div>
             </div>
+            </div>
+            <div v-else class="text-[#02072199] p-10">
+            <p>No user data available</p>
+          </div>
           </CardDescription>
         </CardHeader>
       </Card>
