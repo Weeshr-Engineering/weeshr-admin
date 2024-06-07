@@ -42,22 +42,23 @@ export const useActivityLogStore = defineStore('activityLog', {
     error: null,
   }),
   actions: {
-    async fetchActivityLogs(userId: string) {
+    async fetchActivityLogs() {
       this.loading = true;
       this.error = null;
 
-      const token = sessionStorage.getItem('token') || ''
-      
+      const token = sessionStorage.getItem('token') || '';
+
       try {
-        const response = await axios.get(`https://api.staging.weeshr.com/api/v1/admin/accounts/user/${userId}/logs`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
+        const response = await axios.get(
+          'https://api.staging.weeshr.com/api/v1/admin/logs/activity-logs',
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
           }
-        }
         );
-        
-        if (response.data.code === 200) {
+
+        if (response.status === 200) {
           this.logs = response.data.data.data;
         } else {
           this.error = response.data.message;
