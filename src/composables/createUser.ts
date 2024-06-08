@@ -17,7 +17,6 @@ interface User {
     dob: string,
     gender: string,
     email: string,
-    pin: number | string,
     isAdmin: boolean
 }
 
@@ -45,7 +44,6 @@ const userFormSchema =
     .string()
     .min(2, { message: 'Username must be at least 2 characters long' })
     .max(20, { message: 'Username cannot be longer than 20 characters' }),
-    pin: z.string().min(5,{ message: 'Pin must be at least 5 characters long' })
   })
 
 
@@ -59,14 +57,13 @@ const createUser = () => {
         lastName: '',
         userName: '',
         phone: {
-            countryCode: '',
+            countryCode: '+234',
             phoneNumber: '',
         },
         dob: '',
         gender: '',
         email: '',
         isAdmin: false,
-        pin: 12345,
     })
 
     const token = sessionStorage.getItem('token') || ''

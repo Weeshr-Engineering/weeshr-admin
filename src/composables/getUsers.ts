@@ -30,12 +30,12 @@ const getUsers = () => {
     const token = sessionStorage.getItem('token') || ''
     const { toast } = useToast()
     
-    const load = async () => {
+    const load = async (search: string ) => {
         try {
             toast({
                 description: "Loading...."
             })
-            const response = await axios.get('https://api.staging.weeshr.com/api/v1/admin/accounts/users',
+            const response = await axios.get(`https://api.staging.weeshr.com/api/v1/admin/accounts/users?search=${search}`,
             {
                 headers: {
                     Authorization: `Bearer ${token}`

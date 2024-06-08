@@ -1,5 +1,21 @@
 <script setup lang="ts">
-import { Input } from '@/components/ui/input'
+import { defineProps, defineEmits } from 'vue';
+
+interface Props {
+  modelValue?: string;
+}
+
+const props = defineProps<Props>();
+const emit = defineEmits(['update:modelValue']);
+
+const { modelValue } = props;
+
+const onKeyPress = (event: KeyboardEvent) => {
+  if (event.key === 'Enter') {
+    const target = event.target as HTMLInputElement;
+    emit('update:modelValue', target.value);
+  }
+};
 </script>
 
 <template>
@@ -26,6 +42,8 @@ import { Input } from '@/components/ui/input'
       type="text"
       class="bg-[#EEEFF5] text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
       placeholder="Search             weeshrname, email, name, type, status"
+      :value="modelValue"
+      @keypress="onKeyPress"
       required
     />
   </div>
