@@ -223,6 +223,55 @@ export const useConfigStore = defineStore({
               }
             }
       },
+      async allPermissions (){
+        toast({
+            title: 'Loading Data',
+            description: 'Fetching data...',
+            duration: 0 // Set duration to 0 to make it indefinite until manually closed
+          })
+          try {
+            const response = await axios.get(
+              `https://api.staging.weeshr.com/api/v1/admin/role/permissions?group_by=basic`,
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`
+                }
+              }
+            )
+        
+            if (response.status === 200 || response.status === 201) {
+              toast({
+                title: 'Success',
+                description: `Successful: data retrieved`,
+                variant: 'success'
+              })
+              console.log(response.data.data)
+              const data = response.data.data
+              return data
+              
+            }
+          } catch (error: any) {
+            if (error.response.status === 401) {
+              // sessionStorage.removeItem('token')
+
+              // setTimeout(() => {
+              //   router.push({ name: 'home' })
+              // }, 3000)
+        
+              toast({
+                title: 'Unauthorized',
+                description: 'You are not authorized to perform this action. Redirecting to home page...',
+                variant: 'destructive'
+              })
+              // Redirect after 3 seconds
+            } else {
+              toast({
+                title: error.response.data.message || 'An error occurred',
+                variant: 'destructive'
+              })
+            }
+          }
+    },
         async getWeesheCategories (){
           toast({
             title: 'Loading Data',

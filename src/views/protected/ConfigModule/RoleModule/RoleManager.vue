@@ -21,14 +21,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Separator } from '@/components/ui/separator'
 
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import MainNav from '@/components/MainNav.vue'
@@ -77,17 +70,27 @@ const onSubmit=async (values:any)=> {
   getRoles()
 }
 
+
+
 const editSchema = toTypedSchema(
   z.object({
-    name: z.string().nonempty('Please add a Name'),
-    // description: z.string().nonempty('Add description'),
-    permissionArr: z.array(z.string()).nonempty('Select at least one permission'),
+    name: z.string().nonempty('Please add a Name').optional(),
+    permissionArr: z.array(z.string()).nonempty('Select at least one permission').optional(),
   })
 )
 
 const roles = ref<any[]>([])
 const permissions = ref<any[]>([])
+const allPermissions = ref<any[]>([])
+const rolePermissions = ref<any[]>([])
+const roleName = ref('')
+const modified = ref(false)
 
+const handleRolePermissions=(arr: any[], name: string)=>{
+  modified.value = false
+  rolePermissions.value = arr
+  roleName.value = name
+}
 
 const getRoles = async()=>{
             toast({
@@ -112,7 +115,9 @@ const getRoles = async()=>{
                     variant: 'success'
                   })
                 }
+                
                 roles.value= response.data.data.data.reverse()
+                console.log(roles.value)
                 // set Loading to false
     
               } catch (error: any) {
@@ -138,13 +143,54 @@ const getRoles = async()=>{
               }
         }
 const onEdit= async (values:any)=> {
-  // console.log(JSON.stringify(values, null, 2));
-  const data = JSON.stringify({
-    'name': values.name,
-    'permissions': values.permissionArr
+  let arr: any[]
+  let name: string
+
+  if(values.permissionArr){
+    const combinedArray = [...rolePermissions.value, ...values.permissionArr];
+    modified.value = true
+  
+  // Use a Set to ensure all elements are unique
+  arr = [...new Set(combinedArray)];
+  }else{
+    arr = rolePermissions.value
+  }
+  // console.log(arr)
+  if(values.name){
+    name = values.name
+  }else{
+    name = roleName.value
+  }
+  if(name == roleName.value && modified.value == false){
+    console.log(arr)
+    toast({
+      title: 'No edit found',
+      description: 'You have to make a change first',
+      variant: 'destructive'
+    })
+  }else{
+    const data = JSON.stringify({
+    'name': name,
+    'permissions': arr
   })
+  console.log(data)
   useConfigStore().updateRole(data)
   getRoles()
+  }
+}
+
+const handleChecked = (val: string)=>{
+  // console.log(val)
+  const index = rolePermissions.value.indexOf(val);
+  
+  if (index === -1) {
+    // If the string is not found, add it to the array
+    rolePermissions.value.push(val);
+  } else {
+    // If the string is found, remove it from the array
+    rolePermissions.value.splice(index, 1);
+  }
+  modified.value = true
 }
 
 const sheetCLose = ref(true)
@@ -155,9 +201,8 @@ const handleSheet = ()=>{
 
 onMounted(async()=>{
     getRoles()
-    // roles.value = await useConfigStore().getRoles()
     const data = await useConfigStore().getPermissions()
-    // console.log(roles.value)
+    allPermissions.value = await useConfigStore().allPermissions()
     permissions.value = data
 })
 </script>
@@ -246,19 +291,15 @@ onMounted(async()=>{
                                       <TableRow v-for="(name, key) in permissions" :key="key">
                                         <TableCell>{{ key }}</TableCell>
                                         <TableCell ><span v-for="(item, keys) in permissions[key].permissions" :key="keys"><span v-if="item.tag == 'create'">
-                                          <!-- <Checkbox :value="item.identifier"/> -->
                                           <Field name="permissionList" type="checkbox" :value="item.identifier" />
                                         </span></span></TableCell>
                                         <TableCell ><span v-for="(item, keys) in permissions[key].permissions" :key="keys"><span v-if="item.tag == 'read'">
-                                          <!-- <Checkbox :value="item.identifier"/> -->
                                           <Field name="permissionList" type="checkbox" :value="item.identifier" />
                                         </span></span></TableCell>
                                         <TableCell ><span v-for="(item, keys) in permissions[key].permissions" :key="keys"><span v-if="item.tag == 'update'">
-                                          <!-- <Checkbox :value="item.identifier"/> -->
                                           <Field name="permissionList" type="checkbox" :value="item.identifier" />
                                         </span></span></TableCell>
                                         <TableCell ><span v-for="(item, keys) in permissions[key].permissions" :key="keys"><span v-if="item.tag == 'delete'">
-                                          <!-- <Checkbox :value="item.identifier"/> -->
                                           <Field name="permissionList" type="checkbox" :value="item.identifier" />
                                         </span></span></TableCell>
                                       </TableRow>
@@ -270,12 +311,6 @@ onMounted(async()=>{
                           <ErrorMessage name="permissionList" class="text-red-600 text-sm font-medium"/>
                           
                           <div class="flex justify-end items-center gap-4 mt-5"> 
-                            <!-- <Button 
-                            variant='outline'
-                            @click="handleSheet"
-                            >
-                                Cancel
-                              </Button> -->
                               <Button type="submit" class="bg-[#4145A7]">
                                 <!-- <Loader2
                                   color="#ffffff"
@@ -311,51 +346,90 @@ onMounted(async()=>{
                         {{ item.name}}
                       </p>
                   </div>
+                  <div class="hidden md:inline-block">
+                    {{ item.description }}
+                  </div>
                     <div class="flex items-center gap-4">
-                      <Popover>
-                        <PopoverTrigger>
-                          <Icon icon="mdi:edit" width="17" height="17" class="icons-sidebar border-2 border-gray-100" />
-                        </PopoverTrigger>
-                        <PopoverContent>
-                          <ScrollArea class="h-full w-full rounded-md border">
-                            <Form :validation-schema="editSchema" @submit="onEdit">
-                            <div class="p-4">
-                              <div class="mb-4 w-full flex items-center justify-between">
-                                <h4 class="font-medium text-base leading-none underline">
-                                  {{item.name}}
-                                </h4>
-                                <Button type="submit" class="bg-[#4145A7]"> Update Role</Button>
-                              </div>
-                              <!-- {{item.description}} -->
-                              <ErrorMessage name="permissionList" class="text-red-600 text-sm font-medium"/>
-                              <FormField v-slot="{ componentField }" name="name">
-                                <FormItem v-auto-animate>
-                                  <!-- <FormLabel class="text-blue-900">Role Name</FormLabel> -->
-                                  <FormControl>
-                                    <Input
-                                      id="text"
-                                      type="text"
-                                      placeholder="Edit role name"
-                                      class="focus-visible:ring-blue-600"
-                                      v-bind="componentField"
-                                    />
-                                  </FormControl>
-                
-                                  <FormMessage for="roleName" />
-                                </FormItem>
-                              </FormField>
-                              <!-- <Field name="name" type="text" /> -->
-                              <div v-for="(permits, ids) in item.permissions" :key=ids >
-                                <div class="text-sm">
-                                  <Field  name="permissionArr" type="checkbox" :value="permits" />{{ permits }}
+                      <Sheet>
+                        <SheetTrigger>
+                          <Icon @click="()=>handleRolePermissions(item.permissions, item.name)" icon="mdi:edit" width="17" height="17" class="icons-sidebar border-2 border-gray-100" />
+                        </SheetTrigger>
+                        <SheetContent class="overflow-y-auto py-8" side="right">
+                            <div class="flex py-4 justify-between items-center">
+                              <SheetHeader>
+                              <h3 class="text-2xl font-medium">{{item.name.toUpperCase()}}</h3>
+                              </SheetHeader>
+                              
+                          </div>
+                              <Form :validation-schema="editSchema" @submit="onEdit">
+                                <div class="">
+                                  <ErrorMessage name="permissionList" class="text-red-600 text-sm font-medium"/>
+                                  <FormField v-slot="{ componentField }" name="name">
+                                    <FormItem v-auto-animate>
+                                      <FormLabel class="text-blue-900">Edit Role Name</FormLabel>
+                                      <FormControl>
+                                        <Input
+                                          id="text"
+                                          type="text"
+                                          placeholder="Edit role name"
+                                          class="focus-visible:ring-blue-600"
+                                          v-bind="componentField"
+                                        />
+                                      </FormControl>
+                    
+                                      <FormMessage for="roleName" />
+                                    </FormItem>
+                                  </FormField>
+    
+                                  <FormField  name="permission">
+                                    <FormItem v-auto-animate>
+                                      <FormLabel class="text-blue-900 text-left">Edit Module Access</FormLabel>
+                                      <FormControl>
+                                        <Table>
+                                          <TableHead> Name </TableHead>
+                                          <TableHead>Create</TableHead>
+                                          <TableHead>Read</TableHead>
+                                          <TableHead>Edit</TableHead>
+                                          <TableHead>Delete</TableHead>
+                                            <TableBody>
+                                              <TableRow v-for="(name, key) in permissions" :key="key">
+                                                <TableCell>{{ key }}</TableCell>
+                                                <TableCell ><span v-for="(permit, keys) in permissions[key].permissions" :key="keys"><span v-if="permit.tag == 'create'">
+                                                  <Field v-slot="{ field }" name="permissionArr" type="checkbox" :value="permit.identifier" :unchecked-value="!item.permissions.includes(permit.identifier)">
+                                                    <input type="checkbox" @click="()=> handleChecked(permit.identifier)" :value="permit.identifier" v-if="item.permissions.includes(permit.identifier)" checked>
+                                                    <input type="checkbox" v-bind="field" :value="permit.identifier" v-else>
+                                                </Field>
+                                                </span></span></TableCell>
+                                                <TableCell ><span v-for="(permit, keys) in permissions[key].permissions" :key="keys"><span v-if="permit.tag == 'read'">
+                                                  <Field v-slot="{ field }" name="permissionArr" type="checkbox" :value="permit.identifier" :unchecked-value="!item.permissions.includes(permit.identifier)">
+                                                    <input type="checkbox" @click="()=> handleChecked(permit.identifier)" :value="permit.identifier" v-if="item.permissions.includes(permit.identifier)" checked>
+                                                    <input type="checkbox" v-bind="field" :value="permit.identifier" v-else>
+                                                  </Field>
+                                                </span></span></TableCell>
+                                                <TableCell ><span v-for="(permit, keys) in permissions[key].permissions" :key="keys"><span v-if="permit.tag == 'update'">
+                                                  <Field v-slot="{ field }" name="permissionArr" type="checkbox" :value="permit.identifier" :unchecked-value="!item.permissions.includes(permit.identifier)">
+                                                    <input type="checkbox" @click="()=> handleChecked(permit.identifier)" :value="permit.identifier" v-if="item.permissions.includes(permit.identifier)" checked>
+                                                    <input type="checkbox" v-bind="field" :value="permit.identifier" v-else>
+                                                  </Field>
+                                                </span></span></TableCell>
+                                                <TableCell ><span v-for="(permit, keys) in permissions[key].permissions" :key="keys"><span v-if="permit.tag == 'delete'">
+                                                  <Field v-slot="{ field }" name="permissionArr" type="checkbox" :value="permit.identifier" :unchecked-value="!item.permissions.includes(permit.identifier)">
+                                                    <input type="checkbox" @click="()=> handleChecked(permit.identifier)" :value="permit.identifier" v-if="item.permissions.includes(permit.identifier)" checked>
+                                                    <input type="checkbox" v-bind="field" :value="permit.identifier" v-else>
+                                                  </Field>
+                                                </span></span></TableCell>
+                                              </TableRow>
+                                            </TableBody>
+                                        </Table>
+                                      </FormControl>
+                                    </FormItem>
+                                  </FormField>
+                                  <ErrorMessage name="permissionList" class="text-red-600 text-sm font-medium"/>
                                 </div>
-                                <Separator class="my-2" />
-                              </div>
-                            </div>
-                          </Form>
-                          </ScrollArea>
-                        </PopoverContent>
-                      </Popover>
+                                <Button type="submit" class="bg-[#4145A7] mt-2"> Update Role</Button>
+                              </Form>
+                        </SheetContent>
+                      </Sheet>
 
                       <AlertDialog>
                         <AlertDialogTrigger>
