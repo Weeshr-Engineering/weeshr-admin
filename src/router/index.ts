@@ -20,7 +20,9 @@ import CreateUser from '@/views/protected/SuperAdminModule/CreateUser.vue'
 import DepotPage from '@/views/protected/AdminModule/DepotPage.vue'
 import BankPage from '@/views/protected/AdminModule/BankPage.vue'
 import ActivityLog from '@/views/protected/AdminModule/ActivityLog.vue'
-
+import ConfigHub from '@/views/protected/ConfigModule/RoleModule/ConfigHub.vue'
+import RoleManager from '@/views/protected/ConfigModule/RoleModule/RoleManager.vue'
+import WeeshesConfig from '@/views/protected/ConfigModule/WeeshesCategories/WeeshesConfig.vue'
 const routes = [
   {
     path: '/',
@@ -148,7 +150,24 @@ const routes = [
     component: ActivityLog,
     meta: { requiresAuth: true }
   },
-
+  {
+    path: '/config',
+    name: 'config',
+    component: ConfigHub,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/config/role',
+    name: 'role',
+    component: RoleManager,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/config/weesh',
+    name: 'configWeesh',
+    component: WeeshesConfig,
+    meta: { requiresAuth: true }
+  },
   {
     path: '/:pathMatch(.*)*', // Wildcard route to catch all unmatched paths
     redirect: { name: 'error' } // Redirect to error page
