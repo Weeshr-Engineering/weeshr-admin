@@ -74,6 +74,10 @@ const order = ref<SortItem>('all')
 const handleClick = (term: SortItem) => {
   order.value = term
 }
+const handleReset = () => {
+  order.value = "all";
+  load('')
+}
 
 const sortUsers = computed(() => {
   let users = [...appUsers.value];
@@ -173,7 +177,7 @@ const handlePageChange = (newPage: number) => {
           </DropdownMenuCheckboxItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      <Button variant="outline" class="rounded-2xl bg-[#EEEFF5] col-span-3 md:col-span-1" @click="() => handleClick('all')">
+      <Button variant="outline" class="rounded-2xl bg-[#EEEFF5] col-span-3 md:col-span-1" @click="() => handleReset()">
         <div class="flex items-center text-[10px] md:text-xs">
           <Icon icon="tdesign:clear" width="15" height="15" class="me-2"/>
           Clear Filter
