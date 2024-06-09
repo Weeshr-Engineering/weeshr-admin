@@ -72,6 +72,12 @@ const routes = [
     meta: { requiresAuth: true }
   },
   {
+    path: '/user/appuser/:id',
+    name: 'appuserDetails',
+    component: UserDetails,
+    meta: { requiresAuth: true }
+  },
+  {
     path: '/user/vendors',
     name: 'vendors',
     component: Vendors,
@@ -107,15 +113,6 @@ const routes = [
     name: 'AdminDetails',
 
     component: AdminDetails,
-
-    meta: { hideSidebar: true }
-  },
-
-  {
-    path: '/usersdetails/:Id',
-    name: 'UserDetails',
-
-    component: UserDetails,
 
     meta: { hideSidebar: true }
   },
