@@ -12,10 +12,13 @@ import {
 import MainNav from '@/components/MainNav.vue'
 import DashboardFooter from '@/components/DashboardFooter.vue'
 import { ref, onMounted } from 'vue'
-import { useConfigStore } from '@/stores/config-details/config-detail'
+// import { useConfigStore } from '@/stores/config-details/config-detail'
+import axios from "axios";
+import { toast } from '@/components/ui/toast'
+import router from '@/router'
 
 const sheetCLose = ref(true)
-
+const token = sessionStorage.getItem('token') || ''
 const handleSheet = ()=>{
     sheetCLose.value = !sheetCLose.value
 }
@@ -24,8 +27,57 @@ const onSubmit=()=>{
 }
 const categories = ref<any[]>([])
 
+const getWeesheCategories = ()=>{
+          toast({
+            title: 'Loading Data',
+            description: 'Fetching data...',
+            duration: 0 // Set duration to 0 to make it indefinite until manually closed
+          })
+          const config = {
+            method: 'get',
+            maxBodyLength: Infinity,
+            url: 'https://api.staging.weeshr.com/api/v1/admin/weesh/categories?per_page=5&page=1&search=cash',
+            headers: { 
+              'Authorization': `Bearer ${token}`
+            }
+          };
+          
+          axios.request(config)
+          .then((response) => {
+            console.log(JSON.stringify(response.data));
+            toast({
+              title: 'Success',
+              description: `Successful: data retrieved`,
+              variant: 'success'
+            })
+            return response.data.data
+          })
+          .catch((error) => {
+            console.log(error)
+            if (error.response.status === 401) {
+              sessionStorage.removeItem('token')
+
+              setTimeout(() => {
+                router.push({ name: 'home' })
+              }, 3000)
+        
+              toast({
+                title: 'Unauthorized',
+                description: 'You are not authorized to perform this action. Redirecting to home page...',
+                variant: 'destructive'
+              })
+              // Redirect after 3 seconds
+            } else {
+              toast({
+                title: error.response.data.message || 'An error occurred',
+                variant: 'destructive'
+              })
+            }
+          });          
+      }
+
 onMounted(async()=>{
-    useConfigStore().getWeesheCategories()
+    getWeesheCategories()
 })
 </script>
 
