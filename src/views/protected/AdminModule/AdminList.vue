@@ -63,7 +63,8 @@ const formSchema = toTypedSchema(
     gender: z.string().nonempty('Please select your gender'),
     phone: z.string().nonempty('Please enter your phone number').min(10, { message: 'Phone number must be 10 characters' }).max(10, { message: 'Phone number must be 10 characters' }).optional(),
     status: z.boolean().optional(),
-    countrycode: z.string().optional()
+    countrycode: z.string().optional(),
+    roles: z.string().nonempty('Assign a role'),
   })
 )
 
@@ -103,7 +104,8 @@ const onSubmit = handleSubmit(async (values) => {
       phoneNumber: values.phone
     },
     dateJoined: formattedDate.value,
-    disabled: values.status || false
+    disabled: values.status || false,
+    roles: [values.roles]
   }
 
   // console.log(user)
@@ -127,6 +129,7 @@ const onSubmit = handleSubmit(async (values) => {
 
 // Define a ref to hold the users data
 const users = ref<any[]>([])
+const roles = ref<any[]>([])
 
 // define a ref to hold user status
 // const userStatus = ref<any>();
@@ -270,10 +273,61 @@ const nextPage = ()=>{
   }
 }
 // onMounted(fetchUsersData);
+const getRoles = async ()=>{
+  try {
+    const response = await axios.get(
+      'https://api.staging.weeshr.com/api/v1/admin/roles',
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    )
 
+    // Check if response status is 200 or 201
+    if (response.status === 200 || response.status === 201) {
+      // Show success toast
+      toast({
+        title: 'Success',
+        description: `Roles fetched successfully.`,
+        variant: 'success'
+      })
+      roles.value = response.data.data.data
+      // fetchUsersData()
+    }
+    // createUserStore.addUser(user)
+    // adminListStore.loadingControl(false)
+    // Handle success
+  } catch (err: any) {
+    // adminListStore.loadingControl(false)
+    if (err.response.data.code === 401) {
+      // sessionStorage.removeItem('token')
+      // Clear token from superAdminStore
+      // superAdminStore.setToken('')
+
+      // setTimeout(() => {
+      //   router.push({ name: 'super-admin-login' })
+      // }, 3000)
+
+      toast({
+        title: 'Unauthorized',
+        description: 'You are not authorized to perform this action. Redirecting to home page...',
+        variant: 'destructive'
+      })
+      // Redirect after 3 seconds
+    } else {
+      toast({
+        title: err.response.data.message || 'An error occurred',
+        variant: 'destructive'
+      })
+    }
+    // Handle other errors
+  }
+}
 onMounted(async () => {
   // useGeneralStore().setLoading(true);
   fetchUsersData()
+  getRoles()
 })
 
 const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
@@ -460,7 +514,7 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
                 </div>
               </div>
               
-              <FormField v-slot="{ componentField }" name="type">
+              <FormField v-slot="{ componentField }" name="roles">
                 <FormItem>
                   <FormLabel>Admin Type</FormLabel>
                   
@@ -474,10 +528,7 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
                       </SelectTrigger>
                     </FormControl>
                       <SelectContent>
-                        <SelectItem value="super_admin">Super Admin</SelectItem>
-                        <SelectItem value="admin">Admin</SelectItem>
-                        <SelectItem value="cxperience">Cxperience</SelectItem>
-                        <SelectItem value="flutter">Flutter</SelectItem>
+                        <SelectItem v-for="(role, key) in roles" :key=key :value="role._id">{{role.name}}</SelectItem>
                       </SelectContent>
                   </Select>
                   <FormMessage for="gender" />
