@@ -10,8 +10,7 @@
             List of Activity logs
           </p>
         </div>
-        <div class="items-center  grid grid-cols-3 md:grid-cols-3 gap-4  flex-row ">
-          
+        <div class="items-center grid grid-cols-3 md:grid-cols-3 gap-4 flex-row">
           <DropdownMenu>
             <DropdownMenuTrigger as-child class="rounded-2xl bg-[#EEEFF5]">
               <Button variant="outline">
@@ -101,62 +100,53 @@
               </DropdownMenuRadioGroup>
             </DropdownMenuContent>
           </DropdownMenu>
-
-          
-
-          
         </div>
         <Search class="mt-3 lg:mt-0" />
       </div>
 
       <div class="overflow-auto bg-white rounded-lg shadow">
-        <Table class="lg:w-full w-[800px]">
+        <Table class="">
           <TableHeader>
             <TableRow class="text-[#02072199] font-semibold bg-gray-200">
-              <TableHead class="text-sm">ID</TableHead>
               <TableHead class="text-sm">
                 <div class="flex items-center cursor-pointer" @click="toggleSortOrder">
                   Timestamp
                   <Icon :icon="sortOrder === 'desc' ? 'fluent:chevron-down-20-regular' : 'fluent:chevron-up-20-regular'" class="ml-1" />
                 </div>
               </TableHead>
-              <TableHead class="text-sm">User ID</TableHead>
-              <TableHead class="text-sm">User </TableHead>
-
-              <TableHead class="text-sm">
-                  Action
-              </TableHead>
-              <TableHead class="text-sm">
-                  Status
-              </TableHead>
+              <TableHead class="text-sm">User</TableHead>
+              <TableHead class="text-sm">Email</TableHead>
+              <TableHead class="text-sm">Action</TableHead>
+              <TableHead class="text-sm">Status</TableHead>
               <TableHead class="text-sm">Description</TableHead>
               <TableHead></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            <TableRow v-for="log in paginatedLogs" :key="log.id">
-              <TableCell class="text-xs md:text-sm lg:text-xs">{{ log.id }}</TableCell>
-              <TableCell class="text-xs md:text-sm lg:text-xs">
-                {{ new Date(log.timestamp).toLocaleString() }}
-              </TableCell>
-              <TableCell class="text-xs md:text-sm lg:text-xs">{{ log.user.id }}</TableCell>
-              <TableCell class="text-xs md:text-sm lg:text-xs">{{ log.user.type }}</TableCell>
-
+            <TableRow v-for="log in paginatedLogs" :key="log.id" @click="openModal(log)">
+              <TableCell class="text-xs md:text-sm lg:text-xs"> {{ new Date(log.timestamp).toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }) }}</TableCell>
+              <TableCell class="text-xs md:text-sm lg:text-xs">{{ log.user.extras.lastName + ' ' + log.user.extras.firstName }}</TableCell>
+              <TableCell class="text-xs md:text-sm lg:text-xs">{{ log.user.extras.email }}</TableCell>
               <TableCell class="text-xs md:text-sm lg:text-xs">{{ log.action }}</TableCell>
               <TableCell>
                 <div :class="statusBg(log.status)" class="rounded-[10px] w-fit px-1.5 py-0.5 text-white text-xs capitalize">
                   {{ log.status }}
                 </div>
               </TableCell>
-              <TableCell class="text-xs md:text-sm lg:text-xs">{{ log.description }}</TableCell>
-              <TableCell>
-                <Icon icon="uil:angle-right" class="ml-1" width="25" height="25" />
-              </TableCell>
+              <TableCell class="text-xs md:text-sm lg:text-xs min-w-full">{{ log.description }}</TableCell>
             </TableRow>
           </TableBody>
         </Table>
       </div>
 
+      <ModalComponent
+        v-if="selectedLog"
+        :show="isModalVisible"
+        :action="selectedLog.action"
+        :resource="selectedLog.resource"
+        :metadata="selectedLog.metadata"
+        @close="isModalVisible = false"
+      />
       <div class="flex gap-2 max-w-full flex-wrap justify-end mt-8 mr-4 items-center text-[15px]">
         <Pagination :total="totalPages" :sibling-count="1" show-edges :default-page="1" @change="handlePageChange">
           <PaginationList class="flex items-center gap-1">
@@ -188,6 +178,7 @@ import MainNav from '@/components/MainNav.vue';
 import DashboardFooter from '@/components/DashboardFooter.vue';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import ModalComponent from '@/components/ModalComponent.vue';
 import { Icon } from '@iconify/vue';
 import {
   Table,
@@ -269,6 +260,7 @@ const paginationItems = computed(() => {
 
 onMounted(() => {
   store.fetchActivityLogs();
+  store.fetchFiltersAndMeta();
 });
 
 watch(
@@ -314,6 +306,15 @@ const toggleSortOrder = () => {
   sortOrder.value = sortOrder.value === 'desc' ? 'asc' : 'desc';
 };
 
+const selectedLog = ref(null);
+const isModalVisible = ref(false);
+
+const openModal = (log: any) => {
+  selectedLog.value = log;
+  isModalVisible.value = true;
+};
+
+
 const actionTypes = computed<string[]>(() => {
   const actions = new Set<string>();
   logs.value.forEach((log) => {
@@ -338,3 +339,4 @@ const userTypes = computed<string[]>(() => {
   return Array.from(userTypes);
 });
 </script>
+
