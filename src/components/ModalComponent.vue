@@ -1,20 +1,20 @@
 <template>
   <div v-if="show" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-    <div class="bg-white rounded-lg shadow-lg p-6  max-w-[700px] mx-auto">
+    <div class="bg-white rounded-lg shadow-lg p-6 max-w-[700px] mx-auto">
       <div class="flex justify-between items-center pb-3 border-b">
         <p class="text-xl font-bold">{{ action }} Details</p>
-        <button @click="closeModal" class="text-gray-600 hover:text-gray-900">
+        <button @click="closeModal" class="text-gray-600 hover:text-gray-900" aria-label="Close">
           <Icon icon="mdi:close" width="24" height="24" />
         </button>
       </div>
       <div>
         <div class="mb-4 w-full">
           <p class="text-lg font-semibold">Resource</p>
-          <span class="bg-gray-100 px-4 rounded">{{ formattedResource }}</span>
+          <pre class="bg-gray-100 p-2 rounded overflow-x-auto">{{ formattedResource }}</pre>
         </div>
         <div>
           <h3 class="text-lg font-semibold">Metadata</h3>
-          <p class="bg-gray-100 p-2 rounded">{{ formattedMetadata }}</p>
+          <pre class="bg-gray-100 p-2 rounded overflow-x-auto">{{ formattedMetadata }}</pre>
         </div>
       </div>
     </div>
@@ -45,7 +45,8 @@ const emit = defineEmits(['close']);
 const formatJson = (data: any) => {
   try {
     return JSON.stringify(data, null, 2);
-  } catch {
+  } catch (error) {
+    console.error('Error formatting JSON', error);
     return JSON.stringify(data, null, 2);
   }
 };
@@ -57,4 +58,3 @@ const closeModal = () => {
   emit('close');
 };
 </script>
-

@@ -210,10 +210,39 @@ import {
 } from '@/components/ui/pagination';
 import Search from '@/components/UseSearch.vue';
 
+interface UserExtras {
+  email: string;
+  firstName: string;
+  lastName: string;
+}
+
+interface User {
+  id: string;
+  type: string;
+  extras: UserExtras;
+}
+
+interface Resource {
+  ip: string;
+  timestamp: number;
+  user_agent: string;
+}
+
+interface ActivityLogItem {
+  id: string;
+  timestamp: string;
+  user: User;
+  action: string;
+  resource: Resource;
+  metadata: Record<string, unknown>;
+  status: string;
+  description: string;
+}
+
 const route = useRoute();
 const store = useActivityLogStore();
 
-const logs = ref(store.logs);
+const logs = ref<ActivityLogItem[]>(store.logs);
 const loading = ref(store.loading);
 const error = ref(store.error);
 
@@ -306,14 +335,13 @@ const toggleSortOrder = () => {
   sortOrder.value = sortOrder.value === 'desc' ? 'asc' : 'desc';
 };
 
-const selectedLog = ref(null);
+const selectedLog = ref<ActivityLogItem | null>(null);
 const isModalVisible = ref(false);
 
-const openModal = (log: any) => {
+const openModal = (log: ActivityLogItem) => {
   selectedLog.value = log;
   isModalVisible.value = true;
 };
-
 
 const actionTypes = computed<string[]>(() => {
   const actions = new Set<string>();
