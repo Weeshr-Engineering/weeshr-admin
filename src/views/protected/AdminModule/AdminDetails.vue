@@ -68,14 +68,15 @@ const fetchUsersData = async (msg: string) => {
 
     if (response.status === 200 || response.status === 201) {
       // Update the users data with the response
-      // console.log(response.data.data)
+      console.log(response.data.data)
       const responseData = response.data.data[0]
       const phoneData = response.data.data[0].phoneNumber.normalizedNumber
       dobFormat.value = formatDate(response.data.data[0].dob)
       const data = {...responseData, phone:phoneData}
       // fill user data with response data
       user.value = data
-      // defaultRole.value = responseData.roles
+      defaultRole.value  = await getAllIds(responseData.roles)
+      console.log(defaultRole.value)
       // console.log(user.value)
       adminListStore.setAdminStatus(responseData.disabled)
       // Show success toast
@@ -112,6 +113,11 @@ const fetchUsersData = async (msg: string) => {
     }
   }
 } // Call the fetchUsersData function when the component is mounted
+
+// Function to get all _id values
+const getAllIds = async (roles: any[]) => {
+  return roles.map(role => role._id);
+}
 
 function formatDate(inputDate: string) {
     const months = [
@@ -212,6 +218,7 @@ const updateRole = async (roleId: string)=>{
   "roles": adminRole
 });
 
+
 console.log(data)
 let config = {
   method: 'patch',
@@ -229,7 +236,7 @@ axios.request(config)
   console.log(JSON.stringify(response.data));
   toast({
         title: 'Success',
-        description: `New Role added to ${user.value.firstName}`,
+        description: `${user.value.firstName}' s role is updated...'`,
         variant: 'success'
       })
 })
@@ -239,6 +246,7 @@ axios.request(config)
         title: error.response.data.message || 'An error occurred',
         variant: 'destructive'
       })
+      fetchUsersData('')
 });
 roleLoading.value = false
 }
@@ -254,6 +262,12 @@ const modifyArrayValue= async (arr: any[], value: string)=> {
     }
     return arr;
 }
+
+// const containsTargetId: boolean = (role: any, val: string)=>{
+//   role.some((obj: any) =>
+//   Object.values(obj).some((innerObj: any) => innerObj._id === val)
+// );
+// }
 // fetch data on mount
 onMounted(() => {
   fetchUsersData('data fetched')
@@ -304,6 +318,10 @@ const onSubmit = contactForm((values) => {
   }
 })
 
+
+// function getAllIds(roles: any): any[] | PromiseLike<any[]> {
+//   throw new Error('Function not implemented.')
+// } 
 </script>
 <template>
   <div class="container lg:px-0 mx-auto">
@@ -636,7 +654,7 @@ const onSubmit = contactForm((values) => {
                     {{ role.description }}
                 </div>
                 <div class="flex items-center gap-4">
-                  <Switch @click="()=>updateRole(role._id)" :checked="user.roles?.includes(role._id) ? true : false"/>
+                  <Switch @click="()=>updateRole(role._id)" :checked="defaultRole.includes(role._id) ? true : false"/>
                 </div>
               </CardContent>
             </Card>

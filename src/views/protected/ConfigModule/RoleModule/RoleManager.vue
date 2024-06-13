@@ -26,11 +26,10 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/comp
 import { Input } from '@/components/ui/input'
 import MainNav from '@/components/MainNav.vue'
 import DashboardFooter from '@/components/DashboardFooter.vue'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useConfigStore } from '@/stores/config-details/config-detail'
 import { toTypedSchema } from '@vee-validate/zod'
 import { Form, Field, ErrorMessage } from 'vee-validate';
-
 import * as z from 'zod'
 import {
   Table,
@@ -39,6 +38,16 @@ import {
   TableCell,
   TableHead
 } from '@/components/ui/table'
+import {
+  Pagination,
+  PaginationEllipsis,
+  PaginationFirst,
+  PaginationLast,
+  PaginationList,
+  PaginationListItem,
+  PaginationNext,
+  PaginationPrev,
+} from '@/components/ui/pagination';
 
 import axios from "axios";
 import { toast } from '@/components/ui/toast'
@@ -115,7 +124,9 @@ const getRoles = async()=>{
                     variant: 'success'
                   })
                 }
-                
+                perPage.value= response.data.data.perPage
+                currentPage.value = response.data.data.currentPage
+                totalPages.value = response.data.data.totalPages
                 roles.value= response.data.data.data.reverse()
                 console.log(roles.value)
                 // set Loading to false
@@ -198,6 +209,25 @@ const sheetCLose = ref(true)
 const handleSheet = ()=>{
     sheetCLose.value = !sheetCLose.value
 }
+
+const perPage = ref(0);
+const currentPage = ref(0);
+const totalPages = ref(0)
+
+const paginationItems = computed(() => {
+  const pages = [];
+  for (let i = 1; i <= totalPages.value; i++) {
+    pages.push({ type: 'page', value: i });
+  }
+  return pages;
+});
+
+const handlePageChange = (newPage: number) => {
+  if (newPage > 0 && newPage <= totalPages.value) {
+    currentPage.value = newPage;
+  }
+};
+
 
 onMounted(async()=>{
     getRoles()
@@ -455,6 +485,24 @@ onMounted(async()=>{
 
                   </CardContent>
                 </Card>
+                <div class="flex gap-2 max-w-full flex-wrap justify-end mt-8 mr-4 items-center text-[15px]">
+                  <Pagination :total="totalPages" :sibling-count="1" show-edges :default-page="1" @change="handlePageChange">
+                    <PaginationList class="flex items-center gap-1">
+                      <PaginationFirst @click="handlePageChange(1)" />
+                      <PaginationPrev @click="handlePageChange(Math.max(currentPage - 1, 1))" />
+                      <template v-for="(item, index) in paginationItems" :key="index">
+                        <PaginationListItem v-if="item.type === 'page'" :value="item.value" as-child>
+                          <Button class="w-10 h-10 p-0" :variant="item.value === currentPage ? 'default' : 'outline'" @click="handlePageChange(item.value)">
+                            {{ item.value }}
+                          </Button>
+                        </PaginationListItem>
+                        <PaginationEllipsis v-else :index="index" />
+                      </template>
+                      <PaginationNext @click="handlePageChange(Math.min(currentPage + 1, totalPages))" />
+                      <PaginationLast @click="handlePageChange(totalPages)" />
+                    </PaginationList>
+                  </Pagination>
+                </div>
               </div>
         </div>
         <DashboardFooter/>

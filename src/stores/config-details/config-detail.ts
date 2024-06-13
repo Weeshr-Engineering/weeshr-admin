@@ -128,8 +128,8 @@ export const useConfigStore = defineStore({
         },
         async deleteRole(id: string){
             toast({
-                title: 'Loading Data',
-                description: 'Fetching data...',
+                title: 'Deleting Data',
+                description: 'Deleting data...',
                 duration: 0 // Set duration to 0 to make it indefinite until manually closed
               })
             

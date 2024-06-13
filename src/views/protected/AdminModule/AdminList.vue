@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Search from '@/components/UseSearch.vue'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import * as z from 'zod'
@@ -11,7 +11,7 @@ import { Loader2 } from 'lucide-vue-next'
 import router from '@/router'
 import { Button } from "@/components/ui/button"
 import { Badge } from '@/components/ui/badge'
-import { Icon } from '@iconify/vue'
+// import { Icon } from '@iconify/vue'
 import CountryCodes from '@/lib/CountryCodes'
 import {
   Sheet,
@@ -37,13 +37,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import {
+  Pagination,
+  PaginationEllipsis,
+  PaginationFirst,
+  PaginationLast,
+  PaginationList,
+  PaginationListItem,
+  PaginationNext,
+  PaginationPrev,
+} from '@/components/ui/pagination';
 
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { toast } from '@/components/ui/toast'
 import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
 import { useCreateUserStore } from '@/stores/create-user/create-user'
-import { useGeneralStore } from '@/stores/general-use'
+// import { useGeneralStore } from '@/stores/general-use'
 import { useAdminListStore } from '@/stores/admin-list/admin-list'
 
 const formSchema = toTypedSchema(
@@ -84,8 +94,8 @@ const newUser = ref({
 const adminListStore = useAdminListStore()
 const sheetOpen = adminListStore.sheetOpen
 const loading = adminListStore.loading
-const currentPage = ref(1)
-const totalPage = ref<any[]>([])
+// const currentPage = ref(1)
+// const totalPage = ref<any[]>([])
 const superAdminStore = useSuperAdminStore()
 const createUserStore = useCreateUserStore()
 const token = sessionStorage.getItem('token') || ''
@@ -133,6 +143,23 @@ const roles = ref<any[]>([])
 
 // define a ref to hold user status
 // const userStatus = ref<any>();
+const perPage = ref(0);
+const currentPage = ref(0);
+const totalPages = ref(0)
+
+const paginationItems = computed(() => {
+  const pages = [];
+  for (let i = 1; i <= totalPages.value; i++) {
+    pages.push({ type: 'page', value: i });
+  }
+  return pages;
+});
+
+const handlePageChange = (newPage: number) => {
+  if (newPage > 0 && newPage <= totalPages.value) {
+    currentPage.value = newPage;
+  }
+};
 
 // Define a function to fetch users data
 const fetchUsersData = async () => {
@@ -176,9 +203,9 @@ const fetchUsersData = async () => {
     // adminListStore.setUsers(data.reverse())
 
     // set page data
+    perPage.value= response.data.data.perPage
     currentPage.value = response.data.data.currentPage
-    const totalPageValue = await response.data.data.totalPages
-    totalPage.value = new Array(totalPageValue).fill(null)
+    totalPages.value = response.data.data.totalPages
     
     // close loading screen
     // useGeneralStore().setLoading(false)
@@ -261,17 +288,6 @@ const saveUserData = async (user: any) => {
   }
 }
 
-const prevPage = ()=>{
-  if(currentPage.value > 1){
-    console.log(currentPage.value++)
-  }
-}
-
-const nextPage = ()=>{
-  if(currentPage.value < totalPage.value.length - 1){
-    console.log(currentPage.value++)
-  }
-}
 // onMounted(fetchUsersData);
 const getRoles = async ()=>{
   try {
@@ -631,17 +647,26 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
         </Table>
       </div>
       <div class="flex gap-2 max-w-full flex-wrap justify-end mt-8 mr-4 items-center text-[15px]">
-        <Button variant="secondary" @click="prevPage"> <Icon icon="radix-icons:chevron-left" /> </Button>
-        <span v-for="(item, index) in totalPage" :key="index">
-          <Button v-if="(index + 1) == currentPage" variant="secondary" class="bg-[#020721] text-gray-400" > {{ index + 1 }} </Button>
-          <Button v-else variant="outline" > {{ index + 1 }} </Button>
-        </span>
-        <Button variant="secondary" @click="nextPage"> <Icon icon="radix-icons:chevron-right" /> </Button>
-        <!-- <a href="#"><p class="text-[blue]">See all</p></a> -->
+        <Pagination :total="totalPages" :sibling-count="1" show-edges :default-page="1" @change="handlePageChange">
+          <PaginationList class="flex items-center gap-1">
+            <PaginationFirst @click="handlePageChange(1)" />
+            <PaginationPrev @click="handlePageChange(Math.max(currentPage - 1, 1))" />
+            <template v-for="(item, index) in paginationItems" :key="index">
+              <PaginationListItem v-if="item.type === 'page'" :value="item.value" as-child>
+                <Button class="w-10 h-10 p-0" :variant="item.value === currentPage ? 'default' : 'outline'" @click="handlePageChange(item.value)">
+                  {{ item.value }}
+                </Button>
+              </PaginationListItem>
+              <PaginationEllipsis v-else :index="index" />
+            </template>
+            <PaginationNext @click="handlePageChange(Math.min(currentPage + 1, totalPages))" />
+            <PaginationLast @click="handlePageChange(totalPages)" />
+          </PaginationList>
+        </Pagination>
       </div>
     </Card>
   </div>
 </template>
 <!-- @/stores/super-admin/super-admin@/stores/super-admin/super-admin admin -->
 
-@/stores/super-admin/super-admin@/stores/super-admin/super-admin
+<!-- @/stores/super-admin/super-admin@/stores/super-admin/super-admin -->
