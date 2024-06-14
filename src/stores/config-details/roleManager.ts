@@ -5,7 +5,7 @@ import router from '@/router'
 
 const token = sessionStorage.getItem('token') || ''
 
-export const useConfigStore = defineStore({
+export const useRoleStore = defineStore({
     id: 'admin-list',
     state: ():ConfigStore=>({
       permissions: [],

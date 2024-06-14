@@ -9,21 +9,24 @@ import {
   SheetTrigger
 } from '@/components/ui/sheet'
 import { ref, onMounted,  computed } from 'vue'
+import { Loader2 } from 'lucide-vue-next'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import { Button } from "@/components/ui/button"
-// import * as z from 'zod'
 import { z } from 'zod';
 import MainNav from '@/components/MainNav.vue'
 import DashboardFooter from '@/components/DashboardFooter.vue'
-// import { useConfigStore } from '@/stores/config-details/config-detail'
 import axios from "axios";
 import { toast } from '@/components/ui/toast'
-import router from '@/router'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { Icon } from '@iconify/vue'
 import {
   AlertDialog,
@@ -46,8 +49,15 @@ import {
   PaginationNext,
   PaginationPrev,
 } from '@/components/ui/pagination';
+import router from '@/router'
+import { useWeeshConfigStore } from '@/stores/config-details/weeshConfig'
 
-const MAX_FILE_SIZE = 1024 * 1024 * 5;
+const store = useWeeshConfigStore()
+const loading = ref(false);
+const MAX_FILE_SIZE = 1024 * 1024 * 2;
+const active = computed(()=>{
+  return store.active
+})
 
 const currentCategory = ref('')
 const setCurrentCategory = (id: string)=>{
@@ -64,12 +74,12 @@ const handleFileUpdate = (event: any) => {
 }
 
 const onUpdate = () => {  
+  loading.value = true
   const stringSchema = z.string()      
     .min(2, { message: 'First name must be at least 2 characters long' })
     .max(50, { message: 'First name cannot be longer than 50 characters' })
   
   const name = stringSchema.safeParse(updateName.value)
-  console.log(updateImg.value)
   if (!name.success && updateImg.value.length == 0) {
         toast({
           title: 'No edit found',
@@ -79,11 +89,9 @@ const onUpdate = () => {
         return;
   }else{
       const data = {
-        'image': updateImg.value,
-        'name': updateName.value
+        'name': updateName.value,
+        'image': updateImg.value
       }
-      // console.log(updateName.value)
-      console.log(data)
       let config = {
         method: 'post',
         maxBodyLength: Infinity,
@@ -101,8 +109,28 @@ const onUpdate = () => {
       })
       .catch((error) => {
         console.log(error);
+        if (error.response.status === 401) {
+                // sessionStorage.removeItem('token')
+    
+          setTimeout(() => {
+            router.push({ name: 'home' })
+          }, 3000)
+    
+          toast({
+            title: 'Unauthorized',
+            description: 'You are not authorized to perform this action. Redirecting to home page...',
+            variant: 'destructive'
+          })
+          // Redirect after 3 seconds
+        } else {
+          toast({
+            title: error.response.data.message || 'An error occurred',
+            variant: 'destructive'
+          })
+        }
       });
       }
+      loading.value = false
 }
 
 const formSchema = toTypedSchema(
@@ -114,7 +142,7 @@ const formSchema = toTypedSchema(
       .nonempty('Please enter your first name'),
     image: z
       .any()
-      .refine((file) => file?.size <= MAX_FILE_SIZE, `Max image size is 5MB.`), 
+      .refine((file) => file?.size <= MAX_FILE_SIZE, `Max image size is 2MB.`), 
     isCash: z.string()
   })
 )
@@ -131,182 +159,31 @@ const handleFileChange = (event: any) => {
 }
 
 const onSubmit = formSubmit(async (values) => {
+  loading.value = true
   const data = {
     'image': img.value,
     'name': values.name,
     'isCash': values.isCash,
-    'disabled': 'false'
+    'disabled': `${active.value}`
   }
-let config = {
-  method: 'post',
-  maxBodyLength: Infinity,
-  url: 'https://api.staging.weeshr.com/api/v1/admin/weesh/category',
-  headers: { 
-    'Authorization': `Bearer ${token}`,
-    'Content-Type': 'multipart/form-data'
-  },
-  data : data
-};
-
-axios.request(config)
-.then((response) => {
-  console.log(response.data);
-})
-.catch((error) => {
-  console.log(error);
-});
-})
-
-const sheetCLose = ref(true)
-const token = sessionStorage.getItem('token') || ''
-const handleSheet = ()=>{
-    sheetCLose.value = !sheetCLose.value
-}
-
-const categories = ref<any[]>([])
-
-const handleSwitch = (value: string, category: string, status: boolean)=>{
-  toast({
-      title: `${!status ? `Disabling ${category}...` : `Activating ${category}...`}`,
-      description: `${status ? `Disabling ${category} in progress...` : `Activating ${category} in progress...`}`,
-      duration: 0 // Set duration to 0 to make it indefinite until manually closed
-    })
-  const data = JSON.stringify({
-    "disabled": !status
-  });
-  const token = sessionStorage.getItem('token') || ''
-  const config = {
-    method: 'patch',
+  let config = {
+    method: 'post',
     maxBodyLength: Infinity,
-    url: `https://api.staging.weeshr.com/api/v1/admin/weesh/category/${value}/status`,
+    url: 'https://api.staging.weeshr.com/api/v1/admin/weesh/category',
     headers: { 
-      'Content-Type': 'application/json', 
-      'Authorization': `Bearer ${token}`
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'multipart/form-data'
     },
     data : data
   };
 
   axios.request(config)
   .then((response) => {
-    // Check if response status is 200 or 201
-    if (response.status === 200 || response.status === 201) {
-      // Show success toast
-      // this.adminStatus = !this.adminStatus
-      getWeesheCategories() 
-      console.log(response)
-      toast({
-          title: 'Success',
-          description: `${!status ? `${category} Disabled` : `${category} Activated`}`,
-          variant: 'success'
-        })
-    }
+    console.log(response.data);
   })
   .catch((error) => {
     console.log(error);
-  });
-}
-
-const perPage = ref(0);
-const currentPage = ref(0);
-const totalPages = ref(0)
-
-const paginationItems = computed(() => {
-  const pages = [];
-  for (let i = 1; i <= totalPages.value; i++) {
-    pages.push({ type: 'page', value: i });
-  }
-  return pages;
-});
-
-const handlePageChange = (newPage: number) => {
-  if (newPage > 0 && newPage <= totalPages.value) {
-    currentPage.value = newPage;
-  }
-};
-
-const getWeesheCategories = ()=>{
-          toast({
-            title: 'Loading Data',
-            description: 'Fetching data...',
-            duration: 0 // Set duration to 0 to make it indefinite until manually closed
-          })
-          const config = {
-            method: 'get',
-            maxBodyLength: Infinity,
-            url: 'https://api.staging.weeshr.com/api/v1/admin/weesh/categories?per_page=5&page=1&search=cash',
-            headers: { 
-              'Authorization': `Bearer ${token}`
-            }
-          };
-          
-          axios.request(config)
-          .then((response) => {
-            console.log(response.data.data);
-            perPage.value= response.data.data.perPage
-            currentPage.value = response.data.data.currentPage
-            totalPages.value = response.data.data.totalPages
-            categories.value= response.data.data.data
-            toast({
-              title: 'Success',
-              description: `Successful: data retrieved`,
-              variant: 'success'
-            })
-            return response.data.data
-          })
-          .catch((error) => {
-            console.log(error)
-            if (error.response.status === 401) {
-              sessionStorage.removeItem('token')
-
-              setTimeout(() => {
-                router.push({ name: 'home' })
-              }, 3000)
-        
-              toast({
-                title: 'Unauthorized',
-                description: 'You are not authorized to perform this action. Redirecting to home page...',
-                variant: 'destructive'
-              })
-              // Redirect after 3 seconds
-            } else {
-              toast({
-                title: error.response.data.message || 'An error occurred',
-                variant: 'destructive'
-              })
-            }
-          });          
-}
-
-const deleteWeeshCategory = (id: string)=>{
-toast({
-    title: 'Deleting Data',
-    description: 'Deleting data...',
-    duration: 0 // Set duration to 0 to make it indefinite until manually closed
-  })
-
-  
-  const config = {
-    method: 'delete',
-    url: `https://api.staging.weeshr.com/api/v1/admin/role/${id}`,
-    headers: { 
-      'Content-Type': 'application/json', 
-      'Authorization': `Bearer ${token}`
-    }
-  };
-  
-  axios.request(config)
-  .then((response) => {
-    console.log(JSON.stringify(response.data));
-    toast({
-      title: 'Success',
-      description: `Successful: data deleted`,
-      variant: 'success'
-    })
-  })
-  .catch((error) => {
-    if (error.response.status === 401) {
-      // sessionStorage.removeItem('token')
-
+    if (error.response.status === 401) {    
       setTimeout(() => {
         router.push({ name: 'home' })
       }, 3000)
@@ -324,10 +201,36 @@ toast({
       })
     }
   });
-}
+  loading.value = false
+})
+
+
+const token = sessionStorage.getItem('token') || ''
+const categories = computed(()=>{
+  return store.categories
+})
+const page = computed(()=>{
+  return store.page
+})
+const currentPage = computed(()=>{
+  return store.currentPage
+});
+const totalPages = computed(()=>{
+  return store.totalPages
+})
+
+
+const paginationItems = computed(() => {
+  const pages = [];
+  for (let i = 1; i <= totalPages.value; i++) {
+    pages.push({ type: 'page', value: i });
+  }
+  return pages;
+});
+
 
 onMounted(async()=>{
-    getWeesheCategories()
+  store.getWeesheCategories(page.value, 'Data fetched')
 })
 </script>
 
@@ -337,7 +240,7 @@ onMounted(async()=>{
         <div class="px-10 py-10 ml-auto w-full flex justify-end">
             <Sheet>
               <SheetTrigger as-child>
-                <button @click="handleSheet" class="bg-[#020721] px-4 py-2 rounded-xl w-50 h-12">
+                <button class="bg-[#020721] px-4 py-2 rounded-xl w-50 h-12">
                   <div class="text-base text-[#F8F9FF] text-center flex items-center">
                     Add New
                     <svg
@@ -364,14 +267,7 @@ onMounted(async()=>{
                     
                     </SheetHeader>
                     <SheetDescription class="flex items-center gap-4">
-                      <!-- <FormField v-slot="{ componentField }" name="isCash">
-                        <FormItem v-auto-animate>
-                          <FormControl> -->
-                            Active <Switch/>
-                          <!-- </FormControl>
-                          <FormMessage for="isCash" />
-                        </FormItem>
-                      </FormField> -->
+                      Active <Switch @click="store.handleActive()" :checked="store.active"/>
                     </SheetDescription>
                 </div>
                 
@@ -392,40 +288,43 @@ onMounted(async()=>{
                       <FormItem v-auto-animate>
                         <FormLabel class="text-blue-900">Category Image</FormLabel>
                         <FormControl>
-                          <!-- <Label for="picture">Upload Category Image</Label> -->
                            <input id="picture" type="file"  @change="handleFileChange" v-bind="componentField"  class="w-full h-48 border-[1px] border-gray-200 rounded-sm flex justify-center items-center" accept="image/*"/>
-                          <!-- <Input id="picture" type="file"  @change="handleFileChange" v-bind="componentField"  class="w-full h-48" accept="image/*"/> -->
                         </FormControl>
                         <FormMessage for="image" />
                       </FormItem>
                     </FormField>
                   </div>
                   <FormField v-slot="{ componentField }" name="isCash">
-                        <FormItem v-auto-animate>
+                    <FormItem>
+                      <FormLabel>Category Type</FormLabel>
+                      
+                        <Select
+                        v-bind="componentField"
+                        id="isCash"
+                        class='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block min-w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'>
                         <FormControl>
-                          <Label for="type">Category Type</Label>
-                          <ToggleGroup type="single" id="type" v-bind="componentField" class="w-full justify-evenly items-center" variant="outline">
-                            <ToggleGroupItem value="true">
-                              Cash
-                            </ToggleGroupItem>
-                            <ToggleGroupItem value="false">
-                              Other
-                            </ToggleGroupItem>
-                          </ToggleGroup>
+                          <SelectTrigger class="">
+                              <SelectValue placeholder="Category type" />
+                            </SelectTrigger>
                         </FormControl>
-                        <FormMessage for="isCash" />
+                          <SelectContent>
+                            <SelectItem value="true">Cash</SelectItem>
+                            <SelectItem value="false">Other</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      
+                      <FormMessage for="isCash" />
                     </FormItem>
-                      </FormField>
+                  </FormField>
                   <Button type="submit" class="bg-[#4145A7] mt-2">
-                    
-                    <!-- <Loader2
+                    <Loader2
                       color="#ffffff"
                       v-if="loading"
-                      class="w-4 h-4 mr-2 text-black animate-spin"
-                    /> -->
+                      class="w-4 h-4 mr-2 text-white animate-spin"
+                    />
                     Submit
     
-                    <!-- <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" /> -->
+                    <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-white animate-spin" />
                   </Button>
                 </form>
               </SheetContent>
@@ -451,7 +350,7 @@ onMounted(async()=>{
                       </p>
                     </span>
                     <div class="flex items-center gap-4">
-                      <Switch :checked="!category.disabled" @click="handleSwitch(category._id, category.name, category.disabled)"/>
+                      <Switch :checked="!category.disabled" @click="store.handleSwitch(category._id, category.name, category.disabled)"/>
                       
                       <Sheet>
                           <SheetTrigger>
@@ -484,7 +383,6 @@ onMounted(async()=>{
                                       <FormLabel class="text-blue-900">Change Image</FormLabel>
                                       <FormControl>
                                         <input id="updatePicture" type="file"  @change="handleFileUpdate" v-bind="componentField" accept="image/*" class='border-[1px] border-gray-200 rounded-sm'/>
-                                        <!-- <Input id="updatePicture" type="file"  @change="handleFileUpdate" v-bind="componentField" accept="image/*"/> -->
                                       </FormControl>
                                       <FormMessage for="updateImage" />
                                     </FormItem>
@@ -492,14 +390,14 @@ onMounted(async()=>{
                                 </div>
                                 <Button type="submit" class="bg-[#4145A7] mt-2">
                     
-                                  <!-- <Loader2
+                                  <Loader2
                                     color="#ffffff"
                                     v-if="loading"
-                                    class="w-4 h-4 mr-2 text-black animate-spin"
-                                  /> -->
+                                    class="w-4 h-4 mr-2 text-white animate-spin"
+                                  />
                                   Submit
                   
-                                  <!-- <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" /> -->
+                                  <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-white animate-spin" />
                                 </Button>
                               </form>
                           </SheetContent>
@@ -520,7 +418,7 @@ onMounted(async()=>{
                           </AlertDialogHeader>
                           <AlertDialogFooter>
                             <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction :onclick="()=>deleteWeeshCategory(category._id)">Continue</AlertDialogAction>
+                            <AlertDialogAction :onclick="()=>store.deleteWeeshCategory(category._id)">Delete</AlertDialogAction>
                           </AlertDialogFooter>
                         </AlertDialogContent>
                         </div>
@@ -528,21 +426,21 @@ onMounted(async()=>{
                     </div>
                     </CardContent>
                   </Card>
-                  <div class="flex gap-2 max-w-full flex-wrap justify-end mt-8 mr-4 items-center text-[15px]">
-                    <Pagination :total="totalPages" :sibling-count="1" show-edges :default-page="1" @change="handlePageChange">
+                  <div class="flex gap-2 max-w-full flex-wrap justify-end mt-8 mr-4 items-center text-[15px]" v-if="categories.length !== 0">
+                    <Pagination :total="totalPages" :sibling-count="1" show-edges :default-page="1" @change="store.handlePageChange">
                       <PaginationList class="flex items-center gap-1">
-                        <PaginationFirst @click="handlePageChange(1)" />
-                        <PaginationPrev @click="handlePageChange(Math.max(currentPage - 1, 1))" />
+                        <PaginationFirst @click="store.handlePageChange(1)" />
+                        <PaginationPrev @click="store.handlePageChange(Math.max(currentPage - 1, 1))" />
                         <template v-for="(item, index) in paginationItems" :key="index">
                           <PaginationListItem v-if="item.type === 'page'" :value="item.value" as-child>
-                            <Button class="w-10 h-10 p-0" :variant="item.value === currentPage ? 'default' : 'outline'" @click="handlePageChange(item.value)">
+                            <Button class="w-10 h-10 p-0" :variant="item.value === currentPage ? 'default' : 'outline'" @click="store.handlePageChange(item.value)">
                               {{ item.value }}
                             </Button>
                           </PaginationListItem>
                           <PaginationEllipsis v-else :index="index" />
                         </template>
-                        <PaginationNext @click="handlePageChange(Math.min(currentPage + 1, totalPages))" />
-                        <PaginationLast @click="handlePageChange(totalPages)" />
+                        <PaginationNext @click="store.handlePageChange(Math.min(currentPage + 1, totalPages))" />
+                        <PaginationLast @click="store.handlePageChange(totalPages)" />
                       </PaginationList>
                     </Pagination>
                   </div>

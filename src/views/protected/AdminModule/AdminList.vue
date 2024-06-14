@@ -93,7 +93,7 @@ const newUser = ref({
 
 const adminListStore = useAdminListStore()
 const sheetOpen = adminListStore.sheetOpen
-const loading = adminListStore.loading
+const loading = ref(false)
 // const currentPage = ref(1)
 // const totalPage = ref<any[]>([])
 const superAdminStore = useSuperAdminStore()
@@ -102,6 +102,7 @@ const token = sessionStorage.getItem('token') || ''
 
 const onSubmit = handleSubmit(async (values) => {
   adminListStore.loadingControl(true)
+  loading.value = true
 // console.log(values)
   const user = {
     firstName: values.firstName,
@@ -119,8 +120,8 @@ const onSubmit = handleSubmit(async (values) => {
   }
 
   // console.log(user)
-  await saveUserData(user)
-
+  await adminListStore.saveUserData(user)
+  loading.value = false
   // sheetOpen = false
   adminListStore.sheetControl(false)
 
@@ -138,14 +139,20 @@ const onSubmit = handleSubmit(async (values) => {
 })
 
 // Define a ref to hold the users data
-const users = ref<any[]>([])
+const users = computed(()=>{
+  return adminListStore.users
+})
 const roles = ref<any[]>([])
 
 // define a ref to hold user status
 // const userStatus = ref<any>();
 const perPage = ref(0);
-const currentPage = ref(0);
-const totalPages = ref(0)
+const currentPage = computed(()=>{
+  return adminListStore.currentPage
+});
+const totalPages = computed(()=>{
+  return adminListStore.totalPages
+})
 
 const paginationItems = computed(() => {
   const pages = [];
@@ -154,139 +161,6 @@ const paginationItems = computed(() => {
   }
   return pages;
 });
-
-const handlePageChange = (newPage: number) => {
-  if (newPage > 0 && newPage <= totalPages.value) {
-    currentPage.value = newPage;
-  }
-};
-
-// Define a function to fetch users data
-const fetchUsersData = async () => {
-  toast({
-    title: 'Loading Data',
-    description: 'Fetching data...',
-    duration: 0 // Set duration to 0 to make it indefinite until manually closed
-  })
-
-  // useGeneralStore().setLoading(true)
-  try {
-    // Set loading to true
-
-    const response = await axios.get(
-      'https://api.staging.weeshr.com/api/v1/admin/administrators?per_page=200',
-      {
-        // params: {
-        //   search: 'test_admin',
-        //   disabled_status: 'disabled'
-        // },
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      }
-    )
-
-    if (response.status === 200 || response.status === 201) {
-      // Show success toast
-      toast({
-        title: 'Success',
-        description: `data fetched`,
-        variant: 'success'
-      })
-
-      console.log(response.data)
-    }
-
-    // Update the users data with the response
-    const data = response.data.data.data
-    users.value = data.reverse()
-    // adminListStore.setUsers(data.reverse())
-
-    // set page data
-    perPage.value= response.data.data.perPage
-    currentPage.value = response.data.data.currentPage
-    totalPages.value = response.data.data.totalPages
-    
-    // close loading screen
-    // useGeneralStore().setLoading(false)
-  } catch (error: any) {
-    if (error.response.status === 401) {
-      sessionStorage.removeItem('token')
-      // Clear token from superAdminStore
-      superAdminStore.setToken('')
-
-      setTimeout(() => {
-        router.push({ name: 'super-admin-login' })
-      }, 3000)
-
-      toast({
-        title: 'Unauthorized',
-        description: 'You are not authorized to perform this action. Redirecting to home page...',
-        variant: 'destructive'
-      })
-      // Redirect after 3 seconds
-    } else {
-      toast({
-        title: error.response.data.message || 'An error occurred',
-        variant: 'destructive'
-      })
-    }
-  }
-} // Call the fetchUsersData function when the component is mounted
-
-// Save user data to the /administrator endpoint
-const saveUserData = async (user: any) => {
-  adminListStore.loadingControl(true)
-  try {
-    const response = await axios.post(
-      'https://api.staging.weeshr.com/api/v1/admin/administrator',
-      user,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      }
-    )
-
-    // Check if response status is 200 or 201
-    if (response.status === 200 || response.status === 201) {
-      // Show success toast
-      toast({
-        title: 'Success',
-        description: `${user.firstName} User profile created successfully.`,
-        variant: 'success'
-      })
-      fetchUsersData()
-    }
-    createUserStore.addUser(user)
-    adminListStore.loadingControl(false)
-    // Handle success
-  } catch (err: any) {
-    adminListStore.loadingControl(false)
-    if (err.response.data.code === 401) {
-      sessionStorage.removeItem('token')
-      // Clear token from superAdminStore
-      superAdminStore.setToken('')
-
-      setTimeout(() => {
-        router.push({ name: 'super-admin-login' })
-      }, 3000)
-
-      toast({
-        title: 'Unauthorized',
-        description: 'You are not authorized to perform this action. Redirecting to home page...',
-        variant: 'destructive'
-      })
-      // Redirect after 3 seconds
-    } else {
-      toast({
-        title: err.response.data.message || 'An error occurred',
-        variant: 'destructive'
-      })
-    }
-    // Handle other errors
-  }
-}
 
 // onMounted(fetchUsersData);
 const getRoles = async ()=>{
@@ -321,9 +195,9 @@ const getRoles = async ()=>{
       // Clear token from superAdminStore
       // superAdminStore.setToken('')
 
-      // setTimeout(() => {
-      //   router.push({ name: 'super-admin-login' })
-      // }, 3000)
+      setTimeout(() => {
+        router.push({ name: 'home' })
+      }, 3000)
 
       toast({
         title: 'Unauthorized',
@@ -342,7 +216,8 @@ const getRoles = async ()=>{
 }
 onMounted(async () => {
   // useGeneralStore().setLoading(true);
-  fetchUsersData()
+  // fetchUsersData()
+  adminListStore.fetchUsersData()
   getRoles()
 })
 
@@ -555,11 +430,11 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
                 <Loader2
                   color="#ffffff"
                   v-if="loading"
-                  class="w-4 h-4 mr-2 text-black animate-spin"
+                  class="w-4 h-4 mr-2 text-white animate-spin"
                 />
                 Submit
 
-                <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" />
+                <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-white animate-spin" />
               </Button>
             </form>
           </CardContent>
@@ -598,27 +473,17 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
               <TableCell>{{ user.email }}</TableCell>
               <TableCell>{{ user.gender }}</TableCell>
               <TableCell>{{user.phoneNumber.normalizedNumber}}</TableCell>
-              <!-- <TableCell @click="toggleStatus(user._id, user.disabled)">
-                <Button v-if="user.disabled" class="bg-gray-300">Disabled</Button>
-                <Button v-else class="bg-green-400">Active</Button>
-              </TableCell> -->
               <TableCell>
                 <Badge
-                  :class="{ 'bg-[#00C37F]': !user.disabled, 'bg-[#020721]': user.disabled }"
-                  
-                >
+                  :class="{ 'bg-[#00C37F]': !user.disabled, 'bg-[#020721]': user.disabled }">
                   {{ user.disabled ? 'Disabled' : 'Active' }}
               </Badge>
               </TableCell>
               <TableCell>
                 <div class="flex flex-wrap gap-2">
-                  <!-- Display each permission as a pill -->
-                  <!-- <template v-for="permission in users" :key="permission"> -->
                     <span
                       class="inline-block bg-[#373B4D] text-[#F8F9FF] rounded-full px-2 py-1 text-sm"
-                      >Dashboard</span
-                    >
-                  <!-- </template> -->
+                      >Dashboard</span>
                 </div>
               </TableCell>
               <TableCell>
@@ -647,26 +512,23 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
         </Table>
       </div>
       <div class="flex gap-2 max-w-full flex-wrap justify-end mt-8 mr-4 items-center text-[15px]">
-        <Pagination :total="totalPages" :sibling-count="1" show-edges :default-page="1" @change="handlePageChange">
+        <Pagination :total="totalPages" :sibling-count="1" show-edges :default-page="1" @change="adminListStore.handlePageChange">
           <PaginationList class="flex items-center gap-1">
-            <PaginationFirst @click="handlePageChange(1)" />
-            <PaginationPrev @click="handlePageChange(Math.max(currentPage - 1, 1))" />
+            <PaginationFirst @click="adminListStore.handlePageChange(1)" />
+            <PaginationPrev @click="adminListStore.handlePageChange(Math.max(currentPage - 1, 1))" />
             <template v-for="(item, index) in paginationItems" :key="index">
               <PaginationListItem v-if="item.type === 'page'" :value="item.value" as-child>
-                <Button class="w-10 h-10 p-0" :variant="item.value === currentPage ? 'default' : 'outline'" @click="handlePageChange(item.value)">
+                <Button class="w-10 h-10 p-0" :variant="item.value === currentPage ? 'default' : 'outline'" @click="adminListStore.handlePageChange(item.value)">
                   {{ item.value }}
                 </Button>
               </PaginationListItem>
               <PaginationEllipsis v-else :index="index" />
             </template>
-            <PaginationNext @click="handlePageChange(Math.min(currentPage + 1, totalPages))" />
-            <PaginationLast @click="handlePageChange(totalPages)" />
+            <PaginationNext @click="adminListStore.handlePageChange(Math.min(currentPage + 1, totalPages))" />
+            <PaginationLast @click="adminListStore.handlePageChange(totalPages)" />
           </PaginationList>
         </Pagination>
       </div>
     </Card>
   </div>
 </template>
-<!-- @/stores/super-admin/super-admin@/stores/super-admin/super-admin admin -->
-
-<!-- @/stores/super-admin/super-admin@/stores/super-admin/super-admin -->
