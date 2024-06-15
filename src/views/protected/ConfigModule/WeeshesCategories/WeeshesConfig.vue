@@ -74,6 +74,11 @@ const handleFileUpdate = (event: any) => {
 }
 
 const onUpdate = () => {  
+  toast({
+    title: 'Updating',
+    description: `Updating Weeshe Category`,
+    variant: 'default'
+  })
   loading.value = true
   const stringSchema = z.string()      
     .min(2, { message: 'First name must be at least 2 characters long' })
@@ -93,7 +98,7 @@ const onUpdate = () => {
         'image': updateImg.value
       }
       let config = {
-        method: 'post',
+        method: 'patch',
         maxBodyLength: Infinity,
         url: `https://api.staging.weeshr.com/api/v1/admin/weesh/category/${currentCategory.value}`,
         headers: { 
@@ -106,6 +111,7 @@ const onUpdate = () => {
       axios.request(config)
       .then((response) => {
         console.log(response.data);
+        store.getWeesheCategories(store.page, `${response.data.message}`)
       })
       .catch((error) => {
         console.log(error);
