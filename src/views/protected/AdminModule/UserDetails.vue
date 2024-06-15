@@ -295,8 +295,7 @@ const visiblePaginationItems = computed(() => {
 });
 
 
-const handlePageChange = (page: number, current: number) => {
-  pageCurrent.value = current
+const handlePageChange = (page: number) => {
   log(_id, page, perPage.value)
 };
 
@@ -624,19 +623,19 @@ const handlePageChange = (page: number, current: number) => {
             <div class="flex gap-2 w-11/12 flex-wrap justify-end mt-8 mr-4 items-center text-[15px]">
               <Pagination :total="pageTotal" :sibling-count="1" show-edges :default-page="1" @change="handlePageChange">
                 <PaginationList class="flex items-center gap-1">
-                    <Button class="w-10 h-10 p-0" variant="outline" @click="handlePageChange(1, 1)" >
+                    <Button class="w-10 h-10 p-0" variant="outline" @click="handlePageChange(1)" >
                     <Icon icon="heroicons:chevron-double-left-20-solid" />
                     </Button>
                   
                   <template v-for="(item, index) in visiblePaginationItems" :key="index">
                     <PaginationListItem :value="index" as-child>
-                      <Button class="w-10 h-10 p-0" :variant="item === pageCurrent ? 'default' : 'outline'" @click="handlePageChange(perPage * item - 1, item)" >
+                      <Button class="w-10 h-10 p-0" :variant="item === pageCurrent ? 'default' : 'outline'" @click="handlePageChange((perPage * item) - (perPage - 1))" >
                         {{ item }}
                       </Button>
                     </PaginationListItem>
                   </template>
 
-                  <Button class="w-10 h-10 p-0" variant="outline" @click="() => {handlePageChange(Math.floor(pageTotal-perPage + 1), Math.floor(pageTotal-perPage + 1))}" >
+                  <Button class="w-10 h-10 p-0" variant="outline" @click="() => {handlePageChange(Math.floor(pageTotal-perPage + 1))}" >
                     <Icon icon="heroicons:chevron-double-right-20-solid" />
                   </Button>
                 </PaginationList>
