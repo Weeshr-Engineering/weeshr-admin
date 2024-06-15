@@ -358,20 +358,20 @@ const handlePageChange = (page: number, current: number) => {
               <p class="text-xs md:text-sm text-[#020721]">+234 818 100 8221</p>
             </div>
 
-            <div class="flex justify-between lg:mx-4 px-4 shadow-md md:px-6 py-2 my-2 rounded-full border">
+            <div class="flex justify-between lg:mx-4 px-4 shadow-md md:px-6 py-1 my-2 rounded-full border">
               <p class="text-[#02072199] text-xs md:text-sm lg:text-sm pt-2">Profile Privacy</p>
               <label class="relative inline-flex cursor-pointer items-center">
                 <input type="checkbox" value="" checked class="peer sr-only" />
                 <div
-                  class="flex h-[25px] items-center gap-7 rounded-md bg-[#baef23] px-4 relative after:absolute after:left-1.5 after:h-6 after:w-16 after:rounded-md after:bg-[#F4ffc8]/50 after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-focus:outline-none dark:border-slate-600 dark:bg-slate-700 text-sm text-black"
+                  class="peer flex h-8 items-center gap-6 rounded-full bg-[#baef23] px-4 text-black after:absolute after:left-1 after: after:h-6 after:w-16 after:rounded-full after:bg-[#F4ffc8]/50 after:transition-all after:content-[''] peer-checked:bg-green-900 peer-checked:after:translate-x-full peer-focus:outline-none dark:border-slate-600 dark:bg-slate-700 text-sm peer-checked:text-white"
                 >
-                  <span class="text-center">Public</span>
-                  <span class="text-center">Private</span>
+                  <span>Public</span>
+                  <span>Private</span>
                 </div>
               </label>
             </div>
           
-            <div class="flex justify-between lg:mx-4 px-4 shadow-md md:px-6 py-2 my-2 rounded-full border">
+            <div class="flex justify-between lg:mx-4 px-4 shadow-md md:px-6 py-1 my-2 rounded-full border">
               <p class="flex grow text-[#02072199] text-xs md:text-sm lg:text-sm pt-2">
                 User Status
               </p>
@@ -392,7 +392,7 @@ const handlePageChange = (page: number, current: number) => {
       </CardHeader>
     </Card>
     
-    <Card class="px-2 py-4 mx-1 w-full h-full rounded-xl shadow-md lg:mx-0">
+    <Card class="px-2 py-4 mx-1 w-full rounded-xl shadow-md lg:mx-0">
       <Tabs default-value="weeshes" class="space-y-2">
         <TabsList class="w-full bg-transparent"
         >
