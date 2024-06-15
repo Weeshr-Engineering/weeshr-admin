@@ -1,9 +1,6 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { Switch } from '@/components/ui/switch'
+import { onMounted, ref } from 'vue'
 import { Icon } from '@iconify/vue'
-
-
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Card, CardDescription, CardHeader } from '@/components/ui/card'
 import {
@@ -15,13 +12,29 @@ import {
   TableHead
 } from '@/components/ui/table'
 
-import getUser from '@/composables/getUser';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel"
+import { Button } from '@/components/ui/button'
+import { getUser, getUserLog } from '@/composables/getUser';
 import { useRoute } from 'vue-router';
+import { computed } from 'vue';
+import {
+  Pagination,
+  PaginationList,
+  PaginationListItem,
+} from '@/components/ui/pagination';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuCheckboxItem,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu'
 
-const editProfile = () => {
-  // Your logic for handling the edit click goes here
-  console.log('Edit clicked!')
-}
 
 // const users = ref([]);
 const users = ref<any[]>([
@@ -190,376 +203,465 @@ const user2s = ref<any[]>([
   }
 ])
 
-//get User
 
+//images dummy
+const images = ref<any[]>([{value: 'https://res.cloudinary.com/dufimctfc/image/upload/v1710684025/images1_wbbxb5.svg'}, {value: 'https://res.cloudinary.com/dufimctfc/image/upload/v1710684023/images2_ma998k.svg'}, 
+{value: 'https://res.cloudinary.com/dufimctfc/image/upload/v1710693199/image5_lwx2g1.svg'}, 
+{value: 'https://res.cloudinary.com/dufimctfc/image/upload/v1710684024/image4_v8krvl.svg'}, 
+{value: 'https://res.cloudinary.com/dufimctfc/image/upload/v1710684023/images2_ma998k.svg'},{value: 'https://res.cloudinary.com/dufimctfc/image/upload/v1710684025/images1_wbbxb5.svg'}, {value: 'https://res.cloudinary.com/dufimctfc/image/upload/v1710684023/images2_ma998k.svg'}, 
+{value: 'https://res.cloudinary.com/dufimctfc/image/upload/v1710693199/image5_lwx2g1.svg'}, 
+{value: 'https://res.cloudinary.com/dufimctfc/image/upload/v1710684024/image4_v8krvl.svg'}, 
+{value: 'https://res.cloudinary.com/dufimctfc/image/upload/v1710684023/images2_ma998k.svg'}])
+
+//get User
 const route = useRoute();
 const _id = route.params.id;
 
 const { appUser, error, load } = getUser()
+const { userLog, count, logError, log } = getUserLog()
 
-console.log(_id)
+onMounted(() => {
+  load(_id)
+})
 
-load(_id)
-
-const dateOfBirth = (dob: string) => {
-  const date = new Date(dob)
+const dateFormat = (dob: string, time?:string): string => {
+  const date = new Date(dob);
 
   const day = String(date.getUTCDate()).padStart(2, '0');
+
   const monthNames = [
-    "January", "February", "March", "April", "May", "June", 
+    "January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December"
   ];
   const month = monthNames[date.getUTCMonth()];
   const year = date.getUTCFullYear();
 
-  const formattedDate = `${day} - ${month} - ${year}`;
+  const hours = String(date.getUTCHours()).padStart(2, '0');
+  const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+  const seconds = String(date.getUTCSeconds()).padStart(2, '0');
 
+  const formattedDate = `${day} - ${month} - ${year}`;
+  const formattedTime = `${hours}:${minutes}:${seconds}`;
+
+  const formattedDateTime = `${formattedDate} at ${formattedTime}`;
+
+  if (time) {
+    return formattedDateTime;
+  }
   return formattedDate
+};
+
+let order = ref<string>('')
+
+const handleSort = () => {
+  order.value = order.value === "sort" ? "" : "sort";
 }
+
+const sortItem = computed(() => {
+  let userLogs = [...userLog.value];
+
+  if (order.value === 'sort') {
+    userLogs.sort((a, b) => {
+      const dateA = new Date(a.timestamp).getTime();
+      const dateB = new Date(b.timestamp).getTime();
+      return dateB - dateA;
+    });
+  }
+  return userLogs;
+});
+
+//pagination
+const pageTotal = ref(count);
+let perPage = ref(15);
+const pageCurrent = ref(1);
+
+const handleClick = (pageItem: number) => {
+  perPage.value = pageItem
+  log(_id, 1, perPage.value)
+}
+
+const paginationItems = computed(() => {
+  const pages = [];
+  for (let i = 1; i <= Math.floor(pageTotal.value / perPage.value) ; i++) {
+    pages.push(i);
+  }
+  return pages;
+});
+
+const visiblePaginationItems = computed(() => {
+  const start = Math.max(1, pageCurrent.value - 1);
+  const end = Math.min(pageTotal.value, pageCurrent.value + 1);
+  return paginationItems.value.slice(start - 1, end);
+});
+
+
+const handlePageChange = (page: number, current: number) => {
+  pageCurrent.value = current
+  log(_id, page, perPage.value)
+};
 
 </script>
 
 <template>
-  <div class="container lg:px-0 mx-auto">
-    <div class="flex-col lg:flex lg:flex-row gap-1">
-      <Card
-        class="sm:col-span-3 md:col-span-3 bg-[#F8F9FF] sm:items-center shadow-xl lg:min-w-[398px]"
-      >
-        <CardHeader>
-          <div class="flex items-center text-xl md:mx-10 md:text-3xl mb-4">
-              <RouterLink :to="{name: 'appuser'}" class="text-gray-500">App Users</RouterLink>
-              <Icon icon="tabler:chevron-right" width="22px" height="22px" class="ml-1 pt-1"/>
-              <RouterLink :to="{name: 'appuserDetails'}">Users Details</RouterLink>
+  <div class="flex-col lg:flex lg:flex-row gap-1">
+    <Card
+      class="sm:col-span-3 md:col-span-3 bg-[#F8F9FF] sm:items-center shadow-xl lg:min-w-[450px]"
+    >
+      <CardHeader>
+        <div class="flex items-center text-xl mb-8">
+          <RouterLink :to="{name: 'appuser'}" class="text-gray-500">App Users</RouterLink>
+          <Icon icon="tabler:chevron-right" width="22px" height="22px" class="ml-1 pt-1"/>
+          <RouterLink :to="{name: 'appuserDetails'}">Users Details</RouterLink>
+        </div>
+        <CardDescription>
+          <Carousel class="w-8/12 lg:w-min mx-auto">
+            <CarouselContent>
+              <CarouselItem v-for="image in images" :key="image.value">
+                <img :src="image.value" alt="display" class="w-full rounded-full border-double border-4 border-[#baef23]"/>
+              </CarouselItem>
+            </CarouselContent>
+            <CarouselPrevious class="bg-[#baef23]"/>
+            <CarouselNext class="bg-[#baef23]"/>
+          </Carousel>
+          <div v-if="error" class="text-[#02072199] p-10">
+          <p>{{ error }}</p>
           </div>
-          <CardDescription>
-            <div class="grid gap-2 grid-cols-3 md:grid-cols-5 lg:grid-cols-5 my-7">
-              <img
-                class="max-w-[70.66px] h-auto"
-                src="https://res.cloudinary.com/dufimctfc/image/upload/v1710684025/images1_wbbxb5.svg"
-                alt="gradient"
-              />
-              <img
-                class="max-w-[70.66px] h-auto"
-                src="https://res.cloudinary.com/dufimctfc/image/upload/v1710684023/images2_ma998k.svg"
-                alt="gradient"
-              />
-              <img
-                class="max-w-[70.66px] h-auto"
-                src="https://res.cloudinary.com/dufimctfc/image/upload/v1710693199/image5_lwx2g1.svg"
-                alt="gradient"
-              />
-              <img
-                class="max-w-[70.66px] h-auto"
-                src="https://res.cloudinary.com/dufimctfc/image/upload/v1710684024/image4_v8krvl.svg"
-                alt="gradient"
-              />
-              <img
-                class="max-w-[70.66px] h-auto"
-                src="https://res.cloudinary.com/dufimctfc/image/upload/v1710684023/images2_ma998k.svg"
-                alt="gradient"
-              />
-            </div>
-            <div class="flex justify-between px-6 my-2">
-              <span class="text-base font-bold lg:text-base text-[#020721]">Identity</span>
-              <div class="flex">
-                <img
-                  class="max-w-[18.05px] max-h-[20px]"
-                  src="https://res.cloudinary.com/dufimctfc/image/upload/v1714310908/edit-4-svgrepo-com_1_iy2nwu.svg"
-                  alt="gradient"
-                />
-                <span class="text-sm font-medium text-[#02072199]">
-                  <a href="#" @click="editProfile">Edit</a>
-                </span>
-              </div>
-            </div>
-            <div v-if="error" class="text-[#02072199] p-10">
-            <p>{{ error }}</p>
-            </div>
-            <div v-else-if="appUser">
-              <Card class="rounded-md">
-              <div class="flex justify-between px-6 md:px-6 py-2 border-b">
-                <p class="text-[#02072199] text-xs md:text-sm lg:text-sm">Full Name</p>
-                <p class="text-xs md:text-sm lg:text-sm text-[#020721]">{{ appUser.firstName }} {{ appUser.middleName }} {{ appUser.lastName }}</p>
-              </div>
-              <div class="flex justify-between px-6 py-2 border-b">
-                <p class="text-[#02072199] text-xs md:text-sm lg:text-sm">Preferred</p>
-                <p class="text-xs md:text-sm lg:text-sm text-[#020721]">{{ appUser.userName }}</p>
-              </div>
-              <div class="flex justify-between px-6 py-2 border-b">
-                <p class="flex grow text-[#02072199] text-xs md:text-sm lg:text-sm">Birthday</p>
-                <p class="text-xs md:text-sm lg:text-sm text-[#020721]">{{ dateOfBirth(appUser.dob) }}</p>
-              </div>
-              <div class="flex justify-between px-6 py-2 border-b">
-                <p class="flex grow text-[#02072199] text-xs md:text-sm lg:text-sm">Gender</p>
-                <p class="text-xs md:text-sm lg:text-sm text-[#020721]">{{ appUser.gender }}</p>
-              </div>
-            </Card>
-            <div class="flex justify-between px-6 py-4">
-              <span class="text-base font-bold lg:text-base text-[#020721]">Contact</span>
-              <div class="flex">
-                <img
-                  class="max-w-[18.05px] max-h-[20px]"
-                  src="https://res.cloudinary.com/dufimctfc/image/upload/v1714310908/edit-4-svgrepo-com_1_iy2nwu.svg"
-                  alt="gradient"
-                />
-                <span class="text-sm font-medium text-[#02072199]">
-                  <a href="#" @click="editProfile">Edit</a>
-                </span>
-              </div>
-            </div>
-            <Card class="rounded-md">
-              <div class="flex justify-between px-6 py-2 border-b">
-                <p class="text-[#02072199] text-xs md:text-sm lg:text-sm">Email</p>
-                <p class="text-xs md:text-sm lg:text-sm text-[#020721]">{{ appUser.email }}</p>
-              </div>
-              <div class="flex justify-between px-3 lg:px-6 py-2 border-b">
-                <p class="text-[#02072199] text-xs md:text-sm lg:text-sm">Phone</p>
-                <p class="text-xs md:text-sm lg:text-sm text-[#020721]">+234 818 100 8221</p>
-              </div>
-            </Card>
-
-            <Card class="rounded-md my-5">
-              <div class="flex justify-between px-3 lg:px-6 py-2">
-                <p class="text-[#02072199] text-xs md:text-sm lg:text-sm">Profile Privacy</p>
-                <label class="relative inline-flex cursor-pointer items-center">
-                  <input type="checkbox" value="" checked class="peer sr-only" />
-                  <div
-                    class="flex h-[28px] items-center gap-7 rounded-md bg-[#373B4D] px-4 relative after:absolute after:left-1.5 after:h-6 after:w-16 after:rounded-md after:bg-[#F8F9FF]/80 after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-focus:outline-none dark:border-slate-600 dark:bg-slate-700 text-sm text-white"
-                  >
-                    <span class="text-center">Public</span>
-                    <span class="text-center">Private</span>
-                  </div>
-                </label>
-              </div>
-            </Card>
-            <div>
-              <Card class="rounded-md">
-                <div class="flex justify-between px-5 lg:px-6 py-2">
-                  <p class="flex grow text-[#02072199] text-xs md:text-sm lg:text-sm">
-                    User Status
-                  </p>
-                  <div class="flex gap-1 grid-cols-3 md:grid-cols-3 lg:grid-cols-3">
-                    <img
-                      class="max-w-[28px] max-h-[28px]"
-                      src="https://res.cloudinary.com/dufimctfc/image/upload/v1712910732/Property_1_Public_Figure_wbek9n.svg"
-                      alt="gradient"
-                    />
-                    <img
-                      class="max-w-[28px] max-h-[28px]"
-                      src="https://res.cloudinary.com/dufimctfc/image/upload/v1712910733/Property_1_Weeshr_Verified_th0oq2.svg"
-                      alt="gradient"
-                    />
-                    <img
-                      class="max-w-[77px] max-h-[28px]"
-                      src="https://res.cloudinary.com/dufimctfc/image/upload/v1712910733/UserFeaturing_rj4fnp.svg"
-                      alt="gradient"
-                    />
-                  </div>
-                </div>
-              </Card>
-              <div class="flex flex-wrap justify-between px-8 lg:px-6 py-4">
-                <div class="flex items-center justify-between w-48 mb-2">
-                  <p class="text-[#02072199] text-xs md:text-sm lg:text-sm mr-2">Public Figure</p>
-                  <Switch />
-                </div>
-                <div class="flex items-center justify-between w-48 mb-2">
-                  <p class="text-xs md:text-sm lg:text-sm text-[#020721] mr-2">Influencer</p>
-                  <div class="flex items-center">
-                    <Switch />
-                  </div>
-                </div>
-                <div class="flex items-center justify-between w-48 mb-2">
-                  <p class="text-[#02072199] text-xs md:text-sm lg:text-sm mr-2">Featured</p>
-                  <div class="flex items-center">
-                    <Switch />
-                  </div>
-                </div>
-                <div class="flex items-center justify-between w-48 mb-2">
-                  <p class="text-xs md:text-sm lg:text-sm text-[#020721] mr-2">Verified</p>
-                  <div class="flex items-center">
-                    <Switch />
-                  </div>
-                </div>
-              </div>
-            </div>
-            </div>
-            <div v-else class="text-[#02072199] p-10">
-            <p>No user data available</p>
+          <div v-else-if="appUser">
+            <div class="px-6 py-4 mt-4">
+            <span class="text-base font-bold lg:text-base text-[#020721]">Identity</span>
           </div>
-          </CardDescription>
-        </CardHeader>
-      </Card>
-
-      <div class="my-9 w-full">
-        <Tabs default-value="weeshes" class="space-y-1">
-          <TabsList
-            class="border-[#DEDFE8] bg-transparent lg:w-[560px] lg:flex lg:justify-between px-0 lg:px-6 md:px-6 py-2"
-          >
-            <TabsTrigger value="weeshes" class="text-[#000000]"> Weeshes </TabsTrigger>
-            <TabsTrigger value="bank" class="text-[#000000]"> Bank </TabsTrigger>
-            <TabsTrigger value="support" class="text-[#000000]" disabled>Support </TabsTrigger>
-            <TabsTrigger value="activity" class="text-[#000000]" disabled>
-              Activity log
-            </TabsTrigger>
-          </TabsList>
-          <TabsContent value="weeshes" class="space-y-4">
-            <div class="overflow-auto bg-white md:mx-6 rounded-md">
-              <Table class="min-w-full">
-                <TableHeader>
-                  <TableRow
-                    class="text-xs sm:text-sm md:text-base text-[#02072199] font-semibold bg-gray-200"
-                  >
-                    <TableHead> Name of Weesh </TableHead>
-                    <TableHead>Category</TableHead>
-                    <TableHead>
-                      <div class="flex items-center">
-                  Price
-                  <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
-                </div> 
-                    </TableHead>
-                    <TableHead> 
-                      <div class="flex items-center">
-                  Changes
-                  <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
-                      </div>
-                    </TableHead>
-
-                    <TableHead>
-                      <div class="flex items-center">
-                  Status
-                  <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
-                      </div>
-                </TableHead>
-                    <TableHead></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  <TableRow v-for="user in users" :key="user._id">
-                    <TableCell class="font-medium">{{ user.nameofweeshes }}</TableCell>
-                    <TableCell class="font-medium">{{ user.category }}</TableCell>
-                    <TableCell class="font-normal text-xs">{{ user.price }} </TableCell>
-                    <TableCell class="font-medium">{{ user.changes }} </TableCell>
-                    <TableCell class="">
-                      <!-- Render multiple status icons based on user's status array -->
-                      <template v-for="status in user.status" :key="status">
-                        <span
-                          :class="{
-                            'bg-[#6A70FF] text-[#F8F9FF]': status === 'Fulfiled',
-                            'bg-[#373B4D] text-[#F8F9FF]': status === 'Added',
-                            'bg-[#EE9F39] text-[#F8F9FF]': status === 'Initiated',
-                            'bg-[#53eeb8] text-[#F8F9FF]': status === 'Delivered'
-                          }"
-                          class="inline-block bg-[#373B4D] text-[#F8F9FF] rounded-full px-2 py-1 text-sm"
-                          >{{ status }}</span
-                        >
-                      </template>
-                    </TableCell>
-                    <TableCell>
-                      <svg
-                        width="20"
-                        height="50"
-                        viewBox="0 0 20 50"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M7 31L12.5118 26.0606C13.1627 25.4773 13.1627 24.5227 12.5118 23.9394L7 19"
-                          stroke="#54586D"
-                          stroke-opacity="0.8"
-                          stroke-width="2"
-                          stroke-miterlimit="10"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                        />
-                      </svg>
-                    </TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
+            <div class="flex justify-between lg:mx-4 px-4 shadow-md md:px-6 py-2 my-2 rounded-full border">
+              <p class="text-[#02072199] text-xs md:text-sm lg:text-sm">Full Name</p>
+              <p class="text-xs md:text-sm lg:text-sm text-[#020721]">{{ appUser.firstName }} {{ appUser.middleName }} {{ appUser.lastName }}</p>
             </div>
-          </TabsContent>
-
-          <TabsContent value="bank" class="space-y-4">
-            <div class="overflow-auto bg-white rounded-md md:mx-6">
-              <Table class="min-w-full">
-                <TableHeader>
-                  <TableRow
-                    class="text-xs sm:text-sm md:text-base text-[#02072199] font-semibold bg-gray-200"
-                  >
-                    <TableHead>
-                        <div class="flex items-center">
-                  Type
-                  <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
-                      </div>
-                      </TableHead>
-                    <TableHead>
-                      <div class="flex items-center">
-                  Date
-                  <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
-                      </div>
-                    </TableHead>
-                    <TableHead>
-                      <div class="flex items-center">
-                  Amount
-                  <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
-                      </div>
-                    </TableHead>
-                    <TableHead>
-                       <div class="flex items-center">
-                  Status
-                  <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
-                      </div>
-                    </TableHead>
-                    <TableHead></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  <TableRow v-for="user2 in user2s" :key="user2._id">
-                    <TableCell class="font-medium">{{ user2.type }}</TableCell>
-                    <TableCell class="font-medium">{{ user2.date }}</TableCell>
-                    <TableCell class="font-normal text-xs">{{ user2.amount }} </TableCell>
-                    <TableCell class="">
-                      <!-- Render multiple status icons based on user's status array -->
-                      <template v-for="status in user2.status" :key="status">
-                        <span
-                          :class="{
-                            'bg-[#53eeb8] text-[#F8F9FF]': status === 'Successful',
-                            'bg-[#373B4D] text-[#F8F9FF]': status === ' Pending',
-                            'bg-[#EE9F39] text-[#F8F9FF]': status === 'Failed'
-                          }"
-                          class="inline-block bg-[#373B4D] text-[#F8F9FF] rounded-full px-2 py-1 text-sm"
-                          >{{ status }}</span
-                        >
-                      </template>
-                    </TableCell>
-                    <TableCell>
-                      <svg
-                        width="20"
-                        height="50"
-                        viewBox="0 0 20 50"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M7 31L12.5118 26.0606C13.1627 25.4773 13.1627 24.5227 12.5118 23.9394L7 19"
-                          stroke="#54586D"
-                          stroke-opacity="0.8"
-                          stroke-width="2"
-                          stroke-miterlimit="10"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                        />
-                      </svg>
-                    </TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
+            <div class="flex justify-between lg:mx-4 px-4 shadow-md md:px-6 py-2 my-2 rounded-full border">
+              <p class="text-[#02072199] text-xs md:text-sm lg:text-sm">Preferred</p>
+              <p class="text-xs md:text-sm lg:text-sm text-[#020721]">{{ appUser.userName }}</p>
             </div>
-          </TabsContent>
-          <TabsContent value="support" class="space-y-4 w-[802px]"> </TabsContent>
-          <TabsContent value="activity" class="space-y-4 w-[802px]"> </TabsContent>
-        </Tabs>
-      </div>
-    </div>
+            <div class="flex justify-between lg:mx-4 px-4 shadow-md md:px-6 py-2 my-2 rounded-full border">
+              <p class="flex grow text-[#02072199] text-xs md:text-sm lg:text-sm">Birthday</p>
+              <p class="text-xs md:text-sm lg:text-sm text-[#020721]">{{ dateFormat(appUser.dob) }}</p>
+            </div>
+            <div class="flex justify-between lg:mx-4 px-4 shadow-md md:px-6 py-2 my-2 rounded-full border">
+              <p class="flex grow text-[#02072199] text-xs md:text-sm lg:text-sm">Gender</p>
+              <p class="text-xs md:text-sm lg:text-sm text-[#020721]">{{ appUser.gender }}</p>
+            </div>
+            <div class="px-6 py-4">
+            <span class="text-base font-bold lg:text-base text-[#020721]">Contact</span>
+            </div>
+            <div class="flex justify-between lg:mx-4 px-4 shadow-md md:px-6 py-2 my-2 rounded-full border">
+              <p class="text-[#02072199] text-xs md:text-sm lg:text-sm">Email</p>
+              <p class="text-xs md:text-sm lg:text-sm text-[#020721]">{{ appUser.email }}</p>
+            </div>
+            <div class="flex justify-between lg:mx-4 px-4 shadow-md md:px-6 py-2 my-2 rounded-full border">
+              <p class="text-[#02072199] text-xs md:text-sm lg:text-sm">Phone</p>
+              <p class="text-xs md:text-sm text-[#020721]">+234 818 100 8221</p>
+            </div>
+
+            <div class="flex justify-between lg:mx-4 px-4 shadow-md md:px-6 py-2 my-2 rounded-full border">
+              <p class="text-[#02072199] text-xs md:text-sm lg:text-sm pt-2">Profile Privacy</p>
+              <label class="relative inline-flex cursor-pointer items-center">
+                <input type="checkbox" value="" checked class="peer sr-only" />
+                <div
+                  class="flex h-[25px] items-center gap-7 rounded-md bg-[#baef23] px-4 relative after:absolute after:left-1.5 after:h-6 after:w-16 after:rounded-md after:bg-[#F4ffc8]/50 after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-focus:outline-none dark:border-slate-600 dark:bg-slate-700 text-sm text-black"
+                >
+                  <span class="text-center">Public</span>
+                  <span class="text-center">Private</span>
+                </div>
+              </label>
+            </div>
+          
+            <div class="flex justify-between lg:mx-4 px-4 shadow-md md:px-6 py-2 my-2 rounded-full border">
+              <p class="flex grow text-[#02072199] text-xs md:text-sm lg:text-sm pt-2">
+                User Status
+              </p>
+              <div class="rounded-[15px] w-fit px-3 py-1 text-white text-sm capitalize flex items-center" :class="appUser.emailVerified ? 'bg-green-900' : 'bg-gray-500'">
+                <Icon :icon="appUser.emailVerified?'ic:outline-mark-email-read':'mdi:email-remove-outline'" width="24" height="24" class="me-2" />
+                <p class="text-xs md:text-sm lg:text-sm">{{ appUser.emailVerified ? 'Verified' : 'Unverified' }}</p>
+              </div>
+            </div>
+            <div class="rounded-xl flex ml-auto me-6 my-10 border w-min px-4 py-2">
+              <Icon icon="lucide:edit" width="17" height="17" class="me-2"/>
+              Edit
+            </div>
+          </div>
+          <div v-else class="text-[#02072199] p-10">
+          <p>No user data available</p>
+          </div>
+        </CardDescription>
+      </CardHeader>
+    </Card>
+    
+    <Card class="px-2 py-4 mx-1 w-full h-full rounded-xl shadow-md lg:mx-0">
+      <Tabs default-value="weeshes" class="space-y-2">
+        <TabsList class="w-full bg-transparent"
+        >
+          <TabsTrigger value="weeshes" class="text-[#000000] data-[state=active]:border-[#baef23]"> Weeshes </TabsTrigger>
+          <TabsTrigger value="bank" class="text-[#000000] data-[state=active]:border-[#baef23]"> Bank </TabsTrigger>
+          <TabsTrigger value="support" class="text-[#000000] data-[state=active]:border-[#baef23]">Support </TabsTrigger>
+          <TabsTrigger value="activity" class="text-[#000000] data-[state=active]:border-[#baef23]" @click="() => { log(_id, 1, perPage)}">
+            Activity log
+          </TabsTrigger>
+        </TabsList>
+        <TabsContent value="weeshes" class="space-y-4">
+          <div class="overflow-auto bg-white md:mx-4 rounded-md">
+            <Table>
+              <TableHeader>
+                <TableRow
+                  class="text-xs sm:text-sm md:text-base text-[#02072199] font-semibold bg-gray-200"
+                >
+                  <TableHead> Name of Weesh </TableHead>
+                  <TableHead>Category</TableHead>
+                  <TableHead>
+                    <div class="flex items-center">
+                Price
+                <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
+              </div> 
+                  </TableHead>
+                  <TableHead> 
+                    <div class="flex items-center">
+                Changes
+                <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
+                    </div>
+                  </TableHead>
+
+                  <TableHead>
+                    <div class="flex items-center">
+                Status
+                <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
+                    </div>
+              </TableHead>
+                  <TableHead></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                <TableRow v-for="user in users" :key="user._id">
+                  <TableCell class="font-medium">{{ user.nameofweeshes }}</TableCell>
+                  <TableCell class="font-medium">{{ user.category }}</TableCell>
+                  <TableCell class="font-normal text-xs">{{ user.price }} </TableCell>
+                  <TableCell class="font-medium">{{ user.changes }} </TableCell>
+                  <TableCell class="">
+                    <!-- Render multiple status icons based on user's status array -->
+                    <template v-for="status in user.status" :key="status">
+                      <span
+                        :class="{
+                          'bg-[#6A70FF] text-[#F8F9FF]': status === 'Fulfiled',
+                          'bg-[#373B4D] text-[#F8F9FF]': status === 'Added',
+                          'bg-[#EE9F39] text-[#F8F9FF]': status === 'Initiated',
+                          'bg-[#53eeb8] text-[#F8F9FF]': status === 'Delivered'
+                        }"
+                        class="inline-block bg-[#373B4D] text-[#F8F9FF] rounded-full px-2 py-1 text-sm"
+                        >{{ status }}</span
+                      >
+                    </template>
+                  </TableCell>
+                  <TableCell>
+                    <svg
+                      width="20"
+                      height="50"
+                      viewBox="0 0 20 50"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M7 31L12.5118 26.0606C13.1627 25.4773 13.1627 24.5227 12.5118 23.9394L7 19"
+                        stroke="#54586D"
+                        stroke-opacity="0.8"
+                        stroke-width="2"
+                        stroke-miterlimit="10"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="bank" class="space-y-4">
+          <div class="overflow-auto bg-white rounded-md md:mx-6">
+            <Table class="min-w-full">
+              <TableHeader>
+                <TableRow
+                  class="text-xs sm:text-sm md:text-base text-[#02072199] font-semibold bg-gray-200"
+                >
+                  <TableHead>
+                      <div class="flex items-center">
+                Type
+                <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
+                    </div>
+                    </TableHead>
+                  <TableHead>
+                    <div class="flex items-center">
+                Date
+                <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
+                    </div>
+                  </TableHead>
+                  <TableHead>
+                    <div class="flex items-center">
+                Amount
+                <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
+                    </div>
+                  </TableHead>
+                  <TableHead>
+                    <div class="flex items-center">
+                Status
+                <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
+                    </div>
+                  </TableHead>
+                  <TableHead></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                <TableRow v-for="user2 in user2s" :key="user2._id">
+                  <TableCell class="font-medium">{{ user2.type }}</TableCell>
+                  <TableCell class="font-medium">{{ user2.date }}</TableCell>
+                  <TableCell class="font-normal text-xs">{{ user2.amount }} </TableCell>
+                  <TableCell class="">
+                    <template v-for="status in user2.status" :key="status">
+                      <span
+                        :class="{
+                          'bg-[#53eeb8] text-[#F8F9FF]': status === 'Successful',
+                          'bg-[#373B4D] text-[#F8F9FF]': status === ' Pending',
+                          'bg-[#EE9F39] text-[#F8F9FF]': status === 'Failed'
+                        }"
+                        class="inline-block bg-[#373B4D] text-[#F8F9FF] rounded-full px-2 py-1 text-sm"
+                        >{{ status }}</span
+                      >
+                    </template>
+                  </TableCell>
+                  <TableCell>
+                    <svg
+                      width="20"
+                      height="50"
+                      viewBox="0 0 20 50"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M7 31L12.5118 26.0606C13.1627 25.4773 13.1627 24.5227 12.5118 23.9394L7 19"
+                        stroke="#54586D"
+                        stroke-opacity="0.8"
+                        stroke-width="2"
+                        stroke-miterlimit="10"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </div>
+        </TabsContent>
+        <TabsContent value="support" class="space-y-4"> 
+        </TabsContent>
+        <TabsContent value="activity" class="space-y-4"> 
+          <div v-if="logError" class="text-[#02072199] p-10">
+          <p>{{ logError }}</p>
+          </div>
+          <div v-else-if="sortItem && sortItem.length" class="relative">
+            <div class="flex gap-2 w-11/12 flex-wrap justify-end mt-8 mr-4 items-center text-[15px]">
+              <Button variant="outline" class="rounded-2xl bg-[#EEEFF5]" @click="() => handleSort()">
+                <div class="flex items-center text-[10px] md:text-xs">
+                  Sort By Date
+                </div>
+              </Button>
+              <DropdownMenu>
+              <DropdownMenuTrigger as-child class="rounded-2xl bg-[#EEEFF5]">
+                <Button variant="outline">
+                  <div class="flex items-center text-[10px] md:text-xs">
+                    Number Per Page
+                    <Icon icon="ion:chevron-down-outline" class="ml-1" />
+                  </div>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent class="item-center justify-between">
+                <DropdownMenuCheckboxItem @click="() => handleClick(5)">
+                  5
+                </DropdownMenuCheckboxItem>
+                <DropdownMenuCheckboxItem @click="() => handleClick(20)">
+                  20
+                </DropdownMenuCheckboxItem>
+                <DropdownMenuCheckboxItem @click="() => handleClick(50)">
+                  50
+                </DropdownMenuCheckboxItem>
+                <DropdownMenuCheckboxItem @click="() => handleClick(100)">
+                  100
+                </DropdownMenuCheckboxItem>
+                <DropdownMenuCheckboxItem @click="() => handleClick(200)">
+                  200
+                </DropdownMenuCheckboxItem>
+              </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+            <div class="timeline">
+              <div v-for="logItem in sortItem" :key="logItem.id">
+                <Card class="px-4 my-2 relative ms-8 md:ms-12 xl:ms-16 w-10/12 me-4 shadow-md">
+                  <CardHeader>
+                    <p class="rounded-[15px] w-fit px-3 py-1 bg-[#baef23] absolute z-10 -left-4 lg:-left-10 top-3.5 italic text-sm">
+                    {{ dateFormat(logItem.timestamp, "time")}} 
+                    </p>
+                    <CardDescription>
+                      <div class="mt-10">
+                        <div class="lg:flex lg:justify-between">
+                          <p class="text-blue-400 font-bold text-lg">{{ logItem.action }}</p>
+                          <h3 :class="logItem.status == 'SUCCESS' ? 'text-green-900' : 'text-gray-500'" class="font-bold text-xl italic">{{ logItem.status }}</h3>
+                        </div>
+                        <p class="mt-4 text-xs">{{ logItem.description }}</p>
+                        <div class="lg:flex lg:justify-between my-2">
+                          <p><span class="text-blue-400 me-2">Email :</span> {{ logItem.user.extras.email }}</p>
+                          <p><span class="text-blue-400 me-2">Username :</span> {{ logItem.user.extras.userName }}</p>
+                        </div>
+                      </div>
+                    </CardDescription>
+                  </CardHeader>
+                </Card>
+              </div>
+            </div>
+            <div class="flex gap-2 w-11/12 flex-wrap justify-end mt-8 mr-4 items-center text-[15px]">
+              <Pagination :total="pageTotal" :sibling-count="1" show-edges :default-page="1" @change="handlePageChange">
+                <PaginationList class="flex items-center gap-1">
+                    <Button class="w-10 h-10 p-0" variant="outline" @click="handlePageChange(1, 1)" >
+                    <Icon icon="heroicons:chevron-double-left-20-solid" />
+                    </Button>
+                  
+                  <template v-for="(item, index) in visiblePaginationItems" :key="index">
+                    <PaginationListItem :value="index" as-child>
+                      <Button class="w-10 h-10 p-0" :variant="item === pageCurrent ? 'default' : 'outline'" @click="handlePageChange(perPage * item - 1, item)" >
+                        {{ item }}
+                      </Button>
+                    </PaginationListItem>
+                  </template>
+
+                  <Button class="w-10 h-10 p-0" variant="outline" @click="() => {handlePageChange(Math.floor(pageTotal-perPage + 1), Math.floor(pageTotal-perPage + 1))}" >
+                    <Icon icon="heroicons:chevron-double-right-20-solid" />
+                  </Button>
+                </PaginationList>
+              </Pagination>
+            </div>
+          </div>
+          <div v-else class="text-[#02072199] p-10">
+          <p>No user log available</p>
+          </div>
+        </TabsContent>
+      </Tabs>
+    </Card>
   </div>
+  
 </template>
+
+<style scoped>
+.timeline::after {
+  content: '';
+  position: absolute;
+  width: 6px;
+  height: 90%;
+  background: rgb(255,255,255);
+  background: linear-gradient(132deg, rgba(255,255,255,1) 1%, rgba(186,239,35,1) 58%);
+  top: 3%;
+  left: 5%;
+}
+</style>
