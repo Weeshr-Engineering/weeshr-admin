@@ -308,7 +308,7 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
                   <FormMessage />
                 </FormItem>
               </FormField>
-              <div class="flex flex-row justify-between gap-2">
+              <div class="flex flex-row justify-between gap-2 max-w-full">
                 <div class="min-w-[35%]">
                   <FormField v-slot="{ componentField }" name="gender">
                     <FormItem>
@@ -334,7 +334,7 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
                   </FormField>
                 </div>
 
-                <div class="min-w-[70%]">
+                <div class="lg:w-[70%]">
                   <FormField v-slot="{ componentField }" name="dob">
                     <FormItem v-auto-animate>
                       <FormLabel class="text-blue-900">Date of Birth</FormLabel>
