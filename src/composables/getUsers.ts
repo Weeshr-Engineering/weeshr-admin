@@ -27,15 +27,17 @@ interface User {
 const getUsers = () => {
     const users: Ref<User[]> = ref([])
     const error: Ref<string> = ref('')
+    const totalPages = ref(0)
+    const currentPage = ref(0)
     const token = sessionStorage.getItem('token') || ''
     const { toast } = useToast()
     
-    const load = async (search: string ) => {
+    const load = async (search: string, page: number) => {
         try {
             toast({
                 description: "Loading...."
             })
-            const response = await axios.get(`https://api.staging.weeshr.com/api/v1/admin/accounts/users?search=${search}`,
+            const response = await axios.get(`https://api.staging.weeshr.com/api/v1/admin/accounts/users?search=${search}&page=${page}&per_page=5`,
             {
                 headers: {
                     Authorization: `Bearer ${token}`
@@ -45,6 +47,9 @@ const getUsers = () => {
         
             if (response.data.code === 200) {
                 users.value = response.data.data.data;
+                totalPages.value = response.data.data.totalPages;
+                currentPage.value = response.data.data.currentPage;
+
                 toast({
                     description: response.data.message,
                     variant: 'success'
@@ -66,7 +71,7 @@ const getUsers = () => {
         }
     }
 
-    return {users, error, load}
+    return {users, error, totalPages, currentPage, load}
 }
 
 export default getUsers

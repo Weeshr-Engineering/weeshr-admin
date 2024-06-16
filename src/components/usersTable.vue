@@ -18,7 +18,6 @@ import {
 
 import {
   Pagination,
-  PaginationEllipsis,
   PaginationFirst,
   PaginationLast,
   PaginationList,
@@ -36,12 +35,12 @@ import { Button } from '@/components/ui/button'
 
 //logic
 
-const { users, error, load} = getUsers()
+const { users, error, totalPages, currentPage, load} = getUsers()
 
 const appUsers = ref(users);
 const errors = error;
 
-load('')
+load('', 1)
 
 const dateOfBirth = (dob: string) => {
   const date = new Date(dob)
@@ -63,7 +62,7 @@ const dateOfBirth = (dob: string) => {
 const search = ref('')
 
 watch(search, () => {
-  load(search.value)
+  load(search.value, 1)
 })
 
 //filter
@@ -76,7 +75,7 @@ const handleClick = (term: SortItem) => {
 }
 const handleReset = () => {
   order.value = "all";
-  load('')
+  load('', 1)
 }
 
 const sortUsers = computed(() => {
@@ -103,29 +102,27 @@ const sortUsers = computed(() => {
   return users;
 });
 
-const perPage = 25;
-const currentPage = ref(1);
-const totalUsers = computed(() => sortUsers.value.length);
-const totalPages = computed(() => Math.ceil(totalUsers.value / perPage));
-
-const paginatedUsers = computed(() => {
-  const start = (currentPage.value - 1) * perPage;
-  const end = start + perPage;
-  return sortUsers.value.slice(start, end);
-});
+//pagination
+const pageTotal = ref(totalPages);
+const pageCurrent = ref(currentPage);
 
 const paginationItems = computed(() => {
   const pages = [];
-  for (let i = 1; i <= totalPages.value; i++) {
-    pages.push({ type: 'page', value: i });
+  for (let i = 1; i <= pageTotal.value; i++) {
+    pages.push(i);
   }
   return pages;
 });
 
-const handlePageChange = (newPage: number) => {
-  if (newPage > 0 && newPage <= totalPages.value) {
-    currentPage.value = newPage;
-  }
+const visiblePaginationItems = computed(() => {
+  const start = Math.max(1, currentPage.value - 1);
+  const end = Math.min(pageTotal.value, currentPage.value + 1);
+  return paginationItems.value.slice(start - 1, end);
+});
+
+
+const handlePageChange = (page: number) => {
+  load('', page)
 };
 </script>
 
@@ -191,7 +188,7 @@ const handlePageChange = (newPage: number) => {
     <div v-if="errors" class="text-[#02072199] p-10">
       <p>{{ errors }}</p>
     </div>
-    <div v-else-if="paginatedUsers.length">
+    <div v-else-if="sortUsers.length">
       <Table class="lg:w-full w-[800px]">
         <TableHeader>
           <TableRow
@@ -206,7 +203,7 @@ const handlePageChange = (newPage: number) => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          <TableRow v-for="user in paginatedUsers" :key="user._id">
+          <TableRow v-for="user in sortUsers" :key="user._id">
             <TableCell class="text-xs md:text-sm lg:text-sm">{{ user.userName }} </TableCell>
             <TableCell class="text-xs md:text-sm lg:text-sm"
               >{{ user.firstName }} {{ user.middleName }} {{ user.lastName }}</TableCell
@@ -249,22 +246,21 @@ const handlePageChange = (newPage: number) => {
     </div>
   </div>
   <div class="flex gap-2 max-w-full flex-wrap justify-end mt-8 mr-4 items-center text-[15px]">
-  <Pagination :total="totalPages" :sibling-count="1" show-edges :default-page="1" @change="handlePageChange">
+  <Pagination :total="pageTotal" :sibling-count="1" show-edges :default-page="1" @change="handlePageChange">
     <PaginationList class="flex items-center gap-1">
       <PaginationFirst @click="handlePageChange(1)" />
-      <PaginationPrev @click="handlePageChange(Math.max(currentPage - 1, 1))" />
+      <PaginationPrev @click="handlePageChange(pageCurrent - 1)" />
       
-      <template v-for="(item, index) in paginationItems" :key="index">
-        <PaginationListItem v-if="item.type === 'page'" :value="item.value" as-child>
-          <Button class="w-10 h-10 p-0" :variant="item.value === currentPage ? 'default' : 'outline'" @click="handlePageChange(item.value)">
-            {{ item.value }}
+      <template v-for="(item, index) in visiblePaginationItems" :key="index">
+        <PaginationListItem :value="index" as-child>
+          <Button class="w-10 h-10 p-0" :variant="item === currentPage ? 'default' : 'outline'" @click="handlePageChange(item)" >
+            {{ item }}
           </Button>
         </PaginationListItem>
-        <PaginationEllipsis v-else :index="index" />
       </template>
       
-      <PaginationNext @click="handlePageChange(Math.min(currentPage + 1, totalPages))" />
-      <PaginationLast @click="handlePageChange(totalPages)" />
+      <PaginationNext @click="handlePageChange(pageCurrent + 1)" />
+      <PaginationLast @click="handlePageChange(pageTotal)" />
     </PaginationList>
   </Pagination>
   </div>
