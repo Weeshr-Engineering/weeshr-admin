@@ -30,6 +30,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+// import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 
 const route = useRoute();
 const id = route.params.Id;
@@ -39,6 +40,9 @@ const user = ref<any>({})
 const dobFormat = ref('')
 const loading = ref(false)
 const adminListStore = useAdminListStore()
+const roleLoading = ref(false)
+const roles = ref<any[]>([])
+const defaultRole = ref<any[]>([])
 
 // Define a function to fetch users data
 const fetchUsersData = async (msg: string) => {
@@ -63,15 +67,17 @@ const fetchUsersData = async (msg: string) => {
     )
 
     if (response.status === 200 || response.status === 201) {
-      // useGeneralStore().setLoadingToFalse()
-      
       // Update the users data with the response
+      console.log(response.data.data)
       const responseData = response.data.data[0]
       const phoneData = response.data.data[0].phoneNumber.normalizedNumber
       dobFormat.value = formatDate(response.data.data[0].dob)
       const data = {...responseData, phone:phoneData}
       // fill user data with response data
       user.value = data
+      defaultRole.value  = await getAllIds(responseData.roles)
+      console.log(defaultRole.value)
+      // console.log(user.value)
       adminListStore.setAdminStatus(responseData.disabled)
       // Show success toast
       toast({
@@ -107,6 +113,11 @@ const fetchUsersData = async (msg: string) => {
     }
   }
 } // Call the fetchUsersData function when the component is mounted
+
+// Function to get all _id values
+const getAllIds = async (roles: any[]) => {
+  return roles.map(role => role._id);
+}
 
 function formatDate(inputDate: string) {
     const months = [
@@ -157,9 +168,110 @@ axios.request(config)
 
 }
 
+const getRoles = async ()=>{
+  try {
+    const response = await axios.get(
+      'https://api.staging.weeshr.com/api/v1/admin/roles',
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    )
+
+    // Check if response status is 200 or 201
+    if (response.status === 200 || response.status === 201) {
+      // Show success toast
+      toast({
+        title: 'Success',
+        description: `Roles fetched successfully.`,
+        variant: 'success'
+      })
+      // console.log(response.data.data.data)
+      roles.value = response.data.data.data.reverse()
+      // fetchUsersData()
+    }
+  } catch (err: any) {
+    // adminListStore.loadingControl(false)
+    if (err.response.data.code === 401) {
+      toast({
+        title: 'Unauthorized',
+        description: 'You are not authorized to perform this action. Redirecting to home page...',
+        variant: 'destructive'
+      })
+      // Redirect after 3 seconds
+    } else {
+      toast({
+        title: err.response.data.message || 'An error occurred',
+        variant: 'destructive'
+      })
+    }
+    // Handle other errors
+  }
+}
+
+const updateRole = async (roleId: string)=>{
+  roleLoading.value = true
+  console.log(roleId)
+  const adminRole = await modifyArrayValue(defaultRole.value, roleId)
+  let data = JSON.stringify({
+  "roles": adminRole
+});
+
+
+console.log(data)
+let config = {
+  method: 'patch',
+  maxBodyLength: Infinity,
+  url: `https://api.staging.weeshr.com/api/v1/admin/administrator/${id}/roles`,
+  headers: { 
+    'Content-Type': 'application/json', 
+    'Authorization': `Bearer ${token}`
+  },
+  data : data
+};
+
+axios.request(config)
+.then((response) => {
+  console.log(JSON.stringify(response.data));
+  toast({
+        title: 'Success',
+        description: `${user.value.firstName}' s role is updated...'`,
+        variant: 'success'
+      })
+})
+.catch((error) => {
+  console.log(error);
+  toast({
+        title: error.response.data.message || 'An error occurred',
+        variant: 'destructive'
+      })
+      fetchUsersData('')
+});
+roleLoading.value = false
+}
+
+const modifyArrayValue= async (arr: any[], value: string)=> {
+    const index = arr.indexOf(value);
+    if (index !== -1) {
+        // Value is present, remove it
+        arr.splice(index, 1);
+    } else {
+        // Value is not present, add it
+        arr.push(value);
+    }
+    return arr;
+}
+
+// const containsTargetId: boolean = (role: any, val: string)=>{
+//   role.some((obj: any) =>
+//   Object.values(obj).some((innerObj: any) => innerObj._id === val)
+// );
+// }
 // fetch data on mount
 onMounted(() => {
   fetchUsersData('data fetched')
+  getRoles()
 })
 
 const contactFormSchema = toTypedSchema(z.object({
@@ -187,14 +299,7 @@ const contactFormSchema = toTypedSchema(z.object({
 }))
 
 const { handleSubmit: contactForm } = useForm({
-  validationSchema: contactFormSchema,
-  // initialValues: {
-  //   'firstName': user.value.firstName,
-  //   'lastName': user.value.lastName,
-  //   'gender': user.value.gender,
-  //   'email': user.value.email,
-  //   'phone':  user.value.phoneNumber.phoneNumber,
-  // }
+  validationSchema: contactFormSchema
 })
 
 // console.log(contactForm((values)=>{return values}))
@@ -212,10 +317,11 @@ const onSubmit = contactForm((values) => {
       })
   }
 })
-// const handleChange = ()=>{
-//   console.log('it changed')
-// }
 
+
+// function getAllIds(roles: any): any[] | PromiseLike<any[]> {
+//   throw new Error('Function not implemented.')
+// } 
 </script>
 <template>
   <div class="container lg:px-0 mx-auto">
@@ -519,13 +625,40 @@ const onSubmit = contactForm((values) => {
       </Card>
 
       <div class="my-9 lg:px-6 lg:w-4/5">
-        <Tabs default-value="activity" class="space-y-1">
+        <Tabs default-value="role" class="space-y-1">
           <TabsList
           class="border-[#DEDFE8] bg-transparent lg:w-[560px] lg:flex lg:justify-between px-0 lg:px-6 md:px-6 py-2"
           >
+            <TabsTrigger value="role"> Role Permissions </TabsTrigger>
             <TabsTrigger value="activity" disabled> Activity log </TabsTrigger>
           </TabsList>
-         
+          <TabsContent value="role">
+            <Card>
+              <CardHeader>
+                <CardTitle>Role Permissions</CardTitle>
+                <CardDescription class="fle justify-between items-center">
+                  <div>Assign roles to {{user.firstName}}</div>
+                  <Loader2 v-if="roleLoading" class="w-4 h-4 mr-2 text-black animate-spin" />
+                </CardDescription>
+              </CardHeader>
+              <CardContent class="flex items-center justify-between px-2 sm:px-6 py-4 max-h-16" v-for="(role, id) in roles" :key=id>
+                <div class="flex items-center gap-4">
+                      <div class="inline-block bg-[#373B4D] text-[#F8F9FF] rounded-full px-3 py-2 text-sm">
+                      {{role.name[0]}}{{ (role.name)[role.name.length-1].toUpperCase() }}
+                      </div>
+                      <p class="text-sm text-muted-foreground text-center text-[#000000]">
+                        {{ role.name}}
+                      </p>
+                </div>
+                <div class="hidden md:inline-block">
+                    {{ role.description }}
+                </div>
+                <div class="flex items-center gap-4">
+                  <Switch @click="()=>updateRole(role._id)" :checked="defaultRole.includes(role._id) ? true : false"/>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
         </Tabs>
       </div>
     </div>

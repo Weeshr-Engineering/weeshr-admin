@@ -1,6 +1,44 @@
 import { defineStore } from "pinia";
 import axios from "axios";
 import { toast } from '@/components/ui/toast'
+import router from '@/router'
+const token = sessionStorage.getItem('token') || ''
+
+interface PhoneNumber {
+  countryCode: string;
+  phoneNumber: string;
+  normalizedNumber: string;
+  _id: string;
+}
+
+interface Role {
+  [key: string]: any; // Assuming the structure of Role is dynamic
+}
+
+interface adminProfile {
+    avatar: string | null;
+    disabled: boolean;
+    dob: string;
+    email: string;
+    firstName: string;
+    gender: string;
+    lastName: string;
+    middleName: string | null;
+    phoneNumber: PhoneNumber;
+    roles: Role[];
+    _id: string
+  }
+
+  interface AdminListStore {
+    users: adminProfile[],
+    adminStatus: boolean, //single admin id gotten from admin details page
+    sheetOpen: boolean,
+    loading: boolean,
+    currentPage: number,
+    totalpage: any[],
+    detailLoading: boolean,
+    totalPages: number
+}
 
 export const useAdminListStore = defineStore({
     id: 'admin-list',
@@ -9,11 +47,135 @@ export const useAdminListStore = defineStore({
         adminStatus: true,
         sheetOpen: false,
         loading: false,
-        currentpage: 1,
+        currentPage: 1,
         totalpage: [],
-        detailLoading: false
+        detailLoading: false,
+        totalPages: 1
     }),
     actions: {
+        async fetchUsersData (){
+            toast({
+              title: 'Loading Data',
+              description: 'Fetching data...',
+              duration: 0 // Set duration to 0 to make it indefinite until manually closed
+            })
+          
+            // useGeneralStore().setLoading(true)
+            try {
+              // Set loading to true
+          
+              const response = await axios.get(
+                'https://api.staging.weeshr.com/api/v1/admin/administrators?per_page=200',
+                {
+                  headers: {
+                    Authorization: `Bearer ${token}`
+                  }
+                }
+              )
+          
+              if (response.status === 200 || response.status === 201) {
+                // Show success toast
+                toast({
+                  title: 'Success',
+                  description: `data fetched`,
+                  variant: 'success'
+                })
+          
+                console.log(response.data)
+              }
+          
+              // Update the users data with the response
+              const data = response.data.data.data
+              this.users = data.reverse()
+              // adminListStore.setUsers(data.reverse())
+          
+              // set page data
+            //   this.perPage= response.data.data.perPage
+              this.currentPage = response.data.data.currentPage
+              this.totalPages = response.data.data.totalPages
+              
+              // close loading screen
+              // useGeneralStore().setLoading(false)
+            } catch (error: any) {
+              if (error.response.status === 401) {
+                sessionStorage.removeItem('token')
+                // Clear token from superAdminStore
+                // superAdminStore.setToken('')
+          
+                setTimeout(() => {
+                  router.push({ name: 'home' })
+                }, 3000)
+          
+                toast({
+                  title: 'Unauthorized',
+                  description: 'You are not authorized to perform this action. Redirecting to home page...',
+                  variant: 'destructive'
+                })
+                // Redirect after 3 seconds
+              } else {
+                toast({
+                  title: error.response.data.message || 'An error occurred',
+                  variant: 'destructive'
+                })
+              }
+            }
+          },
+          // Save user data to the /administrator endpoint
+        async saveUserData (user: any){
+            // adminListStore.loadingControl(true)
+            try {
+            const response = await axios.post(
+                'https://api.staging.weeshr.com/api/v1/admin/administrator',
+                user,
+                {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+                }
+            )
+        
+            // Check if response status is 200 or 201
+            if (response.status === 200 || response.status === 201) {
+                // Show success toast
+                toast({
+                title: 'Success',
+                description: `${user.firstName} User profile created successfully.`,
+                variant: 'success'
+                })
+                this.fetchUsersData()
+            }
+            // Handle success
+            } catch (err: any) {
+            //   adminListStore.loadingControl(false)
+            if (err.response.data.code === 401) {
+                sessionStorage.removeItem('token')
+                // Clear token from superAdminStore
+                // superAdminStore.setToken('')
+        
+                setTimeout(() => {
+                router.push({ name: 'super-admin-login' })
+                }, 3000)
+        
+                toast({
+                title: 'Unauthorized',
+                description: 'You are not authorized to perform this action. Redirecting to home page...',
+                variant: 'destructive'
+                })
+                // Redirect after 3 seconds
+            } else {
+                toast({
+                title: err.response.data.message || 'An error occurred',
+                variant: 'destructive'
+                })
+            }
+            // Handle other errors
+            }
+        },
+        handlePageChange(newPage: number) {
+            if (newPage > 0 && newPage <= this.totalPages) {
+              this.currentPage = newPage;
+            }
+          },
         sheetControl(value : boolean){
             if(value){
                 this.sheetOpen = value
@@ -83,13 +245,3 @@ export const useAdminListStore = defineStore({
           }
     }
 })
-
-interface AdminListStore {
-    users: any[],
-    adminStatus: boolean, //single admin id gotten from admin details page
-    sheetOpen: boolean,
-    loading: boolean,
-    currentpage: number,
-    totalpage: any[],
-    detailLoading: boolean
-}

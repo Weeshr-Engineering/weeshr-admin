@@ -1,212 +1,3 @@
-<script setup lang="ts">
-import { Switch } from '@/components/ui/switch'
-import { Card, CardContent } from '@/components/ui/card'
-import { Icon } from '@iconify/vue'
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetDescription,
-  SheetTrigger
-} from '@/components/ui/sheet'
-import { Button } from "@/components/ui/button"
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
-
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import MainNav from '@/components/MainNav.vue'
-import DashboardFooter from '@/components/DashboardFooter.vue'
-import { ref, onMounted } from 'vue'
-import { useConfigStore } from '@/stores/config-details/config-detail'
-import { toTypedSchema } from '@vee-validate/zod'
-import { Form, Field, ErrorMessage } from 'vee-validate';
-
-import * as z from 'zod'
-import {
-  Table,
-  TableRow,
-  TableBody,
-  TableCell,
-  TableHead
-} from '@/components/ui/table'
-
-import axios from "axios";
-import { toast } from '@/components/ui/toast'
-import router from '@/router'
-
-const token = sessionStorage.getItem('token') || ''
-
-
-const schema = toTypedSchema(
-  z.object({
-    roleName: z.string().nonempty('Please add a Name'),
-    description: z.string().nonempty('Add description'),
-    permissionList: z.array(z.string()),
-  })
-)
-
-const deleteRole = async (id:string)=>{
-  await useConfigStore().deleteRole(id)
-  getRoles()
-}
-const onSubmit=async (values:any)=> {
-  console.log(JSON.stringify(values, null, 2));
-  const data = JSON.stringify({
-    'name': values.roleName,
-    'description': values.description,
-    'permissions': values.permissionList
-  })
-  await useConfigStore().createRole(data)
-  getRoles()
-}
-
-
-
-const editSchema = toTypedSchema(
-  z.object({
-    name: z.string().nonempty('Please add a Name').optional(),
-    permissionArr: z.array(z.string()).nonempty('Select at least one permission').optional(),
-  })
-)
-
-const roles = ref<any[]>([])
-const permissions = ref<any[]>([])
-const allPermissions = ref<any[]>([])
-const rolePermissions = ref<any[]>([])
-const roleName = ref('')
-const modified = ref(false)
-
-const handleRolePermissions=(arr: any[], name: string)=>{
-  modified.value = false
-  rolePermissions.value = arr
-  roleName.value = name
-}
-
-const getRoles = async()=>{
-            toast({
-                title: 'Loading Data',
-                description: 'Fetching data...',
-                duration: 0 // Set duration to 0 to make it indefinite until manually closed
-              })  
-              try {
-                const response = await axios.get(
-                  `https://api.staging.weeshr.com/api/v1/admin/roles`,
-                  {
-                    headers: {
-                      Authorization: `Bearer ${token}`
-                    }
-                  }
-                )
-            
-                if (response.status === 200 || response.status === 201) {
-                  toast({
-                    title: 'Success',
-                    description: `Gotten data`,
-                    variant: 'success'
-                  })
-                }
-                
-                roles.value= response.data.data.data.reverse()
-                console.log(roles.value)
-                // set Loading to false
-    
-              } catch (error: any) {
-                if (error.response.status === 401) {
-                  // sessionStorage.removeItem('token')
-
-                  setTimeout(() => {
-                    router.push({ name: 'home' })
-                  }, 3000)
-            
-                  toast({
-                    title: 'Unauthorized',
-                    description: 'You are not authorized to perform this action. Redirecting to home page...',
-                    variant: 'destructive'
-                  })
-                  // Redirect after 3 seconds
-                } else {
-                  toast({
-                    title: error.response.data.message || 'An error occurred',
-                    variant: 'destructive'
-                  })
-                }
-              }
-        }
-const onEdit= async (values:any)=> {
-  let arr: any[]
-  let name: string
-
-  if(values.permissionArr){
-    const combinedArray = [...rolePermissions.value, ...values.permissionArr];
-    modified.value = true
-  
-  // Use a Set to ensure all elements are unique
-  arr = [...new Set(combinedArray)];
-  }else{
-    arr = rolePermissions.value
-  }
-  // console.log(arr)
-  if(values.name){
-    name = values.name
-  }else{
-    name = roleName.value
-  }
-  if(name == roleName.value && modified.value == false){
-    console.log(arr)
-    toast({
-      title: 'No edit found',
-      description: 'You have to make a change first',
-      variant: 'destructive'
-    })
-  }else{
-    const data = JSON.stringify({
-    'name': name,
-    'permissions': arr
-  })
-  console.log(data)
-  useConfigStore().updateRole(data)
-  getRoles()
-  }
-}
-
-const handleChecked = (val: string)=>{
-  // console.log(val)
-  const index = rolePermissions.value.indexOf(val);
-  
-  if (index === -1) {
-    // If the string is not found, add it to the array
-    rolePermissions.value.push(val);
-  } else {
-    // If the string is found, remove it from the array
-    rolePermissions.value.splice(index, 1);
-  }
-  modified.value = true
-}
-
-const sheetCLose = ref(true)
-
-const handleSheet = ()=>{
-    sheetCLose.value = !sheetCLose.value
-}
-
-onMounted(async()=>{
-    getRoles()
-    const data = await useConfigStore().getPermissions()
-    allPermissions.value = await useConfigStore().allPermissions()
-    permissions.value = data
-})
-</script>
-
 <template>
     <div class="w-full">
         <MainNav class="mx-6" headingText="Role Manager" />
@@ -460,3 +251,211 @@ onMounted(async()=>{
         <DashboardFooter/>
     </div>
 </template>
+
+<script setup lang="ts">
+import { Switch } from '@/components/ui/switch'
+import { Card, CardContent } from '@/components/ui/card'
+import { Icon } from '@iconify/vue'
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetDescription,
+  SheetTrigger
+} from '@/components/ui/sheet'
+import { Button } from "@/components/ui/button"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
+
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import MainNav from '@/components/MainNav.vue'
+import DashboardFooter from '@/components/DashboardFooter.vue'
+import { ref, onMounted, computed } from 'vue'
+import { useRoleStore } from '@/stores/config-details/roleManager'
+import { toTypedSchema } from '@vee-validate/zod'
+import { Form, Field, ErrorMessage } from 'vee-validate';
+import * as z from 'zod'
+import {
+  Table,
+  TableRow,
+  TableBody,
+  TableCell,
+  TableHead
+} from '@/components/ui/table'
+
+import axios from "axios";
+import { toast } from '@/components/ui/toast'
+import router from '@/router'
+
+const token = sessionStorage.getItem('token') || ''
+
+
+const schema = toTypedSchema(
+  z.object({
+    roleName: z.string().nonempty('Please add a Name'),
+    description: z.string().nonempty('Add description'),
+    permissionList: z.array(z.string()),
+  })
+)
+
+const deleteRole = async (id:string)=>{
+  await useRoleStore().deleteRole(id)
+  getRoles()
+}
+const onSubmit=async (values:any)=> {
+  console.log(JSON.stringify(values, null, 2));
+  const data = JSON.stringify({
+    'name': values.roleName,
+    'description': values.description,
+    'permissions': values.permissionList
+  })
+  await useRoleStore().createRole(data)
+  getRoles()
+}
+
+
+
+const editSchema = toTypedSchema(
+  z.object({
+    name: z.string().nonempty('Please add a Name').optional(),
+    permissionArr: z.array(z.string()).nonempty('Select at least one permission').optional(),
+  })
+)
+
+const roles = ref<any[]>([])
+const permissions = ref<any[]>([])
+const allPermissions = ref<any[]>([])
+const rolePermissions = ref<any[]>([])
+const roleName = ref('')
+const modified = ref(false)
+
+const handleRolePermissions=(arr: any[], name: string)=>{
+  modified.value = false
+  rolePermissions.value = arr
+  roleName.value = name
+}
+
+const getRoles = async()=>{
+    toast({
+        title: 'Loading Data',
+        description: 'Fetching data...',
+        duration: 0 // Set duration to 0 to make it indefinite until manually closed
+      })  
+      try {
+        const response = await axios.get(
+          `https://api.staging.weeshr.com/api/v1/admin/roles`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          }
+        )
+    
+        if (response.status === 200 || response.status === 201) {
+          toast({
+            title: 'Success',
+            description: `Gotten data`,
+            variant: 'success'
+          })
+        }
+        roles.value= response.data.data.data.reverse()
+        console.log(roles.value)
+        // set Loading to false
+
+      } catch (error: any) {
+        if (error.response.status === 401) {
+          // sessionStorage.removeItem('token')
+
+          setTimeout(() => {
+            router.push({ name: 'home' })
+          }, 3000)
+    
+          toast({
+            title: 'Unauthorized',
+            description: 'You are not authorized to perform this action. Redirecting to home page...',
+            variant: 'destructive'
+          })
+          // Redirect after 3 seconds
+        } else {
+          toast({
+            title: error.response.data.message || 'An error occurred',
+            variant: 'destructive'
+          })
+        }
+      }
+}
+const onEdit= async (values:any)=> {
+  let arr: any[]
+  let name: string
+
+  if(values.permissionArr){
+    const combinedArray = [...rolePermissions.value, ...values.permissionArr];
+    modified.value = true
+  
+  // Use a Set to ensure all elements are unique
+  arr = [...new Set(combinedArray)];
+  }else{
+    arr = rolePermissions.value
+  }
+  // console.log(arr)
+  if(values.name){
+    name = values.name
+  }else{
+    name = roleName.value
+  }
+  if(name == roleName.value && modified.value == false){
+    console.log(arr)
+    toast({
+      title: 'No edit found',
+      description: 'You have to make a change first',
+      variant: 'destructive'
+    })
+  }else{
+    const data = JSON.stringify({
+    'name': name,
+    'permissions': arr
+  })
+  console.log(data)
+  useRoleStore().updateRole(data)
+  getRoles()
+  }
+}
+
+const handleChecked = (val: string)=>{
+  // console.log(val)
+  const index = rolePermissions.value.indexOf(val);
+  
+  if (index === -1) {
+    // If the string is not found, add it to the array
+    rolePermissions.value.push(val);
+  } else {
+    // If the string is found, remove it from the array
+    rolePermissions.value.splice(index, 1);
+  }
+  modified.value = true
+}
+
+const sheetCLose = ref(true)
+
+const handleSheet = ()=>{
+    sheetCLose.value = !sheetCLose.value
+}
+
+
+onMounted(async()=>{
+    getRoles()
+    const data = await useRoleStore().getPermissions()
+    allPermissions.value = await useRoleStore().allPermissions()
+    permissions.value = data
+})
+</script>
