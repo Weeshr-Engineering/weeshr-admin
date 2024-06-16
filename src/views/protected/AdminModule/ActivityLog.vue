@@ -114,17 +114,22 @@
                   <Icon :icon="sortOrder === 'desc' ? 'fluent:chevron-down-20-regular' : 'fluent:chevron-up-20-regular'" class="ml-1" />
                 </div>
               </TableHead>
-              <TableHead class="text-sm">User</TableHead>
-              <TableHead class="text-sm">Email</TableHead>
-              <TableHead class="text-sm">Action</TableHead>
-              <TableHead class="text-sm">Status</TableHead>
-              <TableHead class="text-sm">Description</TableHead>
-              <TableHead></TableHead>
+              <TableHead class="text-left">User</TableHead>
+              <TableHead class="text-left">Email</TableHead>
+              <TableHead class="text-left">Action</TableHead>
+              <TableHead class="text-left">Status</TableHead>
+              <TableHead class="text-left">Description</TableHead>
+              <TableHead></TableHead>  
             </TableRow>
           </TableHeader>
+
           <TableBody>
-            <TableRow v-for="log in paginatedLogs" :key="log.id" @click="openModal(log)">
-              <TableCell class="text-xs md:text-sm lg:text-xs"> {{ new Date(log.timestamp).toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }) }}</TableCell>
+            <TableRow
+              v-for="log in paginatedLogs"
+              :key="log.id"
+             
+            >
+              <TableCell class="text-xs md:text-sm lg:text-xs">{{ new Date(log.timestamp).toLocaleString() }}</TableCell>
               <TableCell class="text-xs md:text-sm lg:text-xs">{{ log.user.extras.lastName + ' ' + log.user.extras.firstName }}</TableCell>
               <TableCell class="text-xs md:text-sm lg:text-xs">{{ log.user.extras.email }}</TableCell>
               <TableCell class="text-xs md:text-sm lg:text-xs">{{ log.action }}</TableCell>
@@ -134,22 +139,26 @@
                 </div>
               </TableCell>
               <TableCell class="text-xs md:text-sm lg:text-xs min-w-full">{{ log.description }}</TableCell>
+              <TableCell @click="openModal(log)"><Icon icon="uil:angle-right" class="ml-1" width="25" height="25"
+                  /> 
+                
+              </TableCell>
             </TableRow>
           </TableBody>
         </Table>
       </div>
-
       <ModalComponent
-        v-if="selectedLog"
-        :show="isModalVisible"
-        :action="selectedLog.action"
-        :resource="selectedLog.resource"
-        :metadata="selectedLog.metadata"
-        @close="isModalVisible = false"
-      />
-      <div class="flex gap-2 max-w-full flex-wrap justify-end mt-8 mr-4 items-center text-[15px]">
-        <Pagination :total="totalPages" :sibling-count="1" show-edges :default-page="1" @change="handlePageChange">
-          <PaginationList class="flex items-center gap-1">
+      v-if="selectedLog"
+      :action="selectedLog.action"
+                    :resource="selectedLog.resource"
+                    :metadata="selectedLog.metadata"
+                    :show="isModalVisible"
+                    @close="isModalVisible = false"
+                    />
+        
+    <div class="flex gap-2 max-w-full flex-wrap justify-end mt-8 mr-4 items-center text-[15px]">
+      <Pagination :total="totalPages" :sibling-count="1" show-edges :default-page="1" @change="handlePageChange">
+        <PaginationList class="flex items-center gap-1">
             <PaginationFirst @click="handlePageChange(1)" />
             <PaginationPrev @click="handlePageChange(Math.max(currentPage - 1, 1))" />
             <template v-for="(item, index) in paginationItems" :key="index">
@@ -158,17 +167,22 @@
                   {{ item.value }}
                 </Button>
               </PaginationListItem>
-              <PaginationEllipsis v-else :index="index" />
+            <PaginationEllipsis v-else :index="index" />
             </template>
             <PaginationNext @click="handlePageChange(Math.min(currentPage + 1, totalPages))" />
             <PaginationLast @click="handlePageChange(totalPages)" />
-          </PaginationList>
-        </Pagination>
-      </div>
+        </PaginationList>
+      </Pagination>
+        </div>
+      
     </Card>
+
+    
     <DashboardFooter />
+    
   </div>
 </template>
+
 
 <script setup lang="ts">
 import { ref, onMounted, watch, computed } from 'vue';
@@ -208,6 +222,7 @@ import {
   PaginationNext,
   PaginationPrev,
 } from '@/components/ui/pagination';
+
 import Search from '@/components/UseSearch.vue';
 
 interface UserExtras {
@@ -246,7 +261,7 @@ const logs = ref<ActivityLogItem[]>(store.logs);
 const loading = ref(store.loading);
 const error = ref(store.error);
 
-const perPage = 100;
+const perPage = 10;
 const currentPage = ref(1);
 const totalLogs = computed(() => logs.value.length);
 const totalPages = computed(() => Math.ceil(totalLogs.value / perPage));
@@ -263,6 +278,7 @@ const sortedLogs = computed(() => {
     return sortOrder.value === 'desc' ? dateB - dateA : dateA - dateB;
   });
 });
+
 
 const filteredLogs = computed(() => {
   return sortedLogs.value.filter((log) => {
@@ -342,29 +358,9 @@ const openModal = (log: ActivityLogItem) => {
   selectedLog.value = log;
   isModalVisible.value = true;
 };
-
-const actionTypes = computed<string[]>(() => {
-  const actions = new Set<string>();
-  logs.value.forEach((log) => {
-    actions.add(log.action);
-  });
-  return Array.from(actions);
-});
-
-const statusTypes = computed<string[]>(() => {
-  const statuses = new Set<string>();
-  logs.value.forEach((log) => {
-    statuses.add(log.status);
-  });
-  return Array.from(statuses);
-});
-
-const userTypes = computed<string[]>(() => {
-  const userTypes = new Set<string>();
-  logs.value.forEach((log) => {
-    userTypes.add(log.user.type);
-  });
-  return Array.from(userTypes);
-});
+const actionTypes = computed<string[]>(() => store.filters.log_action);
+const statusTypes = computed<string[]>(() => store.filters.log_status);
+const userTypes = computed<string[]>(() => store.filters.log_user_types);
 </script>
+
 

@@ -1,5 +1,5 @@
 <template>
-  <div v-if="show" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+  <div v-if="show" class=" fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-75">
     <div class="bg-white rounded-lg shadow-lg p-6 max-w-[700px] mx-auto">
       <div class="flex justify-between items-center pb-3 border-b">
         <p class="text-xl font-bold">{{ action }} Details</p>
@@ -21,9 +21,11 @@
   </div>
 </template>
 
+
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import {ref, computed } from 'vue';
 import { Icon } from '@iconify/vue';
+
 
 interface Resource {
   [key: string]: unknown;
@@ -38,6 +40,7 @@ const props = defineProps<{
   action: string;
   resource: Resource;
   metadata: Metadata;
+ 
 }>();
 
 const emit = defineEmits(['close']);

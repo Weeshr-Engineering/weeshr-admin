@@ -35,9 +35,12 @@ interface ActivityLogState {
   logs: ActivityLogItem[];
   loading: boolean;
   error: string | null;
-  actionTypes: string[];
-  statusTypes: string[];
-  userTypes: string[];
+  filters: {
+    log_action: [],
+    log_status: [],
+    log_user_types: [],
+    sort_direction: ['asc', 'desc'],
+  }
 }
 
 export const useActivityLogStore = defineStore('activityLog', {
@@ -45,9 +48,12 @@ export const useActivityLogStore = defineStore('activityLog', {
     logs: [],
     loading: false,
     error: null,
-    actionTypes: [],
-    statusTypes: [],
-    userTypes: [],
+    filters: {
+      log_action: [],
+      log_status: [],
+      log_user_types: [],
+      sort_direction: ['asc', 'desc'],
+    }
   }),
   actions: {
     async fetchActivityLogs() {
@@ -92,10 +98,10 @@ export const useActivityLogStore = defineStore('activityLog', {
         );
 
         if (response.status === 200) {
-          const { actionTypes, statusTypes, userTypes } = response.data.data;
-          this.actionTypes = actionTypes;
-          this.statusTypes = statusTypes;
-          this.userTypes = userTypes;
+          const data = response.data.data.filters;
+        this.filters.log_action = data.log_action;
+        this.filters.log_status = data.log_status;
+        this.filters.log_user_types = data.log_user_types;
         } else {
           this.error = response.data.message;
         }
