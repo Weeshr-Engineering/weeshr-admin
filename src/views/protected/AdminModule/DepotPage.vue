@@ -69,7 +69,7 @@
       >
         <div class="h-[130px] pt-4 relative rounded-tr-[24px] rounded-tl-[24px]">
           <CardContent class="flex items-center justify-between space-y-0">
-            <p class="text-l font-medium text-[#ffffff]">Delieved</p>
+            <p class="text-l font-medium text-[#ffffff]">Delivered</p>
             <div class="weeshr-icon2 rounded-[7px]">
               <Icon icon="heroicons:bars-3" width="24px" height="24px" color="#00C37F" />
             </div>
