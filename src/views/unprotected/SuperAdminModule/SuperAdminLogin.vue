@@ -14,7 +14,26 @@ import { toast } from '@/components/ui/toast'
 import router from '@/router'
 import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
 import axios from 'axios'
+// import { ability } from '@/lib/ability'
+// import { useAbilityStore } from '@/stores/permissions/permission-store'
 
+// import { useAbilityStore } from '@/stores/permissions/permission-store'
+// const ability = useAbilityStore().ability
+// const updateAbility = useAbilityStore().updateAbility
+
+
+// console.log(ability.can('rea', 'Post') )// true)
+// console.log(ability.can('delete', 'Post')) // true)
+// setTimeout(()=>{
+//   // ability.update({'delete': 'Post'})
+//   // ability.update([]);
+//   ability.update([ // switch to readonly mode
+//   { action: 'rea', subject: 'Post' }
+// ]);
+//   setTimeout(()=>{
+//     console.log(ability.can('rea', 'Post') )// true)
+//   }, 3000)
+// }, 3000)
 const currentYear = ref(new Date().getFullYear())
 
 const updateYear = () => {
@@ -109,7 +128,11 @@ const onSubmit = form.handleSubmit(async () => {
         superAdminStore.setuserEmail(userEmail)
         // Save the token in Pinia store
         superAdminStore.setToken(token)
-
+        localStorage.setItem('permissions', JSON.stringify(response.data.data.user.permissions))
+        // const permissions = modPermissions(response.data.data.user.permissions)
+        // ability.update(permissions)
+        // updateAbility(permissions)
+        // useAbilityStore().permissions = permissions
 
         // Save the token in sessionStorage
 

@@ -55,7 +55,13 @@ import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
 import { useCreateUserStore } from '@/stores/create-user/create-user'
 // import { useGeneralStore } from '@/stores/general-use'
 import { useAdminListStore } from '@/stores/admin-list/admin-list'
+import { ability, defineAbilities } from '@/lib/ability'
 
+defineAbilities()
+// console.log(ability.can('create', 'admins') )// true)
+// console.log(ability.can('delete', 'admins') )// true)
+// console.log(ability.can('update', 'admins') )// true)
+// console.log(ability.can('read', 'admins') )// true)
 const formSchema = toTypedSchema(
   z.object({
     firstName: z
@@ -230,7 +236,7 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
     <div class="px-10 py-10 ml-auto">
       <Sheet :close="sheetOpen">
         <SheetTrigger as-child>
-          <button @click="adminListStore.sheetControl(true)" class="bg-[#020721] px-4 py-2 rounded-xl w-50 h-12">
+          <button v-if="ability.can('create', 'admins')" @click="adminListStore.sheetControl(true)" class="bg-[#020721] px-4 py-2 rounded-xl w-50 h-12">
             <div class="text-base text-[#F8F9FF] text-center flex items-center">
               Add New Admin
               <svg
@@ -486,7 +492,7 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
                       >Dashboard</span>
                 </div>
               </TableCell>
-              <TableCell>
+              <TableCell v-if="ability.can('read', 'admins')">
                 <router-link :to="`/admindetails/${user._id}`">
                   <svg
                     width="20"

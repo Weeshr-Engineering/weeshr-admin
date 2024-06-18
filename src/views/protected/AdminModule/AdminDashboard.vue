@@ -5,7 +5,11 @@ import DashboardFooter from '@/components/DashboardFooter.vue'
 import { Card, CardContent } from '@/components/ui/card'
 import { useUserhubStore } from '@/stores/userhub-details/userhub-details'
 import usersTable from '@/components/usersTable.vue'
+import { ability } from '@/lib/ability'
+import { defineAbilities } from '@/lib/ability'
 
+
+defineAbilities()
 const userHubStore = useUserhubStore() 
 
 onMounted(() => {

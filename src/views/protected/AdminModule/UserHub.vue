@@ -5,9 +5,20 @@ import { useUserhubStore } from '@/stores/userhub-details/userhub-details'
 import MainNav from '@/components/MainNav.vue'
 import DashboardFooter from '@/components/DashboardFooter.vue'
 import UserhubSkeleton from '@/components/UserhubSkeleton.vue'
+import { ability, defineAbilities } from '@/lib/ability'
+import { toast } from '@/components/ui/toast'
 
+defineAbilities()
 const userHubStore = useUserhubStore()
-
+const verifyPermission = (action: string, subject: string)=>{
+  if(!ability.can(action, subject)){
+    toast({
+        title: 'You do not have READ access',
+        // description: ``,
+        variant: 'destructive'
+      })
+  }
+}
 onMounted(() => {
   const userHubStore = useUserhubStore()
   userHubStore.getUsersNumber()
@@ -74,9 +85,10 @@ onMounted(() => {
 
       <Card
         class="rounded-xl bg-[#89cff0ee] h-[450px] shadow-md transition-transform transform hover:scale-105 mb-5"
+        @click="verifyPermission('read', 'admins')"
       >
         <span v-if="userHubStore.loading" class="flex flex-col justify-between h-full">
-          <RouterLink to="/user/admin" class="flex flex-col h-full">
+          <RouterLink :to="ability.can('read', 'admins') ? '/user/admin' : ''" class="flex flex-col h-full">
             <CardHeader class="flex flex-col items-center justify-center flex-grow">
               <img
                 class="mb-2"

@@ -30,8 +30,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-// import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import { ability, defineAbilities } from '@/lib/ability'
 
+defineAbilities()
 const route = useRoute();
 const id = route.params.Id;
 const superAdminStore = useSuperAdminStore()
@@ -68,7 +69,7 @@ const fetchUsersData = async (msg: string) => {
 
     if (response.status === 200 || response.status === 201) {
       // Update the users data with the response
-      console.log(response.data.data)
+      // console.log(response.data.data)
       const responseData = response.data.data[0]
       const phoneData = response.data.data[0].phoneNumber.normalizedNumber
       dobFormat.value = formatDate(response.data.data[0].dob)
@@ -76,7 +77,7 @@ const fetchUsersData = async (msg: string) => {
       // fill user data with response data
       user.value = data
       defaultRole.value  = await getAllIds(responseData.roles)
-      console.log(defaultRole.value)
+      // console.log(defaultRole.value)
       // console.log(user.value)
       adminListStore.setAdminStatus(responseData.disabled)
       // Show success toast
@@ -342,7 +343,7 @@ const onSubmit = contactForm((values) => {
               <span class="font-semibold text-base text-[#020721]">Identity</span>
               
                 <Popover>
-                  <PopoverTrigger>
+                  <PopoverTrigger v-if="ability.can('update', 'admins')">
                     <div class="flex">
                       <img
                         class="max-w-[18.05px] max-h-[24px]"
@@ -484,7 +485,7 @@ const onSubmit = contactForm((values) => {
               <span class="font-semibold text-base text-[#020721]">Contact</span>
                 
                 <Popover>
-                  <PopoverTrigger>
+                  <PopoverTrigger v-if="ability.can('update', 'admins')">
                     <div class="flex">
                       <img
                         class="max-w-[18.05px] max-h-[24px]"
@@ -641,22 +642,23 @@ const onSubmit = contactForm((values) => {
                   <Loader2 v-if="roleLoading" class="w-4 h-4 mr-2 text-black animate-spin" />
                 </CardDescription>
               </CardHeader>
-              <CardContent class="flex items-center justify-between px-2 sm:px-6 py-4 max-h-16" v-for="(role, id) in roles" :key=id>
-                <div class="flex items-center gap-4">
-                      <div class="inline-block bg-[#373B4D] text-[#F8F9FF] rounded-full px-3 py-2 text-sm">
-                      {{role.name[0]}}{{ (role.name)[role.name.length-1].toUpperCase() }}
-                      </div>
-                      <p class="text-sm text-muted-foreground text-center text-[#000000]">
-                        {{ role.name}}
-                      </p>
-                </div>
-                <div class="hidden md:inline-block">
-                    {{ role.description }}
-                </div>
-                <div class="flex items-center gap-4">
-                  <Switch @click="()=>updateRole(role._id)" :checked="defaultRole.includes(role._id) ? true : false"/>
-                </div>
-              </CardContent>
+              <!-- <span v-if="ability.can('update', 'admins')"> -->
+                <CardContent class="flex items-center justify-between px-2 sm:px-6 py-4 max-h-16" v-for="(role, id) in roles" :key=id>
+                  <div class="flex items-center gap-4">
+                        <div class="inline-block bg-[#373B4D] text-[#F8F9FF] rounded-full px-3 py-2 text-sm">
+                        {{role.name[0]}}{{ (role.name)[role.name.length-1].toUpperCase() }}
+                        </div>
+                        <p class="text-sm text-muted-foreground text-center text-[#000000]">
+                          {{ role.name}}
+                        </p>
+                  </div>
+                  <div class="hidden md:inline-block">
+                      {{ role.description }}
+                  </div>
+                  <div class="flex items-center gap-4">
+                    <Switch @click="()=>updateRole(role._id)" :checked="defaultRole.includes(role._id) ? true : false" :disabled="!ability.can('update', 'admins')"/>
+                  </div>
+                </CardContent>
             </Card>
           </TabsContent>
         </Tabs>
