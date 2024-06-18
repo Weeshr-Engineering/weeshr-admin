@@ -1,9 +1,10 @@
 import { createMongoAbility } from '@casl/ability';
 
-const permissions = JSON.parse(localStorage.getItem('permissions')!)
+// const permissions = JSON.parse(localStorage.getItem('permissions') || "[]")
 
 export const ability = createMongoAbility()
 export const defineAbilities = ()=> {
+    const permissions = JSON.parse(sessionStorage.getItem('permissions') || "[]")
     if(permissions !== ''){
         const data = modPermissions(permissions)
         ability.update(data)

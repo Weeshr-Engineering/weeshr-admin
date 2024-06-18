@@ -2,7 +2,6 @@ import { defineStore } from "pinia";
 import axios from "axios";
 import { toast } from '@/components/ui/toast'
 import router from '@/router'
-const token = sessionStorage.getItem('token') || ''
 
 interface PhoneNumber {
   countryCode: string;
@@ -54,6 +53,7 @@ export const useAdminListStore = defineStore({
     }),
     actions: {
         async fetchUsersData (){
+            const token = sessionStorage.getItem('token') || ''
             toast({
               title: 'Loading Data',
               description: 'Fetching data...',
@@ -122,6 +122,7 @@ export const useAdminListStore = defineStore({
           },
           // Save user data to the /administrator endpoint
         async saveUserData (user: any){
+            const token = sessionStorage.getItem('token') || ''
             // adminListStore.loadingControl(true)
             try {
             const response = await axios.post(
