@@ -263,7 +263,8 @@ const error = ref(store.error);
 
 const perPage = 10;
 const currentPage = ref(1);
-const totalLogs = computed(() => logs.value.length);
+
+const totalLogs = computed(() => filteredLogs.value.length);
 const totalPages = computed(() => Math.ceil(totalLogs.value / perPage));
 
 const sortOrder = ref<'asc' | 'desc'>('desc');
@@ -288,6 +289,7 @@ const filteredLogs = computed(() => {
     return actionMatch && statusMatch && userTypeMatch;
   });
 });
+
 
 const paginatedLogs = computed(() => {
   const start = (currentPage.value - 1) * perPage;
