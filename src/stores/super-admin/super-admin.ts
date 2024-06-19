@@ -79,7 +79,6 @@ export const useSuperAdminStore = defineStore({
         useGeneralStore().setLoading(false)
 
         router.push({ name: 'superAdmin-login' })
-        location.reload()
       } catch (error: any) {
         useGeneralStore().setLoading(false)
 
