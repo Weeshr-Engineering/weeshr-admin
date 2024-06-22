@@ -130,6 +130,7 @@ const onSubmit = form.handleSubmit(async () => {
         superAdminStore.setToken(token)
         sessionStorage.setItem('permissions', JSON.stringify(response.data.data.user.permissions))
         console.log(response.data)
+        sessionStorage.setItem('id_', JSON.stringify(response.data.data.user._id))
         // const permissions = modPermissions(response.data.data.user.permissions)
         // ability.update(permissions)
         // updateAbility(permissions)

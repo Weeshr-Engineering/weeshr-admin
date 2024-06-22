@@ -1,10 +1,21 @@
 import { createMongoAbility } from '@casl/ability';
+import axios from 'axios'
 
 // const permissions = JSON.parse(localStorage.getItem('permissions') || "[]")
 
 export const ability = createMongoAbility()
-export const defineAbilities = ()=> {
-    const permissions = JSON.parse(sessionStorage.getItem('permissions') || "[]")
+export const defineAbilities = async ()=> {
+    const token= sessionStorage.getItem('token') || ''
+    // const permissions = JSON.parse(sessionStorage.getItem('permissions') || "[]")
+    const data = await axios.get('https://api.staging.weeshr.com/api/v1/admin/profile', {
+        headers: {
+          Authorization: `Bearer ${token}` // Include token in the Authorization header
+        }
+      })
+      console.log(data)
+      
+    const permissions = data.data.data.permissions
+    console.log(permissions)
     if(permissions !== ''){
         const data = modPermissions(permissions)
         ability.update(data)

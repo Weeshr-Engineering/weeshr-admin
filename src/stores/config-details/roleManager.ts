@@ -3,7 +3,7 @@ import axios from "axios";
 import { toast } from '@/components/ui/toast'
 import router from '@/router'
 
-const token = sessionStorage.getItem('token') || ''
+// const token = sessionStorage.getItem('token') || ''
 
 export const useRoleStore = defineStore({
     id: 'admin-list',
@@ -13,6 +13,7 @@ export const useRoleStore = defineStore({
     }),
     actions: {
         async createRole (data: any){
+          const token = sessionStorage.getItem('token') || ''
             toast({
                 title: 'Loading Data',
                 description: 'Fetching data...',
@@ -62,7 +63,8 @@ export const useRoleStore = defineStore({
               });
         },
         updateRole (data: any, id='656ffd8156c96f7cf43b0441'){
-            toast({
+          const token = sessionStorage.getItem('token') || ''  
+          toast({
                 title: 'Loading Data',
                 description: 'Fetching data...',
                 duration: 0 // Set duration to 0 to make it indefinite until manually closed
@@ -127,6 +129,7 @@ export const useRoleStore = defineStore({
               });            
         },
         async deleteRole(id: string){
+          const token = sessionStorage.getItem('token') || ''
             toast({
                 title: 'Deleting Data',
                 description: 'Deleting data...',
@@ -175,6 +178,7 @@ export const useRoleStore = defineStore({
               });
         },
         async getPermissions (){
+          const token = sessionStorage.getItem('token') || ''
           toast({
               title: 'Loading Data',
               description: 'Fetching data...',
@@ -224,6 +228,7 @@ export const useRoleStore = defineStore({
             }
       },
       async allPermissions (){
+        const token = sessionStorage.getItem('token') || ''
         toast({
             title: 'Loading Data',
             description: 'Fetching data...',
@@ -273,6 +278,7 @@ export const useRoleStore = defineStore({
           }
     },
         async getWeesheCategories (){
+          const token = sessionStorage.getItem('token') || ''
           toast({
             title: 'Loading Data',
             description: 'Fetching data...',
