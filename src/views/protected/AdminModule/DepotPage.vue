@@ -74,9 +74,10 @@
               <Icon icon="heroicons:bars-3" width="24px" height="24px" color="#00C37F" />
             </div>
 
-            <p class="text-2xl lg:text-3xl font-medium text-[#ffffff] absolute bottom-2 left-5">
-              19
-            </p>
+            <div class="text-2xl lg:text-3xl font-medium text-[#ffffff] absolute bottom-2 left-5">
+              <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" />
+              <p v-if="!loading" >{{ deliveredCount }}</p>
+            </div>
           </CardContent>
         </div>
         <div
@@ -94,9 +95,10 @@
               <Icon icon="heroicons:bars-3" width="24px" height="24px" color="#EE9F39" />
             </div>
 
-            <p class="text-2xl lg:text-3xl font-medium text-[#ffffff] absolute bottom-2 left-5">
-              27
-            </p>
+            <div class="text-2xl lg:text-3xl font-medium text-[#ffffff] absolute bottom-2 left-5">
+              <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" />
+              <p v-if="!loading" >{{ outboundCount }}</p>
+            </div>
           </CardContent>
         </div>
         <div
@@ -114,9 +116,10 @@
               <Icon icon="heroicons:bars-3" width="24px" height="24px" color="#E45044" />
             </div>
 
-            <p class="text-2xl lg:text-3xl font-medium text-[#ffffff] absolute bottom-2 left-5">
-              10
-            </p>
+            <div class="text-2xl lg:text-3xl font-medium text-[#ffffff] absolute bottom-2 left-5">
+              <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" />
+              <p v-if="!loading" >{{ pendingCount }}</p>
+            </div>
           </CardContent>
         </div>
         <div
@@ -225,6 +228,9 @@ import DashboardFooter from '@/components/DashboardFooter.vue'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Icon } from '@iconify/vue'
+import { useWeeshStore } from '@/stores/weeshes/weeshes-count'
+import { Loader2 } from 'lucide-vue-next'
+
 
 import {
   Table,
@@ -234,6 +240,7 @@ import {
   TableCell,
   TableHead
 } from '@/components/ui/table'
+import { storeToRefs } from 'pinia'
 
 // Define a ref to hold the users data
 // const users = ref([]);
@@ -332,6 +339,11 @@ const statusBg = (status: string) => {
       return ''
   }
 }
+
+const weeshStore = useWeeshStore()
+const { deliveredCount, outboundCount, pendingCount, loading } = storeToRefs(weeshStore)
+
+weeshStore.getWeeshesCount()
 </script>
 
 <style scoped>
