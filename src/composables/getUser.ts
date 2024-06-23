@@ -8,8 +8,7 @@ interface User {
   lastName: string
   userName: string
   phoneNumber: {
-    countryCode: string
-    phoneNumber: string
+    normalizedNumber: string
   }
   dob: string
   gender: string

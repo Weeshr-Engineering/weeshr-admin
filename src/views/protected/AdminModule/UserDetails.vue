@@ -403,7 +403,9 @@ const handlePageChange = (page: number, index: number) => {
               class="flex justify-between lg:mx-4 px-4 shadow-md md:px-6 py-2 my-2 rounded-full border"
             >
               <p class="text-[#02072199] text-xs md:text-sm lg:text-sm">Phone</p>
-              <p class="text-xs md:text-sm text-[#020721]">+234 818 100 8221</p>
+              <p class="text-xs md:text-sm text-[#020721]">
+                {{ appUser.phoneNumber.normalizedNumber }}
+              </p>
             </div>
 
             <div
@@ -445,10 +447,6 @@ const handlePageChange = (page: number, index: number) => {
                   {{ appUser.emailVerified ? 'Verified' : 'Unverified' }}
                 </p>
               </div>
-            </div>
-            <div class="rounded-xl flex ml-auto me-6 my-10 border w-min px-4 py-2">
-              <Icon icon="lucide:edit" width="17" height="17" class="me-2" />
-              Edit
             </div>
           </div>
           <div v-else class="text-[#02072199] p-10">
