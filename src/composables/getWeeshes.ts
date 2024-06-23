@@ -30,23 +30,52 @@ const getWeeshes = () => {
   const currentPage = ref(0)
   const token = sessionStorage.getItem('token') || ''
   const { toast } = useToast()
+  const base = `https://api.staging.weeshr.com/api/v1/admin/weeshes?per_page=20&`
 
-  const loadWeeshes = async () => {
+  const loadWeeshes = async (option?: string | number) => {
+    const url = () => {
+      const statusOptions = new Set([
+        'INITIATED',
+        'ADDED',
+        'OUTBOUND',
+        'PENDING',
+        'DELIVERED',
+        'FULFILLED'
+      ])
+
+      const fulfillmentStatusOptions = new Set([
+        'PURCHASE ELIGIBLE',
+        'COST ABOVE PRICE',
+        'OUT OF STOCK',
+        'PROCURRED',
+        'UNATTENDED'
+      ])
+
+      if (typeof option === 'string') {
+        if (statusOptions.has(option)) {
+          return base + `status=${option}`
+        } else if (fulfillmentStatusOptions.has(option)) {
+          return base + `fulfillment_status=${option}`
+        } else {
+          return base + `search=${option}`
+        }
+      } else if (typeof option === 'number') {
+        return base + `page=${option}`
+      }
+      return base
+    }
     try {
       toast({
         description: 'Loading....'
       })
-      const response = await axios.get(
-        `https://api.staging.weeshr.com/api/v1/admin/weeshes?search`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
+
+      const response = await axios.get(url(), {
+        headers: {
+          Authorization: `Bearer ${token}`
         }
-      )
+      })
 
       if (response.data.code === 200) {
-        console.log(response.data)
         weeshes.value = response.data.data.data
         totalPages.value = response.data.data.totalPages
         currentPage.value = response.data.data.currentPage

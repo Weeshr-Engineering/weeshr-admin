@@ -84,7 +84,7 @@
           Weeshes
           <p class="text-xs sm:text-sm font-normal text-[#02072199]">List of users Weeshr</p>
         </div>
-        <!-- <div class="items-center grid grid-cols-3 md:grid-cols-4 gap-2 flex-row">
+        <div class="items-center grid grid-cols-3 md:grid-cols-4 gap-2 flex-row">
           <DropdownMenu>
             <DropdownMenuTrigger as-child class="rounded-2xl bg-[#EEEFF5]">
               <Button variant="outline">
@@ -142,16 +142,21 @@
               </DropdownMenuCheckboxItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button variant="outline" class="rounded-2xl bg-[#EEEFF5]">
-            <div class="flex items-center text-[10px] md:text-xs">Price</div>
-          </Button>
-          <Button variant="outline" class="rounded-2xl bg-[#EEEFF5] col-span-3 md:col-span-1">
+          <Button
+            variant="outline"
+            class="rounded-2xl bg-[#EEEFF5] col-span-3 md:col-span-1"
+            @click="
+              () => {
+                loadWeeshes()
+              }
+            "
+          >
             <div class="flex items-center text-[10px] md:text-xs">
               <Icon icon="tdesign:clear" width="15" height="15" class="me-2" />
               Clear Filter
             </div>
           </Button>
-        </div> -->
+        </div>
         <Search class="mt-3 lg:mt-0" v-model="search" />
       </div>
 
@@ -196,7 +201,7 @@
                 <TableCell class="text-xs md:text-sm lg:text-sm"
                   >{{ weesh.currency.code }} {{ weesh.price.genieGratuity }}</TableCell
                 >
-                <TableCell class="flex">
+                <TableCell class="flex items-center mt-4">
                   <div
                     :class="statusBg(weesh.status)"
                     class="rounded-[10px] w-fit px-2 py-0.5 text-white text-sm capitalize me-2"
@@ -205,7 +210,7 @@
                   </div>
                   <div
                     v-if="weesh.fulfilledStatus"
-                    :class="statusBg(weesh.fulfilledStatus)"
+                    :class="fulfillmentStatusBg(weesh.fulfilledStatus)"
                     class="rounded-[10px] w-fit px-2 py-0.5 text-white text-sm capitalize"
                   >
                     {{ weesh.fulfilledStatus.toLocaleLowerCase() }}
@@ -240,7 +245,7 @@
           <p>No user data available</p>
         </div>
       </div>
-      <div class="flex gap-2 max-w-full flex-wrap justify-end mt-8 mr-4 items-center text-[15px]">
+      <div class="flex gap-2 w-full flex-wrap justify-end mt-8 mr-4 items-center text-[15px]">
         <Pagination
           :total="pageTotal"
           :sibling-count="1"
@@ -249,9 +254,22 @@
           @change="handlePageChange"
         >
           <PaginationList class="flex items-center gap-1">
-            <PaginationFirst @click="() => handlePageChange(1)" />
-            <PaginationPrev @click="() => handlePageChange(pageCurrent - 1)" />
-
+            <Button
+              class="w-10 h-10 p-0"
+              variant="outline"
+              @click="handlePageChange(1)"
+              :disabled="pageCurrent == 1"
+            >
+              <Icon icon="heroicons:chevron-double-left-20-solid" />
+            </Button>
+            <Button
+              class="w-10 h-10 p-0"
+              variant="outline"
+              @click="() => handlePageChange(pageCurrent - 1)"
+              :disabled="pageCurrent == 1"
+            >
+              <Icon icon="heroicons:chevron-left-20-solid" />
+            </Button>
             <template v-for="(item, index) in visiblePaginationItems" :key="index">
               <PaginationListItem :value="index" as-child>
                 <Button
@@ -264,10 +282,25 @@
               </PaginationListItem>
             </template>
 
-            <PaginationNext @click="() => handlePageChange(pageCurrent + 1)" />
-            <PaginationLast @click="() => handlePageChange(pageTotal)" />
+            <Button
+              class="w-10 h-10 p-0"
+              variant="outline"
+              @click="() => handlePageChange(pageCurrent + 1)"
+              :disabled="pageCurrent === pageTotal"
+            >
+              <Icon icon="heroicons:chevron-right-20-solid" />
+            </Button>
+            <Button
+              class="w-10 h-10 p-0"
+              variant="outline"
+              @click="() => handlePageChange(pageTotal)"
+              :disabled="pageCurrent === pageTotal"
+            >
+              <Icon icon="heroicons:chevron-double-right-20-solid" />
+            </Button>
           </PaginationList>
         </Pagination>
+        <p>Showing {{ currentPage }} of {{ pageTotal }} page(s)</p>
       </div>
     </Card>
     <DashboardFooter />
@@ -293,22 +326,14 @@ import {
   TableHead
 } from '@/components/ui/table'
 
-// import {
-//   DropdownMenu,
-//   DropdownMenuContent,
-//   DropdownMenuCheckboxItem,
-//   DropdownMenuTrigger
-// } from '@/components/ui/dropdown-menu'
-
 import {
-  Pagination,
-  PaginationFirst,
-  PaginationLast,
-  PaginationList,
-  PaginationListItem,
-  PaginationNext,
-  PaginationPrev
-} from '@/components/ui/pagination'
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuCheckboxItem,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu'
+
+import { Pagination, PaginationList, PaginationListItem } from '@/components/ui/pagination'
 import { storeToRefs } from 'pinia'
 import { Loader2 } from 'lucide-vue-next'
 import getWeeshes from '@/composables/getWeeshes'
@@ -329,7 +354,7 @@ const statusBg = (status: string) => {
       return 'bg-[#4287f5]'
   }
 }
-const FulfilmentStatusBg = (status: string) => {
+const fulfillmentStatusBg = (status: string) => {
   switch (status) {
     case 'PURCHASE ELIGIBLE':
       return 'bg-[#fc045c]'
@@ -345,10 +370,10 @@ const FulfilmentStatusBg = (status: string) => {
 }
 
 const weeshStore = useWeeshStore()
+weeshStore.getWeeshesCount()
+
 const { addedCount, initiatedCount, fufilledCount, deliveredCount, loading } =
   storeToRefs(weeshStore)
-
-weeshStore.getWeeshesCount()
 
 const { weeshes, error, totalPages, currentPage, loadWeeshes } = getWeeshes()
 
@@ -357,18 +382,18 @@ loadWeeshes()
 //search
 const search = ref('')
 
-// watch(search, () => {
-//   loadWeeshes(search.value, '')
-// })
+watch(search, () => {
+  loadWeeshes(search.value)
+})
 
-// //filter
-// const handleStatus = (status: string) => {
-//   loadWeeshes('', status)
-// }
+//filter
+const handleStatus = (status: string) => {
+  loadWeeshes(status)
+}
 
-// const handleFulfilment = (stats: string) => {
-//   loadWeeshes('', stats)
-// }
+const handleFulfilment = (stats: string) => {
+  loadWeeshes(stats)
+}
 
 //pagination
 const pageTotal = ref(totalPages)
@@ -383,12 +408,25 @@ const paginationItems = computed(() => {
 })
 
 const visiblePaginationItems = computed(() => {
-  const start = Math.max(1, currentPage.value - 1)
-  const end = Math.min(pageTotal.value, currentPage.value + 1)
-  return paginationItems.value.slice(start - 1, end)
+  const totalItems = paginationItems.value.length
+  const currentPage = pageCurrent.value
+  if (totalItems <= 3) {
+    return paginationItems.value
+  } else {
+    let start = Math.max(1, currentPage - 1)
+    let end = Math.min(totalItems, currentPage + 1)
+
+    if (currentPage === 1 && totalItems > 3) {
+      end = Math.min(totalItems, 3)
+    }
+
+    return paginationItems.value.slice(start - 1, end)
+  }
 })
 
-const handlePageChange = (page: number) => {}
+const handlePageChange = (page: number) => {
+  loadWeeshes(page)
+}
 </script>
 
 <style scoped>
