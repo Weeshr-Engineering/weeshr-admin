@@ -5,8 +5,17 @@ import DashboardFooter from '@/components/DashboardFooter.vue'
 import { Card, CardContent } from '@/components/ui/card'
 import { useUserhubStore } from '@/stores/userhub-details/userhub-details'
 import usersTable from '@/components/usersTable.vue'
+import { useWeeshStore } from '@/stores/weeshes/weeshes-count'
+import { storeToRefs } from 'pinia'
+
+
 
 const userHubStore = useUserhubStore() 
+const weeshStore = useWeeshStore()
+
+const { addedCount } = storeToRefs(weeshStore)
+
+weeshStore.getWeeshesCount()
 
 onMounted(() => {
   userHubStore.getUsersNumber()  
@@ -28,7 +37,7 @@ onMounted(() => {
                       alt="gradient"
                     />
       
-                    <p class="text-2xl lg:text-2xl font-medium text-[#020721] absolute bottom-2 left-5">1,648,975,865</p>
+                    <p class="text-2xl lg:text-2xl font-medium text-[#020721] absolute bottom-2 left-5">{{ addedCount }}</p>
                   </CardContent>
             </div>
             <div class="bg-[#020721] pt-2 h-[80px] rounded-bl-[24px] rounded-br-[24px]">
