@@ -2,78 +2,74 @@
   <div class="flex-col flex bg-[#f0f8ff] h-full px-4 sm:px-10 pb-10">
     <MainNav class="mx-6" headingText="Weeshes" />
     <div class="w-full grid gap-4 md:grid-cols-2 md:gap-6 lg:grid-cols-4">
-      <RouterLink to="/weeshes/fulfullied">
-        <Card
-          class="h-[150px] rounded-[24px] transition-transform transform hover:scale-105 bg-[#FFFFFF] cardShadow1 border-transparent"
-        >
-          <div class="h-[130px] pt-4 relative rounded-tr-[24px] rounded-tl-[24px]">
-            <CardContent class="flex items-center justify-between space-y-0">
-              <p class="text-l font-medium text-[#020721]">Added</p>
-              <div class="weeshr-icon rounded-[7px]">
-                <Icon icon="mdi:plus" width="24px" height="24px" color="#ffffff" />
-              </div>
-              <div class="text-2xl lg:text-3xl font-medium text-[#020721] absolute bottom-2 left-5">
-                <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" />
-                <p v-if="!loading">{{ addedCount }}</p>
-              </div>
-            </CardContent>
-          </div>
-        </Card>
-      </RouterLink>
-      <RouterLink to="/weeshes/fulfullied">
-        <Card
-          class="h-[150px] rounded-[24px] transition-transform transform hover:scale-105 bg-[#EE9F39] cardShadow2 border-transparent"
-        >
-          <div class="h-[130px] pt-4 relative rounded-tr-[24px] rounded-tl-[24px]">
-            <CardContent class="flex items-center justify-between space-y-0">
-              <p class="text-l font-medium text-[#ffffff]">Initiated</p>
-              <div class="weeshr-icon2 rounded-[7px]">
-                <Icon icon="lets-icons:export" width="24px" height="24px" color="#ee9f39" />
-              </div>
-              <div class="text-2xl lg:text-3xl font-medium text-[#ffffff] absolute bottom-2 left-5">
-                <Loader2 v-if="loading" class="w-4 h-4 mr-2 animate-spin" />
-                <p v-if="!loading">{{ initiatedCount }}</p>
-              </div>
-            </CardContent>
-          </div>
-        </Card>
-      </RouterLink>
-      <RouterLink to="/weeshes/fulfullied">
-        <Card
-          class="h-[150px] rounded-[24px] transition-transform transform hover:scale-105 bg-[#6A70FF] cardShadow3 border-transparent"
-        >
-          <div class="h-[130px] pt-4 relative rounded-tr-[24px] rounded-tl-[24px]">
-            <CardContent class="flex items-center justify-between space-y-0">
-              <p class="text-l font-medium text-[#ffffff]">Fufilled</p>
-              <div class="weeshr-icon2 rounded-[7px]">
-                <Icon icon="lets-icons:import" width="24px" height="24px" color="#6a70ff" />
-              </div>
-              <div class="text-2xl lg:text-3xl font-medium text-[#ffffff] absolute bottom-2 left-5">
-                <Loader2 v-if="loading" class="w-4 h-4 mr-2 animate-spin" />
-                <p v-if="!loading">{{ fufilledCount }}</p>
-              </div>
-            </CardContent>
-          </div>
-        </Card>
-      </RouterLink>
-      <RouterLink to="/weeshes/fulfullied">
-        <Card
-          class="h-[150px] rounded-[24px] transition-transform transform hover:scale-105 bg-[#00C37F] cardShadow4 border-transparent"
-        >
-          <div class="h-[130px] pt-4 relative rounded-tr-[24px] rounded-tl-[24px]">
-            <CardContent class="flex items-center justify-between space-y-0">
-              <p class="text-l font-medium text-[#ffffff]">Delivered</p>
-              <div class="weeshr-icon2 rounded-[7px]">
-                <Icon icon="ic:outline-check" width="24px" height="24px" color="#00c37f" />
-              </div>
-              <div class="text-2xl lg:text-3xl font-medium text-[#ffffff] absolute bottom-2 left-5">
-                <Loader2 v-if="loading" class="w-4 h-4 mr-2 animate-spin" />
-                <p v-if="!loading">{{ deliveredCount }}</p>
-              </div>
-            </CardContent>
-          </div>
-        </Card>
-      </RouterLink>
+      <Card
+        class="h-[150px] rounded-[24px] transition-transform transform hover:scale-105 bg-[#FFFFFF] cardShadow1 border-transparent"
+        @click="() => handleStatus('ADDED')"
+      >
+        <div class="h-[130px] pt-4 relative rounded-tr-[24px] rounded-tl-[24px]">
+          <CardContent class="flex items-center justify-between space-y-0">
+            <p class="text-l font-medium text-[#020721]">Added</p>
+            <div class="weeshr-icon rounded-[7px]">
+              <Icon icon="mdi:plus" width="24px" height="24px" color="#ffffff" />
+            </div>
+            <div class="text-2xl lg:text-3xl font-medium text-[#020721] absolute bottom-2 left-5">
+              <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" />
+              <p v-if="!loading">{{ addedCount }}</p>
+            </div>
+          </CardContent>
+        </div>
+      </Card>
+      <Card
+        class="h-[150px] rounded-[24px] transition-transform transform hover:scale-105 bg-[#EE9F39] cardShadow2 border-transparent"
+        @click="() => handleStatus('INITIATED')"
+      >
+        <div class="h-[130px] pt-4 relative rounded-tr-[24px] rounded-tl-[24px]">
+          <CardContent class="flex items-center justify-between space-y-0">
+            <p class="text-l font-medium text-[#ffffff]">Initiated</p>
+            <div class="weeshr-icon2 rounded-[7px]">
+              <Icon icon="lets-icons:export" width="24px" height="24px" color="#ee9f39" />
+            </div>
+            <div class="text-2xl lg:text-3xl font-medium text-[#ffffff] absolute bottom-2 left-5">
+              <Loader2 v-if="loading" class="w-4 h-4 mr-2 animate-spin" />
+              <p v-if="!loading">{{ initiatedCount }}</p>
+            </div>
+          </CardContent>
+        </div>
+      </Card>
+      <Card
+        class="h-[150px] rounded-[24px] transition-transform transform hover:scale-105 bg-[#6A70FF] cardShadow3 border-transparent"
+        @click="() => handleStatus('FULFULLIED')"
+      >
+        <div class="h-[130px] pt-4 relative rounded-tr-[24px] rounded-tl-[24px]">
+          <CardContent class="flex items-center justify-between space-y-0">
+            <p class="text-l font-medium text-[#ffffff]">Fufilled</p>
+            <div class="weeshr-icon2 rounded-[7px]">
+              <Icon icon="lets-icons:import" width="24px" height="24px" color="#6a70ff" />
+            </div>
+            <div class="text-2xl lg:text-3xl font-medium text-[#ffffff] absolute bottom-2 left-5">
+              <Loader2 v-if="loading" class="w-4 h-4 mr-2 animate-spin" />
+              <p v-if="!loading">{{ fufilledCount }}</p>
+            </div>
+          </CardContent>
+        </div>
+      </Card>
+      <Card
+        class="h-[150px] rounded-[24px] transition-transform transform hover:scale-105 bg-[#00C37F] cardShadow4 border-transparent"
+        @click="() => handleStatus('DELIVERED')"
+      >
+        <div class="h-[130px] pt-4 relative rounded-tr-[24px] rounded-tl-[24px]">
+          <CardContent class="flex items-center justify-between space-y-0">
+            <p class="text-l font-medium text-[#ffffff]">Delivered</p>
+            <div class="weeshr-icon2 rounded-[7px]">
+              <Icon icon="ic:outline-check" width="24px" height="24px" color="#00c37f" />
+            </div>
+            <div class="text-2xl lg:text-3xl font-medium text-[#ffffff] absolute bottom-2 left-5">
+              <Loader2 v-if="loading" class="w-4 h-4 mr-2 animate-spin" />
+              <p v-if="!loading">{{ deliveredCount }}</p>
+            </div>
+          </CardContent>
+        </div>
+      </Card>
     </div>
 
     <Card
@@ -182,7 +178,6 @@
                 <TableHead>
                   <div class="flex items-center">Status</div>
                 </TableHead>
-                <TableHead></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -215,27 +210,6 @@
                   >
                     {{ weesh.fulfilledStatus.toLocaleLowerCase() }}
                   </div>
-                </TableCell>
-                <TableCell>
-                  <router-link :to="`/usersdetails/${weesh.user._id}`">
-                    <svg
-                      width="20"
-                      height="50"
-                      viewBox="0 0 20 50"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M7 31L12.5118 26.0606C13.1627 25.4773 13.1627 24.5227 12.5118 23.9394L7 19"
-                        stroke="#54586D"
-                        stroke-opacity="0.8"
-                        stroke-width="2"
-                        stroke-miterlimit="10"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      />
-                    </svg>
-                  </router-link>
                 </TableCell>
               </TableRow>
             </TableBody>
