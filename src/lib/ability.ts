@@ -1,28 +1,23 @@
 import { createMongoAbility } from '@casl/ability';
-import axios from 'axios'
-
-// const permissions = JSON.parse(localStorage.getItem('permissions') || "[]")
+import { toast } from '@/components/ui/toast'; 
 
 export const ability = createMongoAbility()
 export const defineAbilities = async ()=> {
-    const token= sessionStorage.getItem('token') || ''
-    // const permissions = JSON.parse(sessionStorage.getItem('permissions') || "[]")
-    const data = await axios.get('https://api.staging.weeshr.com/api/v1/admin/profile', {
-        headers: {
-          Authorization: `Bearer ${token}` // Include token in the Authorization header
-        }
-      })
-      console.log(data)
-      
-    const permissions = data.data.data.permissions
-    console.log(permissions)
+    const permissions = JSON.parse(sessionStorage.getItem('permissions') || "[]")
     if(permissions !== ''){
         const data = modPermissions(permissions)
         ability.update(data)
     }
     return
 }
-
+export const verifyAbilities = (action: string, subject: string)=>{
+    if(!ability.can(action, subject)){
+      toast({
+          title: `You do not have ${action.toUpperCase()} access to this feature`,
+          variant: 'destructive'
+        })
+    }
+}
 // modifies the permmissions array into a usable form
 const modPermissions = (array: any) =>{
     // Create an array to hold the resulting objects

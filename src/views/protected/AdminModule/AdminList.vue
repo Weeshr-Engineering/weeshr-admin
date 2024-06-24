@@ -51,17 +51,10 @@ import {
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { toast } from '@/components/ui/toast'
-import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
-import { useCreateUserStore } from '@/stores/create-user/create-user'
-// import { useGeneralStore } from '@/stores/general-use'
 import { useAdminListStore } from '@/stores/admin-list/admin-list'
 import { ability, defineAbilities } from '@/lib/ability'
 
 defineAbilities()
-// console.log(ability.can('create', 'admins') )// true)
-// console.log(ability.can('delete', 'admins') )// true)
-// console.log(ability.can('update', 'admins') )// true)
-// console.log(ability.can('read', 'admins') )// true)
 const formSchema = toTypedSchema(
   z.object({
     firstName: z
@@ -100,16 +93,11 @@ const newUser = ref({
 const adminListStore = useAdminListStore()
 const sheetOpen = adminListStore.sheetOpen
 const loading = ref(false)
-// const currentPage = ref(1)
-// const totalPage = ref<any[]>([])
-const superAdminStore = useSuperAdminStore()
-const createUserStore = useCreateUserStore()
 const token = sessionStorage.getItem('token') || ''
 
 const onSubmit = handleSubmit(async (values) => {
   adminListStore.loadingControl(true)
   loading.value = true
-// console.log(values)
   const user = {
     firstName: values.firstName,
     lastName: values.lastName,
@@ -152,7 +140,7 @@ const roles = ref<any[]>([])
 
 // define a ref to hold user status
 // const userStatus = ref<any>();
-const perPage = ref(0);
+// const perPage = ref(0);
 const currentPage = computed(()=>{
   return adminListStore.currentPage
 });

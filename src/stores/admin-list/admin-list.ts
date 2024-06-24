@@ -88,7 +88,7 @@ export const useAdminListStore = defineStore({
               const data = response.data.data.data
               this.users = data.reverse()
               // adminListStore.setUsers(data.reverse())
-          
+
               // set page data
             //   this.perPage= response.data.data.perPage
               this.currentPage = response.data.data.currentPage

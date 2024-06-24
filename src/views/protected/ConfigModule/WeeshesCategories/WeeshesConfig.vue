@@ -51,6 +51,9 @@ import {
 } from '@/components/ui/pagination';
 import router from '@/router'
 import { useWeeshConfigStore } from '@/stores/config-details/weeshConfig'
+import { ability, defineAbilities, verifyAbilities } from '@/lib/ability'
+
+defineAbilities()
 
 const store = useWeeshConfigStore()
 const loading = ref(false);
@@ -61,6 +64,7 @@ const active = computed(()=>{
 
 const currentCategory = ref('')
 const setCurrentCategory = (id: string)=>{
+  verifyAbilities('update', 'weesh-categories')
   currentCategory.value= id
   console.log(id)
 }
@@ -245,7 +249,7 @@ onMounted(async()=>{
         <MainNav class="mx-6" headingText="Weesh Categories" />
         <div class="px-10 py-10 ml-auto w-full flex justify-end">
             <Sheet>
-              <SheetTrigger as-child>
+              <SheetTrigger as-child @click="verifyAbilities('create', 'weesh-categories')">
                 <button class="bg-[#020721] px-4 py-2 rounded-xl w-50 h-12">
                   <div class="text-base text-[#F8F9FF] text-center flex items-center">
                     Add New
@@ -265,7 +269,7 @@ onMounted(async()=>{
                   </div>
                 </button>
               </SheetTrigger>
-              <SheetContent class="overflow-y-auto py-8">
+              <SheetContent class="overflow-y-auto py-8" v-if="ability.can('create', 'weesh-categories')">
                 <form class="space-y-4" @submit.prevent="onSubmit">
                 <div class="flex py-4 justify-between items-center">
                 <SheetHeader>
@@ -356,13 +360,13 @@ onMounted(async()=>{
                       </p>
                     </span>
                     <div class="flex items-center gap-4">
-                      <Switch :checked="!category.disabled" @click="store.handleSwitch(category._id, category.name, category.disabled)"/>
+                      <Switch :checked="!category.disabled" @click="store.handleSwitch(category._id, category.name, category.disabled)" :disabled="!ability.can('create', 'weesh-categories')"/>
                       
                       <Sheet>
                           <SheetTrigger>
                               <Icon @click="setCurrentCategory(category._id)" icon="mdi:edit" width="17" height="17" class="icons-sidebar border-2 border-gray-100" />
                           </SheetTrigger>
-                          <SheetContent class="overflow-y-auto py-8" side="right">
+                          <SheetContent class="overflow-y-auto py-8" side="right" v-if="ability.can('update', 'weesh-categories')">
                               <div class="flex py-4 justify-between items-center">
                                 <SheetHeader>
                                 <h3 class="text-2xl font-medium">EDIT {{category.name.toUpperCase()}} CATEGORY</h3>
@@ -411,10 +415,10 @@ onMounted(async()=>{
 
                       <AlertDialog>
                         <AlertDialogTrigger>
-                          <Icon icon="mdi:delete" width="17" height="17" class="icons-sidebar text-red-600" />
+                          <Icon icon="mdi:delete" width="17" height="17" class="icons-sidebar text-red-600" @click="verifyAbilities('delete', 'weesh-categories')"/>
                         </AlertDialogTrigger>
                         <div>
-                        <AlertDialogContent>
+                        <AlertDialogContent v-if="ability.can('delete', 'weesh-categories')">
                           <AlertDialogHeader>
                             <AlertDialogTitle>Are you absolutely sure you want to delete {{category.name}}?</AlertDialogTitle>
                             <AlertDialogDescription>

@@ -129,8 +129,7 @@ const onSubmit = form.handleSubmit(async () => {
         // Save the token in Pinia store
         superAdminStore.setToken(token)
         sessionStorage.setItem('permissions', JSON.stringify(response.data.data.user.permissions))
-        console.log(response.data)
-        sessionStorage.setItem('id_', JSON.stringify(response.data.data.user._id))
+        // console.log(response.data)
         // const permissions = modPermissions(response.data.data.user.permissions)
         // ability.update(permissions)
         // updateAbility(permissions)

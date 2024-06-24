@@ -33,11 +33,7 @@ export const useRoleStore = defineStore({
               axios.request(config)
               .then((response) => {
                 if (response.status === 200 || response.status === 201) {
-                  toast({
-                    title: 'Success',
-                    description: `A New Role Created`,
-                    variant: 'success'
-                  })
+                  this.getRoles('New Role Created')
                 }
               })
               .catch((error) => {
@@ -62,6 +58,56 @@ export const useRoleStore = defineStore({
                 }
               });
         },
+        async getRoles(msg: string){
+          const token = sessionStorage.getItem('token') || ''
+          toast({
+              title: 'Loading Data',
+              description: 'Fetching data...',
+              duration: 0 // Set duration to 0 to make it indefinite until manually closed
+            })  
+            try {
+              const response = await axios.get(
+                `https://api.staging.weeshr.com/api/v1/admin/roles`,
+                {
+                  headers: {
+                    Authorization: `Bearer ${token}`
+                  }
+                }
+              )
+          
+              if (response.status === 200 || response.status === 201) {
+                toast({
+                  title: 'Success',
+                  description: msg,
+                  variant: 'success'
+                })
+              }
+              this.roles= response.data.data.data.reverse()
+              console.log(this.roles)
+              // set Loading to false
+      
+            } catch (error: any) {
+              if (error.response.status === 401) {
+                // sessionStorage.removeItem('token')
+      
+                setTimeout(() => {
+                  router.push({ name: 'home' })
+                }, 3000)
+          
+                toast({
+                  title: 'Unauthorized',
+                  description: 'You are not authorized to perform this action. Redirecting to home page...',
+                  variant: 'destructive'
+                })
+                // Redirect after 3 seconds
+              } else {
+                toast({
+                  title: error.response.data.message || 'An error occurred',
+                  variant: 'destructive'
+                })
+              }
+            }
+      },
         updateRole (data: any, id='656ffd8156c96f7cf43b0441'){
           const token = sessionStorage.getItem('token') || ''  
           toast({
@@ -85,18 +131,13 @@ export const useRoleStore = defineStore({
               axios.request(config)
               .then((response) => {
                 console.log(JSON.stringify(response.data));
-                toast({
-                  title: 'Success',
-                  description: `Successful: Data Edited`,
-                  variant: 'success'
-                })
+                this.getRoles('Role Updated Successfully')
               })
               .catch((error) => {
                 console.log(error)
                 if(error.response.status == 422){
                   toast({
-                    title: 'Unmodified data',
-                    description: 'Modify the data before you try to update role',
+                    title: error.response.data.message,
                     variant: 'destructive'
                   })
                 }
@@ -149,11 +190,7 @@ export const useRoleStore = defineStore({
               axios.request(config)
               .then((response) => {
                 console.log(JSON.stringify(response.data));
-                toast({
-                  title: 'Success',
-                  description: `Successful: data deleted`,
-                  variant: 'success'
-                })
+                this.getRoles('Role Deleted Successfully')
               })
               .catch((error) => {
                 if (error.response.status === 401) {
@@ -202,6 +239,7 @@ export const useRoleStore = defineStore({
                 })
                 // console.log(response.data.data)
                 const data = response.data.data
+                this.permissions = response.data.data
                 return data
                 
               }

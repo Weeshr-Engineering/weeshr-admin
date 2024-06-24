@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
-import { onMounted } from 'vue'
 import MainNav from '@/components/MainNav.vue'
 import DashboardFooter from '@/components/DashboardFooter.vue'
+import { ability, defineAbilities, verifyAbilities } from '@/lib/ability';
+
+defineAbilities()
 </script>
 
 <template>
@@ -12,9 +14,10 @@ import DashboardFooter from '@/components/DashboardFooter.vue'
         <div class="w-full grid gap-7 md:grid-cols-2 lg:grid-cols-4 pt-6 p-8">
           <Card
             class="rounded-xl bg-[#C6F4EB] shadow-md transition-transform transform hover:scale-105 mb-5 h-[450px] flex flex-col justify-between"
+            @click="verifyAbilities('read', 'roles')"
           >
             <span class="flex flex-col justify-between h-full">
-              <RouterLink to="/config/role" class="flex flex-col h-full">
+              <RouterLink :to="ability.can('read', 'admins') ? '/config/role' : ''" class="flex flex-col h-full">
                 <CardHeader class="flex flex-col items-center justify-center flex-grow">
                   <img
                     class="mb-2"
@@ -39,9 +42,10 @@ import DashboardFooter from '@/components/DashboardFooter.vue'
     
           <Card
             class="rounded-xl bg-[#DCDEFF] h-[450px] shadow-md transition-transform transform hover:scale-105 mb-5"
+            @click="verifyAbilities('read', 'weesh-categories')"
           >
             <span class="flex flex-col justify-between h-full">
-              <RouterLink to="/config/weesh" class="flex flex-col h-full">
+              <RouterLink :to="ability.can('read', 'weesh-categories') ? '/config/weesh' : ''" class="flex flex-col h-full">
                 <CardHeader class="flex flex-col items-center justify-center flex-grow">
                   <img
                     class="mb-2"
