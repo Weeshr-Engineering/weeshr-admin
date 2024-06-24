@@ -30,7 +30,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { ability, defineAbilities } from '@/lib/ability'
+import { ability, defineAbilities, verifyAbilities } from '@/lib/ability'
 
 defineAbilities()
 const route = useRoute();
@@ -343,8 +343,8 @@ const onSubmit = contactForm((values) => {
               <span class="font-semibold text-base text-[#020721]">Identity</span>
               
                 <Popover>
-                  <PopoverTrigger v-if="ability.can('update', 'admins')">
-                    <div class="flex">
+                  <PopoverTrigger>
+                    <div class="flex" @click="verifyAbilities('update', 'admins')">
                       <img
                         class="max-w-[18.05px] max-h-[24px]"
                         src="https://res.cloudinary.com/dufimctfc/image/upload/v1714310908/edit-4-svgrepo-com_1_iy2nwu.svg"
@@ -355,7 +355,7 @@ const onSubmit = contactForm((values) => {
                       </span>
                     </div>
                   </PopoverTrigger>
-                  <PopoverContent>
+                  <PopoverContent v-if="ability.can('update', 'admins')">
                       <form class="space-y-8" @submit="onSubmit">
                         <FormField v-slot="{ componentField }" name="firstName">
                           <FormItem v-auto-animate>
@@ -485,8 +485,8 @@ const onSubmit = contactForm((values) => {
               <span class="font-semibold text-base text-[#020721]">Contact</span>
                 
                 <Popover>
-                  <PopoverTrigger v-if="ability.can('update', 'admins')">
-                    <div class="flex">
+                  <PopoverTrigger>
+                    <div class="flex" @click="verifyAbilities('update', 'admins')">
                       <img
                         class="max-w-[18.05px] max-h-[24px]"
                         src="https://res.cloudinary.com/dufimctfc/image/upload/v1714310908/edit-4-svgrepo-com_1_iy2nwu.svg"
@@ -497,7 +497,7 @@ const onSubmit = contactForm((values) => {
                       </span>
                   </div>
                   </PopoverTrigger>
-                  <PopoverContent>  
+                  <PopoverContent v-if="ability.can('update', 'admins')">  
                     <form class="space-y-4" @submit.prevent="onSubmit">
                       <div class="">
                         <h5 class='text-blue-900 text-sm font-medium mb-5'>Phone Number</h5>
@@ -617,6 +617,7 @@ const onSubmit = contactForm((values) => {
                 v-if="!adminListStore.detailLoading"
                 v-bind:checked="!adminListStore.adminStatus"
                 :onclick="()=>adminListStore.toggleStatus(user._id, adminListStore.adminStatus, user.firstName)"
+                :disabled="ability.can('update', 'admins')"
                 />
                 <Loader2 v-else class="w-4 h-4 mr-2 text-black animate-spin" />
               </CardContent>

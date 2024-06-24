@@ -52,7 +52,7 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/comp
 import { Input } from '@/components/ui/input'
 import { toast } from '@/components/ui/toast'
 import { useAdminListStore } from '@/stores/admin-list/admin-list'
-import { ability, defineAbilities } from '@/lib/ability'
+import { ability, defineAbilities, verifyAbilities } from '@/lib/ability'
 
 defineAbilities()
 const formSchema = toTypedSchema(
@@ -222,9 +222,9 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
   <div class="flex-col flex bg-[#f0f8ff] min-h-[400px] px-4 sm:px-10 pb-10">
     <MainNav class="mx-6" headingText="Admin List" />
     <div class="px-10 py-10 ml-auto">
-      <Sheet :close="sheetOpen">
+      <Sheet>
         <SheetTrigger as-child>
-          <button v-if="ability.can('create', 'admins')" @click="adminListStore.sheetControl(true)" class="bg-[#020721] px-4 py-2 rounded-xl w-50 h-12">
+          <button @click="verifyAbilities('create', 'admins')"  class="bg-[#020721] px-4 py-2 rounded-xl w-50 h-12">
             <div class="text-base text-[#F8F9FF] text-center flex items-center">
               Add New Admin
               <svg
@@ -243,7 +243,7 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
             </div>
           </button>
         </SheetTrigger>
-        <SheetContent class="overflow-y-auto">
+        <SheetContent class="overflow-y-auto" v-if="ability.can('create', 'admins')">
           <SheetHeader>
             <h3 class="text-2xl font-medium">Create User profile</h3>
             <SheetDescription>
