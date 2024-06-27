@@ -37,25 +37,7 @@ export const useRoleStore = defineStore({
                 }
               })
               .catch((error) => {
-                if (error.response.status === 401) {
-                  sessionStorage.removeItem('token')
-  
-                  setTimeout(() => {
-                    router.push({ name: 'home' })
-                  }, 3000)
-            
-                  toast({
-                    title: 'Unauthorized',
-                    description: 'You are not authorized to perform this action. Redirecting to home page...',
-                    variant: 'destructive'
-                  })
-                  // Redirect after 3 seconds
-                } else {
-                  toast({
-                    title: error.response.data.message || 'An error occurred',
-                    variant: 'destructive'
-                  })
-                }
+                this.catchErr(error)
               });
         },
         async getRoles(msg: string){
@@ -87,25 +69,7 @@ export const useRoleStore = defineStore({
               // set Loading to false
       
             } catch (error: any) {
-              if (error.response.status === 401) {
-                // sessionStorage.removeItem('token')
-      
-                setTimeout(() => {
-                  router.push({ name: 'home' })
-                }, 3000)
-          
-                toast({
-                  title: 'Unauthorized',
-                  description: 'You are not authorized to perform this action. Redirecting to home page...',
-                  variant: 'destructive'
-                })
-                // Redirect after 3 seconds
-              } else {
-                toast({
-                  title: error.response.data.message || 'An error occurred',
-                  variant: 'destructive'
-                })
-              }
+              this.catchErr(error)
             }
       },
         updateRole (data: any, id: string){
@@ -115,23 +79,6 @@ export const useRoleStore = defineStore({
                 description: 'Fetching data...',
                 duration: 0 // Set duration to 0 to make it indefinite until manually closed
               })
-              // data = JSON.stringify({
-              //   "name": "to__sdel",
-              //   "permissions": [
-              //     "create-roles",
-              //     "read-roles",
-              //     "update-roles",
-              //     "delete-roles",
-              //     "create-admins",
-              //     "read-admins",
-              //     "update-admins",
-              //     "delete-admins",
-              //     "create-weesh-categories",
-              //     "read-weesh-categories",
-              //     "update-weesh-categories",
-              //     "delete-weesh-categories"
-              //   ]
-              // });
               
               const config = {
                 method: 'patch',
@@ -151,38 +98,7 @@ export const useRoleStore = defineStore({
               })
               .catch((error) => {
                 console.log(error)
-                if(error.response.status == 422){
-                  toast({
-                    title: error.response.data.message,
-                    variant: 'destructive'
-                  })
-                }
-                else if(error.response.status == 400){
-                  toast({
-                    title: error.response.data.message || 'You cannot edit this role',
-                    description: 'Create another role instead or delete this if not needed',
-                    variant: 'destructive'
-                  })
-                }
-                else if (error.response.status === 401) {
-                  // sessionStorage.removeItem('token')
-  
-                  setTimeout(() => {
-                    router.push({ name: 'home' })
-                  }, 3000)
-            
-                  toast({
-                    title: 'Unauthorized',
-                    description: 'You are not authorized to perform this action. Redirecting to home page...',
-                    variant: 'destructive'
-                  })
-                  // Redirect after 3 seconds
-                } else {
-                  toast({
-                    title: error.response.data.message || 'An error occurred',
-                    variant: 'destructive'
-                  })
-                }
+                this.catchErr(error)
               });            
         },
         async deleteRole(id: string){
@@ -209,25 +125,7 @@ export const useRoleStore = defineStore({
                 this.getRoles('Role Deleted Successfully')
               })
               .catch((error) => {
-                if (error.response.status === 401) {
-                  // sessionStorage.removeItem('token')
-  
-                  setTimeout(() => {
-                    router.push({ name: 'home' })
-                  }, 3000)
-            
-                  toast({
-                    title: 'Unauthorized',
-                    description: 'You are not authorized to perform this action. Redirecting to home page...',
-                    variant: 'destructive'
-                  })
-                  // Redirect after 3 seconds
-                } else {
-                  toast({
-                    title: error.response.data.message || 'An error occurred',
-                    variant: 'destructive'
-                  })
-                }
+                this.catchErr(error)
               });
         },
         async getPermissions (){
@@ -260,25 +158,7 @@ export const useRoleStore = defineStore({
                 
               }
             } catch (error: any) {
-              if (error.response.status === 401) {
-                // sessionStorage.removeItem('token')
-
-                // setTimeout(() => {
-                //   router.push({ name: 'home' })
-                // }, 3000)
-          
-                toast({
-                  title: 'Unauthorized',
-                  description: 'You are not authorized to perform this action. Redirecting to home page...',
-                  variant: 'destructive'
-                })
-                // Redirect after 3 seconds
-              } else {
-                toast({
-                  title: error.response.data.message || 'An error occurred',
-                  variant: 'destructive'
-                })
-              }
+              this.catchErr(error)
             }
       },
       async allPermissions (){
@@ -310,25 +190,7 @@ export const useRoleStore = defineStore({
               
             }
           } catch (error: any) {
-            if (error.response.status === 401) {
-              // sessionStorage.removeItem('token')
-
-              // setTimeout(() => {
-              //   router.push({ name: 'home' })
-              // }, 3000)
-        
-              toast({
-                title: 'Unauthorized',
-                description: 'You are not authorized to perform this action. Redirecting to home page...',
-                variant: 'destructive'
-              })
-              // Redirect after 3 seconds
-            } else {
-              toast({
-                title: error.response.data.message || 'An error occurred',
-                variant: 'destructive'
-              })
-            }
+            this.catchErr(error)
           }
     },
         async getWeesheCategories (){
@@ -358,26 +220,55 @@ export const useRoleStore = defineStore({
             return response.data.data
           })
           .catch((error) => {
-            if (error.response.status === 401) {
-              sessionStorage.removeItem('token')
-
-              setTimeout(() => {
-                router.push({ name: 'home' })
-              }, 3000)
-        
-              toast({
-                title: 'Unauthorized',
-                description: 'You are not authorized to perform this action. Redirecting to home page...',
-                variant: 'destructive'
-              })
-              // Redirect after 3 seconds
-            } else {
-              toast({
-                title: error.response.data.message || 'An error occurred',
-                variant: 'destructive'
-              })
-            }
+            this.catchErr(error)
           });          
+      },
+      catchErr (error: any){
+        console.log(error)
+        if(error.response.status === 400){
+          toast({
+            title:  error.response.data.message || 'Bad Request',
+            description: 'Pls reach out to the management reguarding this request',
+            variant: 'destructive'
+          })
+        }else if(error.response.status === 401){
+          toast({
+            title:  error.response.data.message || 'Unauthenticated',
+            description: 'Pls Signin again',
+            variant: 'destructive'
+          })
+          setTimeout(() => {
+            router.push({ name: 'super-admin-login' })
+          }, 3000)
+          sessionStorage.removeItem('token')
+        }else if(error.response.status === 403){
+          toast({
+            title:  error.response.data.message || 'Unauthorized',
+            description: 'You are not authorized to access this feature',
+            variant: 'destructive'
+          })
+          setTimeout(() => {
+            router.push({ name: 'home' })
+          }, 3000)
+        }else if(error.response.status === 422 ){
+          toast({
+            title:  error.response.data.message || 'Validation Error',
+            description: 'Your request is not validated, Pls try again ',
+            variant: 'destructive'
+          })
+        }else if(error.response.status === 500 ){
+          toast({
+            title:  error.response.data.message || 'Server Error',
+            description: 'Pls try again later',
+            variant: 'destructive'
+          })
+        }else if(error.response.status === 404 ){
+          toast({
+            title:  error.response.data.message || 'Not found',
+            description: '404 Error',
+            variant: 'destructive'
+          })
+        }
       }
     }
 })
