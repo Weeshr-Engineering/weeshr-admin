@@ -143,7 +143,7 @@
                     <div class="flex items-center gap-4">
                       <Sheet>
                         <SheetTrigger>
-                          <Icon @click="()=>handleRolePermissions(item.permissions, item.name)" icon="mdi:edit" width="17" height="17" class="icons-sidebar border-2 border-gray-100" />
+                          <Icon @click="()=>handleRolePermissions(item.permissions, item.name, item._id)" icon="mdi:edit" width="17" height="17" class="icons-sidebar border-2 border-gray-100" />
                         </SheetTrigger>
                         <SheetContent class="overflow-y-auto py-8" side="right" v-if="ability.can('create', 'roles')">
                             <div class="flex py-4 justify-between items-center">
@@ -336,12 +336,14 @@ const allPermissions = ref<any[]>([])
 const rolePermissions = ref<any[]>([])
 const roleName = ref('')
 const modified = ref(false)
+const roleId = ref('')
 
-const handleRolePermissions=(arr: any[], name: string)=>{
+const handleRolePermissions=(arr: any[], name: string, id: string)=>{
   verifyAbilities('update', 'roles')
   modified.value = false
   rolePermissions.value = arr
   roleName.value = name
+  roleId.value = id
 }
 
 const onEdit= async (values:any)=> {
@@ -376,7 +378,7 @@ const onEdit= async (values:any)=> {
     'permissions': arr
   })
   console.log(data)
-  store.updateRole(data)
+  store.updateRole(data, roleId.value)
   }
 }
 

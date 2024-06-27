@@ -108,14 +108,30 @@ export const useRoleStore = defineStore({
               }
             }
       },
-        updateRole (data: any, id='656ffd8156c96f7cf43b0441'){
+        updateRole (data: any, id: string){
           const token = sessionStorage.getItem('token') || ''  
           toast({
                 title: 'Loading Data',
                 description: 'Fetching data...',
                 duration: 0 // Set duration to 0 to make it indefinite until manually closed
               })
-            
+              // data = JSON.stringify({
+              //   "name": "to__sdel",
+              //   "permissions": [
+              //     "create-roles",
+              //     "read-roles",
+              //     "update-roles",
+              //     "delete-roles",
+              //     "create-admins",
+              //     "read-admins",
+              //     "update-admins",
+              //     "delete-admins",
+              //     "create-weesh-categories",
+              //     "read-weesh-categories",
+              //     "update-weesh-categories",
+              //     "delete-weesh-categories"
+              //   ]
+              // });
               
               const config = {
                 method: 'patch',

@@ -1,7 +1,9 @@
 import { createMongoAbility } from '@casl/ability';
 import { toast } from '@/components/ui/toast'; 
 
+// define an empty rule
 export const ability = createMongoAbility()
+// function to update/define the created empt rule
 export const defineAbilities = async ()=> {
     const permissions = JSON.parse(sessionStorage.getItem('permissions') || "[]")
     if(permissions !== ''){
@@ -10,6 +12,7 @@ export const defineAbilities = async ()=> {
     }
     return
 }
+// function to trigger a toast
 export const verifyAbilities = (action: string, subject: string)=>{
     if(!ability.can(action, subject)){
       toast({
