@@ -10,21 +10,21 @@ const { toasts } = useToast()
 <template>
   <ToastProvider>
     <Toast v-for="toast in toasts" :key="toast.id" v-bind="toast">
-      <div class="grid gap-1">
+      <div class="flex flex-row items-center justify-center">
         <ToastTitle v-if="toast.title">
-          {{ toast.title }}
+         
         </ToastTitle>
         <template v-if="toast.description">
           <ToastDescription v-if="isVNode(toast.description)">
             <component :is="toast.description" />
           </ToastDescription>
-          <ToastDescription v-else>
+          <ToastDescription v-else :class="{ 'text-center': toast.variant !== 'loading' }">
             <template v-if="toast.variant === 'success'">
               <Icon
               icon="mdi:success-circle-outline"
               width="20"
               height="16"
-              class="inline-block w-8 h-6 mr-2 text-[#FFFFFF] animate-pluse"
+              class="inline-block w-8 h-6 mr-2 text-[#FFFFFF] animate-pulse"
             />
             </template>
             <template v-else-if="toast.variant === 'loading'">
@@ -41,7 +41,7 @@ const { toasts } = useToast()
                 icon="fluent:cd-16-regular"
                 width="16"
                 height="16"
-                class="inline-block w-4 h-4 mr-2 text-[#FFFFFF]  animate-bounce"
+                class="inline-block w-4 h-4 mr-2 text-[#FFFFFF] animate-bounce"
               />
             </template>
             <template v-else-if="toast.variant === 'warning'">
@@ -65,12 +65,14 @@ const { toasts } = useToast()
         </template>
         <ToastClose :class="{ 'toast-close-loading': toast.variant === 'loading',
        'toast-close-success': toast.variant === 'success' }" />
-            </div>
+     
       <component :is="toast.action" />
+    </div>
     </Toast>
     <ToastViewport />
   </ToastProvider>
 </template>
+
 <style scoped>
 .toast-close-loading {
   background-color: #F8F9FFB2; /* Set background color to white */
@@ -132,5 +134,4 @@ const { toasts } = useToast()
 .animate-flash {
   animation: flash 1.5s infinite;
 }
-
 </style>

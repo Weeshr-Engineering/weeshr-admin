@@ -22,11 +22,11 @@ const delegatedProps = computed(() => {
     v-bind="delegatedProps"
     :class="
       cn(
-        'absolute right-4  rounded-full p-1 text-foreground/50 opacity-1 transition-opacity hover:text-foreground focus:opacity-100 focus:outline-offset-3 focus:ring-2 group-hover:opacity-100 group-[.destructive]:text-red-300 group-[.destructive]:hover:text-red-50 group-[.destructive]:focus:ring-red-400 group-[.destructive]:focus:ring-offset-red-600',
+        'absolute right-2  rounded-full p-1 text-foreground/90 opacity-1 transition-opacity hover:text-foreground focus:opacity-100 focus:outline-offset-3 focus:ring-2 group-hover:opacity-100 group-[.destructive]:text-red-300 group-[.destructive]:hover:text-red-50 group-[.destructive]:focus:ring-red-400 group-[.destructive]:focus:ring-offset-red-600',
         props.class
       )
     "
   >
-    <X class="h-4 w-6" />
+    <X class="h-3 w-3" />
   </ToastClose>
 </template>
