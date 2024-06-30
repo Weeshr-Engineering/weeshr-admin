@@ -41,7 +41,7 @@ const { toasts } = useToast()
                 icon="fluent:cd-16-regular"
                 width="16"
                 height="16"
-                class="inline-block w-4 h-4 mr-2 text-[#FFFFFF] animate-bounce"
+                class="inline-block w-5 h-5 mr-2 text-[#FFFFFF] animate-bounce"
               />
             </template>
             <template v-else-if="toast.variant === 'warning'">
@@ -49,7 +49,7 @@ const { toasts } = useToast()
                 icon="mdi:alert-circle"
                 width="16"
                 height="16"
-                class="inline-block w-4 h-4 mr-2 text-[#FFFFFF] animate-shake"
+                class="inline-block w-5 h-5 mr-2 text-[#FFFFFF] animate-shake"
               />
             </template>
             <template v-else-if="toast.variant === 'destructive'">
@@ -57,14 +57,15 @@ const { toasts } = useToast()
                 icon="codicon:error"
                 width="16"
                 height="16"
-                class="inline-block w-4 h-4 mr-2 text-[#FFFFFF] animate-flash"
+                class="inline-block w-5 h-5 mr-2 text-[#FFFFFF] animate-flash"
               />
             </template>
             {{ toast.description }}
           </ToastDescription>
         </template>
         <ToastClose :class="{ 'toast-close-loading': toast.variant === 'loading',
-       'toast-close-success': toast.variant === 'success' }" />
+       'toast-close-success': toast.variant === 'success','toast-close-destructive': toast.variant === 'destructive',
+       'toast-close-info': toast.variant === 'info', 'toast-close-warning': toast.variant === 'warning'}" />
      
       <component :is="toast.action" />
     </div>
@@ -80,10 +81,15 @@ const { toasts } = useToast()
 .toast-close-success {
   background-color: #02072199; /* Set background color to white */
 }
-.toast-close-failure {
+.toast-close-info {
   background-color: #02072199; /* Set background color to white */
 }
-
+.toast-close-destructive{
+  background-color: #02072199;
+}
+.toast-close-warning{
+  background-color: #02072199;
+}
 /* Add these styles to your main CSS file or component-specific style block */
 @keyframes pulse {
   0%, 100% {
