@@ -35,6 +35,44 @@ interface Log {
   description: string
 }
 
+export interface Weeshes {
+  _id: string
+  name: string
+  wishYear: string
+  isLocked: boolean
+  isPriority: boolean
+  status: string
+  images: [
+    {
+      _id: string
+      url: string
+    }
+  ]
+  category: {
+    name: string
+  }
+  price: {
+    price: number
+    genieGratuity: number
+    total: number
+  }
+  currency: {
+    code: string
+  }
+  contributions: [
+    {
+      _id: string
+      isContributorAnonymous: boolean
+      amount: number
+      contributor: {
+        avatar: string
+        firstName: string
+        lastName: string
+      }
+    }
+  ]
+}
+
 const token = sessionStorage.getItem('token') || ''
 const { toast } = useToast()
 
@@ -127,7 +165,68 @@ export const getUserLog = () => {
   return { userLog, count, logError, log }
 }
 
+export const getUserWeeshes = () => {
+  const userWeeshesList: Ref<Weeshes[]> = ref([])
+  const weeshesError: Ref<string> = ref('')
+  const totalPages = ref(0)
+  const currentPage = ref(0)
+
+  const userWeeshes = async (_id: string | string[], options?: string | number) => {
+    const base = `https://api.staging.weeshr.com/api/v1/admin/accounts/users/${_id}/weeshes?`
+
+    const url = () => {
+      if (typeof options === 'string') {
+        if (options === 'asc' || options === 'desc') {
+          return base + `sort_by_price=${options}`
+        } else if (options !== 'asc' && options !== 'desc') {
+          return base + `search=${options}`
+        }
+      } else if (typeof options === 'number') {
+        return base + `page=${options}`
+      }
+      return base
+    }
+
+    try {
+      toast({
+        description: 'Loading....'
+      })
+      const response = await axios.get(url(), {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+
+      if (response.data.code === 200) {
+        userWeeshesList.value = response.data.data.data
+        totalPages.value = response.data.data.totalPages
+        currentPage.value = response.data.data.currentPage
+
+        toast({
+          description: response.data.message,
+          variant: 'success'
+        })
+      } else {
+        weeshesError.value = response.data.message
+        toast({
+          description: response.data.message,
+          variant: 'destructive'
+        })
+      }
+    } catch (err: any) {
+      weeshesError.value = err.message
+      toast({
+        description: err.message,
+        variant: 'destructive'
+      })
+    }
+  }
+
+  return { userWeeshesList, weeshesError, totalPages, currentPage, userWeeshes }
+}
+
 export default {
   getUser,
-  getUserLog
+  getUserLog,
+  getUserWeeshes
 }
