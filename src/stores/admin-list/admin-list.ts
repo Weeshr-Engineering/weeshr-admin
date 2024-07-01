@@ -57,6 +57,7 @@ export const useAdminListStore = defineStore({
             toast({
               title: 'Loading Data',
               description: 'Fetching data...',
+              variant:'loading',
               duration: 0 // Set duration to 0 to make it indefinite until manually closed
             })
           
@@ -109,7 +110,7 @@ export const useAdminListStore = defineStore({
                 toast({
                   title: 'Unauthorized',
                   description: 'You are not authorized to perform this action. Redirecting to home page...',
-                  variant: 'destructive'
+                  variant: 'warning'
                 })
                 // Redirect after 3 seconds
               } else {

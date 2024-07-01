@@ -35,7 +35,8 @@ const getUsers = () => {
   const load = async (search: string, page: number) => {
     try {
       toast({
-        description: 'Loading....'
+        description: 'Loading....',
+        variant:'loading'
       })
       const response = await axios.get(
         `https://api.staging.weeshr.com/api/v1/admin/accounts/users?search=${search}&page=${page}&per_page=20`,

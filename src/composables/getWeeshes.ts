@@ -2,6 +2,7 @@ import { ref, type Ref } from 'vue'
 import axios from 'axios'
 import { useToast } from '@/components/ui/toast'
 
+
 interface Weeshes {
   _id: string
   name: string
@@ -66,7 +67,8 @@ const getWeeshes = () => {
     }
     try {
       toast({
-        description: 'Loading....'
+        description: 'Loading....',
+        variant: 'loading'
       })
 
       const response = await axios.get(url(), {
@@ -82,7 +84,8 @@ const getWeeshes = () => {
 
         toast({
           description: response.data.message,
-          variant: 'success'
+          variant: 'success',
+         
         })
       } else {
         error.value = response.data.message
