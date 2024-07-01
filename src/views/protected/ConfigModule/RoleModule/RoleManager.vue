@@ -393,7 +393,6 @@ const onEdit= async (values:any)=> {
     'name': name,
     'permissions': arr
   })
-  console.log(data)
   store.updateRole(data, roleId.value)
   }
 }

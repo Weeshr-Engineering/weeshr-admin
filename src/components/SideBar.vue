@@ -1,10 +1,31 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue'
-
+import { computed } from 'vue';
 import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
-
+import { ability, defineAbilities } from '@/lib/ability';
+import { useRoute } from 'vue-router';
 const superAdminStore = useSuperAdminStore()
-
+defineAbilities()
+const route = useRoute()
+const isActive = (path: string) => {
+  return route.path.startsWith(path);
+};
+const config = computed(()=>{
+  const role = ability.can('read', 'roles')
+  const categories = ability.can('read', 'weesh-categories')
+  if (role || categories ){
+    return true
+  }
+  return false
+})
+const users = computed(()=>{
+  const admin = ability.can('read', 'admins')
+  const users = ability.can('read', 'users')
+  if(admin || users){
+    return true
+  }
+  return false
+})
 const logout = async () => {
   await superAdminStore.logout()
 }
@@ -20,7 +41,7 @@ const logout = async () => {
       />
     </div>
     <ul class="space-y-3">
-      <li :class="{ 'dashboard-active': $route.path === '/' }">
+      <li :class="{ 'dashboard-active': $route.path === '/', 'opacity:20 cursor-not-allowed': ability.cannot('read', 'users') }">
         <a @click="$router.push({ name: 'home' })">
           <div class="icon-grid">
             <Icon
@@ -35,7 +56,7 @@ const logout = async () => {
         </a>
       </li>
 
-      <li :class="{ 'dashboard-active': $route.path === '/user' }">
+      <li v-if="users" :class="{ 'dashboard-active': isActive('/user') }">
         <a @click="$router.push({ name: 'user' })">
           <div class="icon-grid">
             <Icon icon="teenyicons:users-solid" width="16" height="16" class="icons-sidebar" />
@@ -45,7 +66,7 @@ const logout = async () => {
         </a>
       </li>
 
-      <li :class="{ 'dashboard-active': $route.path === '/weeshes' }">
+      <li :class="{ 'dashboard-active': isActive('/weeshes') }">
         <a @click="$router.push({ name: 'weeshes' })">
           <div class="icon-grid">
             <Icon icon="codicon:note" width="17" height="17" class="icons-sidebar" />
@@ -55,7 +76,7 @@ const logout = async () => {
         </a>
       </li>
 
-      <li :class="{ 'dashboard-active': $route.path === '/depot' }">
+      <li :class="{ 'dashboard-active': isActive('/depot') }">
         <a @click="$router.push({ name: 'depot' })">
           <div class="icon-grid">
             <Icon icon="mdi:truck-fast" width="17" height="17" class="icons-sidebar" />
@@ -65,7 +86,7 @@ const logout = async () => {
         </a>
       </li>
 
-      <li :class="{ 'dashboard-active': $route.path === '/bank' }">
+      <li :class="{ 'dashboard-active': isActive('/bank') }">
         <a @click="$router.push({ name: 'bank' })">
           <div class="icon-grid">
             <Icon
@@ -80,7 +101,7 @@ const logout = async () => {
         </a>
       </li>
 
-      <li :class="{ 'dashboard-active': $route.path === '/config' }">
+      <li v-if="config" :class="{ 'dashboard-active': isActive('/config') }">
         <a @click="$router.push({ name: 'config' })">
           <div class="icon-grid">
             <Icon
@@ -105,7 +126,7 @@ const logout = async () => {
         </a>
       </li>
 
-      <li :class="{ 'dashboard-active': $route.path === '/activity' }">
+      <li :class="{ 'dashboard-active': isActive('/activity') }">
         <a @click="$router.push({ name: 'activity' })">
           <div class="icon-grid">
             <Icon icon="octicon:log-24" width="16" height="16" class="icons-sidebar" />

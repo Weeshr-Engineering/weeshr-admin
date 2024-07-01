@@ -91,7 +91,7 @@ export const useRoleStore = defineStore({
               
               axios.request(config)
               .then((response) => {
-                console.log(JSON.stringify(response.data));
+                // console.log(JSON.stringify(response.data));
                 this.getRoles('Role Updated Successfully')
               })
               .catch((error) => {
