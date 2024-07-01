@@ -26,7 +26,7 @@ interface adminProfile {
     phoneNumber: PhoneNumber;
     roles: Role[];
     _id: string
-  }
+}
 
   interface AdminListStore {
     users: adminProfile[],
@@ -213,15 +213,15 @@ export const useAdminListStore = defineStore({
                 variant: 'destructive'
               })
             }else if(error.response.status === 401){
+              sessionStorage.removeItem('token')
+              setTimeout(() => {
+                router.push({ name: 'superAdmin-login' })
+              }, 1000)
               toast({
                 title:  error.response.data.message || 'Unauthenticated',
                 description: 'Pls Signin again',
                 variant: 'destructive'
               })
-              setTimeout(() => {
-                router.push({ name: 'super-admin-login' })
-              }, 3000)
-              sessionStorage.removeItem('token')
             }else if(error.response.status === 403){
               toast({
                 title:  error.response.data.message || 'Unauthorized',

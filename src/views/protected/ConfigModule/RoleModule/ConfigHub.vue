@@ -1,10 +1,23 @@
 <script setup lang="ts">
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import MainNav from '@/components/MainNav.vue'
+import { computed } from 'vue';
 import DashboardFooter from '@/components/DashboardFooter.vue'
 import { ability, defineAbilities, verifyAbilities } from '@/lib/ability';
 
 defineAbilities()
+const readRole = ability.can('read', 'roles');
+const roleStyle= computed(()=>{
+  return readRole ? 'rounded-xl bg-[#C6F4EB] shadow-md transition-transform transform hover:scale-105 mb-5 h-[450px] flex flex-col justify-between' : 'cursor-not-allowed opacity-20 rounded-xl bg-[#C6F4EB] shadow-md mb-5 h-[450px] flex flex-col justify-between'
+})
+const readCategories = ability.can('read', 'weesh-categories');
+const categoryStyle= computed(()=>{
+  return readCategories ? 'rounded-xl bg-[#DCDEFF] h-[450px] shadow-md transition-transform transform hover:scale-105 mb-5' : 'cursor-not-allowed opacity-20 rounded-xl bg-[#DCDEFF] h-[450px] shadow-md mb-5'
+})
+const readGist = ability.can('read', 'weesh-gists');
+const gistStyle= computed(()=>{
+  return readGist ? 'rounded-xl bg-[#C6EDF6] h-[450px] shadow-md transition-transform transform hover:scale-105 mb-5' : 'cursor-not-allowed opacity-20 rounded-xl bg-[#C6EDF6] h-[450px] shadow-md mb-5'
+})
 </script>
 
 <template>
@@ -13,7 +26,7 @@ defineAbilities()
     
         <div class="w-full grid gap-7 md:grid-cols-2 lg:grid-cols-4 pt-6 p-8">
           <Card
-            class="rounded-xl bg-[#C6F4EB] shadow-md transition-transform transform hover:scale-105 mb-5 h-[450px] flex flex-col justify-between"
+            :class='roleStyle'
             @click="verifyAbilities('read', 'roles')"
           >
             <span class="flex flex-col justify-between h-full">
@@ -41,7 +54,7 @@ defineAbilities()
           </Card>
     
           <Card
-            class="rounded-xl bg-[#DCDEFF] h-[450px] shadow-md transition-transform transform hover:scale-105 mb-5"
+            :class="categoryStyle"
             @click="verifyAbilities('read', 'weesh-categories')"
           >
             <span class="flex flex-col justify-between h-full">
@@ -68,10 +81,11 @@ defineAbilities()
           </Card>
     
           <Card
-            class="rounded-xl bg-[#C6EDF6] h-[450px] shadow-md transition-transform transform hover:scale-105 mb-5"
+            :class="gistStyle"
+            @click="verifyAbilities('read', 'weesh-gist')"
           >
             <span class="flex flex-col justify-between h-full">
-              <RouterLink to="#" class="flex flex-col h-full">
+              <RouterLink :to="ability.can('read', 'weesh-gist') ? '/config/wish' : '#'" class="flex flex-col h-full">
                 <CardHeader class="flex flex-col items-center justify-center flex-grow">
                   <img
                     class="mb-2"

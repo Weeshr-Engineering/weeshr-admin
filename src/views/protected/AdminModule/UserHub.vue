@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
-import { onMounted } from 'vue'
+import { onMounted, computed} from 'vue'
 import { useUserhubStore } from '@/stores/userhub-details/userhub-details'
 import MainNav from '@/components/MainNav.vue'
 import DashboardFooter from '@/components/DashboardFooter.vue'
@@ -9,6 +9,14 @@ import { ability, defineAbilities, verifyAbilities } from '@/lib/ability'
 
 defineAbilities()
 const userHubStore = useUserhubStore()
+const readAdmin = ability.can('read', 'admins');
+const adminStyle= computed(()=>{
+  return readAdmin ? 'rounded-xl bg-[#89cff0ee] h-[450px] shadow-md transition-transform transform hover:scale-105 mb-5' : 'rounded-xl bg-[#89cff0ee] cursor-not-allowed opacity-20 h-[450px] shadow-md mb-5'
+})
+const readUser = ability.can('read', 'users');
+const userStyle= computed(()=>{
+  return readUser ? 'rounded-xl bg-[#C6F4EB] shadow-md transition-transform transform hover:scale-105 mb-5 h-[450px] flex flex-col justify-between' : 'cursor-not-allowed opacity-20 rounded-xl bg-[#C6F4EB] shadow-md mb-5 h-[450px] flex flex-col justify-between'
+})
 
 onMounted(() => {
   const userHubStore = useUserhubStore()
@@ -22,10 +30,11 @@ onMounted(() => {
 
     <div class="w-full grid gap-7 md:grid-cols-2 lg:grid-cols-4 pt-6 p-8">
       <Card
-        class="rounded-xl bg-[#C6F4EB] shadow-md transition-transform transform hover:scale-105 mb-5 h-[450px] flex flex-col justify-between"
+        @click="verifyAbilities('read', 'users')"
+        :class="userStyle"
       >
         <span v-if="userHubStore.loading" class="flex flex-col justify-between h-full">
-          <RouterLink to="/user/appuser" class="flex flex-col h-full">
+          <RouterLink :to="ability.can('read', 'users') ? '/user/appuser' : ''" class="flex flex-col h-full">
             <CardHeader class="flex flex-col items-center justify-center flex-grow">
               <img
                 class="mb-2"
@@ -75,7 +84,7 @@ onMounted(() => {
       </Card>
 
       <Card
-        class="rounded-xl bg-[#89cff0ee] h-[450px] shadow-md transition-transform transform hover:scale-105 mb-5"
+        :class='adminStyle'
         @click="verifyAbilities('read', 'admins')"
       >
         <span v-if="userHubStore.loading" class="flex flex-col justify-between h-full">

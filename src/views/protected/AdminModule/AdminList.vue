@@ -55,6 +55,10 @@ import { useAdminListStore } from '@/stores/admin-list/admin-list'
 import { ability, defineAbilities, verifyAbilities } from '@/lib/ability'
 
 defineAbilities()
+const create = ability.can('create', 'admins')
+const createStyle = computed(()=>{
+  return create ? 'bg-[#020721] px-4 py-2 rounded-xl w-50 h-12' : 'bg-[#020721] cursor-not-allowed opacity-20 px-4 py-2 rounded-xl w-50 h-12'
+})
 const formSchema = toTypedSchema(
   z.object({
     firstName: z
@@ -91,6 +95,7 @@ const newUser = ref({
 })
 
 const adminListStore = useAdminListStore()
+adminListStore.fetchUsersData()
 const sheetOpen = adminListStore.sheetOpen
 const loading = ref(false)
 const token = sessionStorage.getItem('token') || ''
@@ -211,7 +216,7 @@ const getRoles = async ()=>{
 onMounted(async () => {
   // useGeneralStore().setLoading(true);
   // fetchUsersData()
-  adminListStore?.fetchUsersData()
+  // adminListStore?.fetchUsersData()
   getRoles()
 })
 
@@ -224,7 +229,7 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
     <div class="px-10 py-10 ml-auto">
       <Sheet>
         <SheetTrigger as-child>
-          <button @click="verifyAbilities('create', 'admins')"  class="bg-[#020721] px-4 py-2 rounded-xl w-50 h-12">
+          <button @click="verifyAbilities('create', 'admins')"  :class='createStyle'>
             <div class="text-base text-[#F8F9FF] text-center flex items-center">
               Add New Admin
               <svg

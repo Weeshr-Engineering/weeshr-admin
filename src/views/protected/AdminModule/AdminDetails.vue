@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 import { Switch } from '@/components/ui/switch'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -33,6 +33,17 @@ import {
 import { ability, defineAbilities, verifyAbilities } from '@/lib/ability'
 
 defineAbilities()
+
+const edit = ability.can('update', 'admins')
+const editStyle = computed(()=>{
+  return edit ? 'flex' : 'flex cursor-not-allowed opacity-20'
+})
+
+const deleteAdmin = ability.can('delete', 'admins')
+const deleteStyle = computed(()=>{
+  return deleteAdmin ? 'flex' : 'cursor-not-allowed opacity-20 flex'
+})
+
 const route = useRoute();
 const id = route.params.Id;
 const superAdminStore = useSuperAdminStore()
@@ -344,7 +355,7 @@ const onSubmit = contactForm((values) => {
               
                 <Popover>
                   <PopoverTrigger>
-                    <div class="flex" @click="verifyAbilities('update', 'admins')">
+                    <div :class="editStyle" @click="verifyAbilities('update', 'admins')">
                       <img
                         class="max-w-[18.05px] max-h-[24px]"
                         src="https://res.cloudinary.com/dufimctfc/image/upload/v1714310908/edit-4-svgrepo-com_1_iy2nwu.svg"
@@ -355,7 +366,7 @@ const onSubmit = contactForm((values) => {
                       </span>
                     </div>
                   </PopoverTrigger>
-                  <PopoverContent v-if="ability.can('update', 'admins')">
+                  <PopoverContent v-if="edit">
                       <form class="space-y-8" @submit="onSubmit">
                         <FormField v-slot="{ componentField }" name="firstName">
                           <FormItem v-auto-animate>
@@ -486,7 +497,7 @@ const onSubmit = contactForm((values) => {
                 
                 <Popover>
                   <PopoverTrigger>
-                    <div class="flex" @click="verifyAbilities('update', 'admins')">
+                    <div :class="deleteStyle" @click="verifyAbilities('update', 'admins')">
                       <img
                         class="max-w-[18.05px] max-h-[24px]"
                         src="https://res.cloudinary.com/dufimctfc/image/upload/v1714310908/edit-4-svgrepo-com_1_iy2nwu.svg"
@@ -497,7 +508,7 @@ const onSubmit = contactForm((values) => {
                       </span>
                   </div>
                   </PopoverTrigger>
-                  <PopoverContent v-if="ability.can('update', 'admins')">  
+                  <PopoverContent v-if="deleteAdmin">  
                     <form class="space-y-4" @submit.prevent="onSubmit">
                       <div class="">
                         <h5 class='text-blue-900 text-sm font-medium mb-5'>Phone Number</h5>
@@ -617,7 +628,7 @@ const onSubmit = contactForm((values) => {
                 v-if="!adminListStore.detailLoading"
                 v-bind:checked="!adminListStore.adminStatus"
                 :onclick="()=>adminListStore.toggleStatus(user._id, adminListStore.adminStatus, user.firstName)"
-                :disabled="ability.can('update', 'admins')"
+                :disabled="!edit"
                 />
                 <Loader2 v-else class="w-4 h-4 mr-2 text-black animate-spin" />
               </CardContent>

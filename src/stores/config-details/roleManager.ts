@@ -3,8 +3,6 @@ import axios from "axios";
 import { toast } from '@/components/ui/toast'
 import router from '@/router'
 
-// const token = sessionStorage.getItem('token') || ''
-
 export const useRoleStore = defineStore({
     id: 'admin-list',
     state: ():ConfigStore=>({
@@ -237,10 +235,10 @@ export const useRoleStore = defineStore({
             description: 'Pls Signin again',
             variant: 'destructive'
           })
-          setTimeout(() => {
-            router.push({ name: 'super-admin-login' })
-          }, 3000)
           sessionStorage.removeItem('token')
+          setTimeout(() => {
+            router.push({ name: 'superAdmin-login' })
+          }, 1000)
         }else if(error.response.status === 403){
           toast({
             title:  error.response.data.message || 'Unauthorized',

@@ -2,7 +2,6 @@ import { defineStore } from 'pinia'
 import axios from "axios";
 import { toast } from '@/components/ui/toast'
 import router from '@/router'
-const token = sessionStorage.getItem('token') || ''
 
 interface Image {
     asset_id: string;
@@ -39,11 +38,9 @@ export const useWeeshConfigStore = defineStore('weeshConfig', {
         page: 1,
         active: false
     }),
-    // getters: {
-    //   doubleCount: (state) => state.count * 2,
-    // },
     actions: {
         async getWeesheCategories(page: number, msg: string){
+            const token = sessionStorage.getItem('token') || ''
             toast({
               title: 'Loading Data',
               description: 'Fetching data...',
@@ -123,6 +120,7 @@ export const useWeeshConfigStore = defineStore('weeshConfig', {
           this.active= !this.active
         },
         async deleteWeeshCategory (id: string){
+          const token = sessionStorage.getItem('token') || ''
           toast({
               title: 'Deleting Data',
               description: 'Deleting data...',
@@ -168,14 +166,14 @@ export const useWeeshConfigStore = defineStore('weeshConfig', {
                   variant: 'destructive'
                 })
               }else if(error.response.status === 401){
+                setTimeout(() => {
+                  router.push({ name: 'superAdmin-login' })
+                }, 1000)
                 toast({
                   title:  error.response.data.message || 'Unauthenticated',
                   description: 'Pls Signin again',
                   variant: 'destructive'
                 })
-                setTimeout(() => {
-                  router.push({ name: 'super-admin-login' })
-                }, 3000)
                 sessionStorage.removeItem('token')
               }else if(error.response.status === 403){
                 toast({

@@ -4,7 +4,7 @@
         <div class="px-10 py-5 md:py-10 ml-auto w-full flex justify-end">
             <Sheet :close='sheetCLose'>
               <SheetTrigger as-child>
-                <button @click="verifyAbilities('create', 'roles')" class="bg-[#020721] px-4 py-2 rounded-xl w-50 h-12">
+                <button @click="verifyAbilities('create', 'roles')" :class="createStyle">
                   <div class="text-base text-[#F8F9FF] text-center flex items-center">
                     Add New
                     <svg
@@ -23,7 +23,7 @@
                   </div>
                 </button>
               </SheetTrigger>
-              <SheetContent class="overflow-y-auto py-8" v-if="ability.can('create', 'roles')">
+              <SheetContent class="overflow-y-auto py-8" v-if="create">
                <div class="flex py-4 justify-between items-center">
                     <SheetHeader>
                     <h3 class="text-2xl font-medium">Add New Role</h3>
@@ -143,9 +143,9 @@
                     <div class="flex items-center gap-4">
                       <Sheet>
                         <SheetTrigger>
-                          <Icon @click="()=>handleRolePermissions(item.permissions, item.name, item._id)" icon="mdi:edit" width="17" height="17" class="icons-sidebar border-2 border-gray-100" />
+                          <Icon @click="()=>handleRolePermissions(item.permissions, item.name, item._id)" icon="mdi:edit" width="17" height="17" :class="editStyle" />
                         </SheetTrigger>
-                        <SheetContent class="overflow-y-auto py-8" side="right" v-if="ability.can('create', 'roles')">
+                        <SheetContent class="overflow-y-auto py-8" side="right" v-if="edit">
                             <div class="flex py-4 justify-between items-center">
                               <SheetHeader>
                               <h3 class="text-2xl font-medium">{{item.name.toUpperCase()}}</h3>
@@ -224,10 +224,10 @@
 
                       <AlertDialog>
                         <AlertDialogTrigger>
-                          <Icon icon="mdi:delete" width="17" height="17" class="icons-sidebar text-red-600" @click="verifyAbilities('delete', 'roles')"/>
+                          <Icon icon="mdi:delete" width="17" height="17" :class="deleteStyle" @click="verifyAbilities('delete', 'roles')"/>
                         </AlertDialogTrigger>
                         <div>
-                        <AlertDialogContent v-if="ability.can('create', 'roles')">
+                        <AlertDialogContent v-if="deleteRoles">
                           <AlertDialogHeader>
                             <AlertDialogTitle>Are you absolutely sure you want to delete {{item.name}}?</AlertDialogTitle>
                             <AlertDialogDescription>
@@ -296,7 +296,23 @@ import { toast } from '@/components/ui/toast'
 import { ability, defineAbilities, verifyAbilities } from '@/lib/ability'
 
 defineAbilities()
+const create = ability.can('create', 'admins')
+const createStyle = computed(()=>{
+  return create ? 'bg-[#020721] px-4 py-2 rounded-xl w-50 h-12' : 'cursor-not-allowed opacity-20 bg-[#020721] px-4 py-2 rounded-xl w-50 h-12'
+})
+
+const edit = ability.can('update', 'admins')
+const editStyle = computed(()=>{
+  return edit ? 'icons-sidebar border-2 border-gray-100' : 'cursor-not-allowed opacity-20 icons-sidebar border-2 border-gray-100'
+})
+
+const deleteRoles = ability.can('delete', 'admins')
+const deleteStyle = computed(()=>{
+  return deleteRoles ? 'icons-sidebar text-red-600' : 'cursor-not-allowed opacity-20 icons-sidebar text-red-600'
+})
+
 const store = useRoleStore()
+store.getPermissions()
 
 const schema = toTypedSchema(
   z.object({
@@ -398,7 +414,6 @@ const handleChecked = (val: string)=>{
 const sheetCLose = ref(true)
 
 onMounted(async()=>{
-    await store.getPermissions()
     await store.getRoles('Roles found')
     allPermissions.value = await useRoleStore().allPermissions()
 })

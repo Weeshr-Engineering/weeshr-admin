@@ -54,6 +54,20 @@ import { useWeeshConfigStore } from '@/stores/config-details/weeshConfig'
 import { ability, defineAbilities, verifyAbilities } from '@/lib/ability'
 
 defineAbilities()
+const create = ability.can('create', 'weesh-categories')
+const createStyle = computed(()=>{
+  return create ? 'bg-[#020721] px-4 py-2 rounded-xl w-50 h-12' : 'cursor-not-allowed opacity-20 bg-[#020721] px-4 py-2 rounded-xl w-50 h-12'
+})
+
+const edit = ability.can('update', 'weesh-categories')
+const editStyle = computed(()=>{
+  return edit ? 'icons-sidebar border-2 border-gray-100' : 'cursor-not-allowed opacity-20 icons-sidebar border-2 border-gray-100'
+})
+
+const deleteWeeshCategory = ability.can('delete', 'weesh-categories')
+const deleteStyle = computed(()=>{
+  return deleteWeeshCategory ? 'icons-sidebar text-red-600' : 'cursor-not-allowed opacity-20 icons-sidebar text-red-600'
+})
 
 const store = useWeeshConfigStore()
 const loading = ref(false);
@@ -250,7 +264,7 @@ onMounted(async()=>{
         <div class="px-10 py-10 ml-auto w-full flex justify-end">
             <Sheet>
               <SheetTrigger as-child @click="verifyAbilities('create', 'weesh-categories')">
-                <button class="bg-[#020721] px-4 py-2 rounded-xl w-50 h-12">
+                <button :class="createStyle">
                   <div class="text-base text-[#F8F9FF] text-center flex items-center">
                     Add New
                     <svg
@@ -269,7 +283,7 @@ onMounted(async()=>{
                   </div>
                 </button>
               </SheetTrigger>
-              <SheetContent class="overflow-y-auto py-8" v-if="ability.can('create', 'weesh-categories')">
+              <SheetContent class="overflow-y-auto py-8" v-if="create">
                 <form class="space-y-4" @submit.prevent="onSubmit">
                 <div class="flex py-4 justify-between items-center">
                 <SheetHeader>
@@ -360,11 +374,10 @@ onMounted(async()=>{
                       </p>
                     </span>
                     <div class="flex items-center gap-4">
-                      <Switch :checked="!category.disabled" @click="store.handleSwitch(category._id, category.name, category.disabled)" :disabled="!ability.can('create', 'weesh-categories')"/>
-                      
+                      <Switch :checked="!category.disabled" @click="store.handleSwitch(category._id, category.name, category.disabled)" :disabled="!edit"/>
                       <Sheet>
                           <SheetTrigger>
-                              <Icon @click="setCurrentCategory(category._id)" icon="mdi:edit" width="17" height="17" class="icons-sidebar border-2 border-gray-100" />
+                              <Icon @click="setCurrentCategory(category._id)" icon="mdi:edit" width="17" height="17" :class="editStyle" />
                           </SheetTrigger>
                           <SheetContent class="overflow-y-auto py-8" side="right" v-if="ability.can('update', 'weesh-categories')">
                               <div class="flex py-4 justify-between items-center">
@@ -415,10 +428,10 @@ onMounted(async()=>{
 
                       <AlertDialog>
                         <AlertDialogTrigger>
-                          <Icon icon="mdi:delete" width="17" height="17" class="icons-sidebar text-red-600" @click="verifyAbilities('delete', 'weesh-categories')"/>
+                          <Icon icon="mdi:delete" width="17" height="17" :class="deleteStyle" @click="verifyAbilities('delete', 'weesh-categories')"/>
                         </AlertDialogTrigger>
                         <div>
-                        <AlertDialogContent v-if="ability.can('delete', 'weesh-categories')">
+                        <AlertDialogContent v-if="deleteWeeshCategory">
                           <AlertDialogHeader>
                             <AlertDialogTitle>Are you absolutely sure you want to delete {{category.name}}?</AlertDialogTitle>
                             <AlertDialogDescription>
