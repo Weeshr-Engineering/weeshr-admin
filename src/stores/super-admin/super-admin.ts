@@ -50,7 +50,9 @@ export const useSuperAdminStore = defineStore({
     clearToken() {
       this.token = ''
       // Remove the token from sessionStorage
-      sessionStorage.removeItem('token')
+      // sessionStorage.removeItem('token')
+      localStorage.clear()
+      sessionStorage.clear()
     },
     setuserEmail(value: string) {
       this.userEmail = value
@@ -74,8 +76,6 @@ export const useSuperAdminStore = defineStore({
         // Clear the token
         this.clearToken()
         // clear localstorage
-        localStorage.removeItem('user');
-        
         useGeneralStore().setLoading(false)
 
         router.push({ name: 'superAdmin-login' })

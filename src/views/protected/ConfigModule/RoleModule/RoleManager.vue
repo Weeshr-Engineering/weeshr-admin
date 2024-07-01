@@ -4,7 +4,7 @@
         <div class="px-10 py-5 md:py-10 ml-auto w-full flex justify-end">
             <Sheet :close='sheetCLose'>
               <SheetTrigger as-child>
-                <button @click="handleSheet" class="bg-[#020721] px-4 py-2 rounded-xl w-50 h-12">
+                <button @click="verifyAbilities('create', 'roles')" :class="createStyle">
                   <div class="text-base text-[#F8F9FF] text-center flex items-center">
                     Add New
                     <svg
@@ -23,7 +23,7 @@
                   </div>
                 </button>
               </SheetTrigger>
-              <SheetContent class="overflow-y-auto py-8">
+              <SheetContent class="overflow-y-auto py-8" v-if="create">
                <div class="flex py-4 justify-between items-center">
                     <SheetHeader>
                     <h3 class="text-2xl font-medium">Add New Role</h3>
@@ -143,9 +143,9 @@
                     <div class="flex items-center gap-4">
                       <Sheet>
                         <SheetTrigger>
-                          <Icon @click="()=>handleRolePermissions(item.permissions, item.name)" icon="mdi:edit" width="17" height="17" class="icons-sidebar border-2 border-gray-100" />
+                          <Icon @click="()=>handleRolePermissions(item.permissions, item.name, item._id)" icon="mdi:edit" width="17" height="17" :class="editStyle" />
                         </SheetTrigger>
-                        <SheetContent class="overflow-y-auto py-8" side="right">
+                        <SheetContent class="overflow-y-auto py-8" side="right" v-if="edit">
                             <div class="flex py-4 justify-between items-center">
                               <SheetHeader>
                               <h3 class="text-2xl font-medium">{{item.name.toUpperCase()}}</h3>
@@ -224,10 +224,10 @@
 
                       <AlertDialog>
                         <AlertDialogTrigger>
-                          <Icon icon="mdi:delete" width="17" height="17" class="icons-sidebar text-red-600" />
+                          <Icon icon="mdi:delete" width="17" height="17" :class="deleteStyle" @click="verifyAbilities('delete', 'roles')"/>
                         </AlertDialogTrigger>
                         <div>
-                        <AlertDialogContent>
+                        <AlertDialogContent v-if="deleteRoles">
                           <AlertDialogHeader>
                             <AlertDialogTitle>Are you absolutely sure you want to delete {{item.name}}?</AlertDialogTitle>
                             <AlertDialogDescription>
@@ -292,13 +292,27 @@ import {
   TableCell,
   TableHead
 } from '@/components/ui/table'
-
-import axios from "axios";
 import { toast } from '@/components/ui/toast'
-import router from '@/router'
+import { ability, defineAbilities, verifyAbilities } from '@/lib/ability'
 
-const token = sessionStorage.getItem('token') || ''
+defineAbilities()
+const create = ability.can('create', 'admins')
+const createStyle = computed(()=>{
+  return create ? 'bg-[#020721] px-4 py-2 rounded-xl w-50 h-12' : 'cursor-not-allowed opacity-20 bg-[#020721] px-4 py-2 rounded-xl w-50 h-12'
+})
 
+const edit = ability.can('update', 'admins')
+const editStyle = computed(()=>{
+  return edit ? 'icons-sidebar border-2 border-gray-100' : 'cursor-not-allowed opacity-20 icons-sidebar border-2 border-gray-100'
+})
+
+const deleteRoles = ability.can('delete', 'admins')
+const deleteStyle = computed(()=>{
+  return deleteRoles ? 'icons-sidebar text-red-600' : 'cursor-not-allowed opacity-20 icons-sidebar text-red-600'
+})
+
+const store = useRoleStore()
+store.getPermissions()
 
 const schema = toTypedSchema(
   z.object({
@@ -309,8 +323,7 @@ const schema = toTypedSchema(
 )
 
 const deleteRole = async (id:string)=>{
-  await useRoleStore().deleteRole(id)
-  getRoles()
+  await store.deleteRole(id)
 }
 const onSubmit=async (values:any)=> {
   console.log(JSON.stringify(values, null, 2));
@@ -319,11 +332,8 @@ const onSubmit=async (values:any)=> {
     'description': values.description,
     'permissions': values.permissionList
   })
-  await useRoleStore().createRole(data)
-  getRoles()
+  await store.createRole(data)
 }
-
-
 
 const editSchema = toTypedSchema(
   z.object({
@@ -332,68 +342,26 @@ const editSchema = toTypedSchema(
   })
 )
 
-const roles = ref<any[]>([])
-const permissions = ref<any[]>([])
+const roles = computed(()=>{
+  return store.roles
+})
+const permissions = computed(()=>{
+  return store.permissions
+})
 const allPermissions = ref<any[]>([])
 const rolePermissions = ref<any[]>([])
 const roleName = ref('')
 const modified = ref(false)
+const roleId = ref('')
 
-const handleRolePermissions=(arr: any[], name: string)=>{
+const handleRolePermissions=(arr: any[], name: string, id: string)=>{
+  verifyAbilities('update', 'roles')
   modified.value = false
   rolePermissions.value = arr
   roleName.value = name
+  roleId.value = id
 }
 
-const getRoles = async()=>{
-    toast({
-        title: 'Loading Data',
-        description: 'Fetching data...',
-        duration: 0 // Set duration to 0 to make it indefinite until manually closed
-      })  
-      try {
-        const response = await axios.get(
-          `https://api.staging.weeshr.com/api/v1/admin/roles`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          }
-        )
-    
-        if (response.status === 200 || response.status === 201) {
-          toast({
-            title: 'Success',
-            description: `Gotten data`,
-            variant: 'success'
-          })
-        }
-        roles.value= response.data.data.data.reverse()
-        console.log(roles.value)
-        // set Loading to false
-
-      } catch (error: any) {
-        if (error.response.status === 401) {
-          // sessionStorage.removeItem('token')
-
-          setTimeout(() => {
-            router.push({ name: 'home' })
-          }, 3000)
-    
-          toast({
-            title: 'Unauthorized',
-            description: 'You are not authorized to perform this action. Redirecting to home page...',
-            variant: 'destructive'
-          })
-          // Redirect after 3 seconds
-        } else {
-          toast({
-            title: error.response.data.message || 'An error occurred',
-            variant: 'destructive'
-          })
-        }
-      }
-}
 const onEdit= async (values:any)=> {
   let arr: any[]
   let name: string
@@ -402,9 +370,9 @@ const onEdit= async (values:any)=> {
     const combinedArray = [...rolePermissions.value, ...values.permissionArr];
     modified.value = true
   
-  // Use a Set to ensure all elements are unique
-  arr = [...new Set(combinedArray)];
-  }else{
+    // Use a Set to ensure all elements are unique
+    arr = [...new Set(combinedArray)];
+  } else {
     arr = rolePermissions.value
   }
   // console.log(arr)
@@ -425,14 +393,11 @@ const onEdit= async (values:any)=> {
     'name': name,
     'permissions': arr
   })
-  console.log(data)
-  useRoleStore().updateRole(data)
-  getRoles()
+  store.updateRole(data, roleId.value)
   }
 }
 
 const handleChecked = (val: string)=>{
-  // console.log(val)
   const index = rolePermissions.value.indexOf(val);
   
   if (index === -1) {
@@ -447,15 +412,8 @@ const handleChecked = (val: string)=>{
 
 const sheetCLose = ref(true)
 
-const handleSheet = ()=>{
-    sheetCLose.value = !sheetCLose.value
-}
-
-
 onMounted(async()=>{
-    getRoles()
-    const data = await useRoleStore().getPermissions()
+    await store.getRoles('Roles found')
     allPermissions.value = await useRoleStore().allPermissions()
-    permissions.value = data
 })
 </script>

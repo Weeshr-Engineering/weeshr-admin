@@ -2,7 +2,6 @@ import { defineStore } from "pinia";
 import axios from "axios";
 import { toast } from '@/components/ui/toast'
 import router from '@/router'
-const token = sessionStorage.getItem('token') || ''
 
 interface PhoneNumber {
   countryCode: string;
@@ -27,7 +26,7 @@ interface adminProfile {
     phoneNumber: PhoneNumber;
     roles: Role[];
     _id: string
-  }
+}
 
   interface AdminListStore {
     users: adminProfile[],
@@ -54,6 +53,7 @@ export const useAdminListStore = defineStore({
     }),
     actions: {
         async fetchUsersData (){
+            const token = sessionStorage.getItem('token') || ''
             toast({
               title: 'Loading Data',
               description: 'Fetching data...',
@@ -89,7 +89,7 @@ export const useAdminListStore = defineStore({
               const data = response.data.data.data
               this.users = data.reverse()
               // adminListStore.setUsers(data.reverse())
-          
+
               // set page data
             //   this.perPage= response.data.data.perPage
               this.currentPage = response.data.data.currentPage
@@ -98,6 +98,7 @@ export const useAdminListStore = defineStore({
               // close loading screen
               // useGeneralStore().setLoading(false)
             } catch (error: any) {
+              this.catchErr(error)
               if (error.response.status === 401) {
                 sessionStorage.removeItem('token')
                 // Clear token from superAdminStore
@@ -123,6 +124,7 @@ export const useAdminListStore = defineStore({
           },
           // Save user data to the /administrator endpoint
         async saveUserData (user: any){
+            const token = sessionStorage.getItem('token') || ''
             // adminListStore.loadingControl(true)
             try {
             const response = await axios.post(
@@ -148,27 +150,7 @@ export const useAdminListStore = defineStore({
             // Handle success
             } catch (err: any) {
             //   adminListStore.loadingControl(false)
-            if (err.response.data.code === 401) {
-                sessionStorage.removeItem('token')
-                // Clear token from superAdminStore
-                // superAdminStore.setToken('')
-        
-                setTimeout(() => {
-                router.push({ name: 'super-admin-login' })
-                }, 3000)
-        
-                toast({
-                title: 'Unauthorized',
-                description: 'You are not authorized to perform this action. Redirecting to home page...',
-                variant: 'destructive'
-                })
-                // Redirect after 3 seconds
-            } else {
-                toast({
-                title: err.response.data.message || 'An error occurred',
-                variant: 'destructive'
-                })
-            }
+            this.catchErr(err)
             // Handle other errors
             }
         },
@@ -242,7 +224,54 @@ export const useAdminListStore = defineStore({
             })
             .catch((error) => {
               console.log(error);
+              this.catchErr(error)
             });
+          },
+          catchErr (error: any){
+            if(error.response.status === 400){
+              toast({
+                title:  error.response.data.message || 'Bad Request',
+                description: 'Pls reach out to the management reguarding this request',
+                variant: 'destructive'
+              })
+            }else if(error.response.status === 401){
+              sessionStorage.removeItem('token')
+              setTimeout(() => {
+                router.push({ name: 'superAdmin-login' })
+              }, 1000)
+              toast({
+                title:  error.response.data.message || 'Unauthenticated',
+                description: 'Pls Signin again',
+                variant: 'destructive'
+              })
+            }else if(error.response.status === 403){
+              toast({
+                title:  error.response.data.message || 'Unauthorized',
+                description: 'You are not authorized to access this feature',
+                variant: 'destructive'
+              })
+              setTimeout(() => {
+                router.push({ name: 'home' })
+              }, 3000)
+            }else if(error.response.status === 422 ){
+              toast({
+                title:  error.response.data.message || 'Validation Error',
+                description: 'Your request is not validated, Pls try again ',
+                variant: 'destructive'
+              })
+            }else if(error.response.status === 500 ){
+              toast({
+                title:  error.response.data.message || 'Server Error',
+                description: 'Pls try again later',
+                variant: 'destructive'
+              })
+            }else if(error.response.status === 404 ){
+              toast({
+                title:  error.response.data.message || 'Not found',
+                description: '404 Error',
+                variant: 'destructive'
+              })
+            }
           }
     }
 })
