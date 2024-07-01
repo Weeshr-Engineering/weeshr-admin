@@ -14,7 +14,13 @@ import {
 } from '@/components/ui/carousel'
 
 import { Button } from '@/components/ui/button'
-import { getUser, getUserLog, getUserWeeshes } from '@/composables/getUser'
+import {
+  getUser,
+  getUserLog,
+  getUserWallet,
+  getUserWalletList,
+  getUserWeeshes
+} from '@/composables/getUser'
 import { useRoute } from 'vue-router'
 import { computed } from 'vue'
 import { Pagination, PaginationList, PaginationListItem } from '@/components/ui/pagination'
@@ -52,11 +58,18 @@ const _id = route.params.id
 const { appUser, error, load } = getUser()
 const { userLog, count, logError, log } = getUserLog()
 const { userWeeshesList, weeshesError, totalPages, currentPage, userWeeshes } = getUserWeeshes()
+const { userWallet, getWallet } = getUserWallet()
+const { walletError, userWalletList, getWalletList } = getUserWalletList()
 
 onMounted(() => {
   load(_id)
   userWeeshes(_id)
 })
+
+const wallet = (_id: string | string[]) => {
+  getWallet(_id)
+  getWalletList(_id)
+}
 
 const dateFormat = (dob: string, time?: string): string => {
   const date = new Date(dob)
@@ -170,7 +183,7 @@ const statusBg = (status: string) => {
 
 //pagination
 const pageTotal = ref(count)
-let perPage = ref(20)
+const perPage = ref(20)
 const pageCurrent = ref(1)
 
 const weeshesPageTotal = ref(totalPages)
@@ -224,6 +237,10 @@ const handlePageChange = (page: number, index: number) => {
 const handleWeeshesPageChange = (page: number) => {
   userWeeshes(_id, page)
 }
+
+//hide details
+const hideAccount = ref(true)
+const hideBalance = ref(true)
 </script>
 
 <template>
@@ -366,8 +383,16 @@ const handleWeeshesPageChange = (page: number) => {
           >
             Weeshes
           </TabsTrigger>
-          <TabsTrigger value="bank" class="text-[#000000] data-[state=active]:border-[#baef23]">
-            Bank
+          <TabsTrigger
+            value="bank"
+            class="text-[#000000] data-[state=active]:border-[#baef23]"
+            @click="
+              () => {
+                wallet(_id)
+              }
+            "
+          >
+            Wallet
           </TabsTrigger>
           <TabsTrigger value="support" class="text-[#000000] data-[state=active]:border-[#baef23]"
             >Support
@@ -386,38 +411,38 @@ const handleWeeshesPageChange = (page: number) => {
         </TabsList>
 
         <TabsContent value="weeshes" class="space-y-4">
+          <div class="flex flex-wrap gap-3 flex-row px-2 sm:px-6 py-4 w-full mt-6">
+            <Button
+              variant="outline"
+              class="rounded-2xl bg-[#EEEFF5]"
+              @click="
+                () => {
+                  userWeeshes(_id)
+                }
+              "
+            >
+              <div class="flex items-center text-[15px]">
+                <Icon icon="tdesign:clear" width="15" height="15" class="me-2" />
+                Clear Filter
+              </div>
+            </Button>
+            <Button
+              variant="outline"
+              class="rounded-2xl bg-[#EEEFF5]"
+              @click="
+                () => {
+                  sortPrice = sortPrice === 'desc' ? 'asc' : 'desc'
+                }
+              "
+            >
+              <div class="flex items-center text-[15px]">Sort by Price</div>
+            </Button>
+            <Search class="flex-grow" v-model="search" />
+          </div>
           <div v-if="weeshesError" class="text-[#02072199] p-10">
             {{ weeshesError }}
           </div>
           <div v-else-if="userWeeshesList.length">
-            <div class="flex flex-wrap gap-3 flex-row px-2 sm:px-6 py-4 w-full mt-6">
-              <Button
-                variant="outline"
-                class="rounded-2xl bg-[#EEEFF5]"
-                @click="
-                  () => {
-                    userWeeshes(_id)
-                  }
-                "
-              >
-                <div class="flex items-center text-[15px]">
-                  <Icon icon="tdesign:clear" width="15" height="15" class="me-2" />
-                  Clear Filter
-                </div>
-              </Button>
-              <Button
-                variant="outline"
-                class="rounded-2xl bg-[#EEEFF5]"
-                @click="
-                  () => {
-                    sortPrice = sortPrice === 'desc' ? 'asc' : 'desc'
-                  }
-                "
-              >
-                <div class="flex items-center text-[15px]">Sort by Price</div>
-              </Button>
-              <Search class="flex-grow" v-model="search" />
-            </div>
             <div v-for="weeshes in userWeeshesList" :key="weeshes._id">
               <Card class="px-4 py-10 my-4 w-11/12 mx-auto shadow-md">
                 <div class="flex items-center justify-end mb-6 mr-4">
@@ -595,79 +620,198 @@ const handleWeeshesPageChange = (page: number) => {
         </TabsContent>
 
         <TabsContent value="bank" class="space-y-4">
+          <div class="xl:flex gap-4 mx-4 mt-8 mb-14" v-if="userWallet">
+            <Card
+              class="h-[200px] rounded-[24px] transition-transform w-11/12 mx-auto xl:w-6/12 transform hover:scale-105 bg-[#EE9F39] cardShadow2 border-transparent"
+            >
+              <div class="h-[200px] pt-4 relative rounded-tr-[24px] rounded-tl-[24px]">
+                <CardContent class="flex justify-end space-y-0">
+                  <div class="weeshr-icon2 rounded-[7px] mr-4">
+                    <Icon
+                      icon="iconamoon:profile-light"
+                      width="24px"
+                      height="24px"
+                      color="#ee9f39"
+                    />
+                  </div>
+                  <div class="text-sm text-[#ffffff] absolute bottom-10 left-5 w-10/12">
+                    <div class="md:flex items-center justify-between">
+                      <p>Account Name :</p>
+                      <p class="italic font-medium text-lg">{{ userWallet.account_name }}</p>
+                    </div>
+                    <div>
+                      <p>Account Number :</p>
+                      <div class="md:flex md:justify-between items-center gap-4">
+                        <div v-if="hideAccount" class="flex py-2">
+                          <Icon icon="mage:stars-c" width="18" height="18" />
+                          <Icon icon="mage:stars-c" width="18" height="18" />
+                          <Icon icon="mage:stars-c" width="18" height="18" />
+                          <Icon icon="mage:stars-c" width="18" height="18" />
+                          <Icon icon="mage:stars-c" width="18" height="18" />
+                          <Icon icon="mage:stars-c" width="18" height="18" />
+                          <Icon icon="mage:stars-c" width="18" height="18" />
+                          <Icon icon="mage:stars-c" width="18" height="18" />
+                          <Icon icon="mage:stars-c" width="18" height="18" />
+                          <Icon icon="mage:stars-c" width="18" height="18" />
+                        </div>
+                        <p v-else class="italic font-medium">
+                          {{ userWallet.account_number }}
+                        </p>
+                        <Icon
+                          :icon="
+                            hideAccount ? 'fluent:eye-off-16-regular' : 'fluent:eye-16-regular'
+                          "
+                          @click="
+                            () => {
+                              hideAccount = !hideAccount
+                            }
+                          "
+                          width="24"
+                          height="24"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </div>
+            </Card>
+            <Card
+              class="h-[200px] rounded-[24px] transition-transform w-11/12 mx-auto xl:w-6/12 px-4 transform hover:scale-105 bg-[#6A70FF] cardShadow3 border-transparent mt-8 xl:mt-0"
+            >
+              <div class="h-[200px] pt-4 relative rounded-tr-[24px] rounded-tl-[24px]">
+                <CardContent class="flex justify-end space-y-0">
+                  <div class="weeshr-icon2 rounded-[7px]">
+                    <Icon icon="tdesign:money" width="24px" height="24px" color="#6a70ff" />
+                  </div>
+                  <div class="text-sm text-[#ffffff] absolute bottom-10 left-5 w-10/12">
+                    <div class="flex items-center justify-between">
+                      <p>Balance :</p>
+                      <div class="flex justify-between items-center gap-4">
+                        <div v-if="hideBalance" class="flex py-2">
+                          <Icon icon="mage:stars-c" width="18" height="18" />
+                          <Icon icon="mage:stars-c" width="18" height="18" />
+                          <Icon icon="mage:stars-c" width="18" height="18" />
+                          <Icon icon="mage:stars-c" width="18" height="18" />
+                          <Icon icon="mage:stars-c" width="18" height="18" />
+                        </div>
+                        <p v-else class="italic font-medium text-lg">
+                          {{ userWallet.balance }}
+                        </p>
+                      </div>
+                    </div>
+                    <div class="md:flex items-center justify-between mt-2">
+                      <p>Ledger Balance :</p>
+                      <div class="flex justify-between items-center">
+                        <div v-if="hideBalance" class="flex py-2 mr-2">
+                          <Icon icon="mage:stars-c" width="18" height="18" />
+                          <Icon icon="mage:stars-c" width="18" height="18" />
+                          <Icon icon="mage:stars-c" width="18" height="18" />
+                          <Icon icon="mage:stars-c" width="18" height="18" />
+                          <Icon icon="mage:stars-c" width="18" height="18" />
+                        </div>
+                        <p v-else class="italic font-medium text-lg mr-2">
+                          {{ userWallet.ledger_balance }}
+                        </p>
+                        <Icon
+                          :icon="
+                            hideBalance ? 'fluent:eye-off-16-regular' : 'fluent:eye-16-regular'
+                          "
+                          @click="
+                            () => {
+                              hideBalance = !hideBalance
+                            }
+                          "
+                          width="24"
+                          height="24"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </div>
+            </Card>
+          </div>
           <div class="overflow-auto bg-white rounded-md md:mx-6">
-            <Table class="min-w-full">
-              <TableHeader>
-                <TableRow
-                  class="text-xs sm:text-sm md:text-base text-[#02072199] font-semibold bg-gray-200"
-                >
-                  <TableHead>
-                    <div class="flex items-center">
-                      Type
-                      <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
-                    </div>
-                  </TableHead>
-                  <TableHead>
-                    <div class="flex items-center">
-                      Date
-                      <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
-                    </div>
-                  </TableHead>
-                  <TableHead>
-                    <div class="flex items-center">
-                      Amount
-                      <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
-                    </div>
-                  </TableHead>
-                  <TableHead>
-                    <div class="flex items-center">
-                      Status
-                      <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
-                    </div>
-                  </TableHead>
-                  <TableHead></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                <!-- <TableRow>
-                  <TableCell class="font-medium">{{ user2.type }}</TableCell>
-                  <TableCell class="font-medium">{{ user2.date }}</TableCell>
-                  <TableCell class="font-normal text-xs">{{ user2.amount }} </TableCell>
-                  <TableCell class="">
-                    <template v-for="status in user2.status" :key="status">
-                      <span
-                        :class="{
-                          'bg-[#53eeb8] text-[#F8F9FF]': status === 'Successful',
-                          'bg-[#373B4D] text-[#F8F9FF]': status === ' Pending',
-                          'bg-[#EE9F39] text-[#F8F9FF]': status === 'Failed'
-                        }"
-                        class="inline-block bg-[#373B4D] text-[#F8F9FF] rounded-full px-2 py-1 text-sm"
-                        >{{ status }}</span
+            <div v-if="walletError" class="text-[#02072199] p-10">
+              {{ walletError }}
+            </div>
+            <div v-else-if="userWalletList">
+              <Table class="min-w-full">
+                <TableHeader>
+                  <TableRow
+                    class="text-xs sm:text-sm md:text-base text-[#02072199] font-semibold bg-gray-200"
+                  >
+                    <TableHead>
+                      <div class="flex items-center">
+                        Type
+                        <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
+                      </div>
+                    </TableHead>
+                    <TableHead>
+                      <div class="flex items-center">
+                        Date
+                        <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
+                      </div>
+                    </TableHead>
+                    <TableHead>
+                      <div class="flex items-center">
+                        Amount
+                        <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
+                      </div>
+                    </TableHead>
+                    <TableHead>
+                      <div class="flex items-center">
+                        Status
+                        <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
+                      </div>
+                    </TableHead>
+                    <TableHead></TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  <!-- <TableRow>
+                    <TableCell class="font-medium">{{ user2.type }}</TableCell>
+                    <TableCell class="font-medium">{{ user2.date }}</TableCell>
+                    <TableCell class="font-normal text-xs">{{ user2.amount }} </TableCell>
+                    <TableCell class="">
+                      <template v-for="status in user2.status" :key="status">
+                        <span
+                          :class="{
+                            'bg-[#53eeb8] text-[#F8F9FF]': status === 'Successful',
+                            'bg-[#373B4D] text-[#F8F9FF]': status === ' Pending',
+                            'bg-[#EE9F39] text-[#F8F9FF]': status === 'Failed'
+                          }"
+                          class="inline-block bg-[#373B4D] text-[#F8F9FF] rounded-full px-2 py-1 text-sm"
+                          >{{ status }}</span
+                        >
+                      </template>
+                    </TableCell>
+                    <TableCell>
+                      <svg
+                        width="20"
+                        height="50"
+                        viewBox="0 0 20 50"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
                       >
-                    </template>
-                  </TableCell>
-                  <TableCell>
-                    <svg
-                      width="20"
-                      height="50"
-                      viewBox="0 0 20 50"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M7 31L12.5118 26.0606C13.1627 25.4773 13.1627 24.5227 12.5118 23.9394L7 19"
-                        stroke="#54586D"
-                        stroke-opacity="0.8"
-                        stroke-width="2"
-                        stroke-miterlimit="10"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      />
-                    </svg>
-                  </TableCell>
-                </TableRow> -->
-              </TableBody>
-            </Table>
+                        <path
+                          d="M7 31L12.5118 26.0606C13.1627 25.4773 13.1627 24.5227 12.5118 23.9394L7 19"
+                          stroke="#54586D"
+                          stroke-opacity="0.8"
+                          stroke-width="2"
+                          stroke-miterlimit="10"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                      </svg>
+                    </TableCell>
+                  </TableRow> -->
+                </TableBody>
+              </Table>
+            </div>
+            <div v-else class="text-[#02072199] p-10">
+              <p>No user data available</p>
+            </div>
           </div>
         </TabsContent>
 
