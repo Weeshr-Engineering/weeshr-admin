@@ -57,6 +57,7 @@ export const useAdminListStore = defineStore({
             toast({
               title: 'Loading Data',
               description: 'Fetching data...',
+              variant:'loading',
               duration: 0 // Set duration to 0 to make it indefinite until manually closed
             })
           
@@ -98,6 +99,27 @@ export const useAdminListStore = defineStore({
               // useGeneralStore().setLoading(false)
             } catch (error: any) {
               this.catchErr(error)
+              if (error.response.status === 401) {
+                sessionStorage.removeItem('token')
+                // Clear token from superAdminStore
+                // superAdminStore.setToken('')
+          
+                setTimeout(() => {
+                  router.push({ name: 'home' })
+                }, 3000)
+          
+                toast({
+                  title: 'Unauthorized',
+                  description: 'You are not authorized to perform this action. Redirecting to home page...',
+                  variant: 'warning'
+                })
+                // Redirect after 3 seconds
+              } else {
+                toast({
+                  title: error.response.data.message || 'An error occurred',
+                  variant: 'destructive'
+                })
+              }
             }
           },
           // Save user data to the /administrator endpoint
