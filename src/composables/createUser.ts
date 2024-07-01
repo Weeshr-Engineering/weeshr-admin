@@ -73,7 +73,8 @@ const createUser = () => {
         try {
             userFormSchema.parse(newUser.value);
             toast({
-                description: "Loading...."
+                description: "Loading....",
+                variant:'loading'
             })
             const response = await axios.post('https://api.staging.weeshr.com/api/v1/admin/accounts/user', newUser.value,
             {

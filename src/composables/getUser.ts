@@ -45,7 +45,8 @@ export const getUser = () => {
   const load = async (_id: string | string[]) => {
     try {
       toast({
-        description: 'Loading....'
+        description: 'Loading....',
+        variant:'loading'
       })
       const response = await axios.get(
         'https://api.staging.weeshr.com/api/v1/admin/accounts/users/' + _id,
@@ -66,7 +67,7 @@ export const getUser = () => {
         error.value = response.data.message
         toast({
           description: response.data.message,
-          variant: 'destructive'
+          variant: 'warning'
         })
       }
     } catch (err: any) {
@@ -89,7 +90,8 @@ export const getUserLog = () => {
   const log = async (_id: string | string[], next: number, perPage: number) => {
     try {
       toast({
-        description: 'Loading....'
+        description: 'Loading....',
+        variant:'loading'
       })
       const response = await axios.get(
         `https://api.staging.weeshr.com/api/v1/admin/accounts/user/${_id}/logs?&per_page=${perPage}&page_item_from=${next}`,
