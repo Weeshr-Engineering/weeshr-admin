@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import axios from "axios";
+import axios from "@/services/ApiService";
 import { toast } from '@/components/ui/toast'
 import router from '@/router'
 
@@ -20,7 +20,7 @@ export const useRoleStore = defineStore({
               const config = {
                 method: 'post',
                 maxBodyLength: Infinity,
-                url: `https://api.staging.weeshr.com/api/v1/admin/role`,
+                url: `/api/v1/admin/role`,
                 headers: { 
                   'Content-Type': 'application/json', 
                   'Authorization': `Bearer ${token}`
@@ -47,7 +47,7 @@ export const useRoleStore = defineStore({
             })  
             try {
               const response = await axios.get(
-                `https://api.staging.weeshr.com/api/v1/admin/roles`,
+                `/api/v1/admin/roles`,
                 {
                   headers: {
                     Authorization: `Bearer ${token}`
@@ -81,7 +81,7 @@ export const useRoleStore = defineStore({
               const config = {
                 method: 'patch',
                 maxBodyLength: Infinity,
-                url: `https://api.staging.weeshr.com/api/v1/admin/role/${id}`,
+                url: `/api/v1/admin/role/${id}`,
                 headers: { 
                   'Content-Type': 'application/json', 
                   'Authorization': `Bearer ${token}`
@@ -110,7 +110,7 @@ export const useRoleStore = defineStore({
               
               const config = {
                 method: 'delete',
-                url: `https://api.staging.weeshr.com/api/v1/admin/role/${id}`,
+                url: `/api/v1/admin/role/${id}`,
                 headers: { 
                   'Content-Type': 'application/json', 
                   'Authorization': `Bearer ${token}`
@@ -135,7 +135,7 @@ export const useRoleStore = defineStore({
             })
             try {
               const response = await axios.get(
-                `https://api.staging.weeshr.com/api/v1/admin/role/permissions?group_by=model`,
+                `/api/v1/admin/role/permissions?group_by=model`,
                 {
                   headers: {
                     Authorization: `Bearer ${token}`
@@ -168,7 +168,7 @@ export const useRoleStore = defineStore({
           })
           try {
             const response = await axios.get(
-              `https://api.staging.weeshr.com/api/v1/admin/role/permissions?group_by=basic`,
+              `/api/v1/admin/role/permissions?group_by=basic`,
               {
                 headers: {
                   Authorization: `Bearer ${token}`
@@ -201,7 +201,7 @@ export const useRoleStore = defineStore({
           const config = {
             method: 'get',
             maxBodyLength: Infinity,
-            url: 'https://api.staging.weeshr.com/api/v1/admin/weesh/categories?per_page=5&page=1&search=cash',
+            url: '/api/v1/admin/weesh/categories?per_page=5&page=1&search=cash',
             headers: { 
               'Authorization': `Bearer ${token}`
             }

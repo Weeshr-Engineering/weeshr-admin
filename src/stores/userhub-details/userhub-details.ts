@@ -1,5 +1,5 @@
 import { defineStore } from "pinia"
-import axios from "axios"
+import axios from "@/services/ApiService";
 
 export const useUserhubStore = defineStore({
     id: 'userhubStore',
@@ -15,7 +15,7 @@ export const useUserhubStore = defineStore({
             const token = sessionStorage.getItem('token') || ''
             try {
                 const response = await axios.get(
-                  'https://api.staging.weeshr.com/api/v1/admin/accounts/user-types/counts',
+                  '/api/v1/admin/accounts/user-types/counts',
                   {
                     headers: {
                       Authorization: `Bearer ${token}`

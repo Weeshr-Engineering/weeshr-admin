@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button"
 import { z } from 'zod';
 import MainNav from '@/components/MainNav.vue'
 import DashboardFooter from '@/components/DashboardFooter.vue'
-import axios from "axios";
+import axios from "@/services/ApiService";
 import { toast } from '@/components/ui/toast'
 import { Input } from '@/components/ui/input'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
@@ -118,7 +118,7 @@ const onUpdate = () => {
       let config = {
         method: 'patch',
         maxBodyLength: Infinity,
-        url: `https://api.staging.weeshr.com/api/v1/admin/weesh/category/${currentCategory.value}`,
+        url: `/api/v1/admin/weesh/category/${currentCategory.value}`,
         headers: { 
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'multipart/form-data'
@@ -193,7 +193,7 @@ const onSubmit = formSubmit(async (values) => {
   let config = {
     method: 'post',
     maxBodyLength: Infinity,
-    url: 'https://api.staging.weeshr.com/api/v1/admin/weesh/category',
+    url: '/api/v1/admin/weesh/category',
     headers: { 
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'multipart/form-data'
