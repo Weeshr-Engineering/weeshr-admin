@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import axios from "axios";
+import axios from "@/services/ApiService";
 import { toast } from '@/components/ui/toast'
 import router from '@/router'
 
@@ -66,7 +66,7 @@ export const useAdminListStore = defineStore({
               // Set loading to true
           
               const response = await axios.get(
-                'https://api.staging.weeshr.com/api/v1/admin/administrators?per_page=200',
+                '/api/v1/admin/administrators?per_page=200',
                 {
                   headers: {
                     Authorization: `Bearer ${token}`
@@ -128,7 +128,7 @@ export const useAdminListStore = defineStore({
             // adminListStore.loadingControl(true)
             try {
             const response = await axios.post(
-                'https://api.staging.weeshr.com/api/v1/admin/administrator',
+                '/api/v1/admin/administrator',
                 user,
                 {
                 headers: {
@@ -201,7 +201,7 @@ export const useAdminListStore = defineStore({
             const config = {
               method: 'patch',
               maxBodyLength: Infinity,
-              url: `https://api.staging.weeshr.com/api/v1/admin/administrator/${value}/disabled_status`,
+              url: `/api/v1/admin/administrator/${value}/disabled_status`,
               headers: { 
                 'Content-Type': 'application/json', 
                 'Authorization': `Bearer ${token}`

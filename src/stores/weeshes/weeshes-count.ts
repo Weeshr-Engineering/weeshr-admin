@@ -1,5 +1,5 @@
 import { defineStore } from "pinia"
-import axios from "axios"
+import axios from "@/services/ApiService";
 import { useToast } from '@/components/ui/toast';
 
 export const useWeeshStore = defineStore('weeshStore', {
@@ -19,7 +19,7 @@ export const useWeeshStore = defineStore('weeshStore', {
             try {
                 this.loading = true
                 const response = await axios.get(
-                    'https://api.staging.weeshr.com/api/v1/admin/weeshes/count/status',
+                    '/api/v1/admin/weeshes/count/status',
                     {
                         headers: {
                             Authorization: `Bearer ${token}`

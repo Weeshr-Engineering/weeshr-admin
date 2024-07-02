@@ -1,5 +1,5 @@
 import { ref, type Ref } from 'vue'
-import axios from 'axios'
+import axios from "@/services/ApiService";
 import { useToast } from '@/components/ui/toast'
 
 interface User {
@@ -49,7 +49,7 @@ export const getUser = () => {
         variant:'loading'
       })
       const response = await axios.get(
-        'https://api.staging.weeshr.com/api/v1/admin/accounts/users/' + _id,
+        '/api/v1/admin/accounts/users/' + _id,
         {
           headers: {
             Authorization: `Bearer ${token}`
@@ -94,7 +94,7 @@ export const getUserLog = () => {
         variant:'loading'
       })
       const response = await axios.get(
-        `https://api.staging.weeshr.com/api/v1/admin/accounts/user/${_id}/logs?&per_page=${perPage}&page_item_from=${next}`,
+        `/api/v1/admin/accounts/user/${_id}/logs?&per_page=${perPage}&page_item_from=${next}`,
         {
           headers: {
             Authorization: `Bearer ${token}`

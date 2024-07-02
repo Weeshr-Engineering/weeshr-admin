@@ -1,5 +1,5 @@
 import { ref, type Ref } from 'vue'
-import axios from 'axios'
+import axios from "@/services/ApiService";
 import { useToast } from '@/components/ui/toast'
 
 
@@ -31,7 +31,7 @@ const getWeeshes = () => {
   const currentPage = ref(0)
   const token = sessionStorage.getItem('token') || ''
   const { toast } = useToast()
-  const base = `https://api.staging.weeshr.com/api/v1/admin/weeshes?per_page=20&`
+  const base = `/api/v1/admin/weeshes?per_page=20&`
 
   const loadWeeshes = async (option?: string | number) => {
     const url = () => {

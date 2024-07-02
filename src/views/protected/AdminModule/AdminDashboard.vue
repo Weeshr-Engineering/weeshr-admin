@@ -10,9 +10,6 @@ import { defineAbilities } from '@/lib/ability'
 import { useWeeshStore } from '@/stores/weeshes/weeshes-count'
 import { storeToRefs } from 'pinia'
 
-
-
-
 defineAbilities()
 const userHubStore = useUserhubStore() 
 const weeshStore = useWeeshStore()

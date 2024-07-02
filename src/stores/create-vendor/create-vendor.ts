@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import axios from 'axios'
+import axios from "@/services/ApiService";
 import router from '@/router'
 import { toast } from '@/components/ui/toast'
 import { useGeneralStore } from '@/stores/general-use'
@@ -52,7 +52,7 @@ export const useVendorUserStore = defineStore({
       try {
         useGeneralStore().setLoading(true) // Set loading to true
         // Make a request to the logout endpoint
-        await axios.get('https://api.staging.weeshr.com/api/v1/admin/logout', {
+        await axios.get('/api/v1/admin/logout', {
           headers: {
             Authorization: `Bearer ${this.token}` // Include token in the Authorization header
           }

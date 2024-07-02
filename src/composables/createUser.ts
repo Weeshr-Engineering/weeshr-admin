@@ -1,5 +1,5 @@
 import { ref, type Ref } from "vue"
-import axios from 'axios';
+import axios from "@/services/ApiService";
 import { useToast } from '@/components/ui/toast';
 import * as z from 'zod';
 import { useRouter } from "vue-router";
@@ -76,7 +76,7 @@ const createUser = () => {
                 description: "Loading....",
                 variant:'loading'
             })
-            const response = await axios.post('https://api.staging.weeshr.com/api/v1/admin/accounts/user', newUser.value,
+            const response = await axios.post('/api/v1/admin/accounts/user', newUser.value,
             {
                 headers: {
                     Authorization: `Bearer ${token}`

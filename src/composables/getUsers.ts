@@ -1,5 +1,5 @@
 import { ref, type Ref } from 'vue'
-import axios from 'axios'
+import axios from "@/services/ApiService";
 import { useToast } from '@/components/ui/toast'
 
 interface User {
@@ -39,7 +39,7 @@ const getUsers = () => {
         variant:'loading'
       })
       const response = await axios.get(
-        `https://api.staging.weeshr.com/api/v1/admin/accounts/users?search=${search}&page=${page}&per_page=20`,
+        `/api/v1/admin/accounts/users?search=${search}&page=${page}&per_page=20`,
         {
           headers: {
             Authorization: `Bearer ${token}`

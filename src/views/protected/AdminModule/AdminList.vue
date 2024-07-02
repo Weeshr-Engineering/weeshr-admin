@@ -6,7 +6,7 @@ import { toTypedSchema } from '@vee-validate/zod'
 import * as z from 'zod'
 import { useDateFormat, useNow } from '@vueuse/core'
 import MainNav from '@/components/MainNav.vue'
-import axios from 'axios'
+import axios from "@/services/ApiService";
 import { Loader2 } from 'lucide-vue-next'
 import router from '@/router'
 import { Button } from "@/components/ui/button"
@@ -165,7 +165,7 @@ const paginationItems = computed(() => {
 const getRoles = async ()=>{
   try {
     const response = await axios.get(
-      'https://api.staging.weeshr.com/api/v1/admin/roles',
+      '/api/v1/admin/roles',
       {
         headers: {
           Authorization: `Bearer ${token}`

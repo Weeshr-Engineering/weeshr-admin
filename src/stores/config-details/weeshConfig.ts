@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import axios from "axios";
+import axios from "@/services/ApiService";
 import { toast } from '@/components/ui/toast'
 import router from '@/router'
 
@@ -49,7 +49,7 @@ export const useWeeshConfigStore = defineStore('weeshConfig', {
             const config = {
               method: 'get',
               maxBodyLength: Infinity,
-              url: `https://api.staging.weeshr.com/api/v1/admin/weesh/categories?per_page=5&page=${page}`,
+              url: `/api/v1/admin/weesh/categories?per_page=5&page=${page}`,
               headers: { 
                 'Authorization': `Bearer ${token}`
               }
@@ -88,7 +88,7 @@ export const useWeeshConfigStore = defineStore('weeshConfig', {
           const config = {
             method: 'patch',
             maxBodyLength: Infinity,
-            url: `https://api.staging.weeshr.com/api/v1/admin/weesh/category/${value}/status`,
+            url: `/api/v1/admin/weesh/category/${value}/status`,
             headers: { 
               'Content-Type': 'application/json', 
               'Authorization': `Bearer ${token}`
@@ -130,7 +130,7 @@ export const useWeeshConfigStore = defineStore('weeshConfig', {
             
             const config = {
               method: 'delete',
-              url: `https://api.staging.weeshr.com/api/v1/admin/weesh/category/${id}`,
+              url: `/api/v1/admin/weesh/category/${id}`,
               headers: { 
                 'Content-Type': 'application/json', 
                 'Authorization': `Bearer ${token}`

@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import axios from 'axios';
+import axios from "@/services/ApiService";
 
 interface UserExtras {
   email: string;
@@ -64,7 +64,7 @@ export const useActivityLogStore = defineStore('activityLog', {
 
       try {
         const response = await axios.get(
-          'https://api.staging.weeshr.com/api/v1/admin/logs/activity-logs',
+          '/api/v1/admin/logs/activity-logs',
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -89,7 +89,7 @@ export const useActivityLogStore = defineStore('activityLog', {
 
       try {
         const response = await axios.get(
-          'https://api.staging.weeshr.com/api/v1/admin/logs/activity-logs/filters-and-meta',
+          '/api/v1/admin/logs/activity-logs/filters-and-meta',
           {
             headers: {
               Authorization: `Bearer ${token}`,

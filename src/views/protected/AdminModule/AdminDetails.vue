@@ -4,7 +4,7 @@ import { Switch } from '@/components/ui/switch'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { toast } from '@/components/ui/toast'
-import axios from 'axios'
+import axios from "@/services/ApiService";
 import { useRoute } from 'vue-router';
 import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
 import { useAdminListStore } from '@/stores/admin-list/admin-list'
@@ -70,7 +70,7 @@ const fetchUsersData = async (msg: string) => {
     // Set loading to true
     // useGeneralStore().setLoading(true)
     const response = await axios.get(
-      `https://api.staging.weeshr.com/api/v1/admin/administrator/${id}`,
+      `/api/v1/admin/administrator/${id}`,
       {
         headers: {
           Authorization: `Bearer ${token}`
@@ -161,7 +161,7 @@ const editProfile = async (values: any) => {
 let config = {
   method: 'patch',
   maxBodyLength: Infinity,
-  url: `https://api.staging.weeshr.com/api/v1/admin/administrator/${id}`,
+  url: `/api/v1/admin/administrator/${id}`,
   headers: { 
     'Content-Type': 'application/json', 
     'Authorization': `Bearer ${token}`
@@ -183,7 +183,7 @@ axios.request(config)
 const getRoles = async ()=>{
   try {
     const response = await axios.get(
-      'https://api.staging.weeshr.com/api/v1/admin/roles',
+      '/api/v1/admin/roles',
       {
         headers: {
           Authorization: `Bearer ${token}`
@@ -235,7 +235,7 @@ console.log(data)
 let config = {
   method: 'patch',
   maxBodyLength: Infinity,
-  url: `https://api.staging.weeshr.com/api/v1/admin/administrator/${id}/roles`,
+  url: `/api/v1/admin/administrator/${id}/roles`,
   headers: { 
     'Content-Type': 'application/json', 
     'Authorization': `Bearer ${token}`
