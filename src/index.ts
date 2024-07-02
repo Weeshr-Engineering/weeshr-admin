@@ -4,7 +4,7 @@ import SuperAdminLogin from '@/views/unprotected/SuperAdminModule/SuperAdminLogi
 import configuration from '@/views/protected/AdminModule/UserConfiguration.vue'
 import user from '@/views/protected/AdminModule/UserHub.vue'
 import AppUsers from '@/views/protected/AdminModule/AppUsers.vue'
-import Vendors from '@/views/protected/AdminModule/Vendors.vue'
+import Vendors from '@/views/protected/AdminModule/VendorsList.vue'
 import Admin from '@/views/protected/AdminModule/AdminList.vue'
 import AdminDetails from '@/views/protected/AdminModule/AdminDetails.vue'
 import UserDetails from '@/views/protected/AdminModule/UserDetails.vue'

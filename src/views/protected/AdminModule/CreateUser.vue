@@ -6,8 +6,7 @@ import { toTypedSchema } from '@vee-validate/zod'
 import * as z from 'zod'
 import { useDateFormat, useNow } from '@vueuse/core'
 import MainNav from '@/components/MainNav.vue'
-
-import axios from 'axios'
+import axios from "@/services/ApiService";
 import { Loader2 } from 'lucide-vue-next'
 import router from '@/router'
 import {
@@ -118,7 +117,7 @@ const fetchUsersData = async () => {
   try {
     // Set loading to true
 
-    const response = await axios.get('https://api.staging.weeshr.com/api/v1/administrators', {
+    const response = await axios.get('/api/v1/administrators', {
       // params: {
       //   search: 'test_admin',
       //   disabled_status: 'disabled'
