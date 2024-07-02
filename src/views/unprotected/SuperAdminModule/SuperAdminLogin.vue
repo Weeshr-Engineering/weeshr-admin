@@ -96,14 +96,11 @@ const onSubmit = form.handleSubmit(async () => {
   if (form.values.userEmail && form.values.password) {
     const { userEmail, password } = form.values
 
-    console.log(userEmail, password)
-
     // Set the username and password in the store
     superAdminStore.setuserEmail(userEmail)
     superAdminStore.setPassword(password)
 
     try {
-      console.log('userEmail', userEmail)
 
       const response = await axios.post('https://api.staging.weeshr.com/api/v1/admin/login', {
         email: userEmail,
