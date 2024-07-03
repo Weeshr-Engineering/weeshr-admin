@@ -276,12 +276,6 @@ const statusBg = (status: string) => {
   }
 };
 
-// const handlePageChange = (newPage: number) => {
-//   if (newPage > 0 && newPage <= totalPages.value) {
-//     currentPage.value = newPage;
-//   }
-// };
-
 const toggleSortOrder = () => {
   filters.value.sort_column = 'timestamp';
   filters.value.sort_direction = filters.value.sort_direction === 'desc' ? 'asc' : 'desc';
