@@ -29,7 +29,6 @@ const getUsers = () => {
   const error: Ref<string> = ref('')
   const totalPages = ref(0)
   const currentPage = ref(0)
-  const token = sessionStorage.getItem('token') || ''
   const { toast } = useToast()
 
   const load = async (search: string, page: number) => {
@@ -40,11 +39,6 @@ const getUsers = () => {
       })
       const response = await axios.get(
         `/api/v1/admin/accounts/users?search=${search}&page=${page}&per_page=20`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
       )
 
       if (response.data.code === 200) {

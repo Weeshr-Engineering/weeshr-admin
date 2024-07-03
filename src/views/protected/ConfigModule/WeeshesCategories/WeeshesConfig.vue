@@ -119,10 +119,6 @@ const onUpdate = () => {
         method: 'patch',
         maxBodyLength: Infinity,
         url: `/api/v1/admin/weesh/category/${currentCategory.value}`,
-        headers: { 
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data'
-        },
         data : data
       };
 
@@ -194,10 +190,6 @@ const onSubmit = formSubmit(async (values) => {
     method: 'post',
     maxBodyLength: Infinity,
     url: '/api/v1/admin/weesh/category',
-    headers: { 
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'multipart/form-data'
-    },
     data : data
   };
 
@@ -229,7 +221,7 @@ const onSubmit = formSubmit(async (values) => {
 })
 
 
-const token = sessionStorage.getItem('token') || ''
+
 const categories = computed(()=>{
   return store.categories
 })

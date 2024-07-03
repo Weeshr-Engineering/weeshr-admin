@@ -30,7 +30,7 @@ interface ActivityLogItem {
   description: string;
 }
 
- 
+
 interface ActivityLogState {
   logs: ActivityLogItem[];
   loading: boolean;
@@ -60,16 +60,9 @@ export const useActivityLogStore = defineStore('activityLog', {
       this.loading = true;
       this.error = null;
 
-      const token = sessionStorage.getItem('token') || '';
-
       try {
         const response = await axios.get(
-          '/api/v1/admin/logs/activity-logs',
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
+          '/api/v1/admin/logs/activity-logs'
         );
 
         if (response.status === 200) {
@@ -85,23 +78,17 @@ export const useActivityLogStore = defineStore('activityLog', {
     },
 
     async fetchFiltersAndMeta() {
-      const token = sessionStorage.getItem('token') || '';
 
       try {
         const response = await axios.get(
-          '/api/v1/admin/logs/activity-logs/filters-and-meta',
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
+          '/api/v1/admin/logs/activity-logs/filters-and-meta'
         );
 
         if (response.status === 200) {
           const data = response.data.data.filters;
-        this.filters.log_action = data.log_action;
-        this.filters.log_status = data.log_status;
-        this.filters.log_user_types = data.log_user_types;
+          this.filters.log_action = data.log_action;
+          this.filters.log_status = data.log_status;
+          this.filters.log_user_types = data.log_user_types;
         } else {
           this.error = response.data.message;
         }

@@ -35,7 +35,7 @@ interface Log {
   description: string
 }
 
-const token = sessionStorage.getItem('token') || ''
+
 const { toast } = useToast()
 
 export const getUser = () => {
@@ -46,15 +46,10 @@ export const getUser = () => {
     try {
       toast({
         description: 'Loading....',
-        variant:'loading'
+        variant: 'loading'
       })
       const response = await axios.get(
         '/api/v1/admin/accounts/users/' + _id,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
       )
 
       if (response.data.code === 200) {
@@ -91,15 +86,10 @@ export const getUserLog = () => {
     try {
       toast({
         description: 'Loading....',
-        variant:'loading'
+        variant: 'loading'
       })
       const response = await axios.get(
         `/api/v1/admin/accounts/user/${_id}/logs?&per_page=${perPage}&page_item_from=${next}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
       )
 
       if (response.data.code === 200) {

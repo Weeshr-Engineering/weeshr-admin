@@ -66,7 +66,7 @@ const newUser = ref({
 const sheetOpen = ref(false)
 const loading = ref(false)
 const superAdminStore = useSuperAdminStore()
-const token = sessionStorage.getItem('token') || ''
+
 
 const onSubmit = handleSubmit(async (values) => {
   loading.value = true
@@ -122,9 +122,6 @@ const fetchUsersData = async () => {
       //   search: 'test_admin',
       //   disabled_status: 'disabled'
       // },
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
     })
 
     if (response.status === 200 || response.status === 201) {
@@ -172,9 +169,6 @@ const saveUserData = async (user: any) => {
   loading.value = true
   try {
     const response = await axios.post('', user, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
     })
 
     // Check if response status is 200 or 201
@@ -236,18 +230,11 @@ onMounted(async () => {
           <button @click="sheetOpen = true" class="bg-[#020721] px-4 py-2 rounded-xl w-50 h-12">
             <div class="text-base text-[#F8F9FF] text-center flex items-center">
               Add New User
-              <svg
-                width="20"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                class="ml-6"
-              >
+              <svg width="20" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
+                class="ml-6">
                 <path
                   d="M12 2C6.49 2 2 6.49 2 12C2 17.51 6.49 22 12 22C17.51 22 22 17.51 22 12C22 6.49 17.51 2 12 2ZM16 12.75H12.75V16C12.75 16.41 12.41 16.75 12 16.75C11.59 16.75 11.25 16.41 11.25 16V12.75H8C7.59 12.75 7.25 12.41 7.25 12C7.25 11.59 7.59 11.25 8 11.25H11.25V8C11.25 7.59 11.59 7.25 12 7.25C12.41 7.25 12.75 7.59 12.75 8V11.25H16C16.41 11.25 16.75 11.59 16.75 12C16.75 12.41 16.41 12.75 16 12.75Z"
-                  fill="#F8F9FF"
-                />
+                  fill="#F8F9FF" />
               </svg>
             </div>
           </button>
@@ -265,13 +252,8 @@ onMounted(async () => {
                 <FormItem v-auto-animate>
                   <FormLabel class="text-blue-900">First Name</FormLabel>
                   <FormControl>
-                    <Input
-                      id="text"
-                      type="text"
-                      placeholder="First Name"
-                      class="focus-visible:ring-blue-600"
-                      v-bind="componentField"
-                    />
+                    <Input id="text" type="text" placeholder="First Name" class="focus-visible:ring-blue-600"
+                      v-bind="componentField" />
                   </FormControl>
 
                   <FormMessage for="firstName" />
@@ -282,13 +264,8 @@ onMounted(async () => {
                 <FormItem v-auto-animate>
                   <FormLabel class="text-blue-900">Last Name</FormLabel>
                   <FormControl>
-                    <Input
-                      id="text"
-                      type="text"
-                      placeholder="Last Name"
-                      class="focus-visible:ring-blue-600"
-                      v-bind="componentField"
-                    />
+                    <Input id="text" type="text" placeholder="Last Name" class="focus-visible:ring-blue-600"
+                      v-bind="componentField" />
                   </FormControl>
 
                   <FormMessage for="lastName" />
@@ -299,13 +276,8 @@ onMounted(async () => {
                 <FormItem v-auto-animate>
                   <FormLabel class="text-blue-900">Email</FormLabel>
                   <FormControl>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="weeshr@admin.com"
-                      class="focus-visible:ring-blue-600"
-                      v-bind="componentField"
-                    />
+                    <Input id="email" type="email" placeholder="weeshr@admin.com" class="focus-visible:ring-blue-600"
+                      v-bind="componentField" />
                   </FormControl>
 
                   <FormMessage />
@@ -315,12 +287,9 @@ onMounted(async () => {
                 <FormField v-slot="{ componentField }" name="gender" class="w-[40%]">
                   <FormItem>
                     <FormLabel>Gender</FormLabel>
-                    <select
-                      v-bind="componentField"
-                      id="gender"
+                    <select v-bind="componentField" id="gender"
                       class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                      placeholder="Select a category"
-                    >
+                      placeholder="Select a category">
                       <option value="" disabled selected hidden>Gender</option>
                       <option value="Male">Male</option>
                       <option value="Female">Female</option>
@@ -334,13 +303,8 @@ onMounted(async () => {
                     <FormItem v-auto-animate>
                       <FormLabel class="text-blue-900">Date of Birth</FormLabel>
                       <FormControl>
-                        <Input
-                          id="dob"
-                          type="date"
-                          placeholder="Date of Birth"
-                          class="focus-visible:ring-blue-600"
-                          v-bind="componentField"
-                        />
+                        <Input id="dob" type="date" placeholder="Date of Birth" class="focus-visible:ring-blue-600"
+                          v-bind="componentField" />
                       </FormControl>
 
                       <FormMessage for="dob" />
@@ -354,13 +318,8 @@ onMounted(async () => {
                   <FormLabel class="text-blue-900">Phone Number</FormLabel>
                   <FormControl>
                     <div>
-                      <Input
-                        id="phone"
-                        type="tel"
-                        placeholder="Phone Number"
-                        class="focus-visible:ring-blue-600"
-                        v-bind="componentField"
-                      />
+                      <Input id="phone" type="tel" placeholder="Phone Number" class="focus-visible:ring-blue-600"
+                        v-bind="componentField" />
                     </div>
                   </FormControl>
 
@@ -371,12 +330,9 @@ onMounted(async () => {
               <FormField v-slot="{ componentField }" name="status">
                 <FormItem>
                   <FormLabel>Status</FormLabel>
-                  <select
-                    v-bind="componentField"
-                    id="status"
+                  <select v-bind="componentField" id="status"
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                    placeholder="Status"
-                  >
+                    placeholder="Status">
                     <option value="" disabled selected hidden>Select user Status</option>
                     <option :value="true">True</option>
                     <option :value="false">False</option>
@@ -386,11 +342,7 @@ onMounted(async () => {
               </FormField>
 
               <Button :disabled="loading" type="submit">
-                <Loader2
-                  color="#ffffff"
-                  v-if="loading"
-                  class="w-4 h-4 mr-2 text-black animate-spin"
-                />
+                <Loader2 color="#ffffff" v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" />
                 Submit
 
                 <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" />
@@ -412,9 +364,7 @@ onMounted(async () => {
       <div class="overflow-auto bg-white rounded-lg shadow">
         <Table>
           <TableHeader>
-            <TableRow
-              class="text-xs sm:text-sm md:text-base text-[#02072199] font-semibold bg-gray-200"
-            >
+            <TableRow class="text-xs sm:text-sm md:text-base text-[#02072199] font-semibold bg-gray-200">
               <TableHead> Full Name </TableHead>
               <TableHead>Email</TableHead>
               <TableHead>phone number</TableHead>
@@ -426,15 +376,11 @@ onMounted(async () => {
             <TableRow v-for="user in users" :key="user._id">
               <TableCell class="font-medium">{{ user.firstName }} {{ user.lastName }}</TableCell>
               <TableCell>{{ user.email }}</TableCell>
-              <TableCell
-                >{{ user.phoneNumber.countryCode }} {{ user.phoneNumber.phoneNumber }}</TableCell
-              >
+              <TableCell>{{ user.phoneNumber.countryCode }} {{ user.phoneNumber.phoneNumber }}</TableCell>
               <TableCell>{{ user.gender }}</TableCell>
               <TableCell>
-                <button
-                  :class="{ 'bg-[#00C37F]': user.status, 'bg-[#020721]': !user.status }"
-                  class="px-4 py-2 text-sm text-white rounded-md"
-                >
+                <button :class="{ 'bg-[#00C37F]': user.status, 'bg-[#020721]': !user.status }"
+                  class="px-4 py-2 text-sm text-white rounded-md">
                   {{ user.disabled ? 'Inactive' : 'Active' }}
                 </button>
               </TableCell>

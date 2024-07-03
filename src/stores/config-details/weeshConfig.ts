@@ -40,7 +40,7 @@ export const useWeeshConfigStore = defineStore('weeshConfig', {
     }),
     actions: {
         async getWeesheCategories(page: number, msg: string){
-            const token = sessionStorage.getItem('token') || ''
+            
             toast({
               title: 'Loading Data',
               description: 'Fetching data...',
@@ -50,9 +50,6 @@ export const useWeeshConfigStore = defineStore('weeshConfig', {
               method: 'get',
               maxBodyLength: Infinity,
               url: `/api/v1/admin/weesh/categories?per_page=5&page=${page}`,
-              headers: { 
-                'Authorization': `Bearer ${token}`
-              }
             };
             
             axios.request(config)
@@ -84,15 +81,11 @@ export const useWeeshConfigStore = defineStore('weeshConfig', {
           const data = JSON.stringify({
             "disabled": !status
           });
-          const token = sessionStorage.getItem('token') || ''
+          
           const config = {
             method: 'patch',
             maxBodyLength: Infinity,
             url: `/api/v1/admin/weesh/category/${value}/status`,
-            headers: { 
-              'Content-Type': 'application/json', 
-              'Authorization': `Bearer ${token}`
-            },
             data : data
           };
         
@@ -120,7 +113,7 @@ export const useWeeshConfigStore = defineStore('weeshConfig', {
           this.active= !this.active
         },
         async deleteWeeshCategory (id: string){
-          const token = sessionStorage.getItem('token') || ''
+          
           toast({
               title: 'Deleting Data',
               description: 'Deleting data...',
@@ -131,10 +124,6 @@ export const useWeeshConfigStore = defineStore('weeshConfig', {
             const config = {
               method: 'delete',
               url: `/api/v1/admin/weesh/category/${id}`,
-              headers: { 
-                'Content-Type': 'application/json', 
-                'Authorization': `Bearer ${token}`
-              }
             };
             
             axios.request(config)

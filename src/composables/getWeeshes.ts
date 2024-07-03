@@ -29,7 +29,7 @@ const getWeeshes = () => {
   const error: Ref<string> = ref('')
   const totalPages = ref(0)
   const currentPage = ref(0)
-  const token = sessionStorage.getItem('token') || ''
+
   const { toast } = useToast()
   const base = `/api/v1/admin/weeshes?per_page=20&`
 
@@ -71,11 +71,7 @@ const getWeeshes = () => {
         variant: 'loading'
       })
 
-      const response = await axios.get(url(), {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      })
+      const response = await axios.get(url())
 
       if (response.data.code === 200) {
         weeshes.value = response.data.data.data
@@ -85,7 +81,7 @@ const getWeeshes = () => {
         toast({
           description: response.data.message,
           variant: 'success',
-         
+
         })
       } else {
         error.value = response.data.message

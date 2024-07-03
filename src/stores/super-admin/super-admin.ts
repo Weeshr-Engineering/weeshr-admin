@@ -67,11 +67,7 @@ export const useSuperAdminStore = defineStore({
       try {
         useGeneralStore().setLoading(true) // Set loading to true
         // Make a request to the logout endpoint
-        await axios.get('/api/v1/admin/logout', {
-          headers: {
-            Authorization: `Bearer ${this.token}` // Include token in the Authorization header
-          }
-        })
+        await axios.get('/api/v1/admin/logout')
 
         // Clear the token
         this.clearToken()

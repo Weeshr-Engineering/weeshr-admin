@@ -77,7 +77,7 @@ const newUser = ref({
 const sheetOpen = ref(false)
 const loading = ref(false)
 const superAdminStore = useSuperAdminStore()
-const token = sessionStorage.getItem('token') || ''
+
 
 const onSubmit = handleSubmit(async (values) => {
   loading.value = true
@@ -133,9 +133,6 @@ const fetchUsersData = async () => {
       //   search: 'test_admin',
       //   disabled_status: 'disabled'
       // },
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
     })
 
     if (response.status === 200 || response.status === 201) {
@@ -184,12 +181,7 @@ const saveUserData = async (user: any) => {
   try {
     const response = await axios.post(
       '/api/v1/admin/administrator',
-      user,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      }
+      user
     )
 
     // Check if response status is 200 or 201

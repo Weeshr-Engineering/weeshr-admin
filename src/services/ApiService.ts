@@ -12,6 +12,19 @@ axios.defaults.headers.common["Accept"] = "application/json";
 axios.defaults.headers.common["Content-Type"] = "application/json";
 // axios.defaults.withCredentials = true
 
+// Axios request interceptor
+axios.interceptors.request.use(
+    (config) => {
+        const token = sessionStorage.getItem("token");
+
+        if (token) {
+            config.headers["Authorization"] = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => Promise.reject(error)
+);
+
 // Axios response interceptor
 axios.interceptors.response.use(
     (response) => response,
@@ -36,8 +49,8 @@ axios.interceptors.response.use(
     }
 );
 
-if (localStorage.getItem("token") && localStorage.getItem("token") !== null) {
-    axios.defaults.headers["Authorization"] = `Bearer ${localStorage.getItem("token")}`;
+if (sessionStorage.getItem("token") && sessionStorage.getItem("token") !== null) {
+    axios.defaults.headers["Authorization"] = `Bearer ${sessionStorage.getItem("token")}`;
 }
 
 // Export axios instance

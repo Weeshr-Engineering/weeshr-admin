@@ -98,7 +98,7 @@ const adminListStore = useAdminListStore()
 adminListStore.fetchUsersData()
 const sheetOpen = adminListStore.sheetOpen
 const loading = ref(false)
-const token = sessionStorage.getItem('token') || ''
+
 
 const onSubmit = handleSubmit(async (values) => {
   adminListStore.loadingControl(true)
@@ -165,12 +165,7 @@ const paginationItems = computed(() => {
 const getRoles = async ()=>{
   try {
     const response = await axios.get(
-      '/api/v1/admin/roles',
-      {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      }
+      '/api/v1/admin/roles'
     )
 
     // Check if response status is 200 or 201

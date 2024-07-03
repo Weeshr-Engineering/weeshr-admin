@@ -70,7 +70,7 @@ const newUser = ref({
 const sheetOpen = ref(false)
 const loading = ref(false)
 const superAdminStore = useSuperAdminStore()
-const token = sessionStorage.getItem('token') || ''
+
 
 const onSubmit = handleSubmit(async (values) => {
   loading.value = true
@@ -167,9 +167,6 @@ const fetchUsersData = async () => {
         //   search: 'test_admin',
         //   disabled_status: 'disabled'
         // },
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
       }
     )
 
@@ -221,9 +218,6 @@ const saveUserData = async (user: any) => {
       '/administrators?search=test_admin&disabled_status=disabled',
       user,
       {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
       }
     )
 
