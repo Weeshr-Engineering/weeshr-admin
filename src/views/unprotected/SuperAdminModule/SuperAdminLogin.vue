@@ -130,6 +130,7 @@ const onSubmit = form.handleSubmit(async () => {
         setuserEmail(userEmail)
         // Save the token in Pinia store
         setToken(token)
+
         sessionStorage.setItem('permissions', JSON.stringify(response.data.data.user.permissions))
         // console.log(response.data)
         // const permissions = modPermissions(response.data.data.user.permissions)
@@ -139,26 +140,49 @@ const onSubmit = form.handleSubmit(async () => {
 
         // Save the token in sessionStorage
 
-        router.push((redirect_to) ? redirect_to as string : { name: 'home' })
+        return (redirect_to)
+          ? router.push(redirect_to as string)
+          : router.push({ name: 'home' });
       } else {
-        router.push((redirect_to) ? redirect_to as string : { name: 'superAdmin-login' })
+        router.push({ name: 'superAdmin-login' })
       }
 
       // Redirect to home page after successful login
-    } catch (error: any) {
+    } catch ({ response }: any) {
+
       loading.value = false
+
+      const { status, data, statusText } = response;
+
+      if ([400, 401].includes(status)) {
+
+        return toast({
+          title: data?.message || 'Invalid Credentials',
+          variant: 'destructive'
+        });
+      }
+
+      if (status === 422) {
+        return toast({
+          title: data.error || 'Invalid Credentials',
+          variant: 'destructive'
+        });
+      }
+
       // Handle login errors, such as displaying error messages to the user
-      toast({
-        title: error.response.data.message || 'An error occurred',
+      return toast({
+        title: data?.message || 'An error occurred',
         variant: 'destructive'
       })
     }
+
   } else {
     // Handle the case when form fields are empty
     toast({
       title: 'Please enter your username/email and password.',
       variant: 'destructive'
     })
+
     loading.value = false
   }
 })
