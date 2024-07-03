@@ -72,13 +72,13 @@ const createUser = () => {
     const userLoad = async () => {
         try {
             userFormSchema.parse(newUser.value);
+            
             toast({
                 description: "Loading....",
                 variant: 'loading'
-            })
-            const response = await axios.post('/api/v1/admin/accounts/user', newUser.value,
+            });
 
-            );
+            const response = await axios.post('/api/v1/admin/accounts/user', newUser.value);
 
             if (response.data.code === 200) {
                 toast({

@@ -1,5 +1,8 @@
 import { defineStore } from 'pinia';
 import axios from "@/services/ApiService";
+import { useToast } from '@/components/ui/toast';
+
+const { toast } = useToast()
 
 interface UserExtras {
   email: string;
@@ -89,7 +92,13 @@ export const useActivityLogStore = defineStore('activityLog', {
       params: IActivityLogReqParams = {}
     ) {
       this.loading = true;
+
       this.error = null;
+
+      toast({
+        description: "Loading....",
+        variant: 'loading'
+      });
 
       const values: Partial<IActivityLogReqParams> = params;
 
@@ -127,8 +136,19 @@ export const useActivityLogStore = defineStore('activityLog', {
 
         this.count = count as number;
 
+        toast({
+          description: message || 'Data fetched successfully !',
+          variant: 'success'
+        })
+
       } catch (error) {
         this.error = error instanceof Error ? error.message : 'Unknown error';
+
+        toast({
+          description: this.error || 'Error fetching data !',
+          variant: 'destructive'
+        });
+        
       } finally {
         this.loading = false;
       }
