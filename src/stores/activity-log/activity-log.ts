@@ -30,9 +30,18 @@ interface ActivityLogItem {
   description: string;
 }
 
+interface IActivityLogPagination {
+  from: number;
+  per_page: number;
+  to?: number;
+  next_from?: number;
+  valid_next_page?: boolean;
+}
 
 interface ActivityLogState {
   logs: ActivityLogItem[];
+  count?: number;
+  pagination: IActivityLogPagination;
   loading: boolean;
   error: string | null;
   filters: {
@@ -43,9 +52,27 @@ interface ActivityLogState {
   }
 }
 
+export interface IActivityLogReqParams {
+  columns?: string;
+  sort_direction?: 'asc' | 'desc';
+  sort_column?: string;
+  per_page?: number;
+  page_item_from?: number;
+  log_action?: string;
+  log_status?: string;
+  log_user_type?: string;
+  user_id?: string;
+}
+
 export const useActivityLogStore = defineStore('activityLog', {
   state: (): ActivityLogState => ({
     logs: [],
+    count: 0,
+    pagination: {
+      from: 1,
+      per_page: 10,
+      valid_next_page: false,
+    } as IActivityLogPagination,
     loading: false,
     error: null,
     filters: {
@@ -56,20 +83,48 @@ export const useActivityLogStore = defineStore('activityLog', {
     }
   }),
   actions: {
-    async fetchActivityLogs() {
+    async fetchActivityLogs(
+      params: IActivityLogReqParams = {}
+    ) {
       this.loading = true;
       this.error = null;
 
+      const values: Partial<IActivityLogReqParams> = params;
+
+      const output = {} as any;
+    
+      for (const key in values) {
+        if (Object.prototype.hasOwnProperty.call(values, key)) {
+          const element = values[key as keyof IActivityLogReqParams];
+    
+          if (element && element !== undefined) {
+            output[key] = element;
+          }
+        }
+      }
+
+      const queryString = new URLSearchParams(output as any).toString();
+
+      const baseUrl = '/api/v1/admin/logs/activity-logs';
+
+      const uri = (queryString) ? `${baseUrl}?${queryString}` : baseUrl;
+
       try {
-        const response = await axios.get(
-          '/api/v1/admin/logs/activity-logs'
+        const { status, data: { message, data } } = await axios.get(
+          uri
         );
 
-        if (response.status === 200) {
-          this.logs = response.data.data.data;
-        } else {
-          this.error = response.data.message;
-        }
+        if (status !== 200)
+          return this.error = message;
+
+        const { count, data: logs, pagination } = data;
+
+        this.logs = logs;
+
+        this.pagination = pagination as IActivityLogPagination;
+
+        this.count = count as number;
+
       } catch (error) {
         this.error = error instanceof Error ? error.message : 'Unknown error';
       } finally {
