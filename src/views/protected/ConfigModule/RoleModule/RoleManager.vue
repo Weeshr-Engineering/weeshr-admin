@@ -142,7 +142,7 @@
                   </div>
                     <div class="flex items-center gap-4">
                       <Sheet>
-                        <SheetTrigger>
+                        <SheetTrigger v-if="!item.immutable">
                           <Icon @click="()=>handleRolePermissions(item.permissions, item.name, item._id)" icon="mdi:edit" width="17" height="17" :class="editStyle" />
                         </SheetTrigger>
                         <SheetContent class="overflow-y-auto py-8" side="right" v-if="edit">
@@ -223,7 +223,7 @@
                       </Sheet>
 
                       <AlertDialog>
-                        <AlertDialogTrigger>
+                        <AlertDialogTrigger v-if="!item.immutable">
                           <Icon icon="mdi:delete" width="17" height="17" :class="deleteStyle" @click="verifyAbilities('delete', 'roles')"/>
                         </AlertDialogTrigger>
                         <div>
