@@ -83,7 +83,6 @@ watch(selectedPerPage, () => {
 });
 
 watch(() => props, () => {
-  console.log({ props })
 }, { deep: true })
 
 onMounted(() => {
