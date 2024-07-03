@@ -226,7 +226,7 @@ const filters = ref<Partial<IActivityLogReqParams>>({
   // columns?: string;
   sort_direction: 'desc',
   sort_column: '',
-  per_page: 10,
+  per_page: 25,
   page_item_from: 1,
   log_action: '',
   log_status: '',
@@ -239,7 +239,7 @@ watch(filters, () => {
 }, { deep: true });
 
 onMounted(() => {
-  store.fetchActivityLogs(filters.value || { per_page: 10 });
+  store.fetchActivityLogs(filters.value || { per_page: 25 });
   store.fetchFiltersAndMeta();
 });
 
