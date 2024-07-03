@@ -140,27 +140,14 @@
         :metadata="selectedLog.metadata" :show="isModalVisible" @close="isModalVisible = false" />
 
       <div class="flex gap-2 max-w-full flex-wrap justify-end mt-8 mr-4 items-center text-[15px]">
-        <!-- <Pagination :total="totalPages" :sibling-count="1" show-edges :default-page="1" @change="handlePageChange">
-        <PaginationList class="flex items-center gap-1">
-            <PaginationFirst @click="handlePageChange(1)" />
-            <PaginationPrev @click="handlePageChange(Math.max(currentPage - 1, 1))" />
-            <template v-for="(item, index) in paginationItems" :key="index">
-              <PaginationListItem v-if="item.type === 'page'" :value="item.value" as-child>
-                <Button class="w-10 h-10 p-0" :variant="item.value === currentPage ? 'default' : 'outline'" @click="handlePageChange(item.value)">
-                  {{ item.value }}
-                </Button>
-              </PaginationListItem>
-            <PaginationEllipsis v-else :index="index" />
-            </template>
-<PaginationNext @click="handlePageChange(Math.min(currentPage + 1, totalPages))" />
-<PaginationLast @click="handlePageChange(totalPages)" />
-</PaginationList>
-</Pagination> -->
+        <PaginationIndex :count="store.getDataCount" :per-page="store.getPagination.per_page" :from="store.getPagination.from"
+          :to="store.getPagination.to" :next-from="store.getPagination.next_from" :valid-next-page="store.getPagination.valid_next_page"
+          :prev-from="store.getPagination.prev_from" :valid-prev-page="store.getPagination.valid_prev_page"
+          @per_page="(val: number) => filters.per_page = val" @prev="(val: number) => filters.page_item_from = val"
+          @next="(val: number) => filters.page_item_from = val" />
       </div>
 
     </Card>
-
-
     <DashboardFooter />
 
   </div>
@@ -196,17 +183,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 import type { IActivityLogReqParams } from '@/stores/activity-log/activity-log';
-
-import {
-  Pagination,
-  PaginationEllipsis,
-  PaginationFirst,
-  PaginationLast,
-  PaginationList,
-  PaginationListItem,
-  PaginationNext,
-  PaginationPrev,
-} from '@/components/ui/pagination';
+import PaginationIndex from '@/components/ui/special-pagination/PaginationIndex.vue';
 
 import Search from '@/components/UseSearch.vue';
 
@@ -256,47 +233,6 @@ const filters = ref<Partial<IActivityLogReqParams>>({
   log_user_type: '',
   user_id: ''
 } as Partial<IActivityLogReqParams>);
-
-// const totalLogs = computed(() => filteredLogs.value.length);
-// const totalPages = computed(() => Math.ceil(totalLogs.value / perPage));
-
-// const sortOrder = ref<'asc' | 'desc'>('desc');
-// const selectedActionType = ref('');
-// const selectedStatusType = ref('');
-// const selectedUserType = ref('');
-
-// const sortedLogs = computed(() => {
-//   return [...logs.value].sort((a, b) => {
-//     const dateA = new Date(a.timestamp).getTime();
-//     const dateB = new Date(b.timestamp).getTime();
-//     return sortOrder.value === 'desc' ? dateB - dateA : dateA - dateB;
-//   });
-// });
-
-
-// const filteredLogs = computed(() => {
-//   return sortedLogs.value.filter((log) => {
-//     const actionMatch = !selectedActionType.value || log.action === selectedActionType.value;
-//     const statusMatch = !selectedStatusType.value || log.status === selectedStatusType.value;
-//     const userTypeMatch = !selectedUserType.value || log.user.type === selectedUserType.value;
-//     return actionMatch && statusMatch && userTypeMatch;
-//   });
-// });
-
-
-// const paginatedLogs = computed(() => {
-//   const start = (currentPage.value - 1) * perPage;
-//   const end = start + perPage;
-//   return filteredLogs.value.slice(start, end);
-// });
-
-// const paginationItems = computed(() => {
-//   const pages = [];
-//   for (let i = 1; i <= totalPages.value; i++) {
-//     pages.push({ type: 'page', value: i });
-//   }
-//   return pages;
-// });
 
 watch(filters, () => {
   store.fetchActivityLogs(filters.value);

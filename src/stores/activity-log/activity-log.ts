@@ -36,6 +36,8 @@ interface IActivityLogPagination {
   to?: number;
   next_from?: number;
   valid_next_page?: boolean;
+  prev_from?: number;
+  valid_prev_page?: boolean;
 }
 
 interface ActivityLogState {
@@ -70,7 +72,7 @@ export const useActivityLogStore = defineStore('activityLog', {
     count: 0,
     pagination: {
       from: 1,
-      per_page: 10,
+      per_page: 25,
       valid_next_page: false,
     } as IActivityLogPagination,
     loading: false,
@@ -92,11 +94,11 @@ export const useActivityLogStore = defineStore('activityLog', {
       const values: Partial<IActivityLogReqParams> = params;
 
       const output = {} as any;
-    
+
       for (const key in values) {
         if (Object.prototype.hasOwnProperty.call(values, key)) {
           const element = values[key as keyof IActivityLogReqParams];
-    
+
           if (element && element !== undefined) {
             output[key] = element;
           }
@@ -152,4 +154,29 @@ export const useActivityLogStore = defineStore('activityLog', {
       }
     },
   },
+  getters: {
+    getPagination(state) {
+      const { pagination: {
+        from,
+        per_page,
+        valid_next_page,
+        valid_prev_page,
+        to,
+        next_from,
+        prev_from } } = state;
+
+      return {
+        from: from || 1,
+        per_page: per_page || 25,
+        valid_next_page: valid_next_page || false,
+        valid_prev_page: valid_prev_page || false,
+        to: to || 1,
+        next_from: next_from || 1,
+        prev_from: prev_from || 1
+      } as IActivityLogPagination
+    },
+    getDataCount(state) {
+      return state.count;
+    }
+  }
 });
