@@ -11,8 +11,7 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/comp
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { toast } from '@/components/ui/toast'
-import router from '@/router';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
 import axios from '@/services/ApiService';
 // import { ability } from '@/lib/ability'
@@ -48,6 +47,7 @@ const {
   setLocalStorage,
 } = useSuperAdminStore()
 const route = useRoute();
+const router = useRouter();
 
 const { redirect_to } = route.query;
 
