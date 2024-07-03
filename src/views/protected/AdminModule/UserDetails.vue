@@ -37,20 +37,6 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { reactive } from 'vue'
 import PagePagination from '@/components/PagePagination.vue'
 
-//images dummy
-const images = ref<any[]>([
-  { value: 'https://res.cloudinary.com/dufimctfc/image/upload/v1710684025/images1_wbbxb5.svg' },
-  { value: 'https://res.cloudinary.com/dufimctfc/image/upload/v1710684023/images2_ma998k.svg' },
-  { value: 'https://res.cloudinary.com/dufimctfc/image/upload/v1710693199/image5_lwx2g1.svg' },
-  { value: 'https://res.cloudinary.com/dufimctfc/image/upload/v1710684024/image4_v8krvl.svg' },
-  { value: 'https://res.cloudinary.com/dufimctfc/image/upload/v1710684023/images2_ma998k.svg' },
-  { value: 'https://res.cloudinary.com/dufimctfc/image/upload/v1710684025/images1_wbbxb5.svg' },
-  { value: 'https://res.cloudinary.com/dufimctfc/image/upload/v1710684023/images2_ma998k.svg' },
-  { value: 'https://res.cloudinary.com/dufimctfc/image/upload/v1710693199/image5_lwx2g1.svg' },
-  { value: 'https://res.cloudinary.com/dufimctfc/image/upload/v1710684024/image4_v8krvl.svg' },
-  { value: 'https://res.cloudinary.com/dufimctfc/image/upload/v1710684023/images2_ma998k.svg' }
-])
-
 //get User
 const route = useRoute()
 const _id = route.params.id
@@ -255,19 +241,34 @@ const hideBalance = ref(true)
           <RouterLink :to="{ name: 'appuserDetails' }">Users Details</RouterLink>
         </div>
         <CardDescription>
-          <Carousel class="w-8/12 lg:w-min mx-auto">
-            <CarouselContent>
-              <CarouselItem v-for="image in images" :key="image.value">
-                <img
-                  :src="image.value"
-                  alt="display"
-                  class="w-full rounded-full border-double border-4 border-[#baef23]"
-                />
-              </CarouselItem>
-            </CarouselContent>
-            <CarouselPrevious class="bg-[#baef23]" />
-            <CarouselNext class="bg-[#baef23]" />
-          </Carousel>
+          <div v-if="appUser">
+            <div v-if="appUser.images.length">
+              <Carousel class="w-6/12 mx-auto">
+                <CarouselContent>
+                  <CarouselItem v-for="image in appUser.images" :key="image.resource.asset_id">
+                    <img
+                      :src="image.resource.secure_url"
+                      alt="display"
+                      class="w-full rounded-full border-double border-4 border-[#baef23]"
+                    />
+                  </CarouselItem>
+                </CarouselContent>
+                <CarouselPrevious class="bg-[#baef23]" />
+                <CarouselNext class="bg-[#baef23]" />
+              </Carousel>
+            </div>
+            <div v-else class="w-7/12 mx-auto">
+              <img
+                :src="
+                  appUser.gender === 'female'
+                    ? 'https://res.cloudinary.com/daisikwbm/image/upload/v1720005675/undraw_Female_avatar_efig_pkhjpd.png'
+                    : 'https://res.cloudinary.com/daisikwbm/image/upload/v1720005675/undraw_Male_avatar_g98d_hy94tp.png'
+                "
+                alt="display"
+                class="w-full rounded-full border-double border-4 border-[#baef23]"
+              />
+            </div>
+          </div>
           <div v-if="error" class="text-[#02072199] p-10">
             <p>{{ error }}</p>
           </div>
@@ -485,7 +486,8 @@ const hideBalance = ref(true)
                       >
                         <span class="text-[#02072199] text-xs md:text-sm lg:text-sm">Price :</span>
                         <span class="text-xs md:text-sm lg:text-sm text-[#020721]"
-                          >{{ weeshes.currency.code }}{{ weeshes.price.price }}</span
+                          >{{ weeshes.currency.code }}
+                          {{ weeshes.price.price.toLocaleString('en-US') }}</span
                         >
                       </p>
                       <p
@@ -495,7 +497,8 @@ const hideBalance = ref(true)
                           >Genie Charges :</span
                         >
                         <span class="text-xs md:text-sm lg:text-sm text-[#020721]"
-                          >{{ weeshes.currency.code }}{{ weeshes.price.genieGratuity }}</span
+                          >{{ weeshes.currency.code }}
+                          {{ weeshes.price.genieGratuity.toLocaleString('en-US') }}</span
                         >
                       </p>
                     </div>
@@ -577,7 +580,8 @@ const hideBalance = ref(true)
                             {{ contributors.contributor.lastName }}
                           </p>
                           <p class="italic text-xs md:text-sm lg:text-sm text-[#020721]">
-                            {{ contributors.amount }}
+                            {{ weeshes.currency.code }}
+                            {{ contributors.amount.toLocaleString('en-US') }}
                           </p>
                         </div>
                         <div class="absolute -top-5 left-7">
@@ -684,7 +688,7 @@ const hideBalance = ref(true)
                     <Icon icon="tdesign:money" width="24px" height="24px" color="#6a70ff" />
                   </div>
                   <div class="text-sm text-[#ffffff] absolute bottom-10 left-5 w-10/12">
-                    <div class="flex items-center justify-between">
+                    <div class="md:flex items-center justify-between">
                       <p>Balance :</p>
                       <div class="flex justify-between items-center gap-4">
                         <div v-if="hideBalance" class="flex py-2">
@@ -695,7 +699,8 @@ const hideBalance = ref(true)
                           <Icon icon="mage:stars-c" width="18" height="18" />
                         </div>
                         <p v-else class="italic font-medium text-lg">
-                          {{ userWallet.balance }}
+                          {{ userWallet.currency }}
+                          {{ userWallet.balance.toLocaleString('en-US') }}
                         </p>
                       </div>
                     </div>
@@ -709,8 +714,9 @@ const hideBalance = ref(true)
                           <Icon icon="mage:stars-c" width="18" height="18" />
                           <Icon icon="mage:stars-c" width="18" height="18" />
                         </div>
-                        <p v-else class="italic font-medium text-lg mr-2">
-                          {{ userWallet.ledger_balance }}
+                        <p v-else class="italic font-medium text-md mr-2">
+                          {{ userWallet.currency }}
+                          {{ userWallet.ledger_balance.toLocaleString('en-US') }}
                         </p>
                         <Icon
                           :icon="

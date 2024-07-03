@@ -17,7 +17,14 @@ interface User {
   verificationBadge: string
   emailVerified: boolean
   isDisabled: boolean
-  avatar: string | null
+  images: [
+    {
+      resource: {
+        asset_id: string
+        secure_url: string
+      }
+    }
+  ]
 }
 
 interface Log {
@@ -72,12 +79,14 @@ export interface Weeshes {
     }
   ]
 }
+
 interface Wallet {
   id: string
   account_number: string
   account_name: string
   balance: number
   ledger_balance: number
+  currency: string
 }
 
 const token = sessionStorage.getItem('token') || ''
@@ -220,7 +229,7 @@ export const getUserWeeshes = () => {
         weeshesError.value = response.data.message
         toast({
           description: response.data.message,
-          variant: 'destructive'
+          variant: 'warning'
         })
       }
     } catch (err: any) {
@@ -252,6 +261,7 @@ export const getUserWallet = () => {
           }
         }
       )
+      console.log(response.data)
 
       if (response.data.code === 200) {
         userWallet.value = response.data.data
@@ -262,7 +272,7 @@ export const getUserWallet = () => {
       } else {
         toast({
           description: response.data.message,
-          variant: 'destructive'
+          variant: 'warning'
         })
       }
     } catch (err: any) {
@@ -304,7 +314,7 @@ export const getUserWalletList = () => {
         walletError.value = response.data.message
         toast({
           description: response.data.message,
-          variant: 'destructive'
+          variant: 'warning'
         })
       }
     } catch (err: any) {
