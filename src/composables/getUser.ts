@@ -226,14 +226,14 @@ export const getUserWeeshes = () => {
           variant: 'success'
         })
       } else {
-        weeshesError.value = response.data.message
+        weeshesError.value = "User doesn't have any Weeshes at the moment"
         toast({
           description: response.data.message,
           variant: 'warning'
         })
       }
     } catch (err: any) {
-      weeshesError.value = err.message
+      weeshesError.value = 'Error getting user weeshes. Kindly try again'
       toast({
         description: err.message,
         variant: 'destructive'
@@ -311,14 +311,14 @@ export const getUserWalletList = () => {
           variant: 'success'
         })
       } else {
-        walletError.value = response.data.message
+        walletError.value = "User doesn't have an existing wallet/account"
         toast({
           description: response.data.message,
           variant: 'warning'
         })
       }
     } catch (err: any) {
-      walletError.value = err.message
+      walletError.value = 'Error getting user wallet. Kindly try again'
       toast({
         description: err.message,
         variant: 'destructive'

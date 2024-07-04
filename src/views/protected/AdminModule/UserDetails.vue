@@ -36,6 +36,7 @@ import type { Weeshes } from '@/composables/getUser'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { reactive } from 'vue'
 import PagePagination from '@/components/PagePagination.vue'
+import LoadingSpinner from '@/components/LoadingSpinner.vue'
 
 //get User
 const route = useRoute()
@@ -364,7 +365,7 @@ const hideBalance = ref(true)
             </div>
           </div>
           <div v-else class="text-[#02072199] p-10">
-            <p>No user data available</p>
+            <LoadingSpinner />
           </div>
         </CardDescription>
       </CardHeader>
@@ -522,7 +523,7 @@ const hideBalance = ref(true)
                     </div>
                   </div>
                 </div>
-                <div class="my-6 w-11/12 mx-auto">
+                <div class="my-6 w-full w-11/12 mx-auto">
                   <Button
                     variant="outline"
                     class="rounded-xl bg-[#EEEFF5] col-span-3 md:col-span-1 my-4"
@@ -544,8 +545,12 @@ const hideBalance = ref(true)
                       />
                     </div>
                   </Button>
-                  <div class="flex items-center">
-                    <Progress :model-value="getContributionPercentage(weeshes)" class="mr-2" />
+                  <div class="flex items-center justify-between mx-4">
+                    <p class="italic text-xs">{{ getContributionPercentage(weeshes) }} %</p>
+                    <Progress
+                      :model-value="getContributionPercentage(weeshes)"
+                      class="mr-2 w-10/12"
+                    />
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
@@ -619,7 +624,7 @@ const hideBalance = ref(true)
             />
           </div>
           <div v-else class="text-[#02072199] p-10">
-            <p>No user data available</p>
+            <p>User doesn't have any Weeshes at the moment</p>
           </div>
         </TabsContent>
 
