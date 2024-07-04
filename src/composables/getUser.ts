@@ -165,14 +165,14 @@ export const getUserLog = () => {
           variant: 'success'
         })
       } else {
-        logError.value = response.data.message
+        logError.value = 'Error getting user activity log. Kindly try again.'
         toast({
           description: response.data.message,
           variant: 'destructive'
         })
       }
     } catch (err: any) {
-      logError.value = err.message
+      logError.value = 'Error getting user activity log. Kindly try again.'
       toast({
         description: err.message,
         variant: 'destructive'

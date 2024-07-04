@@ -231,7 +231,10 @@ const hideBalance = ref(true)
 </script>
 
 <template>
-  <div class="flex-col lg:flex lg:flex-row gap-1">
+  <div v-if="!appUser">
+    <LoadingSpinner />
+  </div>
+  <div v-else class="flex-col lg:flex lg:flex-row gap-1">
     <Card
       class="sm:col-span-3 md:col-span-3 bg-[#F8F9FF] sm:items-center shadow-xl lg:min-w-[450px]"
     >
@@ -244,7 +247,7 @@ const hideBalance = ref(true)
         <CardDescription>
           <div v-if="appUser">
             <div v-if="appUser.images.length">
-              <Carousel class="w-6/12 mx-auto">
+              <Carousel class="w-6/12 h-3/6 mx-auto">
                 <CarouselContent>
                   <CarouselItem v-for="image in appUser.images" :key="image.resource.asset_id">
                     <img
@@ -363,9 +366,6 @@ const hideBalance = ref(true)
                 </p>
               </div>
             </div>
-          </div>
-          <div v-else class="text-[#02072199] p-10">
-            <LoadingSpinner />
           </div>
         </CardDescription>
       </CardHeader>

@@ -36,7 +36,7 @@ const getUsers = () => {
     try {
       toast({
         description: 'Loading....',
-        variant:'loading'
+        variant: 'loading'
       })
       const response = await axios.get(
         `https://api.staging.weeshr.com/api/v1/admin/accounts/users?search=${search}&page=${page}&per_page=20`,
@@ -57,14 +57,14 @@ const getUsers = () => {
           variant: 'success'
         })
       } else {
-        error.value = response.data.message
+        error.value = 'Error getting Users list. Kindly try again'
         toast({
           description: response.data.message,
           variant: 'destructive'
         })
       }
     } catch (err: any) {
-      error.value = err.message
+      error.value = 'Error getting Users list. Kindly try again'
       toast({
         description: err.message,
         variant: 'destructive'
