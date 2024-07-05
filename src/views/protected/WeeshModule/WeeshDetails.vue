@@ -19,8 +19,8 @@
                         </CardContent>
                     </Card>
                     <!-- <Card class=""> -->
-                        <div class="flex-1 rounded-3xl bg-[#34389B1A] bg-opacity-10 min-h-32 max-w-64 lg:max-w-72 flex justify-stretch gap-4 py-4 px-2 lg:px-8">
-                            <div class="h-full flex flex-col items-start min-w-8 ml-2"><img src="https://res.cloudinary.com/dotojp6xu/image/upload/v1720070852/money-4_pu9pa9.svg"/></div>
+                        <div class="flex-1 rounded-3xl bg-[#34389B1A] bg-opacity-10 min-h-32 max-w-64 lg:max-w-72 flex justify-stretch gap-4 pt-4 pb-8 px-2 lg:px-6">
+                            <div class="h-full flex flex-col items-start min-w-8"><img src="https://res.cloudinary.com/dotojp6xu/image/upload/v1720070852/money-4_pu9pa9.svg"/></div>
                             <div class="min-h-full flex flex-col justify-end items-end min-w-fit mr-4"> <p class="text-[#020721] text-2xl font-bold">₦ 1,565,987.00</p></div>
                         </div>
                     <!-- </Card> -->
@@ -39,7 +39,7 @@
                             <div class="h-full flex flex-col items-start w-8">
                                 <img src="https://res.cloudinary.com/dotojp6xu/image/upload/v1720070989/calendar-2_fjyoy5.svg"/>
                             </div>
-                            <div class="min-h-full flex justify-end w-full">
+                            <div class="min-h-full flex justify-end items-center w-full">
                                 <div class="min-h-full flex flex-col justify-end w-full"> 
                                     <h1 class="text-sm text-[#02072199]">Fulfiled on</h1>
                                     <p class="text-[#020721] text-base font-bold">19 July 2024</p>
@@ -54,7 +54,7 @@
                             <div class="h-full flex flex-col items-start min-w-8 flex-1">
                                 <img src="https://res.cloudinary.com/dotojp6xu/image/upload/v1720070951/map_uxvr5x.svg"/>
                             </div>
-                            <div class="min-h-full flex justify-end lg:min-w-fit gap-2 lg:gap-8 flex-3">
+                            <div class="min-h-full flex justify-end items-center lg:min-w-fit gap-2 lg:gap-8 flex-3">
                                 <div class="min-h-full flex flex-col justify-end lg:min-w-fit">
                                     <h1 class="text-sm text-[#02072199]">Street Adress</h1>
                                     <p class="text-[#020721] text-base font-bold">5, Boulevard Estate, Idi Vintage</p>
@@ -144,10 +144,16 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Button } from '@/components/ui/button';
 import { Icon } from '@iconify/vue'
 import { Badge } from '@/components/ui/badge';
+import { useWeeshDetailStore } from '@/stores/weeshes/weesh-details';
+
+const store = useWeeshDetailStore()
 // import axios from "@/services/ApiService";
-// import { useRoute } from 'vue-router';
+import { useRoute } from 'vue-router';
 
 
-// const route = useRoute();
+const route = useRoute();
 // const id = route.params.Id;
+const id = '65a41c16e7004dd9b408b60c'
+// '6639626d054298235b7d5bb8'
+store.getWeeshDetails(id)
 </script>

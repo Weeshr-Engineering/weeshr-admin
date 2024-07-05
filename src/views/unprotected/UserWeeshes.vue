@@ -178,6 +178,7 @@
                 <TableHead>
                   <div class="flex items-center">Status</div>
                 </TableHead>
+                <TableHead></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
