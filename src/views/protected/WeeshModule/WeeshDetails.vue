@@ -18,15 +18,13 @@
                                 </div>
                         </CardContent>
                     </Card>
-                    <!-- <Card class=""> -->
                         <div class="flex-1 rounded-3xl bg-[#34389B1A] bg-opacity-10 min-h-32 max-w-64 lg:max-w-72 flex justify-stretch gap-4 pt-4 pb-8 px-2 lg:px-6">
                             <div class="h-full flex flex-col items-start min-w-8"><img src="https://res.cloudinary.com/dotojp6xu/image/upload/v1720070852/money-4_pu9pa9.svg"/></div>
                             <div class="min-h-full flex flex-col justify-end items-end min-w-fit mr-4"> <p class="text-[#020721] text-2xl font-bold">₦ 1,565,987.00</p></div>
                         </div>
-                    <!-- </Card> -->
                 </div>
                 <div class="flex flex-row flex-wrap w-full gap-2 p-4">
-                        <div class="min-h-32 rounded-3xl bg-[#DCDEFF] flex flex-auto justify-stretch gap-4 py-6 px-4">
+                        <div class="min-h-32 rounded-3xl bg-[#DCDEFF] flex flex-auto justify-stretch gap-4 py-6 px-4 max-w-64">
                             <div class="h-full flex flex-col items-start w-1/5">
                                 <img src="https://res.cloudinary.com/dotojp6xu/image/upload/v1720074062/profile-circle_t6oidm.svg"/>
                             </div>
@@ -54,10 +52,10 @@
                             <div class="h-full flex flex-col items-start min-w-8 flex-1">
                                 <img src="https://res.cloudinary.com/dotojp6xu/image/upload/v1720070951/map_uxvr5x.svg"/>
                             </div>
-                            <div class="min-h-full flex justify-end items-center lg:min-w-fit gap-2 lg:gap-8 flex-3">
+                            <div class="min-h-full flex justify-end items-center lg:min-w-fit gap-2 lg:gap-8 flex-auto">
                                 <div class="min-h-full flex flex-col justify-end lg:min-w-fit">
-                                    <h1 class="text-sm text-[#02072199]">Street Adress</h1>
-                                    <p class="text-[#020721] text-base font-bold">5, Boulevard Estate, Idi Vintage</p>
+                                    <h1 class="text-xs md:text-sm text-[#02072199]">Street Adress</h1>
+                                    <p class="text-[#020721] text-sm md:text-base font-bold">5, Boulevard Estate, Idi Vintage</p>
                                 </div>
                                 <div class="min-h-full flex flex-col justify-end w-1/5 flex-2"> 
                                     <h1 class="text-sm text-[#02072199]">City</h1>
@@ -78,15 +76,15 @@
                         <div class="min-h-full flex justify-end w-full">
                             <div class="min-h-full flex flex-col justify-end w-full"> 
                                 <h1 class="text-sm text-[#02072199]">Email</h1>
-                                <p class="text-[#020721] text-base font-bold">alisha@milly.co.uk</p>
+                                <p class="text-[#020721] text-sm md:text-base font-bold">alisha@milly.co.uk</p>
                             </div>
                             <div class="min-h-full flex flex-col justify-end w-full"> 
                                 <h1 class="text-sm text-[#02072199]">Phone Number</h1>
-                                <div class="text-[#020721] text-base font-bold">+234 908 004 3174</div>
+                                <div class="text-[#020721] text-sm md:text-base font-bold">+234 908 004 3174</div>
                             </div>
                         </div>
                     </div>
-                    <div class="min-h-32 rounded-3xl bg-[#EBCE7E] flex flex-1 justify-stretch gap-4 py-6 px-4 min-w-44">
+                    <div class="min-h-32 rounded-3xl bg-[#EBCE7E] flex flex-1 justify-stretch gap-4 py-6 px-4 min-w-44 max-w-64">
                         <div class="h-full flex flex-col items-start w-1/5">
                             <img src="https://res.cloudinary.com/dotojp6xu/image/upload/v1720077681/truck-fast_dqi4bx.svg"/>
                         </div>
