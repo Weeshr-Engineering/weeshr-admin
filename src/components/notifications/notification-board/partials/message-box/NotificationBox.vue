@@ -71,6 +71,14 @@ const markAsRead = async () => {
         });
 }
 
+const generateAvatar = (user: INotificationReadByUser): string => {
+    const { avatar, firstName, lastName } = user;
+
+    return (avatar !== null)
+        ? avatar
+        : `https://ui-avatars.com/api/?name=${firstName}+${lastName}`;
+}
+
 </script>
 
 <template>
@@ -126,14 +134,58 @@ const markAsRead = async () => {
 
     <!-- Modal -->
     <BasicModal :ref="val => modal = val">
-        <template #content>
-            <div class="mb-4 w-full">
-                <p class="text-lg font-semibold">Resource</p>
-                <pre class="bg-gray-100 p-2 rounded overflow-x-auto">{{ props.data.data.resource }}</pre>
+        <template #title>
+            <div class="inline-flex gap-3">
+                <span>
+                    <PriorityBadge :priority="props.data.priority" />
+                </span>
+                <span class="font-semibold">{{ props.data.type }}</span>
             </div>
-            <div>
-                <h3 class="text-lg font-semibold">Metadata</h3>
-                <pre class="bg-gray-100 p-2 rounded overflow-x-auto">{{ props.data.data.metadata }}</pre>
+        </template>
+        <template #content>
+            <div class="my-4 w-full">
+                <p class="text-lg font-semibold">Details</p>
+                <ul class="list-none bg-gray-100 p-2 rounded overflow-x-auto grid">
+                    <li class="inline-flex gap-4">
+                        <span class="font-semibold">
+                            <span>Type</span>
+                        </span>
+                        <span class="font-md">{{ props.data.type }}</span>
+                    </li>
+                    <li class="inline-flex gap-4">
+                        <span class="font-semibold">
+                            <span>Priority</span>
+                        </span>
+                        <span class="font-md">
+                            <PriorityBadge :priority="props.data.priority" class="me-1" /> {{ props.data.priority }}
+                        </span>
+                    </li>
+                    <li class="inline-flex gap-4">
+                        <span class="font-semibold">
+                            <span>Date</span>
+                        </span>
+                        <span class="font-md">
+                            {{ formatDistance(props.data.createdAt, new Date(), {
+                                addSuffix:
+                                    true
+                            }) }}
+                        </span>
+                    </li>
+                </ul>
+            </div>
+            <div class="mb-4 w-full">
+                <p class="text-lg font-semibold">Raw Data</p>
+                <pre class="bg-gray-100 p-2 rounded overflow-x-auto">{{ props.data.data }}</pre>
+            </div>
+            <div class="mb-4 w-full">
+                <p class="text-lg font-semibold">Read By</p>
+                <ul class="list-none p-2 grid">
+                    <li v-for="(user, index) in props.data.readBy" :key="index" class="inline-flex gap-4 bg-gray-100 p-2 rounded-lg overflow-x-auto">
+                        <img class="inline-block h-6 w-6 rounded-full ring-2 ring-white" :src="generateAvatar(user)"
+                            :alt="`${user.firstName}'s avatar'`" :title="`${user.firstName} ${user.lastName}`">
+                        <span class="font-md">{{ `${user.firstName} ${user.lastName}` }}</span>
+                    </li>
+                </ul>
             </div>
         </template>
     </BasicModal>
