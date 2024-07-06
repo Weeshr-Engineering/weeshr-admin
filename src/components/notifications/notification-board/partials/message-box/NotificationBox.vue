@@ -13,10 +13,16 @@ const props = defineProps({
     }
 })
 
-const isReadByUser = computed((): boolean => {
+const { getLocalstorageData } = useSuperAdminStore();
 
-    // TODO: get user id from store, check if is is available in readBy
-    return true;
+const isReadByUser = computed((): boolean => {
+    
+    // Note: use user firstname and lastname to compare since no id is saved on client auth
+    const { firstname, lastname } = getLocalstorageData();
+
+    const index = props.data.readBy.findIndex((val) => val.firstName == firstname && val.lastName == lastname);
+
+    return (index !== -1);
 })
 
 </script>
@@ -36,7 +42,8 @@ const isReadByUser = computed((): boolean => {
             <div class="inline-flex justify-end">
                 <span class="font-semibold text-xs">{{ formatDistance(props.data.createdAt, new Date(), {
                     addSuffix:
-                    true }) }}</span>
+                        true
+                }) }}</span>
             </div>
         </div>
         <!-- Type, Priority, Date Ends -->
