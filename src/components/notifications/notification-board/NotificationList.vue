@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import PriorityBadge from './partials/PriorityBadge.vue';
+import { ref, onMounted } from 'vue';
+import axios from '@/services/ApiService';
 import {
     Pagination,
     PaginationEllipsis,
@@ -10,9 +11,30 @@ import {
     PaginationNext,
     PaginationPrev,
 } from '@/components/ui/pagination';
+import PriorityBadge from './partials/PriorityBadge.vue';
 
+const getFilters = async () => {
+    await axios.get('api/v1/admin/board/notifications/filters')
+        .then(({ data: { data } }) => {
+            console.log({ data })
+        })
+        .catch();
+}
 
+const getNotifications = async () => {
+    await axios.get('api/v1/admin/board/notifications')
+        .then(({ data: { data } }) => {
+            console.log({ data })
+        })
+        .catch();;
+}
+
+onMounted(() => {
+    getFilters();
+    getNotifications();
+});
 </script>
+
 <template>
     <div class="space-y-2 h-full">
 

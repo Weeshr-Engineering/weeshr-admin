@@ -128,7 +128,7 @@ const openNotificationsBoard = () => {
           <span class="nav-text"> Activity Log </span>
         </a>
       </li>
-      <li>
+      <li v-if="ability.can('read', 'admin-board-notifications')">
         <a @click.prevent="openNotificationsBoard">
           <div class="icon-grid">
             <Icon icon="codicon:bell" width="17" height="17" class="icons-sidebar" />
@@ -153,7 +153,7 @@ const openNotificationsBoard = () => {
     </ul>
   </nav>
 
-  <NotificationBoardSheet :ref="val => notificationBoard = val" />
+  <NotificationBoardSheet v-if="ability.can('read', 'admin-board-notifications')" :ref="val => notificationBoard = val" />
 </template>
 
 <style scoped>
