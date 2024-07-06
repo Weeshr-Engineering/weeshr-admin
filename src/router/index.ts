@@ -21,6 +21,7 @@ import ActivityLog from '@/views/protected/AdminModule/ActivityLog.vue'
 import ConfigHub from '@/views/protected/ConfigModule/RoleModule/ConfigHub.vue'
 import RoleManager from '@/views/protected/ConfigModule/RoleModule/RoleManager.vue'
 import WeeshesConfig from '@/views/protected/ConfigModule/WeeshesCategories/WeeshesConfig.vue'
+
 const routes = [
   {
     path: '/',
