@@ -56,17 +56,11 @@ const getUsers = () => {
           description: response.data.message,
           variant: 'success'
         })
-      } else {
-        error.value = 'Error getting Users list. Kindly try again'
-        toast({
-          description: response.data.message,
-          variant: 'destructive'
-        })
       }
     } catch (err: any) {
-      error.value = 'Error getting Users list. Kindly try again'
+      error.value = `${err.response.data.message}, ${err.response.data.error}.`
       toast({
-        description: err.message,
+        description: err.response.data.message,
         variant: 'destructive'
       })
     }

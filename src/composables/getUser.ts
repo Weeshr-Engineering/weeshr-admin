@@ -89,10 +89,10 @@ interface Wallet {
   currency: string
 }
 
-const token = sessionStorage.getItem('token') || ''
 const { toast } = useToast()
 
 export const getUser = () => {
+  const token = sessionStorage.getItem('token') || ''
   const appUser = ref<User | null>(null)
   const error: Ref<string> = ref('')
 
@@ -117,17 +117,11 @@ export const getUser = () => {
           description: response.data.message,
           variant: 'success'
         })
-      } else {
-        error.value = response.data.message
-        toast({
-          description: response.data.message,
-          variant: 'warning'
-        })
       }
     } catch (err: any) {
-      error.value = err.message
+      error.value = `${err.response.data.message}, ${err.response.data.error}.`
       toast({
-        description: err.message,
+        description: err.response.data.message,
         variant: 'destructive'
       })
     }
@@ -137,6 +131,8 @@ export const getUser = () => {
 }
 
 export const getUserLog = () => {
+  const token = sessionStorage.getItem('token') || ''
+
   const userLog = ref<Log[]>([])
   const logError: Ref<string> = ref('')
   const count = ref<number>(0)
@@ -164,17 +160,11 @@ export const getUserLog = () => {
           description: response.data.message,
           variant: 'success'
         })
-      } else {
-        logError.value = 'Error getting user activity log. Kindly try again.'
-        toast({
-          description: response.data.message,
-          variant: 'destructive'
-        })
       }
     } catch (err: any) {
-      logError.value = 'Error getting user activity log. Kindly try again.'
+      logError.value = `${err.response.data.message}, ${err.response.data.error}.`
       toast({
-        description: err.message,
+        description: err.response.data.message,
         variant: 'destructive'
       })
     }
@@ -184,6 +174,8 @@ export const getUserLog = () => {
 }
 
 export const getUserWeeshes = () => {
+  const token = sessionStorage.getItem('token') || ''
+
   const userWeeshesList: Ref<Weeshes[]> = ref([])
   const weeshesError: Ref<string> = ref('')
   const totalPages = ref(0)
@@ -225,17 +217,11 @@ export const getUserWeeshes = () => {
           description: response.data.message,
           variant: 'success'
         })
-      } else {
-        weeshesError.value = "User doesn't have any Weeshes at the moment"
-        toast({
-          description: response.data.message,
-          variant: 'warning'
-        })
       }
     } catch (err: any) {
-      weeshesError.value = 'Error getting user weeshes. Kindly try again'
+      weeshesError.value = `${err.response.data.message}, ${err.response.data.error}.`
       toast({
-        description: err.message,
+        description: err.response.data.message,
         variant: 'destructive'
       })
     }
@@ -245,6 +231,8 @@ export const getUserWeeshes = () => {
 }
 
 export const getUserWallet = () => {
+  const token = sessionStorage.getItem('token') || ''
+
   const userWallet = ref<Wallet | null>(null)
 
   const getWallet = async (_id: string | string[]) => {
@@ -261,23 +249,16 @@ export const getUserWallet = () => {
           }
         }
       )
-      console.log(response.data)
-
       if (response.data.code === 200) {
         userWallet.value = response.data.data
         toast({
           description: response.data.message,
           variant: 'success'
         })
-      } else {
-        toast({
-          description: response.data.message,
-          variant: 'warning'
-        })
       }
     } catch (err: any) {
       toast({
-        description: err.message,
+        description: err.response.data.message,
         variant: 'destructive'
       })
     }
@@ -286,6 +267,8 @@ export const getUserWallet = () => {
 }
 
 export const getUserWalletList = () => {
+  const token = sessionStorage.getItem('token') || ''
+
   const userWalletList = ref<Wallet | null>(null)
   const walletError: Ref<string> = ref('')
 
@@ -310,17 +293,11 @@ export const getUserWalletList = () => {
           description: response.data.message,
           variant: 'success'
         })
-      } else {
-        walletError.value = "User doesn't have an existing wallet/account"
-        toast({
-          description: response.data.message,
-          variant: 'warning'
-        })
       }
     } catch (err: any) {
-      walletError.value = 'Error getting user wallet. Kindly try again'
+      walletError.value = `${err.response.data.message}, ${err.response.data.error}.`
       toast({
-        description: err.message,
+        description: err.response.data.message,
         variant: 'destructive'
       })
     }

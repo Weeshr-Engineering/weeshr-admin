@@ -16,7 +16,7 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import getUsers from '@/composables/getUsers'
 import { computed, watch } from 'vue'
 import { Icon } from '@iconify/vue'
@@ -30,7 +30,9 @@ const { users, error, totalPages, currentPage, load } = getUsers()
 const appUsers = ref(users)
 const errors = error
 
-load('', 1)
+onMounted(() => {
+  load('', 1)
+})
 
 const dateOfBirth = (dob: string) => {
   const date = new Date(dob)

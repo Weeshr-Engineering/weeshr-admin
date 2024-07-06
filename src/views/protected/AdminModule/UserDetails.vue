@@ -247,7 +247,7 @@ const hideBalance = ref(true)
         <CardDescription>
           <div v-if="appUser">
             <div v-if="appUser.images.length">
-              <Carousel class="w-6/12 h-3/6 mx-auto">
+              <Carousel class="w-6/12 h-2/5 mx-auto">
                 <CarouselContent>
                   <CarouselItem v-for="image in appUser.images" :key="image.resource.asset_id">
                     <img
