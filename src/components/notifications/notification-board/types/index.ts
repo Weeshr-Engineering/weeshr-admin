@@ -89,6 +89,6 @@ export interface INotification {
     type: TNotificationType;
     priority: TNotificationPriority;
     data: INotificationBoardData;
-    createdAt?: string | Date;
+    createdAt: string | Date;
     updatedAt?: string | Date;
 }

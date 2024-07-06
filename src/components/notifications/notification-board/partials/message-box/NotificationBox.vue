@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
+import { formatDistance } from 'date-fns'
 import ReadByList from '../ReadByList.vue';
 import type { INotification } from '../../types';
 import { useSuperAdminStore } from '@/stores/super-admin/super-admin';
@@ -33,7 +34,9 @@ const isReadByUser = computed((): boolean => {
                 </div>
             </div>
             <div class="inline-flex justify-end">
-                <span class="font-semibold text-xs">2024-07-5</span>
+                <span class="font-semibold text-xs">{{ formatDistance(props.data.createdAt, new Date(), {
+                    addSuffix:
+                    true }) }}</span>
             </div>
         </div>
         <!-- Type, Priority, Date Ends -->
