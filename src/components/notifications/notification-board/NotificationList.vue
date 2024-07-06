@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import axios from '@/services/ApiService';
 import {
     Pagination,
@@ -11,23 +11,119 @@ import {
     PaginationNext,
     PaginationPrev,
 } from '@/components/ui/pagination';
+import PageFilters from '@/components/notifications/notification-board/partials/PageFilters.vue'
 import PriorityBadge from './partials/PriorityBadge.vue';
+import type { IFilters, IFilterValues } from './types';
+import { useDebounceFn } from '@vueuse/core';
+import { useToast } from '@/components/ui/toast';
+import NotificationBox from '@/components/notifications/notification-board/partials/message-box/NotificationBox.vue'
+
+const { toast } = useToast()
+
+const filters = ref<IFilters>({
+    priority: [],
+    types: []
+} as IFilters);
+
+const selectedFilters = ref<IFilterValues>({
+    type: "",
+    priority: ""
+} as IFilterValues)
+
+const notifications = Array<any>([]);
+
+const readFilter = ref<string>('all');
+
+const notificationUri = computed((): string => {
+    const baseUrl = 'api/v1/admin/board/notifications';
+
+    const output = {} as any;
+
+    for (const key in selectedFilters.value) {
+        if (Object.prototype.hasOwnProperty.call(selectedFilters.value, key)) {
+            const element = selectedFilters.value[key as keyof IFilterValues];
+
+            if (element && element !== undefined) {
+                output[key] = element;
+            }
+        }
+    }
+
+    if (readFilter.value && readFilter.value == 'unread')
+        output['read_status'] = readFilter.value;
+
+    const queryString = new URLSearchParams(output as any).toString();
+
+    // TODO: Add pagination 
+
+    return (queryString) ? `${baseUrl}?${queryString}` : baseUrl;
+});
 
 const getFilters = async () => {
     await axios.get('api/v1/admin/board/notifications/filters')
         .then(({ data: { data } }) => {
-            console.log({ data })
+            filters.value = data;
         })
-        .catch();
+        .catch(() => {
+            toast({
+                description: 'Error fetching data !',
+                variant: 'destructive'
+            });
+        });
 }
 
 const getNotifications = async () => {
-    await axios.get('api/v1/admin/board/notifications')
-        .then(({ data: { data } }) => {
+    toast({
+        description: "Loading....",
+        variant: 'loading'
+    });
+
+    await axios.get(notificationUri.value || 'api/v1/admin/board/notifications')
+        .then(({ data: { data, message } }) => {
+            toast({
+                description: message || 'Data fetched successfully !',
+                variant: 'success'
+            })
+
+            const {
+                currentPage,
+                data: notifications,
+                from,
+                perPage,
+                to,
+                totalItems,
+                totalPages,
+            } = data;
+
+            notifications.value = data.notifications;
+
             console.log({ data })
         })
-        .catch();;
+        .catch(({ response: { status, message, error } }) => {
+            if (status == 403) {
+                return toast({
+                    description: message || 'Unauthorized !',
+                    variant: 'destructive'
+                })
+            }
+
+            if (status == 422) {
+                return toast({
+                    description: error || message || 'Validation error!',
+                    variant: 'destructive'
+                })
+            }
+
+            return toast({
+                description: message || 'Error fetching data!',
+                variant: 'destructive'
+            })
+        });
 }
+
+watch(notificationUri, useDebounceFn(() => {
+    getNotifications();
+}, 1000), { deep: true })
 
 onMounted(() => {
     getFilters();
@@ -42,7 +138,7 @@ onMounted(() => {
         <div class="w-full inline-flex">
             <!-- LHS -->
             <div class="w-1/2">
-                Filters
+                <PageFilters :filters @selected="val => selectedFilters = val as IFilterValues" />
             </div>
             <!-- LHS Ends -->
 
@@ -50,11 +146,14 @@ onMounted(() => {
             <div class="w-1/2 inline-flex justify-end gap-3">
                 <!-- Toggle Read/Unread -->
                 <div class="rounded-lg p-1 inline-flex font-bold text-xs capitalize bg-stone-50">
-                    <button type="button"
-                        class="rounded-lg py-0.5 px-3 inline-flex justify-center align-middle bg-black text-white">
+                    <button type="button" @click="readFilter = 'all'"
+                        class="rounded-lg py-0.5 px-3 inline-flex justify-center align-middle"
+                        :class="{ 'bg-black text-white': readFilter == 'all' }">
                         All
                     </button>
-                    <button type="button" class="rounded-lg py-0.5 px-3 inline-flex justify-center align-middle">
+                    <button type="button" @click="readFilter = 'unread'"
+                        :class="{ 'bg-black text-white': readFilter == 'unread' }"
+                        class="rounded-lg py-0.5 px-3 inline-flex justify-center align-middle">
                         Unread
                     </button>
                 </div>
@@ -67,73 +166,7 @@ onMounted(() => {
         <!-- Notifications List -->
         <div class="flex-col space-y-3 py-4 overflow-y-auto h-[80%] scrollbar_custom">
             <!-- Notification -->
-            <div v-for="i in 5" :key="i"
-                class="relative p-3 border rounded-lg cursor-pointer hover:shadow-sm hover:bg-gray-50">
-                <!-- Type, Priority, Date -->
-                <div class="grid grid-cols-2">
-                    <div>
-                        <div class="inline-flex gap-3">
-                            <span>
-                                <PriorityBadge />
-                            </span>
-                            <span class="font-semibold">WEESH_ADDED</span>
-                        </div>
-
-                        <!-- Title -->
-                        <div class="mt-1 text-sm font-semibold">
-                            <span>Weesh created</span>
-                        </div>
-                        <!-- Title Ends -->
-                    </div>
-                    <div class="inline-flex justify-end">
-                        <span class="font-semibold text-xs">2024-07-5</span>
-                    </div>
-                </div>
-                <!-- Type, Priority, Date Ends -->
-
-                <!-- Data -->
-                <div class="my-2 text-sm text-ellipsis truncate">
-                    Hi, let's have a meeting tomorrow to discuss the project. I've been reviewing the project
-                    details and have some ideas I'd like to share. It's crucial that we align on our next steps
-                    to
-                    ensure the project's success.
-                </div>
-                <!-- Data -->
-
-                <!-- Read By -->
-                <div class="flex -space-x-1 justify-end overflow-hidden">
-                    <img class="inline-block h-6 w-6 rounded-full ring-2 ring-white"
-                        src="https://images.unsplash.com/photo-1491528323818-fdd1faba62cc?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                        alt="">
-                    <img class="inline-block h-6 w-6 rounded-full ring-2 ring-white"
-                        src="https://images.unsplash.com/photo-1550525811-e5869dd03032?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                        alt="">
-                    <img class="inline-block h-6 w-6 rounded-full ring-2 ring-white"
-                        src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2.25&w=256&h=256&q=80"
-                        alt="">
-                    <img class="inline-block h-6 w-6 rounded-full ring-2 ring-white"
-                        src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                        alt="">
-                    <span
-                        class="inline-flex items-center justify-center h-6 w-6 rounded-full ring-2 ring-white bg-gray-200 font-semibold text-sm">
-                        <span>+4</span>
-                    </span>
-                </div>
-                <!-- Read By Ends  -->
-
-                <!-- Read Badge -->
-                <span class="absolute left-2 bottom-3 flex -space-x-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                        stroke="currentColor" class="size-3">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                    </svg>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                        stroke="currentColor" class="size-3">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                    </svg>
-                </span>
-                <!-- Read Badge Ends -->
-            </div>
+            <NotificationBox v-for="(notification, index) in notifications" :key="index" :data="notification" />
             <!-- Notification Ends -->
         </div>
         <!-- Notifications List Ends -->
