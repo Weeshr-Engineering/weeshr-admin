@@ -1,10 +1,13 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { formatDistance } from 'date-fns'
+import axios from '@/services/ApiService';
 import ReadByList from '../ReadByList.vue';
-import type { INotification } from '../../types';
+import type { INotification, INotificationReadByUser } from '../../types';
+import BasicModal from '@/components/ui/modal/BasicModal.vue';
 import { useSuperAdminStore } from '@/stores/super-admin/super-admin';
 import PriorityBadge from '@/components/notifications/notification-board/partials/PriorityBadge.vue'
+import { useToast } from '@/components/ui/toast';
 
 const props = defineProps({
     data: {
@@ -13,10 +16,16 @@ const props = defineProps({
     }
 })
 
+const emit = defineEmits(['read']);
+
+const { toast } = useToast()
+
 const { getLocalstorageData } = useSuperAdminStore();
 
+const modal = ref();
+
 const isReadByUser = computed((): boolean => {
-    
+
     // Note: use user firstname and lastname to compare since no id is saved on client auth
     const { firstname, lastname } = getLocalstorageData();
 
@@ -25,10 +34,47 @@ const isReadByUser = computed((): boolean => {
     return (index !== -1);
 })
 
+const openModal = (): void => {
+    if (!modal.value) return
+
+    modal.value.openModal();
+
+    if (!isReadByUser.value)
+        markAsRead()
+}
+
+const markAsRead = async () => {
+    await axios.get(`board/notification/${props.data._id}/markAsRead`)
+        .then(({ data: { data } }) => {
+
+            emit('read', data as INotificationReadByUser);
+        })
+        .catch(({ response: { status, message, error } }) => {
+            if (status == 403) {
+                return toast({
+                    description: message || 'Unauthorized !',
+                    variant: 'destructive'
+                })
+            }
+
+            if (status == 422) {
+                return toast({
+                    description: error || message || 'Validation error!',
+                    variant: 'destructive'
+                })
+            }
+
+            return toast({
+                description: message || 'Error fetching data!',
+                variant: 'destructive'
+            })
+        });
+}
+
 </script>
 
 <template>
-    <div class="relative p-3 border rounded-lg cursor-pointer hover:shadow-sm hover:bg-gray-50">
+    <div @click="openModal" class="relative p-3 border rounded-lg cursor-pointer hover:shadow-sm hover:bg-gray-50">
         <!-- Type, Priority, Date -->
         <div class="grid grid-cols-2">
             <div>
@@ -55,11 +101,8 @@ const isReadByUser = computed((): boolean => {
         <!-- Title Ends -->
 
         <!-- Data -->
-        <div class="my-2 text-sm text-ellipsis truncate">
-            Hi, let's have a meeting tomorrow to discuss the project. I've been reviewing the project
-            details and have some ideas I'd like to share. It's crucial that we align on our next steps
-            to
-            ensure the project's success.
+        <div v-if="props.data.data?.message" class="my-2 text-sm text-ellipsis truncate">
+            {{ props.data.data?.message }}
         </div>
         <!-- Data -->
 
@@ -80,4 +123,19 @@ const isReadByUser = computed((): boolean => {
         </span>
         <!-- Read Badge Ends -->
     </div>
+
+    <!-- Modal -->
+    <BasicModal :ref="val => modal = val">
+        <template #content>
+            <div class="mb-4 w-full">
+                <p class="text-lg font-semibold">Resource</p>
+                <pre class="bg-gray-100 p-2 rounded overflow-x-auto">{{ props.data.data.resource }}</pre>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold">Metadata</h3>
+                <pre class="bg-gray-100 p-2 rounded overflow-x-auto">{{ props.data.data.metadata }}</pre>
+            </div>
+        </template>
+    </BasicModal>
+    <!-- Modal Ends -->
 </template>

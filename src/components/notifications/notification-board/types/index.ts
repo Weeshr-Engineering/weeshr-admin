@@ -74,6 +74,7 @@ export interface INotificationBoardData {
     title?: string;
     metadata: TDATA_META;
     resource: TDATA_RESOURCE;
+    message?: string;
 }
 
 export interface INotificationReadByUser {

@@ -12,8 +12,7 @@ import {
     PaginationPrev,
 } from '@/components/ui/pagination';
 import PageFilters from '@/components/notifications/notification-board/partials/PageFilters.vue'
-import PriorityBadge from './partials/PriorityBadge.vue';
-import type { IFilters, IFilterValues, INotification } from './types';
+import type { IFilters, IFilterValues, INotification, INotificationReadByUser } from './types';
 import { useDebounceFn } from '@vueuse/core';
 import { useToast } from '@/components/ui/toast';
 import NotificationBox from '@/components/notifications/notification-board/partials/message-box/NotificationBox.vue'
@@ -121,6 +120,18 @@ const getNotifications = async () => {
         });
 }
 
+const updateReadUser = (notification_id: any, value: INotificationReadByUser): void => {
+    const index = notifications.value.findIndex((item) => item._id == notification_id);
+
+    if (index == -1)
+        return;
+
+    const readIndex = notifications.value[index].readBy.findIndex((user) => user._id == value._id);
+
+    if (readIndex == -1)
+        notifications.value[index].readBy.push(value);
+}
+
 watch(notificationUri, useDebounceFn(() => {
     getNotifications();
 }, 1000), { deep: true })
@@ -166,7 +177,8 @@ onMounted(() => {
         <!-- Notifications List -->
         <div class="flex-col space-y-3 py-4 overflow-y-auto h-[80%] scrollbar_custom">
             <!-- Notification -->
-            <NotificationBox v-for="(notification, index) in notifications" :key="index" :data="notification" />
+            <NotificationBox v-for="(notification, index) in notifications" :key="index" :data="notification"
+                @read="value => updateReadUser(notification._id, value as INotificationReadByUser)" />
             <!-- Notification Ends -->
         </div>
         <!-- Notifications List Ends -->
