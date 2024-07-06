@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/pagination';
 import PageFilters from '@/components/notifications/notification-board/partials/PageFilters.vue'
 import PriorityBadge from './partials/PriorityBadge.vue';
-import type { IFilters, IFilterValues } from './types';
+import type { IFilters, IFilterValues, INotification } from './types';
 import { useDebounceFn } from '@vueuse/core';
 import { useToast } from '@/components/ui/toast';
 import NotificationBox from '@/components/notifications/notification-board/partials/message-box/NotificationBox.vue'
@@ -30,7 +30,7 @@ const selectedFilters = ref<IFilterValues>({
     priority: ""
 } as IFilterValues)
 
-const notifications = Array<any>([]);
+const notifications = ref<Array<INotification>>([] as Array<INotification>);
 
 const readFilter = ref<string>('all');
 
@@ -87,7 +87,7 @@ const getNotifications = async () => {
 
             const {
                 currentPage,
-                data: notifications,
+                data: allData,
                 from,
                 perPage,
                 to,
@@ -95,7 +95,7 @@ const getNotifications = async () => {
                 totalPages,
             } = data;
 
-            notifications.value = data.notifications;
+            notifications.value = allData as Array<INotification>;
 
             console.log({ data })
         })
