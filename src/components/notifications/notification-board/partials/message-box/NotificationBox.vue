@@ -21,9 +21,9 @@ const props = defineProps({
             <div>
                 <div class="inline-flex gap-3">
                     <span>
-                        <PriorityBadge />
+                        <PriorityBadge :priority="props.data.priority" />
                     </span>
-                    <span class="font-semibold">WEESH_ADDED</span>
+                    <span class="font-semibold">{{ props.data.type }}</span>
                 </div>
 
                 <!-- Title -->
