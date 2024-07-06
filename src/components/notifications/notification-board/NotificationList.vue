@@ -31,6 +31,17 @@ const selectedFilters = ref<IFilterValues>({
 
 const notifications = ref<Array<INotification>>([] as Array<INotification>);
 
+const pagination = ref({
+    from: 1,
+    perPage: 25,
+    to: 25,
+    totalItems: 1,
+    totalPages: 1,
+    currentPage: 1
+})
+
+const currentPage = ref<number>(1);
+
 const readFilter = ref<string>('all');
 
 const notificationUri = computed((): string => {
@@ -51,9 +62,16 @@ const notificationUri = computed((): string => {
     if (readFilter.value && readFilter.value == 'unread')
         output['read_status'] = readFilter.value;
 
-    const queryString = new URLSearchParams(output as any).toString();
-
     // TODO: Add pagination 
+    const { perPage } = pagination.value;
+
+    output['per_page'] = perPage || 25;
+
+    if (currentPage.value) {
+        output['page'] = currentPage.value || 1;
+    }
+
+    const queryString = new URLSearchParams(output as any).toString();
 
     return (queryString) ? `${baseUrl}?${queryString}` : baseUrl;
 });
@@ -85,7 +103,7 @@ const getNotifications = async () => {
             })
 
             const {
-                currentPage,
+                currentPage: page,
                 data: allData,
                 from,
                 perPage,
@@ -96,7 +114,17 @@ const getNotifications = async () => {
 
             notifications.value = allData as Array<INotification>;
 
-            console.log({ data })
+            pagination.value = {
+                currentPage: page,
+                from,
+                perPage,
+                to,
+                totalItems,
+                totalPages
+            };
+
+            currentPage.value = page;
+
         })
         .catch(({ response: { status, message, error } }) => {
             if (status == 403) {
@@ -130,6 +158,33 @@ const updateReadUser = (notification_id: any, value: INotificationReadByUser): v
 
     if (readIndex == -1)
         notifications.value[index].readBy.push(value);
+}
+
+const paginationMethods = () => {
+
+    const setPage = (page: number) => {
+        currentPage.value = page;
+    };
+
+    const nextPage = () => {
+        const { totalPages, currentPage: page } = pagination.value;
+
+        if (page < totalPages)
+            currentPage.value += 1;
+    };
+
+    const prevPage = () => {
+        const { currentPage: page } = pagination.value;
+
+        if (page > 1)
+            currentPage.value -= 1;
+    };
+
+    return {
+        setPage,
+        nextPage,
+        prevPage
+    }
 }
 
 watch(notificationUri, useDebounceFn(() => {
@@ -185,12 +240,12 @@ onMounted(() => {
 
         <!-- Pagination -->
         <div class="flex justify-end">
-            <Pagination :total="10" :sibling-count="1" show-edges :default-page="1">
+            <Pagination :total="pagination.totalPages" :sibling-count="1" show-edges :default-page="currentPage || 1">
                 <PaginationList class="flex items-center gap-1">
-                    <PaginationFirst />
-                    <PaginationPrev />
-                    <PaginationNext />
-                    <PaginationLast />
+                    <PaginationFirst @click="paginationMethods().setPage(1)" />
+                    <PaginationPrev @click="paginationMethods().prevPage()" />
+                    <PaginationNext @click="paginationMethods().nextPage()" />
+                    <PaginationLast @click="paginationMethods().setPage(pagination.totalPages)" />
                 </PaginationList>
             </Pagination>
         </div>
