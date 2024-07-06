@@ -11,7 +11,7 @@ const props = defineProps({
 </script>
 
 <template>
-    <span class="border rounded p-1 inline-flex justify-center align-middle">
+    <span :title="props.priority" class="border rounded p-1 inline-flex justify-center align-middle">
         <svg v-if="props.priority == ENotificationPriority.CRITICAL" xmlns="http://www.w3.org/2000/svg" fill="none"
             viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-3 text-red-500">
             <path stroke-linecap="round" stroke-linejoin="round"

@@ -75,9 +75,16 @@ export interface INotificationBoardData {
     metadata: TDATA_META;
     resource: TDATA_RESOURCE;
 }
+
+export interface INotificationReadByUser {
+    avatar: string | null;
+    firstName: string;
+    lastName: string;
+    _id: string;
+}
 export interface INotification {
     _id: string;
-    readBy: Array<string>;
+    readBy: Array<INotificationReadByUser>;
     permissions: INotificationPermission;
     type: TNotificationType;
     priority: TNotificationPriority;
