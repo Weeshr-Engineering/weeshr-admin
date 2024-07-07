@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, computed } from 'vue'
+import { onMounted, ref } from 'vue'
 import { Icon } from '@iconify/vue'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Card, CardDescription, CardHeader } from '@/components/ui/card'
@@ -22,6 +22,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { getUser, getUserLog } from '@/composables/getUser'
 import { useRoute } from 'vue-router'
+import { computed } from 'vue'
 import { Pagination, PaginationList, PaginationListItem } from '@/components/ui/pagination'
 import {
   DropdownMenu,
@@ -29,9 +30,90 @@ import {
   DropdownMenuCheckboxItem,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
-import { useUserWeeshDetailStore } from '@/stores/userhub-details/user-weesh-details'
-import LoadingSpinner from '@/components/LoadingSpinner.vue'
-const store = useUserWeeshDetailStore()
+
+// const users = ref([]);
+const users = ref<any[]>([
+  {
+    _id: 1,
+    nameofweeshes: 'iPhone 15 Pro Max',
+    category: 'Gadgets',
+    price: '₦ 1,565,987.00',
+    changes: '₦ 5,987.00',
+    status: ['Initiated']
+  },
+  {
+    _id: 2,
+    nameofweeshes: 'Mary K Facial Cleanser',
+    category: 'Body & Beauty',
+    price: '₦ 51,000,087.6',
+    changes: '₦ 100,087.21',
+    status: ['Added']
+  },
+  {
+    _id: 3,
+    nameofweeshes: '2014 Honda Accord',
+    category: 'Automobile',
+    price: '₦ 1,927.05',
+    changes: '₦ 1,230.00',
+    status: ['Added']
+  },
+  {
+    _id: 4,
+    nameofweeshes: 'Lacoste White Sneakers',
+    category: 'Footwear',
+    price: '₦ 15,927.05',
+    changes: '₦ 230.00',
+    status: ['Fulfiled']
+  },
+  {
+    _id: 5,
+    nameofweeshes: 'Money',
+    category: 'Cash',
+    price: '₦ 1,333,230.00',
+    changes: '₦ 531,927.05',
+    status: ['Delivered']
+  },
+  {
+    _id: 6,
+    nameofweeshes: 'Zara Men Winter Coat',
+    category: 'Clothing',
+    price: '₦ 122,927.05',
+    changes: '₦ 17,230.00',
+    status: ['Delivered']
+  },
+  {
+    _id: 7,
+    nameofweeshes: 'S&P 500',
+    category: 'Investments',
+    price: '₦ 111,230.00',
+    changes: '₦ 1,230.00',
+    status: ['Added']
+  },
+  {
+    _id: 8,
+    nameofweeshes: 'Maldives Invaders',
+    category: 'Trip',
+    price: '₦ 900,230.00',
+    changes: '₦ 11,230.00',
+    status: ['Initiated']
+  },
+  {
+    _id: 9,
+    nameofweeshes: 'Hisense Double Door Fri..',
+    category: 'Appliance',
+    price: '₦ 340,230.00',
+    changes: '₦ 17,230.00',
+    status: ['Fulfiled']
+  },
+  {
+    _id: 10,
+    nameofweeshes: 'Raddison Blue Buffet',
+    category: 'Food',
+    price: '₦ 1,230.00',
+    changes: '₦ 0.00',
+    status: ['Fulfiled']
+  }
+])
 
 const user2s = ref<any[]>([
   {
@@ -133,15 +215,10 @@ const images = ref<any[]>([
 //get User
 const route = useRoute()
 const _id = route.params.id
-store.getWeeshDetails(_id)
+
 const { appUser, error, load } = getUser()
 const { userLog, count, logError, log } = getUserLog()
-const users = computed(()=>{
-  return store.userWeesh
-})
-const loading = computed(()=>{
-  return store.loading
-})
+
 onMounted(() => {
   load(_id)
 })
@@ -255,9 +332,6 @@ const handlePageChange = (page: number, index: number) => {
 
 <template>
   <div class="flex-col lg:flex lg:flex-row gap-1">
-    <div class="w-full h-screen fixed top-0 left-0 z-50 bg-slate-300 flex justify-center items-center" v-if="loading">
-      <LoadingSpinner/>
-    </div>
     <Card
       class="sm:col-span-3 md:col-span-3 bg-[#F8F9FF] sm:items-center shadow-xl lg:min-w-[450px]"
     >
@@ -408,16 +482,12 @@ const handlePageChange = (page: number, index: number) => {
         </TabsList>
         <TabsContent value="weeshes" class="space-y-4">
           <div class="overflow-auto bg-white md:mx-4 rounded-md">
-            <div v-if="users.length === 0" class="w-full h-full flex items-center justify-center text-2xl text-center"> 
-              Currently No Weeshes !
-            </div>
-            <Table v-if="users.length !== 0">
+            <Table>
               <TableHeader>
                 <TableRow
                   class="text-xs sm:text-sm md:text-base text-[#02072199] font-semibold bg-gray-200"
                 >
-                  <TableHead> Names </TableHead>
-                  <TableHead>Image</TableHead>
+                  <TableHead> Name of Weesh </TableHead>
                   <TableHead>Category</TableHead>
                   <TableHead>
                     <div class="flex items-center">
@@ -427,7 +497,7 @@ const handlePageChange = (page: number, index: number) => {
                   </TableHead>
                   <TableHead>
                     <div class="flex items-center">
-                      Charges
+                      Changes
                       <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
                     </div>
                   </TableHead>
@@ -442,26 +512,25 @@ const handlePageChange = (page: number, index: number) => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                <TableRow  v-for="user in users" :key="user._id">
-                  <TableCell class="font-medium">{{ user.name }}</TableCell>
-                  <TableCell><img :src="user.images[0].url" class="w-20 h-20"/></TableCell>
-                  <TableCell class="font-medium">{{ user.category?.name }}</TableCell>
-                  <TableCell class="font-medium">{{ user.currency.code }}{{ user.price.total }} </TableCell>
-                  <TableCell class="font-medium">{{ user.currency.code }}{{ user.price.genieGratuity }} </TableCell>
+                <TableRow v-for="user in users" :key="user._id">
+                  <TableCell class="font-medium">{{ user.nameofweeshes }}</TableCell>
+                  <TableCell class="font-medium">{{ user.category }}</TableCell>
+                  <TableCell class="font-normal text-xs">{{ user.price }} </TableCell>
+                  <TableCell class="font-medium">{{ user.changes }} </TableCell>
                   <TableCell class="">
                     <!-- Render multiple status icons based on user's status array -->
-                    <!-- <template v-for="status in user.status" :key="status"> -->
+                    <template v-for="status in user.status" :key="status">
                       <span
                         :class="{
-                          'bg-[#6A70FF] text-[#F8F9FF]': user.status === 'Fulfiled',
-                          'bg-[#373B4D] text-[#F8F9FF]': user.status === 'ADDED',
-                          'bg-[#EE9F39] text-[#F8F9FF]': user.status === 'Initiated',
-                          'bg-[#53eeb8] text-[#F8F9FF]': user.status === 'Delivered'
+                          'bg-[#6A70FF] text-[#F8F9FF]': status === 'Fulfiled',
+                          'bg-[#373B4D] text-[#F8F9FF]': status === 'Added',
+                          'bg-[#EE9F39] text-[#F8F9FF]': status === 'Initiated',
+                          'bg-[#53eeb8] text-[#F8F9FF]': status === 'Delivered'
                         }"
                         class="inline-block bg-[#373B4D] text-[#F8F9FF] rounded-full px-2 py-1 text-sm"
-                        >{{ user.status }}</span
+                        >{{ status }}</span
                       >
-                    <!-- </template> -->
+                    </template>
                   </TableCell>
                   <TableCell>
                     <svg
