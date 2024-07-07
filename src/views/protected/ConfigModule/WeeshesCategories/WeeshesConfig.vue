@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button"
 import { z } from 'zod';
 import MainNav from '@/components/MainNav.vue'
 import DashboardFooter from '@/components/DashboardFooter.vue'
-import axios from "axios";
+import axios from "@/services/ApiService";
 import { toast } from '@/components/ui/toast'
 import { Input } from '@/components/ui/input'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
@@ -51,6 +51,23 @@ import {
 } from '@/components/ui/pagination';
 import router from '@/router'
 import { useWeeshConfigStore } from '@/stores/config-details/weeshConfig'
+import { ability, defineAbilities, verifyAbilities } from '@/lib/ability'
+
+defineAbilities()
+const create = ability.can('create', 'weesh-categories')
+const createStyle = computed(()=>{
+  return create ? 'bg-[#020721] px-4 py-2 rounded-xl w-50 h-12' : 'cursor-not-allowed opacity-20 bg-[#020721] px-4 py-2 rounded-xl w-50 h-12'
+})
+
+const edit = ability.can('update', 'weesh-categories')
+const editStyle = computed(()=>{
+  return edit ? 'icons-sidebar border-2 border-gray-100' : 'cursor-not-allowed opacity-20 icons-sidebar border-2 border-gray-100'
+})
+
+const deleteWeeshCategory = ability.can('delete', 'weesh-categories')
+const deleteStyle = computed(()=>{
+  return deleteWeeshCategory ? 'icons-sidebar text-red-600' : 'cursor-not-allowed opacity-20 icons-sidebar text-red-600'
+})
 
 const store = useWeeshConfigStore()
 const loading = ref(false);
@@ -61,6 +78,7 @@ const active = computed(()=>{
 
 const currentCategory = ref('')
 const setCurrentCategory = (id: string)=>{
+  verifyAbilities('update', 'weesh-categories')
   currentCategory.value= id
   console.log(id)
 }
@@ -100,11 +118,7 @@ const onUpdate = () => {
       let config = {
         method: 'patch',
         maxBodyLength: Infinity,
-        url: `https://api.staging.weeshr.com/api/v1/admin/weesh/category/${currentCategory.value}`,
-        headers: { 
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data'
-        },
+        url: `/api/v1/admin/weesh/category/${currentCategory.value}`,
         data : data
       };
 
@@ -175,11 +189,7 @@ const onSubmit = formSubmit(async (values) => {
   let config = {
     method: 'post',
     maxBodyLength: Infinity,
-    url: 'https://api.staging.weeshr.com/api/v1/admin/weesh/category',
-    headers: { 
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'multipart/form-data'
-    },
+    url: '/api/v1/admin/weesh/category',
     data : data
   };
 
@@ -211,7 +221,7 @@ const onSubmit = formSubmit(async (values) => {
 })
 
 
-const token = sessionStorage.getItem('token') || ''
+
 const categories = computed(()=>{
   return store.categories
 })
@@ -245,8 +255,8 @@ onMounted(async()=>{
         <MainNav class="mx-6" headingText="Weesh Categories" />
         <div class="px-10 py-10 ml-auto w-full flex justify-end">
             <Sheet>
-              <SheetTrigger as-child>
-                <button class="bg-[#020721] px-4 py-2 rounded-xl w-50 h-12">
+              <SheetTrigger as-child @click="verifyAbilities('create', 'weesh-categories')">
+                <button :class="createStyle">
                   <div class="text-base text-[#F8F9FF] text-center flex items-center">
                     Add New
                     <svg
@@ -265,7 +275,7 @@ onMounted(async()=>{
                   </div>
                 </button>
               </SheetTrigger>
-              <SheetContent class="overflow-y-auto py-8">
+              <SheetContent class="overflow-y-auto py-8" v-if="create">
                 <form class="space-y-4" @submit.prevent="onSubmit">
                 <div class="flex py-4 justify-between items-center">
                 <SheetHeader>
@@ -356,13 +366,12 @@ onMounted(async()=>{
                       </p>
                     </span>
                     <div class="flex items-center gap-4">
-                      <Switch :checked="!category.disabled" @click="store.handleSwitch(category._id, category.name, category.disabled)"/>
-                      
+                      <Switch :checked="!category.disabled" @click="store.handleSwitch(category._id, category.name, category.disabled)" :disabled="!edit"/>
                       <Sheet>
                           <SheetTrigger>
-                              <Icon @click="setCurrentCategory(category._id)" icon="mdi:edit" width="17" height="17" class="icons-sidebar border-2 border-gray-100" />
+                              <Icon @click="setCurrentCategory(category._id)" icon="mdi:edit" width="17" height="17" :class="editStyle" />
                           </SheetTrigger>
-                          <SheetContent class="overflow-y-auto py-8" side="right">
+                          <SheetContent class="overflow-y-auto py-8" side="right" v-if="ability.can('update', 'weesh-categories')">
                               <div class="flex py-4 justify-between items-center">
                                 <SheetHeader>
                                 <h3 class="text-2xl font-medium">EDIT {{category.name.toUpperCase()}} CATEGORY</h3>
@@ -411,10 +420,10 @@ onMounted(async()=>{
 
                       <AlertDialog>
                         <AlertDialogTrigger>
-                          <Icon icon="mdi:delete" width="17" height="17" class="icons-sidebar text-red-600" />
+                          <Icon icon="mdi:delete" width="17" height="17" :class="deleteStyle" @click="verifyAbilities('delete', 'weesh-categories')"/>
                         </AlertDialogTrigger>
                         <div>
-                        <AlertDialogContent>
+                        <AlertDialogContent v-if="deleteWeeshCategory">
                           <AlertDialogHeader>
                             <AlertDialogTitle>Are you absolutely sure you want to delete {{category.name}}?</AlertDialogTitle>
                             <AlertDialogDescription>

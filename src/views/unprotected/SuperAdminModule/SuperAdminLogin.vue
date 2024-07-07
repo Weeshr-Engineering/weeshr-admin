@@ -11,17 +11,45 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/comp
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { toast } from '@/components/ui/toast'
-import router from '@/router'
+import { useRoute, useRouter } from 'vue-router';
 import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
-import axios from 'axios'
+import axios from '@/services/ApiService';
+// import { ability } from '@/lib/ability'
+// import { useAbilityStore } from '@/stores/permissions/permission-store'
 
+// import { useAbilityStore } from '@/stores/permissions/permission-store'
+// const ability = useAbilityStore().ability
+// const updateAbility = useAbilityStore().updateAbility
+
+
+// console.log(ability.can('rea', 'Post') )// true)
+// console.log(ability.can('delete', 'Post')) // true)
+// setTimeout(()=>{
+//   // ability.update({'delete': 'Post'})
+//   // ability.update([]);
+//   ability.update([ // switch to readonly mode
+//   { action: 'rea', subject: 'Post' }
+// ]);
+//   setTimeout(()=>{
+//     console.log(ability.can('rea', 'Post') )// true)
+//   }, 3000)
+// }, 3000)
 const currentYear = ref(new Date().getFullYear())
 
 const updateYear = () => {
   currentYear.value = new Date().getFullYear()
 }
 
-const superAdminStore = useSuperAdminStore()
+const {
+  setToken,
+  setPassword,
+  setuserEmail,
+  setLocalStorage,
+} = useSuperAdminStore()
+const route = useRoute();
+const router = useRouter();
+
+const { redirect_to } = route.query;
 
 onMounted(() => {
   updateYear()
@@ -77,62 +105,84 @@ const onSubmit = form.handleSubmit(async () => {
   if (form.values.userEmail && form.values.password) {
     const { userEmail, password } = form.values
 
-    console.log(userEmail, password)
-
     // Set the username and password in the store
-    superAdminStore.setuserEmail(userEmail)
-    superAdminStore.setPassword(password)
+    setuserEmail(userEmail)
+    setPassword(password)
 
     try {
-      console.log('userEmail', userEmail)
 
-      const response = await axios.post('https://api.staging.weeshr.com/api/v1/admin/login', {
+      const response = await axios.post('/api/v1/admin/login', {
         email: userEmail,
         password: password
       })
 
+      const { data: { data } } = response;
+
       // Check if the token property exists in the response
-      if (response.data.data && response.data.data.user && response.data.data.user.token) {
+      if (data && data.user && data.user.token) {
+
         // Access the data from the response data
-        // token
-        const token = response.data.data.user.token
-        //  firstname
-        const firstName = response.data.data.user.firstName
-        // lastname
-        const lastName = response.data.data.user.lastName
-        // email
-        const userEmail = response.data.data.user.email
+        const { user: { token, firstName, lastName, email: userEmail } } = data;
 
         // save basic user data to local storage
-        superAdminStore.setLocalStorage(firstName, lastName, userEmail)
+        setLocalStorage(firstName, lastName, userEmail)
         // save user email
-        superAdminStore.setuserEmail(userEmail)
+        setuserEmail(userEmail)
         // Save the token in Pinia store
-        superAdminStore.setToken(token)
+        setToken(token)
 
+        sessionStorage.setItem('permissions', JSON.stringify(response.data.data.user.permissions))
+        // console.log(response.data)
+        // const permissions = modPermissions(response.data.data.user.permissions)
+        // ability.update(permissions)
+        // updateAbility(permissions)
+        // useAbilityStore().permissions = permissions
 
         // Save the token in sessionStorage
 
-        router.push({ name: 'home' })
+        return (redirect_to)
+          ? router.push(redirect_to as string)
+          : router.push({ name: 'home' });
       } else {
         router.push({ name: 'superAdmin-login' })
       }
 
       // Redirect to home page after successful login
-    } catch (error: any) {
+    } catch ({ response }: any) {
+
       loading.value = false
+
+      const { status, data, statusText } = response;
+
+      if ([400, 401].includes(status)) {
+
+        return toast({
+          title: data?.message || 'Invalid Credentials',
+          variant: 'destructive'
+        });
+      }
+
+      if (status === 422) {
+        return toast({
+          title: data.error || 'Invalid Credentials',
+          variant: 'destructive'
+        });
+      }
+
       // Handle login errors, such as displaying error messages to the user
-      toast({
-        title: error.response.data.message || 'An error occurred',
+      return toast({
+        title: data?.message || 'An error occurred',
         variant: 'destructive'
       })
     }
+
   } else {
     // Handle the case when form fields are empty
     toast({
       title: 'Please enter your username/email and password.',
       variant: 'destructive'
     })
+
     loading.value = false
   }
 })
@@ -140,37 +190,23 @@ const onSubmit = form.handleSubmit(async () => {
 
 <template>
   <div
-    class="bg-[url('https://res.cloudinary.com/drykej1am/image/upload/v1710591674/kimcfu0uld547xavvpkn.png')] bg-cover relative"
-  >
+    class="bg-[url('https://res.cloudinary.com/drykej1am/image/upload/v1710591674/kimcfu0uld547xavvpkn.png')] bg-cover relative">
     <div
-      class="container flex flex-col items-center justify-center w-full h-screen md:grid lg:max-w-none lg:grid-cols-2 lg:px-0"
-    >
-      <img
-        class="absolute bottom-0 h-[640px] w-fit absoluteImg"
-        src="https://res.cloudinary.com/drykej1am/image/upload/v1710588213/gljbojydunbpercw3cqx.png"
-        alt="gradient"
-      />
+      class="container flex flex-col items-center justify-center w-full h-screen md:grid lg:max-w-none lg:grid-cols-2 lg:px-0">
+      <img class="absolute bottom-0 h-[640px] w-fit absoluteImg"
+        src="https://res.cloudinary.com/drykej1am/image/upload/v1710588213/gljbojydunbpercw3cqx.png" alt="gradient" />
 
-      <div
-        class="relative flex-col hidden h-full p-10 pb-0 text-white bg-center bg-no-repeat bg-cover lg:flex"
-      >
-        <img
-          class="hidden lg:block absolute bottom-0 h-[280px] w-auto transform left-1/2 -translate-x-[50%]"
+      <div class="relative flex-col hidden h-full p-10 pb-0 text-white bg-center bg-no-repeat bg-cover lg:flex">
+        <img class="hidden lg:block absolute bottom-0 h-[280px] w-auto transform left-1/2 -translate-x-[50%]"
           src="https://res.cloudinary.com/drykej1am/image/upload/v1710592164/weeshr_admin/loginPage/cpv0br6dhygp8nyqzyeh.svg"
-          alt="gradient"
-        />
+          alt="gradient" />
 
         <div class="inset-0 flex items-center justify-center w-full h-full text-center -left-[20%]">
-          <div
-            aria-current="page"
-            class="flex items-center -translate-y-[145px] flex-col justify-center space-y-2"
-          >
+          <div aria-current="page" class="flex items-center -translate-y-[145px] flex-col justify-center space-y-2">
             <h4 class="text-[#F8F9FFB2] tracking-widest">THE</h4>
-            <img
-              class="w-auto h-24"
+            <img class="w-auto h-24"
               src="https://res.cloudinary.com/drykej1am/image/upload/v1697377875/weehser%20pay/Weeshr_Light_lrreyo.svg"
-              alt=""
-            />
+              alt="" />
             <h4 class="text-[#F8F9FFB2] tracking-widest">SUPER ADMIN FACTORY</h4>
           </div>
 
@@ -190,33 +226,22 @@ const onSubmit = form.handleSubmit(async () => {
         <div class="w-full max-w-sm lg:p-8">
           <div class="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
             <div class="flex flex-col space-y-2 text-center">
-              <div
-                aria-current="page"
-                class="flex lg:hidden justify-center -translate-y-[60px] flex-col space-y-2"
-              >
+              <div aria-current="page" class="flex lg:hidden justify-center -translate-y-[60px] flex-col space-y-2">
                 <h4 class="text-[#F8F9FFB2] tracking-widest">THE</h4>
 
-                <img
-                  class="w-auto h-20"
+                <img class="w-auto h-20"
                   src="https://res.cloudinary.com/drykej1am/image/upload/v1697377875/weehser%20pay/Weeshr_Light_lrreyo.svg"
-                  alt=""
-                />
+                  alt="" />
                 <h4 class="text-[#F8F9FFB2] tracking-widest">SUPER ADMIN FACTORY</h4>
               </div>
             </div>
 
             <Card class="relative py-3 border-0 rounded-2xl bg-[#D9D9D91A]">
-              <img
-                class="absolute w-auto h-20 -top-[40px]"
-                src="https://res.cloudinary.com/drykej1am/image/upload/v1710587777/mksb1isi3h5kihgepmuv.svg"
-                alt=""
-              />
+              <img class="absolute w-auto h-20 -top-[40px]"
+                src="https://res.cloudinary.com/drykej1am/image/upload/v1710587777/mksb1isi3h5kihgepmuv.svg" alt="" />
 
-              <img
-                class="absolute w-auto h-16 -bottom-[35px] right-[60px]"
-                src="https://res.cloudinary.com/drykej1am/image/upload/v1710587780/ed8ljwdauwhuge9mjgzr.svg"
-                alt=""
-              />
+              <img class="absolute w-auto h-16 -bottom-[35px] right-[60px]"
+                src="https://res.cloudinary.com/drykej1am/image/upload/v1710587780/ed8ljwdauwhuge9mjgzr.svg" alt="" />
 
               <CardHeader class="space-y-1 pt-9">
                 <CardTitle class="text-2xl text-white"> Sign In </CardTitle>
@@ -227,13 +252,8 @@ const onSubmit = form.handleSubmit(async () => {
                     <FormItem v-auto-animate>
                       <FormLabel class="font-normal text-white">Username/Email</FormLabel>
                       <FormControl>
-                        <Input
-                          id="email"
-                          type="email"
-                          placeholder="weeshr@admin.com"
-                          class="focus-visible:ring-[#BAEF23]"
-                          v-bind="componentField"
-                        />
+                        <Input id="email" type="email" placeholder="weeshr@admin.com"
+                          class="focus-visible:ring-[#BAEF23]" v-bind="componentField" />
                       </FormControl>
 
                       <FormMessage />
@@ -243,12 +263,8 @@ const onSubmit = form.handleSubmit(async () => {
                     <FormItem>
                       <FormLabel class="font-normal text-white">Password</FormLabel>
                       <FormControl>
-                        <Input
-                          id="password"
-                          type="password"
-                          class="focus-visible:ring-[#BAEF23]"
-                          v-bind="componentField"
-                        />
+                        <Input id="password" type="password" class="focus-visible:ring-[#BAEF23]"
+                          v-bind="componentField" />
                       </FormControl>
 
                       <FormMessage />
@@ -258,11 +274,8 @@ const onSubmit = form.handleSubmit(async () => {
               </CardContent>
               <CardFooter>
                 <div class="flex flex-col w-full">
-                  <Button
-                    @click="onSubmit()"
-                    type="submit"
-                    class="w-full bg-[#BAEF23] hover:bg-[#BAEF23] hover:scale-105 text-black font-normal"
-                  >
+                  <Button @click="onSubmit()" type="submit"
+                    class="w-full bg-[#BAEF23] hover:bg-[#BAEF23] hover:scale-105 text-black font-normal">
                     <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" />
 
                     Sign In

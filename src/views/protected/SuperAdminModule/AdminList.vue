@@ -6,7 +6,7 @@ import { toTypedSchema } from '@vee-validate/zod'
 import * as z from 'zod'
 import { useDateFormat, useNow } from '@vueuse/core'
 import MainNav from '@/components/MainNav.vue'
-import axios from 'axios'
+import axios from "@/services/ApiService";
 import { Loader2 } from 'lucide-vue-next'
 import router from '@/router'
 import {
@@ -70,7 +70,7 @@ const newUser = ref({
 const sheetOpen = ref(false)
 const loading = ref(false)
 const superAdminStore = useSuperAdminStore()
-const token = sessionStorage.getItem('token') || ''
+
 
 const onSubmit = handleSubmit(async (values) => {
   loading.value = true
@@ -161,15 +161,12 @@ const fetchUsersData = async () => {
     // Set loading to true
 
     const response = await axios.get(
-      'https:{{host}}/administrators?search=test_admin&disabled_status=disabled',
+      '/administrators?search=test_admin&disabled_status=disabled',
       {
         // params: {
         //   search: 'test_admin',
         //   disabled_status: 'disabled'
         // },
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
       }
     )
 
@@ -218,12 +215,9 @@ const saveUserData = async (user: any) => {
   loading.value = true
   try {
     const response = await axios.post(
-      'https:{{host}}/administrators?search=test_admin&disabled_status=disabled',
+      '/administrators?search=test_admin&disabled_status=disabled',
       user,
       {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
       }
     )
 

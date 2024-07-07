@@ -1,5 +1,5 @@
 import { ref, type Ref } from 'vue'
-import axios from 'axios'
+import axios from "@/services/ApiService";
 import { useToast } from '@/components/ui/toast'
 
 interface User {
@@ -29,7 +29,6 @@ const getUsers = () => {
   const error: Ref<string> = ref('')
   const totalPages = ref(0)
   const currentPage = ref(0)
-  const token = sessionStorage.getItem('token') || ''
   const { toast } = useToast()
 
   const load = async (search: string, page: number) => {
@@ -39,12 +38,7 @@ const getUsers = () => {
         variant: 'loading'
       })
       const response = await axios.get(
-        `https://api.staging.weeshr.com/api/v1/admin/accounts/users?search=${search}&page=${page}&per_page=20`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
+        `/api/v1/admin/accounts/users?search=${search}&page=${page}&per_page=20`,
       )
 
       if (response.data.code === 200) {

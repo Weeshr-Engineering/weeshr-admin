@@ -1,5 +1,5 @@
 import { ref, type Ref } from "vue"
-import axios from 'axios';
+import axios from "@/services/ApiService";
 import { useToast } from '@/components/ui/toast';
 import * as z from 'zod';
 import { useRouter } from "vue-router";
@@ -21,30 +21,30 @@ interface User {
 }
 
 const userFormSchema =
-  z.object({
-    firstName: z
-      .string()
-      .min(2, { message: 'First name must be at least 2 characters long' })
-      .max(30, { message: 'First name cannot be longer than 50 characters' }),
-    middleName: z
-      .string()
-      .optional(),
-    lastName: z
-      .string()
-      .min(2, { message: 'Last name must be at least 2 characters long' })
-      .max(30, { message: 'Last name cannot be longer than 50 characters' }),
-    email: z.string().email('Please enter a valid email address'),
-    phone: z.object({
-        countryCode: z.string().nonempty('Country code is required'),
-        phoneNumber: z.string().nonempty('Phone number is required'),
-    }),
-    gender: z.string(),
-    dob: z.string(),
-    userName: z
-    .string()
-    .min(2, { message: 'Username must be at least 2 characters long' })
-    .max(20, { message: 'Username cannot be longer than 20 characters' }),
-  })
+    z.object({
+        firstName: z
+            .string()
+            .min(2, { message: 'First name must be at least 2 characters long' })
+            .max(30, { message: 'First name cannot be longer than 50 characters' }),
+        middleName: z
+            .string()
+            .optional(),
+        lastName: z
+            .string()
+            .min(2, { message: 'Last name must be at least 2 characters long' })
+            .max(30, { message: 'Last name cannot be longer than 50 characters' }),
+        email: z.string().email('Please enter a valid email address'),
+        phone: z.object({
+            countryCode: z.string().nonempty('Country code is required'),
+            phoneNumber: z.string().nonempty('Phone number is required'),
+        }),
+        gender: z.string(),
+        dob: z.string(),
+        userName: z
+            .string()
+            .min(2, { message: 'Username must be at least 2 characters long' })
+            .max(20, { message: 'Username cannot be longer than 20 characters' }),
+    })
 
 
 const createUser = () => {
@@ -66,24 +66,20 @@ const createUser = () => {
         isAdmin: false,
     })
 
-    const token = sessionStorage.getItem('token') || ''
+
     const { toast } = useToast()
-    
+
     const userLoad = async () => {
         try {
             userFormSchema.parse(newUser.value);
+            
             toast({
                 description: "Loading....",
-                variant:'loading'
-            })
-            const response = await axios.post('https://api.staging.weeshr.com/api/v1/admin/accounts/user', newUser.value,
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            }
-            );
-        
+                variant: 'loading'
+            });
+
+            const response = await axios.post('/api/v1/admin/accounts/user', newUser.value);
+
             if (response.data.code === 200) {
                 toast({
                     description: response.data.message,
@@ -96,7 +92,7 @@ const createUser = () => {
                 })
             }
 
-            router.push({name: "appuser"})
+            router.push({ name: "appuser" })
 
             loading.value = true
         }
@@ -108,8 +104,8 @@ const createUser = () => {
                         variant: 'destructive'
                     });
                 });
-                
-            } 
+
+            }
             else {
                 toast({
                     description: err.message,
@@ -117,14 +113,14 @@ const createUser = () => {
                 });
             }
 
-            router.push({name: "appuser"})
+            router.push({ name: "appuser" })
 
             loading.value = false;
         }
 
     }
-    
-    return {loading, newUser, userLoad}
+
+    return { loading, newUser, userLoad }
 }
 
 export default createUser

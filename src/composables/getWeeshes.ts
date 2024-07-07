@@ -1,5 +1,5 @@
 import { ref, type Ref } from 'vue'
-import axios from 'axios'
+import axios from "@/services/ApiService";
 import { useToast } from '@/components/ui/toast'
 
 interface Weeshes {
@@ -28,9 +28,9 @@ const getWeeshes = () => {
   const error: Ref<string> = ref('')
   const totalPages = ref(0)
   const currentPage = ref(0)
-  const token = sessionStorage.getItem('token') || ''
+
   const { toast } = useToast()
-  const base = `https://api.staging.weeshr.com/api/v1/admin/weeshes?per_page=20&`
+  const base = `/api/v1/admin/weeshes?per_page=20&`
 
   const loadWeeshes = async (option?: string | number) => {
     const url = () => {
@@ -70,11 +70,7 @@ const getWeeshes = () => {
         variant: 'loading'
       })
 
-      const response = await axios.get(url(), {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      })
+      const response = await axios.get(url())
 
       if (response.data.code === 200) {
         weeshes.value = response.data.data.data
@@ -83,7 +79,9 @@ const getWeeshes = () => {
 
         toast({
           description: response.data.message,
-          variant: 'success'
+
+          variant: 'success',
+
         })
       } else {
         error.value = 'Error getting Weeshes list. Kindly try again'

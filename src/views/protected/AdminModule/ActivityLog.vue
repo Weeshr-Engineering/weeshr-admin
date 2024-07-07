@@ -15,7 +15,7 @@
             <DropdownMenuTrigger as-child class="rounded-2xl bg-[#EEEFF5]">
               <Button variant="outline">
                 <div class="flex items-center text-[10px] md:text-xs">
-                  {{ selectedActionType || 'All Actions' }}
+                  {{ filters.log_action || 'All Actions' }}
                   <Icon icon="ion:chevron-down-outline" class="ml-1" />
                 </div>
               </Button>
@@ -25,16 +25,12 @@
                 Select Action
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuRadioGroup v-model="selectedActionType">
+              <DropdownMenuRadioGroup v-model="filters.log_action">
                 <DropdownMenuRadioItem value="" class="item-center text-center">
                   All Actions
                 </DropdownMenuRadioItem>
-                <DropdownMenuRadioItem
-                  v-for="action in actionTypes"
-                  :key="action"
-                  :value="action"
-                  class="item-center text-center"
-                >
+                <DropdownMenuRadioItem v-for="action in actionTypes" :key="action" :value="action"
+                  class="item-center text-center">
                   {{ action }}
                 </DropdownMenuRadioItem>
               </DropdownMenuRadioGroup>
@@ -45,7 +41,7 @@
             <DropdownMenuTrigger as-child class="rounded-2xl bg-[#EEEFF5]">
               <Button variant="outline">
                 <div class="flex items-center text-[10px] md:text-xs">
-                  {{ selectedStatusType || 'All Status' }}
+                  {{ filters.log_status || 'All Status' }}
                   <Icon icon="ion:chevron-down-outline" class="ml-1" />
                 </div>
               </Button>
@@ -55,16 +51,12 @@
                 Select Status
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuRadioGroup v-model="selectedStatusType">
+              <DropdownMenuRadioGroup v-model="filters.log_status">
                 <DropdownMenuRadioItem value="" class="item-center text-center">
                   All Status
                 </DropdownMenuRadioItem>
-                <DropdownMenuRadioItem
-                  v-for="status in statusTypes"
-                  :key="status"
-                  :value="status"
-                  class="item-center text-center"
-                >
+                <DropdownMenuRadioItem v-for="status in statusTypes" :key="status" :value="status"
+                  class="item-center text-center">
                   {{ status }}
                 </DropdownMenuRadioItem>
               </DropdownMenuRadioGroup>
@@ -75,7 +67,7 @@
             <DropdownMenuTrigger as-child class="rounded-2xl bg-[#EEEFF5]">
               <Button variant="outline">
                 <div class="flex items-center text-[10px] md:text-xs">
-                  {{ selectedUserType || 'All Users' }}
+                  {{ filters.log_user_type || 'All Users' }}
                   <Icon icon="ion:chevron-down-outline" class="ml-1" />
                 </div>
               </Button>
@@ -85,16 +77,12 @@
                 Select User
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuRadioGroup v-model="selectedUserType">
+              <DropdownMenuRadioGroup v-model="filters.log_user_type">
                 <DropdownMenuRadioItem value="" class="item-center text-center">
                   All Users
                 </DropdownMenuRadioItem>
-                <DropdownMenuRadioItem
-                  v-for="user in userTypes"
-                  :key="user"
-                  :value="user"
-                  class="item-center text-center"
-                >
+                <DropdownMenuRadioItem v-for="user in userTypes" :key="user" :value="user"
+                  class="item-center text-center">
                   {{ user }}
                 </DropdownMenuRadioItem>
               </DropdownMenuRadioGroup>
@@ -111,7 +99,9 @@
               <TableHead class="text-sm">
                 <div class="flex items-center cursor-pointer" @click="toggleSortOrder">
                   Timestamp
-                  <Icon :icon="sortOrder === 'desc' ? 'fluent:chevron-down-20-regular' : 'fluent:chevron-up-20-regular'" class="ml-1" />
+                  <Icon
+                    :icon="filters.sort_direction === 'desc' ? 'fluent:chevron-down-20-regular' : 'fluent:chevron-up-20-regular'"
+                    class="ml-1" />
                 </div>
               </TableHead>
               <TableHead class="text-left">User</TableHead>
@@ -119,67 +109,47 @@
               <TableHead class="text-left">Action</TableHead>
               <TableHead class="text-left">Status</TableHead>
               <TableHead class="text-left">Description</TableHead>
-              <TableHead></TableHead>  
+              <TableHead></TableHead>
             </TableRow>
           </TableHeader>
 
           <TableBody>
-            <TableRow
-              v-for="log in paginatedLogs"
-              :key="log.id"
-             
-            >
-              <TableCell class="text-xs md:text-sm lg:text-xs">{{ new Date(log.timestamp).toLocaleString() }}</TableCell>
-              <TableCell class="text-xs md:text-sm lg:text-xs">{{ log.user.extras.lastName + ' ' + log.user.extras.firstName }}</TableCell>
+            <TableRow v-for="log in logs" :key="log.id">
+              <TableCell class="text-xs md:text-sm lg:text-xs">{{ new Date(log.timestamp).toLocaleString() }}
+              </TableCell>
+              <TableCell class="text-xs md:text-sm lg:text-xs">{{ log.user.extras.lastName + ' ' +
+                log.user.extras.firstName }}</TableCell>
               <TableCell class="text-xs md:text-sm lg:text-xs">{{ log.user.extras.email }}</TableCell>
               <TableCell class="text-xs md:text-sm lg:text-xs">{{ log.action }}</TableCell>
               <TableCell>
-                <div :class="statusBg(log.status)" class="rounded-[10px] w-fit px-1.5 py-0.5 text-white text-xs capitalize">
+                <div :class="statusBg(log.status)"
+                  class="rounded-[10px] w-fit px-1.5 py-0.5 text-white text-xs capitalize">
                   {{ log.status }}
                 </div>
               </TableCell>
               <TableCell class="text-xs md:text-sm lg:text-xs min-w-full">{{ log.description }}</TableCell>
-              <TableCell @click="openModal(log)"><Icon icon="uil:angle-right" class="ml-1" width="25" height="25"
-                  /> 
-                
+              <TableCell @click="openModal(log)">
+                <Icon icon="uil:angle-right" class="ml-1" width="25" height="25" />
+
               </TableCell>
             </TableRow>
           </TableBody>
         </Table>
       </div>
-      <ModalComponent
-      v-if="selectedLog"
-      :action="selectedLog.action"
-                    :resource="selectedLog.resource"
-                    :metadata="selectedLog.metadata"
-                    :show="isModalVisible"
-                    @close="isModalVisible = false"
-                    />
-        
-    <div class="flex gap-2 max-w-full flex-wrap justify-end mt-8 mr-4 items-center text-[15px]">
-      <Pagination :total="totalPages" :sibling-count="1" show-edges :default-page="1" @change="handlePageChange">
-        <PaginationList class="flex items-center gap-1">
-            <PaginationFirst @click="handlePageChange(1)" />
-            <PaginationPrev @click="handlePageChange(Math.max(currentPage - 1, 1))" />
-            <template v-for="(item, index) in paginationItems" :key="index">
-              <PaginationListItem v-if="item.type === 'page'" :value="item.value" as-child>
-                <Button class="w-10 h-10 p-0" :variant="item.value === currentPage ? 'default' : 'outline'" @click="handlePageChange(item.value)">
-                  {{ item.value }}
-                </Button>
-              </PaginationListItem>
-            <PaginationEllipsis v-else :index="index" />
-            </template>
-            <PaginationNext @click="handlePageChange(Math.min(currentPage + 1, totalPages))" />
-            <PaginationLast @click="handlePageChange(totalPages)" />
-        </PaginationList>
-      </Pagination>
-        </div>
-      
-    </Card>
+      <ModalComponent v-if="selectedLog" :action="selectedLog.action" :resource="selectedLog.resource"
+        :metadata="selectedLog.metadata" :show="isModalVisible" @close="isModalVisible = false" />
 
-    
+      <div class="flex gap-2 max-w-full flex-wrap justify-end mt-8 mr-4 items-center text-[15px]">
+        <PaginationIndex :count="store.getDataCount" :per-page="store.getPagination.per_page" :from="store.getPagination.from"
+          :to="store.getPagination.to" :next-from="store.getPagination.next_from" :valid-next-page="store.getPagination.valid_next_page"
+          :prev-from="store.getPagination.prev_from" :valid-prev-page="store.getPagination.valid_prev_page"
+          @per_page="(val: number) => filters.per_page = val" @prev="(val: number) => filters.page_item_from = val"
+          @next="(val: number) => filters.page_item_from = val" />
+      </div>
+
+    </Card>
     <DashboardFooter />
-    
+
   </div>
 </template>
 
@@ -212,16 +182,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
-import {
-  Pagination,
-  PaginationEllipsis,
-  PaginationFirst,
-  PaginationLast,
-  PaginationList,
-  PaginationListItem,
-  PaginationNext,
-  PaginationPrev,
-} from '@/components/ui/pagination';
+import type { IActivityLogReqParams } from '@/stores/activity-log/activity-log';
+import PaginationIndex from '@/components/ui/special-pagination/PaginationIndex.vue';
 
 import Search from '@/components/UseSearch.vue';
 
@@ -260,53 +222,24 @@ const store = useActivityLogStore();
 const logs = ref<ActivityLogItem[]>(store.logs);
 const loading = ref(store.loading);
 const error = ref(store.error);
+const filters = ref<Partial<IActivityLogReqParams>>({
+  // columns?: string;
+  sort_direction: 'desc',
+  sort_column: '',
+  per_page: 25,
+  page_item_from: 1,
+  log_action: '',
+  log_status: '',
+  log_user_type: '',
+  user_id: ''
+} as Partial<IActivityLogReqParams>);
 
-const perPage = 10;
-const currentPage = ref(1);
-
-const totalLogs = computed(() => filteredLogs.value.length);
-const totalPages = computed(() => Math.ceil(totalLogs.value / perPage));
-
-const sortOrder = ref<'asc' | 'desc'>('desc');
-const selectedActionType = ref('');
-const selectedStatusType = ref('');
-const selectedUserType = ref('');
-
-const sortedLogs = computed(() => {
-  return [...logs.value].sort((a, b) => {
-    const dateA = new Date(a.timestamp).getTime();
-    const dateB = new Date(b.timestamp).getTime();
-    return sortOrder.value === 'desc' ? dateB - dateA : dateA - dateB;
-  });
-});
-
-
-const filteredLogs = computed(() => {
-  return sortedLogs.value.filter((log) => {
-    const actionMatch = !selectedActionType.value || log.action === selectedActionType.value;
-    const statusMatch = !selectedStatusType.value || log.status === selectedStatusType.value;
-    const userTypeMatch = !selectedUserType.value || log.user.type === selectedUserType.value;
-    return actionMatch && statusMatch && userTypeMatch;
-  });
-});
-
-
-const paginatedLogs = computed(() => {
-  const start = (currentPage.value - 1) * perPage;
-  const end = start + perPage;
-  return filteredLogs.value.slice(start, end);
-});
-
-const paginationItems = computed(() => {
-  const pages = [];
-  for (let i = 1; i <= totalPages.value; i++) {
-    pages.push({ type: 'page', value: i });
-  }
-  return pages;
-});
+watch(filters, () => {
+  store.fetchActivityLogs(filters.value);
+}, { deep: true });
 
 onMounted(() => {
-  store.fetchActivityLogs();
+  store.fetchActivityLogs(filters.value || { per_page: 25 });
   store.fetchFiltersAndMeta();
 });
 
@@ -343,14 +276,9 @@ const statusBg = (status: string) => {
   }
 };
 
-const handlePageChange = (newPage: number) => {
-  if (newPage > 0 && newPage <= totalPages.value) {
-    currentPage.value = newPage;
-  }
-};
-
 const toggleSortOrder = () => {
-  sortOrder.value = sortOrder.value === 'desc' ? 'asc' : 'desc';
+  filters.value.sort_column = 'timestamp';
+  filters.value.sort_direction = filters.value.sort_direction === 'desc' ? 'asc' : 'desc';
 };
 
 const selectedLog = ref<ActivityLogItem | null>(null);
@@ -364,5 +292,3 @@ const actionTypes = computed<string[]>(() => store.filters.log_action);
 const statusTypes = computed<string[]>(() => store.filters.log_status);
 const userTypes = computed<string[]>(() => store.filters.log_user_types);
 </script>
-
-
