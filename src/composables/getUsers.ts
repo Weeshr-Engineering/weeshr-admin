@@ -35,7 +35,7 @@ const getUsers = () => {
     try {
       toast({
         description: 'Loading....',
-        variant:'loading'
+        variant: 'loading'
       })
       const response = await axios.get(
         `/api/v1/admin/accounts/users?search=${search}&page=${page}&per_page=20`,
@@ -50,17 +50,11 @@ const getUsers = () => {
           description: response.data.message,
           variant: 'success'
         })
-      } else {
-        error.value = response.data.message
-        toast({
-          description: response.data.message,
-          variant: 'destructive'
-        })
       }
     } catch (err: any) {
-      error.value = err.message
+      error.value = `${err.response.data.message}, ${err.response.data.error}.`
       toast({
-        description: err.message,
+        description: err.response.data.message,
         variant: 'destructive'
       })
     }
