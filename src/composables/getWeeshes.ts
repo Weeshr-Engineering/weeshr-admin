@@ -2,7 +2,6 @@ import { ref, type Ref } from 'vue'
 import axios from "@/services/ApiService";
 import { useToast } from '@/components/ui/toast'
 
-
 interface Weeshes {
   _id: string
   name: string
@@ -80,18 +79,19 @@ const getWeeshes = () => {
 
         toast({
           description: response.data.message,
+
           variant: 'success',
 
         })
       } else {
-        error.value = response.data.message
+        error.value = 'Error getting Weeshes list. Kindly try again'
         toast({
           description: response.data.message,
           variant: 'destructive'
         })
       }
     } catch (err: any) {
-      error.value = err.message
+      error.value = 'Error getting Weeshes list. Kindly try again'
       toast({
         description: err.message,
         variant: 'destructive'
