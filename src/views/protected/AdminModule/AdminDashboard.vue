@@ -5,7 +5,7 @@ import DashboardFooter from '@/components/DashboardFooter.vue';
 import { Card, CardContent } from '@/components/ui/card';
 import { useUserhubStore } from '@/stores/userhub-details/userhub-details';
 import usersTable from '@/components/usersTable.vue';
-import { ability } from '@/lib/ability';g
+import { ability } from '@/lib/ability';
 import { defineAbilities } from '@/lib/ability';
 import { useWeeshStore } from '@/stores/weeshes/weeshes-count';
 import { useDashboardAnalyticsStore } from '@/stores/dashboard-analytics/dashboard-analytics';
