@@ -3,7 +3,7 @@
         <MainNav class="mx-6" headingText="Weeshes" />
         <div class="flex flex-col gap-4">
             <Card>
-                <div class="w-full px-8 md:my-4 flex items-center justify-between">
+                <div class="w-full px-8 my-4 flex items-center justify-between">
                     <h3 class="text-lg font-semibold">Weesh Details</h3>
                     <Badge class="rounded-full">Added</Badge>
                 </div>
