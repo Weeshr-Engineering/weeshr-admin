@@ -17,7 +17,14 @@ interface User {
   verificationBadge: string
   emailVerified: boolean
   isDisabled: boolean
-  avatar: string | null
+  images: [
+    {
+      resource: {
+        asset_id: string
+        secure_url: string
+      }
+    }
+  ]
 }
 
 interface Log {
@@ -35,10 +42,58 @@ interface Log {
   description: string
 }
 
+export interface Weeshes {
+  _id: string
+  name: string
+  wishYear: string
+  isLocked: boolean
+  isPriority: boolean
+  status: string
+  images: [
+    {
+      _id: string
+      url: string
+    }
+  ]
+  category: {
+    name: string
+  }
+  price: {
+    price: number
+    genieGratuity: number
+    total: number
+  }
+  currency: {
+    code: string
+  }
+  contributions: [
+    {
+      _id: string
+      isContributorAnonymous: boolean
+      amount: number
+      contributor: {
+        avatar: string
+        firstName: string
+        lastName: string
+      }
+    }
+  ]
+}
+
+interface Wallet {
+  id: string
+  account_number: string
+  account_name: string
+  balance: number
+  ledger_balance: number
+  currency: string
+}
+
 
 const { toast } = useToast()
 
 export const getUser = () => {
+  const token = sessionStorage.getItem('token') || ''
   const appUser = ref<User | null>(null)
   const error: Ref<string> = ref('')
 
@@ -58,17 +113,11 @@ export const getUser = () => {
           description: response.data.message,
           variant: 'success'
         })
-      } else {
-        error.value = response.data.message
-        toast({
-          description: response.data.message,
-          variant: 'warning'
-        })
       }
     } catch (err: any) {
-      error.value = err.message
+      error.value = `${err.response.data.message}, ${err.response.data.error}.`
       toast({
-        description: err.message,
+        description: err.response.data.message,
         variant: 'destructive'
       })
     }
@@ -78,6 +127,8 @@ export const getUser = () => {
 }
 
 export const getUserLog = () => {
+  const token = sessionStorage.getItem('token') || ''
+
   const userLog = ref<Log[]>([])
   const logError: Ref<string> = ref('')
   const count = ref<number>(0)
@@ -100,17 +151,11 @@ export const getUserLog = () => {
           description: response.data.message,
           variant: 'success'
         })
-      } else {
-        logError.value = response.data.message
-        toast({
-          description: response.data.message,
-          variant: 'destructive'
-        })
       }
     } catch (err: any) {
-      logError.value = err.message
+      logError.value = `${err.response.data.message}, ${err.response.data.error}.`
       toast({
-        description: err.message,
+        description: err.response.data.message,
         variant: 'destructive'
       })
     }
@@ -119,7 +164,142 @@ export const getUserLog = () => {
   return { userLog, count, logError, log }
 }
 
+export const getUserWeeshes = () => {
+  const token = sessionStorage.getItem('token') || ''
+
+  const userWeeshesList: Ref<Weeshes[]> = ref([])
+  const weeshesError: Ref<string> = ref('')
+  const totalPages = ref(0)
+  const currentPage = ref(0)
+
+  const userWeeshes = async (_id: string | string[], options?: string | number) => {
+    const base = `https://api.staging.weeshr.com/api/v1/admin/accounts/users/${_id}/weeshes?`
+
+    const url = () => {
+      if (typeof options === 'string') {
+        if (options === 'asc' || options === 'desc') {
+          return base + `sort_by_price=${options}`
+        } else if (options !== 'asc' && options !== 'desc') {
+          return base + `search=${options}`
+        }
+      } else if (typeof options === 'number') {
+        return base + `page=${options}`
+      }
+      return base
+    }
+
+    try {
+      toast({
+        description: 'Loading....',
+        variant: 'loading'
+      })
+      const response = await axios.get(url(), {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+
+      if (response.data.code === 200) {
+        userWeeshesList.value = response.data.data.data
+        totalPages.value = response.data.data.totalPages
+        currentPage.value = response.data.data.currentPage
+
+        toast({
+          description: response.data.message,
+          variant: 'success'
+        })
+      }
+    } catch (err: any) {
+      weeshesError.value = `${err.response.data.message}, ${err.response.data.error}.`
+      toast({
+        description: err.response.data.message,
+        variant: 'destructive'
+      })
+    }
+  }
+
+  return { userWeeshesList, weeshesError, totalPages, currentPage, userWeeshes }
+}
+
+export const getUserWallet = () => {
+  const token = sessionStorage.getItem('token') || ''
+
+  const userWallet = ref<Wallet | null>(null)
+
+  const getWallet = async (_id: string | string[]) => {
+    try {
+      toast({
+        description: 'Loading....',
+        variant: 'loading'
+      })
+      const response = await axios.get(
+        `https://api.staging.weeshr.com/api/v1/admin/user/${_id}/wallet`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      )
+      if (response.data.code === 200) {
+        userWallet.value = response.data.data
+        toast({
+          description: response.data.message,
+          variant: 'success'
+        })
+      }
+    } catch (err: any) {
+      toast({
+        description: err.response.data.message,
+        variant: 'destructive'
+      })
+    }
+  }
+  return { userWallet, getWallet }
+}
+
+export const getUserWalletList = () => {
+  const token = sessionStorage.getItem('token') || ''
+
+  const userWalletList = ref<Wallet | null>(null)
+  const walletError: Ref<string> = ref('')
+
+  const getWalletList = async (_id: string | string[]) => {
+    try {
+      toast({
+        description: 'Loading....',
+        variant: 'loading'
+      })
+      const response = await axios.get(
+        `https://api.staging.weeshr.com/api/v1/admin/user/${_id}/wallet/transactions`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      )
+
+      if (response.data.code === 200) {
+        userWalletList.value = response.data.data.data
+        toast({
+          description: response.data.message,
+          variant: 'success'
+        })
+      }
+    } catch (err: any) {
+      walletError.value = `${err.response.data.message}, ${err.response.data.error}.`
+      toast({
+        description: err.response.data.message,
+        variant: 'destructive'
+      })
+    }
+  }
+  return { walletError, userWalletList, getWalletList }
+}
+
 export default {
   getUser,
-  getUserLog
+  getUserLog,
+  getUserWeeshes,
+  getUserWallet,
+  getUserWalletList
 }
