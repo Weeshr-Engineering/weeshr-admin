@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import axios from 'axios';
+import { useToast } from '@/components/ui/toast';
 
 export const useDashboardAnalyticsStore = defineStore('dashboardAnalytics', {
   state: () => ({
@@ -33,22 +34,33 @@ export const useDashboardAnalyticsStore = defineStore('dashboardAnalytics', {
       pending: 0
     },
     loading: false,
-    error: null,
+    error: null as string | null,
   }),
   actions: {
     async fetchDashboardAnalytics() {
-      this.loading = true;
+      const { toast } = useToast();
       try {
+        this.loading = true;
         const response = await axios.get('/api/v1/admin/dashboard/analytics');
-        this.$patch({
-          weeshes: response.data.data.weeshes,
-          wallet: response.data.data.wallet,
-          users: response.data.data.users,
-          tickets: response.data.data.tickets,
-          error: response.data.error,
+        if (response.status === 200 || response.status === 201) {
+          this.$patch({
+            weeshes: response.data.data.weeshes,
+            wallet: response.data.data.wallet,
+            users: response.data.data.users,
+            tickets: response.data.data.tickets,
+            error: null,
+          });
+        } else {
+          toast({
+            description: response.data.message,
+            variant: 'destructive'
+          });
+        }
+      } catch (error: any) { // Typing the error as any
+        this.error = error.message || 'An unexpected error occurred';
+        toast({
+          variant: 'destructive'
         });
-      } catch (error) {
-        this.error = error;
       } finally {
         this.loading = false;
       }
