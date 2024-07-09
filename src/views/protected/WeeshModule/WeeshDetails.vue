@@ -130,16 +130,16 @@
                                 <h1 class="text-xl my-4">Verification</h1>
                                 <Tabs :value="stage" class="w-[400px]" :modelValue="stage">
                                     <TabsList class="gap-2 bg-transparent">
-                                      <TabsTrigger value="1" @click="setStage('1')" :class="{'bg-[#02072199] bg-opacity-60 text-white no-underline rounded-full min-h-10': stage === '1', 'bg-[#DCE0F2] text-[#02072199] min-w-10 min-h-10 rounded-full p-2 no-underline': stage !== '1'}">
+                                      <TabsTrigger value="1" @click="setStage('1')" :class="{'bg-[#02072199] bg-opacity-60 text-white min-w-10 min-h-10 no-underline rounded-full md:min-h-10': stage === '1', 'bg-[#DCE0F2] text-[#02072199] min-w-10 min-h-10 rounded-full p-2 no-underline': stage !== '1'}">
                                         <p :class="{'text-white': stage === '1', 'text-[#02072199]': stage !== '1'}">1 <span class='hidden md:inline-block'>{{ stage == '1' ? 'Vender Details' : '' }}</span></p>
                                       </TabsTrigger>
-                                      <TabsTrigger value="2" @click="setStage('2')" :class="{'bg-[#02072199] bg-opacity-60 text-white no-underline rounded-full min-h-10': stage === '2', 'bg-[#DCE0F2] text-[#02072199] min-w-10 min-h-10 rounded-full p-2 no-underline': stage !== '2'}">
+                                      <TabsTrigger value="2" @click="setStage('2')" :class="{'bg-[#02072199] bg-opacity-60 text-white no-underline rounded-full min-w-10 min-h-10 md:min-h-10': stage === '2', 'bg-[#DCE0F2] text-[#02072199] min-w-10 min-h-10 rounded-full p-2 no-underline': stage !== '2'}">
                                         <p :class="{'text-white': stage === '2', 'text-[#02072199]': stage !== '2'}">2 <span class='hidden md:inline-block'>{{ stage == '2' ? 'Product Status' : '' }}</span></p>
                                       </TabsTrigger>
-                                      <TabsTrigger value='3' @click="setStage('3')" :class="{'bg-[#02072199] bg-opacity-60 text-white no-underline rounded-full min-h-10': stage === '3', 'bg-[#DCE0F2] text-[#02072199] min-w-10 min-h-10 rounded-full p-2 no-underline': stage !== '3'}">
+                                      <TabsTrigger value='3' @click="setStage('3')" :class="{'bg-[#02072199] bg-opacity-60 text-white no-underline rounded-full min-w-10 min-h-10': stage === '3', 'bg-[#DCE0F2] text-[#02072199] min-w-10 min-h-10 rounded-full p-2 no-underline': stage !== '3'}">
                                         <p :class="{'text-white': stage === '3', 'text-[#02072199]': stage !== '3'}">3 <span class='hidden md:inline-block'>{{ stage == '3' ? 'Purchase Initiation' : '' }}</span></p>
                                       </TabsTrigger>
-                                      <TabsTrigger value="4" @click="setStage('4')" :class="{'bg-[#02072199] bg-opacity-60 text-white no-underline rounded-full min-h-10': stage === '4', 'bg-[#DCE0F2] text-[#02072199] min-w-10 min-h-10 rounded-full p-2 no-underline': stage !== '4'}">
+                                      <TabsTrigger value="4" @click="setStage('4')" :class="{'bg-[#02072199] bg-opacity-60 text-white no-underline rounded-full min-w-10 min-h-10': stage === '4', 'bg-[#DCE0F2] text-[#02072199] min-w-10 min-h-10 rounded-full p-2 no-underline': stage !== '4'}">
                                         <p :class="{'text-white': stage === '4', 'text-[#02072199]': stage !== '4'}">4 <span class='hidden md:inline-block'>{{ stage == '4' ? 'Payment' : '' }}</span></p>
                                       </TabsTrigger>
                                     </TabsList>
