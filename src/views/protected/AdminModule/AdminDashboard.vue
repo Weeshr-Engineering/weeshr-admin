@@ -1,27 +1,31 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
-import MainNav from '@/components/MainNav.vue'
-import DashboardFooter from '@/components/DashboardFooter.vue'
-import { Card, CardContent } from '@/components/ui/card'
-import { useUserhubStore } from '@/stores/userhub-details/userhub-details'
-import usersTable from '@/components/usersTable.vue'
-import { ability } from '@/lib/ability'
-import { defineAbilities } from '@/lib/ability'
-import { useWeeshStore } from '@/stores/weeshes/weeshes-count'
-import { storeToRefs } from 'pinia'
+import { onMounted } from 'vue';
+import MainNav from '@/components/MainNav.vue';
+import DashboardFooter from '@/components/DashboardFooter.vue';
+import { Card, CardContent } from '@/components/ui/card';
+import { useUserhubStore } from '@/stores/userhub-details/userhub-details';
+import usersTable from '@/components/usersTable.vue';
+import { ability } from '@/lib/ability';g
+import { defineAbilities } from '@/lib/ability';
+import { useWeeshStore } from '@/stores/weeshes/weeshes-count';
+import { useDashboardAnalyticsStore } from '@/stores/dashboard-analytics/dashboard-analytics';
+import { storeToRefs } from 'pinia';
+import { Loader2 } from 'lucide-vue-next';
 
-defineAbilities()
-const userHubStore = useUserhubStore() 
-const weeshStore = useWeeshStore()
+defineAbilities();
+const userHubStore = useUserhubStore();
+const weeshStore = useWeeshStore();
+const dashboardAnalyticsStore = useDashboardAnalyticsStore();
 
-const { addedCount } = storeToRefs(weeshStore)
+const { addedCount } = storeToRefs(weeshStore);
+const { weeshes, wallet, users, tickets, loading } = storeToRefs(dashboardAnalyticsStore);
 
-weeshStore.getWeeshesCount()
+weeshStore.getWeeshesCount();
+dashboardAnalyticsStore.fetchDashboardAnalytics();
 
 onMounted(() => {
-  userHubStore.getUsersNumber()  
-})
-
+  userHubStore.getUsersNumber();
+});
 </script>
 
 <template>
@@ -37,15 +41,16 @@ onMounted(() => {
                       src="https://res.cloudinary.com/dotojp6xu/image/upload/v1715162947/menu_mvjoy6.svg"
                       alt="gradient"
                     />
-      
-                    <p class="text-2xl lg:text-2xl font-medium text-[#020721] absolute bottom-2 left-5">{{ addedCount }}</p>
-                  </CardContent>
+                    <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" />
+                    <p v-else class="text-2xl lg:text-2xl font-medium text-[#020721] absolute bottom-2 left-5">{{ weeshes.all }}</p>
+                </CardContent>
             </div>
             <div class="bg-[#020721] pt-2 h-[80px] rounded-bl-[24px] rounded-br-[24px]">
                 <CardContent class="flex flex-col space-y-0">
                     <p class="text-l font-normal text-[#F8F9FFB2]">Delivered</p>
-                    <p class="text-2xl font-normal text-white">275,865</p>
-                  </CardContent>
+                    <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" />
+                    <p v-else class="text-2xl font-normal text-white">{{ weeshes.fulfilled }}</p>
+                </CardContent>
             </div>
         </Card>
 
@@ -58,15 +63,16 @@ onMounted(() => {
                       src="https://res.cloudinary.com/dotojp6xu/image/upload/v1715162926/wallet-3_fbkk9u.svg"
                       alt="gradient"
                     />
-      
-                    <p class="text-2xl lg:text-2xl font-medium text-[#020721] absolute bottom-2 left-5">₦ 2,986,004.07</p>
-                  </CardContent>
+                    <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" />
+                    <p v-else class="text-2xl lg:text-2xl font-medium text-[#020721] absolute bottom-2 left-5">₦ {{ wallet.total_current_balance.balance }}</p>
+                </CardContent>   
             </div>
             <div class="bg-[#020721] pt-2 h-[80px] rounded-bl-[24px] rounded-br-[24px]">
                 <CardContent class="flex flex-col space-y-0">
                     <p class="text-l font-normal text-[#F8F9FFB2]">Invested</p>
-                    <p class="text-2xl font-normal text-white">₦ 0.00</p>
-                  </CardContent>
+                    <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" />
+                    <p v-else class="text-2xl font-normal text-white">₦ {{ wallet.invested.balance }}</p>
+                </CardContent>
             </div>
         </Card>
 
@@ -79,15 +85,16 @@ onMounted(() => {
                       src="https://res.cloudinary.com/dotojp6xu/image/upload/v1715162907/profile-2user_stezwz.svg"
                       alt="gradient"
                     />
-      
-                    <p class="text-2xl lg:text-2xl font-medium text-[#020721] absolute bottom-2 left-5">{{userHubStore.usersCount}}</p>
-                  </CardContent>
+                    <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" />
+                    <p v-else class="text-2xl lg:text-2xl font-medium text-[#020721] absolute bottom-2 left-5">{{ users.all }}</p>
+                </CardContent>
             </div>
             <div class="bg-[#020721] pt-2 h-[80px] rounded-bl-[24px] rounded-br-[24px]">
                 <CardContent class="flex flex-col space-y-0">
                     <p class="text-l font-normal text-[#F8F9FFB2]">Active</p>
-                    <p class="text-2xl font-normal text-white">365,987</p>
-                  </CardContent>
+                    <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" />
+                    <p v-else class="text-2xl font-normal text-white">{{ users.active }}</p>
+                </CardContent>
             </div>
         </Card>
 
@@ -100,15 +107,16 @@ onMounted(() => {
                       src="https://res.cloudinary.com/dotojp6xu/image/upload/v1715162881/ticket_etur0t.svg"
                       alt="gradient"
                     />
-      
-                    <p class="text-2xl lg:text-2xl font-medium text-[#020721] absolute bottom-2 left-5">1,375</p>
+                    <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" />
+                    <p v-else class="text-2xl lg:text-2xl font-medium text-[#020721] absolute bottom-2 left-5">{{ tickets.all }}</p>
                 </CardContent>
             </div>
             <div class="bg-[#020721] h-[80px] pt-2 rounded-bl-[24px] rounded-br-[24px]">
                 <CardContent class="flex flex-col space-y-0">
                     <p class="text-l font-normal text-[#F8F9FFB2]">Pending</p>
-                    <p class="text-2xl font-normal text-white">15</p>
-                  </CardContent>
+                    <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" />
+                    <p v-else class="text-2xl font-normal text-white">{{ tickets.pending }}</p>
+                </CardContent>
             </div>
         </Card>
     </div>
@@ -118,4 +126,3 @@ onMounted(() => {
     <DashboardFooter/>
   </div>
 </template>
-@/stores/super-admin/super-admin@/stores/super-admin/super-admin
