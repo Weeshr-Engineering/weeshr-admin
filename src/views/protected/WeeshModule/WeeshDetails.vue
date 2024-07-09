@@ -3,11 +3,11 @@
         <MainNav class="mx-6" headingText="Weeshes" />
         <div class="flex flex-col gap-4">
             <Card>
-                <div class="w-full px-8 my-4 flex items-center justify-between">
+                <div class="w-full px-8 md:my-4 flex items-center justify-between">
                     <h3 class="text-lg font-semibold">Weesh Details</h3>
                     <Badge class="rounded-full">Added</Badge>
                 </div>
-                <div class="flex flex-col gap-2 lg:flex-row p-4">
+                <div class="flex flex-col gap-2 lg:flex-row md:p-4 px-4 pt-2">
                     <Card class="flex-auto rounded-3xl bg-[#34389B1A] bg-opacity-10">
                         <CardContent class="flex flex-col md:flex-row justify-start items-center gap-4 p-4">
                             <img src="https://res.cloudinary.com/dotojp6xu/image/upload/v1720071091/Rectangle_3624_om6xeb.png"/>
@@ -23,7 +23,7 @@
                             <div class="min-h-full flex flex-col justify-end items-end min-w-fit mr-4"> <p class="text-[#020721] text-xl md:text-2xl font-bold">₦ 1,565,987.00</p></div>
                         </div>
                 </div>
-                <div class="flex flex-row flex-wrap w-full gap-2 p-4">
+                <div class="flex flex-row flex-wrap w-full gap-2 py-2 px-4 md:p-4">
                         <div class="min-h-32 rounded-3xl bg-[#DCDEFF] flex flex-col md:flex-row flex-auto justify-stretch gap-4 py-6 px-4 max-w-64">
                             <div class="h-full flex flex-col items-start w-1/5">
                                 <img src="https://res.cloudinary.com/dotojp6xu/image/upload/v1720074062/profile-circle_t6oidm.svg"/>
@@ -33,7 +33,7 @@
                                 <p class="text-[#020721] text-base font-bold">Alicia Colins</p>
                             </div>
                         </div>
-                        <div class="min-h-32 md:flex max-w-fit flex-col w-full max-h-full md:flex-row md:flex-auto gap-4 rounded-3xl bg-[#F4D5F6] p-4">
+                        <div class="min-h-32 md:flex md:max-w-fit flex-col w-full max-h-full md:flex-row md:flex-auto gap-4 rounded-3xl bg-[#F4D5F6] p-4">
                             <div class="md:h-full my-2 flex md:flex-col md:items-start w-8">
                                 <img src="https://res.cloudinary.com/dotojp6xu/image/upload/v1720070989/calendar-2_fjyoy5.svg"/>
                             </div>
@@ -61,15 +61,15 @@
                                     <h1 class="text-sm text-[#02072199]">City</h1>
                                     <div class="text-[#020721] text-base font-bold">Calibe</div>
                                 </div>
-                                <div class="md:min-h-full md:flex flex-col justify-end w-1/5 flex-2 mb-2 md:mb-0"> 
+                                <div class="md:min-h-full md:flex flex-col justify-end w-1/5 flex-2 md:mb-2 md:mb-0"> 
                                     <h1 class="text-sm text-[#02072199]">State</h1>
                                     <div class="text-[#020721] text-base font-bold">Lagos</div>
                                 </div>
                             </div>
                         </div>
                 </div>
-                <div class="flex flex-row flex-wrap w-full gap-2 p-4">
-                    <div class="min-h-32 max-w-fit md:flex flex-auto justify-stretch gap-0 lg:gap-4 rounded-3xl bg-[#C6EDF6] py-6 px-4">
+                <div class="flex flex-row flex-wrap w-full gap-2 px-4 pb-4 md:p-4">
+                    <div class="min-h-32 w-full md:max-w-fit md:flex flex-auto justify-stretch gap-0 lg:gap-4 rounded-3xl bg-[#C6EDF6] py-6 px-4">
                         <div class="md:h-full md:flex flex-col items-start w-8">
                             <img src="https://res.cloudinary.com/dotojp6xu/image/upload/v1720071004/device-message_wy0vu2.svg"/>
                         </div>
