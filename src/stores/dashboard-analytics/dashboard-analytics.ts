@@ -32,10 +32,12 @@ export const useDashboardAnalyticsStore = defineStore('dashboardAnalytics', {
       all: 0,
       pending: 0
     },
+    loading: false,
     error: null,
   }),
   actions: {
     async fetchDashboardAnalytics() {
+      this.loading = true;
       try {
         const response = await axios.get('/api/v1/admin/dashboard/analytics');
         this.$patch({
@@ -47,6 +49,8 @@ export const useDashboardAnalyticsStore = defineStore('dashboardAnalytics', {
         });
       } catch (error) {
         this.error = error;
+      } finally {
+        this.loading = false;
       }
     }
   }

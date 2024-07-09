@@ -41,15 +41,19 @@ onMounted(() => {
                       src="https://res.cloudinary.com/dotojp6xu/image/upload/v1715162947/menu_mvjoy6.svg"
                       alt="gradient"
                     />
+                    <div class="text-2xl lg:text-2xl font-medium text-[#020721] absolute bottom-2 left-5">
                     <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" />
-                    <p v-else class="text-2xl lg:text-2xl font-medium text-[#020721] absolute bottom-2 left-5">{{ weeshes.all }}</p>
-                </CardContent>
+                    <p v-else >{{ weeshes.all }}</p>
+                     </div> 
+            </CardContent>
             </div>
             <div class="bg-[#020721] pt-2 h-[80px] rounded-bl-[24px] rounded-br-[24px]">
                 <CardContent class="flex flex-col space-y-0">
                     <p class="text-l font-normal text-[#F8F9FFB2]">Delivered</p>
-                    <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" />
-                    <p v-else class="text-2xl font-normal text-white">{{ weeshes.fulfilled }}</p>
+                    <div class="text-2xl font-normal text-white">
+                    <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-white animate-spin" />
+                    <p v-else >{{ weeshes.fulfilled }}</p>
+                    </div>    
                 </CardContent>
             </div>
         </Card>
@@ -63,15 +67,19 @@ onMounted(() => {
                       src="https://res.cloudinary.com/dotojp6xu/image/upload/v1715162926/wallet-3_fbkk9u.svg"
                       alt="gradient"
                     />
+                    <div class="text-2xl lg:text-2xl font-medium text-[#020721] absolute bottom-2 left-5">
                     <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" />
-                    <p v-else class="text-2xl lg:text-2xl font-medium text-[#020721] absolute bottom-2 left-5">₦ {{ wallet.total_current_balance.balance }}</p>
+                    <p v-else >₦ {{ wallet.total_current_balance.balance }}</p>
+                    </div>
                 </CardContent>   
             </div>
             <div class="bg-[#020721] pt-2 h-[80px] rounded-bl-[24px] rounded-br-[24px]">
                 <CardContent class="flex flex-col space-y-0">
+                    <div class="text-2xl font-normal text-white">
                     <p class="text-l font-normal text-[#F8F9FFB2]">Invested</p>
-                    <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" />
-                    <p v-else class="text-2xl font-normal text-white">₦ {{ wallet.invested.balance }}</p>
+                    <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-white animate-spin" />
+                    <p v-else>₦ {{ wallet.invested.balance }}</p>
+                    </div>   
                 </CardContent>
             </div>
         </Card>
@@ -85,15 +93,19 @@ onMounted(() => {
                       src="https://res.cloudinary.com/dotojp6xu/image/upload/v1715162907/profile-2user_stezwz.svg"
                       alt="gradient"
                     />
+                    <div class="text-2xl lg:text-2xl font-medium text-[#020721] absolute bottom-2 left-5">
                     <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" />
-                    <p v-else class="text-2xl lg:text-2xl font-medium text-[#020721] absolute bottom-2 left-5">{{ users.all }}</p>
+                    <p v-else >{{ users.all }}</p>
+                    </div>
                 </CardContent>
             </div>
             <div class="bg-[#020721] pt-2 h-[80px] rounded-bl-[24px] rounded-br-[24px]">
                 <CardContent class="flex flex-col space-y-0">
+                    <div class="text-2xl font-normal text-white">
                     <p class="text-l font-normal text-[#F8F9FFB2]">Active</p>
-                    <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" />
-                    <p v-else class="text-2xl font-normal text-white">{{ users.active }}</p>
+                    <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-white animate-spin" />
+                    <p v-else>{{ users.active }}</p>
+                    </div>
                 </CardContent>
             </div>
         </Card>
@@ -107,15 +119,19 @@ onMounted(() => {
                       src="https://res.cloudinary.com/dotojp6xu/image/upload/v1715162881/ticket_etur0t.svg"
                       alt="gradient"
                     />
+                    <div class="text-2xl lg:text-2xl font-medium text-[#020721] absolute bottom-2 left-5">
                     <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" />
-                    <p v-else class="text-2xl lg:text-2xl font-medium text-[#020721] absolute bottom-2 left-5">{{ tickets.all }}</p>
+                    <p v-else>{{ tickets.all }}</p>
+                    </div>
                 </CardContent>
             </div>
             <div class="bg-[#020721] h-[80px] pt-2 rounded-bl-[24px] rounded-br-[24px]">
                 <CardContent class="flex flex-col space-y-0">
                     <p class="text-l font-normal text-[#F8F9FFB2]">Pending</p>
-                    <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" />
-                    <p v-else class="text-2xl font-normal text-white">{{ tickets.pending }}</p>
+                    <div class="text-2xl font-normal text-white">
+                    <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-white animate-spin" />
+                    <p v-else >{{ tickets.pending }}</p>
+                    </div>
                 </CardContent>
             </div>
         </Card>
