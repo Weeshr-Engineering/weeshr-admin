@@ -177,7 +177,7 @@ const generateAvatar = (user: INotificationReadByUser): string => {
         <section class="grid grid-cols-2">
             <!-- Action Buttons -->
             <div class="flex gap-1">
-                <button type="button" title="View/Read Notification"
+                <button type="button" title="View/Read Notification" @click="openModal"
                     class="rounded-lg py-0.5 px-1.5 flex justify-center align-middle bg-green-400 hover:bg-green-600 text-xs font-semibold text-white">
                     <span class="m-auto">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
@@ -199,7 +199,8 @@ const generateAvatar = (user: INotificationReadByUser): string => {
                     <div>
                         <AlertDialogContent v-if="deletePermission">
                             <AlertDialogHeader>
-                                <AlertDialogTitle>Are you absolutely sure you want to delete this notification?</AlertDialogTitle>
+                                <AlertDialogTitle>Are you absolutely sure you want to delete this notification?
+                                </AlertDialogTitle>
                                 <AlertDialogDescription>
                                     This action cannot be undone. This will permanently delete this notification
                                     and remove it from our servers.

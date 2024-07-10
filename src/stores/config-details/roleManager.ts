@@ -55,7 +55,6 @@ export const useRoleStore = defineStore({
           })
         }
         this.roles = response.data.data.data.reverse()
-        console.log(this.roles)
         // set Loading to false
 
       } catch (error: any) {
@@ -103,7 +102,7 @@ export const useRoleStore = defineStore({
 
       axios.request(config)
         .then((response) => {
-          console.log(JSON.stringify(response.data));
+
           this.getRoles('Role Deleted Successfully')
         })
         .catch((error) => {
@@ -158,7 +157,7 @@ export const useRoleStore = defineStore({
             description: `Successful: data retrieved`,
             variant: 'success'
           })
-          console.log(response.data.data)
+          
           const data = response.data.data
           return data
 
@@ -182,7 +181,6 @@ export const useRoleStore = defineStore({
 
       axios.request(config)
         .then((response) => {
-          console.log(JSON.stringify(response.data));
           toast({
             title: 'Success',
             description: `Successful: data retrieved`,
@@ -195,7 +193,6 @@ export const useRoleStore = defineStore({
         });
     },
     catchErr(error: any) {
-      console.log(error)
       if (error.response.status === 400) {
         toast({
           title: error.response.data.message || 'Bad Request',
