@@ -225,7 +225,7 @@ const error = ref(store.error);
 const filters = ref<Partial<IActivityLogReqParams>>({
   // columns?: string;
   sort_direction: 'desc',
-  sort_column: '',
+  sort_column: 'timestamp',
   per_page: 25,
   page_item_from: 1,
   log_action: '',
