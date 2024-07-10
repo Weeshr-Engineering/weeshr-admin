@@ -2,6 +2,14 @@
 import { ref } from 'vue';
 import { Icon } from '@iconify/vue';
 
+const props = defineProps({
+    useHeader: {
+        type: Boolean,
+        required: false,
+        default: true
+    }
+})
+
 const show = ref<boolean>(false);
 
 const openModal = () => show.value = true;
@@ -18,7 +26,7 @@ defineExpose({
 <template>
     <div v-if="show" class="fixed inset-0 flex items-center justify-center">
         <div class="bg-white rounded-lg shadow-lg p-6 max-w-[700px] mx-auto">
-            <div class="flex justify-between items-center pb-3 border-b">
+            <div v-if="props.useHeader" class="flex justify-between items-center pb-3 border-b">
                 <div>
                     <slot name="title"></slot>
                 </div>

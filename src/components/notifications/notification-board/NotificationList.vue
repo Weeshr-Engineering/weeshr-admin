@@ -160,6 +160,15 @@ const updateReadUser = (notification_id: any, value: INotificationReadByUser): v
         notifications.value[index].readBy.push(value);
 }
 
+const deleted = (notification_id: any): void => {
+    const index = notifications.value.findIndex((item) => item._id == notification_id);
+
+    if (index == -1)
+        return;
+
+    notifications.value.splice(index, 1);
+}
+
 const paginationMethods = () => {
 
     const setPage = (page: number) => {
@@ -203,7 +212,7 @@ onMounted(() => {
         <!-- Filters -->
         <div class="w-full inline-flex">
             <!-- LHS -->
-            <div class="w-1/2">
+            <div class="w-1/2 flex gap-2">
                 <PageFilters :filters @selected="val => selectedFilters = val as IFilterValues" />
             </div>
             <!-- LHS Ends -->
@@ -233,7 +242,8 @@ onMounted(() => {
         <div class="flex-col space-y-3 py-4 overflow-y-auto h-[80%] scrollbar_custom">
             <!-- Notification -->
             <NotificationBox v-for="(notification, index) in notifications" :key="index" :data="notification"
-                @read="value => updateReadUser(notification._id, value as INotificationReadByUser)" />
+                @read="value => updateReadUser(notification._id, value as INotificationReadByUser)"
+                @deleted="deleted" />
             <!-- Notification Ends -->
         </div>
         <!-- Notifications List Ends -->
