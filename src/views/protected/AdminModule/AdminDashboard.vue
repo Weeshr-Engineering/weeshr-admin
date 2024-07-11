@@ -78,10 +78,10 @@ function formatNumberWithCommas(number: number): string {
             </div>
             <div class="bg-[#020721] pt-2 h-[80px] rounded-bl-[24px] rounded-br-[24px]">
                 <CardContent class="flex flex-col space-y-0">
+                     <p class="text-l font-normal text-[#F8F9FFB2]">Invested</p>
                     <div class="text-2xl font-normal text-white">
-                    <p class="text-l font-normal text-[#F8F9FFB2]">Invested</p>
                     <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-white animate-spin" />
-                    <p v-else>₦ {{formatNumberWithCommas (wallet.invested.balance) }}</p>
+                    <p v-else >₦ {{formatNumberWithCommas (wallet.invested.balance) }}</p>
                     </div>   
                 </CardContent>
             </div>
@@ -104,8 +104,9 @@ function formatNumberWithCommas(number: number): string {
             </div>
             <div class="bg-[#020721] pt-2 h-[80px] rounded-bl-[24px] rounded-br-[24px]">
                 <CardContent class="flex flex-col space-y-0">
-                    <div class="text-2xl font-normal text-white">
                     <p class="text-l font-normal text-[#F8F9FFB2]">Active</p>
+
+                    <div class="text-2xl font-normal text-white">
                     <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-white animate-spin" />
                     <p v-else>{{ formatNumberWithCommas (users.active) }}</p>
                     </div>
