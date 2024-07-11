@@ -1,7 +1,9 @@
 import { defineStore } from 'pinia';
 import axios from 'axios';
 import { useToast } from '@/components/ui/toast';
-
+function formatNumberWithCommas(number: number): string {
+  return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
 export const useDashboardAnalyticsStore = defineStore('dashboardAnalytics', {
   state: () => ({
     weeshes: {

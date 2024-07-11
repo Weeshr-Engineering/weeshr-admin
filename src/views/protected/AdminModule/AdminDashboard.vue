@@ -26,6 +26,9 @@ dashboardAnalyticsStore.fetchDashboardAnalytics();
 onMounted(() => {
   userHubStore.getUsersNumber();
 });
+function formatNumberWithCommas(number: number): string {
+  return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
 </script>
 
 <template>
@@ -43,7 +46,7 @@ onMounted(() => {
                     />
                     <div class="text-2xl lg:text-2xl font-medium text-[#020721] absolute bottom-2 left-5">
                     <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" />
-                    <p v-else >{{ weeshes.all }}</p>
+                    <p v-else >{{formatNumberWithCommas (weeshes.all) }}</p>
                      </div> 
             </CardContent>
             </div>
@@ -52,7 +55,7 @@ onMounted(() => {
                     <p class="text-l font-normal text-[#F8F9FFB2]">Delivered</p>
                     <div class="text-2xl font-normal text-white">
                     <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-white animate-spin" />
-                    <p v-else >{{ weeshes.fulfilled }}</p>
+                    <p v-else >{{formatNumberWithCommas (weeshes.fulfilled) }}</p>
                     </div>    
                 </CardContent>
             </div>
@@ -69,7 +72,7 @@ onMounted(() => {
                     />
                     <div class="text-2xl lg:text-2xl font-medium text-[#020721] absolute bottom-2 left-5">
                     <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" />
-                    <p v-else >₦ {{ wallet.total_current_balance.balance }}</p>
+                    <p v-else >₦ {{formatNumberWithCommas (wallet.total_current_balance.balance) }}</p>
                     </div>
                 </CardContent>   
             </div>
@@ -78,7 +81,7 @@ onMounted(() => {
                     <div class="text-2xl font-normal text-white">
                     <p class="text-l font-normal text-[#F8F9FFB2]">Invested</p>
                     <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-white animate-spin" />
-                    <p v-else>₦ {{ wallet.invested.balance }}</p>
+                    <p v-else>₦ {{formatNumberWithCommas (wallet.invested.balance) }}</p>
                     </div>   
                 </CardContent>
             </div>
@@ -95,7 +98,7 @@ onMounted(() => {
                     />
                     <div class="text-2xl lg:text-2xl font-medium text-[#020721] absolute bottom-2 left-5">
                     <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" />
-                    <p v-else >{{ users.all }}</p>
+                    <p v-else >{{ formatNumberWithCommas (users.all) }}</p>
                     </div>
                 </CardContent>
             </div>
@@ -104,7 +107,7 @@ onMounted(() => {
                     <div class="text-2xl font-normal text-white">
                     <p class="text-l font-normal text-[#F8F9FFB2]">Active</p>
                     <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-white animate-spin" />
-                    <p v-else>{{ users.active }}</p>
+                    <p v-else>{{ formatNumberWithCommas (users.active) }}</p>
                     </div>
                 </CardContent>
             </div>
@@ -121,7 +124,7 @@ onMounted(() => {
                     />
                     <div class="text-2xl lg:text-2xl font-medium text-[#020721] absolute bottom-2 left-5">
                     <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" />
-                    <p v-else>{{ tickets.all }}</p>
+                    <p v-else>{{formatNumberWithCommas (tickets.all) }}</p>
                     </div>
                 </CardContent>
             </div>
@@ -130,7 +133,7 @@ onMounted(() => {
                     <p class="text-l font-normal text-[#F8F9FFB2]">Pending</p>
                     <div class="text-2xl font-normal text-white">
                     <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-white animate-spin" />
-                    <p v-else >{{ tickets.pending }}</p>
+                    <p v-else >{{formatNumberWithCommas (tickets.pending) }}</p>
                     </div>
                 </CardContent>
             </div>
