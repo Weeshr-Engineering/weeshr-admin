@@ -1,6 +1,6 @@
 <template>
     <form @submit="onSubmit">
-        <section class="rounded-3xl w-fit">
+        <section class="rounded-3xl w-full">
             <div class="bg-[#D7DBF5] text-[#020721] h-14 font-medium rounded-tr-3xl rounded-tl-3xl p-4">
                 Vendor Details
             </div>

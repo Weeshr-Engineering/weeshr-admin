@@ -1,6 +1,6 @@
 <template>
-    <form @submit='onSubmit' class='w-full'>
-        <section class="rounded-3xl min-w-[240px] md:min-w-[340px] min-h-full">
+    <form @submit='onSubmit'>
+        <section class="rounded-3xl w-full min-h-full">
             <div class="bg-[#D7DBF5] text-[#020721] h-14 font-medium rounded-tr-3xl rounded-tl-3xl p-4">
                 Product Status
             </div>
@@ -104,7 +104,7 @@
                         </Select>
                     </div>
                 </div>
-                <div class='flex w-full pr-4 my-4 md:w-11/12 p-2 px-0'>
+                <div class='flex w-full pr-4 my-4 p-2 px-0'>
                     <Button type='submit' class='w-full md:min-w-sm '>
                         Next
                     </Button>

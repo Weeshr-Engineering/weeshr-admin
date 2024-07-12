@@ -4,7 +4,7 @@ import axios from "@/services/ApiService";
 
 export const useWeeshDetailStore = defineStore('weeshDetail', {
     state: () => ({
-        stage: '2'
+        stage: '1'
     }),
     actions: {
     async getWeeshDetails(id: any){

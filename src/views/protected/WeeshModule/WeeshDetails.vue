@@ -88,7 +88,7 @@
                     </div>
                     <!-- <div class='md:col-span-2 grid md:grid-cols-2 gap-2'> -->
                         <div class="min-w-46 sm:max-w-full md:col-span-2 lg:col-span-1 min-h-32 rounded-3xl bg-[#EBCE7E] md:flex flex-1 justify-stretch gap-4 py-6 px-4">
-                            <div class="md:h-full flex flex-col items-start w-1/5">
+                            <div class="md:h-full flex flex-col items-start min-w-8">
                                 <img src="https://res.cloudinary.com/dotojp6xu/image/upload/v1720077681/truck-fast_dqi4bx.svg"/>
                             </div>
                             <div class="md:min-h-full mt-4 md:mt-0 flex flex-col justify-end w-full"> 
@@ -97,7 +97,7 @@
                             </div>
                         </div>
                         <div class="min-w-46 sm:max-w-full md:col-span-2 lg:col-span-1 min-h-32 rounded-3xl bg-[#3A8EE5] md:flex flex-1 justify-stretch gap-4 py-6 px-4">
-                            <div class="md:h-full flex flex-col items-start w-1/5">
+                            <div class="md:h-full flex flex-col items-start min-w-8">
                                 <img src="https://res.cloudinary.com/dotojp6xu/image/upload/v1720071004/device-message_wy0vu2.svg"/>
                             </div>
                             <div class="md:min-h-full mt-4 md:mt-0 flex flex-col justify-end w-full"> 
@@ -149,17 +149,17 @@
                                         <p :class="{'text-white': stage === '4', 'text-[#02072199]': stage !== '4'}">4 <span class='hidden md:inline-block'>{{ stage == '4' ? 'Payment' : '' }}</span></p>
                                       </TabsTrigger>
                                     </TabsList>
-                                    <TabsContent value="1" class='w-full'>
+                                    <TabsContent value="1" class='max-w-[310px]'>
                                         <TabOne/>
                                     </TabsContent>
-                                    <TabsContent value="2" class='w-full'>
+                                    <TabsContent value="2" class='w-[310px]'>
                                         <TabTwo/>
                                     </TabsContent>
-                                    <TabsContent value="3" class='w-full'>
+                                    <TabsContent value="3" class='w-[310px]'>
                                         <TabThree/>
                                       </TabsContent>
-                                      <TabsContent value="4" class='w-full'>
-                                            <section class="rounded-3xl min-w-full min-h-full md:w-11/12">
+                                      <TabsContent value="4" class='w-[310px]'>
+                                            <section class="rounded-3xl min-w-full min-h-full">
                                                 <div class="bg-[#D7DBF5] text-[#020721] h-14 font-medium rounded-tr-3xl rounded-tl-3xl p-4">
                                                     Payment Status
                                                 </div>
@@ -172,8 +172,8 @@
                                                     </div>
                                                     <h1 class='text-center font-semibold'>Payment Successful</h1>
                                                     <div class='md:flex my-4 justify-center px-4 min-h-28 w-full'>
-                                                        <Button class='w-full flex items-center justify-center' @click='done'>
-                                                            <p>Done</p>
+                                                      <Button class='w-full flex items-center justify-center' @click='done'>
+                                                        <SheetClose>  <p>Done</p></SheetClose>
                                                         </Button>
                                                     </div>
                                                 </div>
@@ -207,7 +207,8 @@ import { computed, ref } from 'vue'
 import {
   Sheet,
   SheetContent,
-  SheetTrigger
+  SheetTrigger,
+  SheetClose
 } from '@/components/ui/sheet'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import TabThree from '@/components/verifications/TabThree.vue';
