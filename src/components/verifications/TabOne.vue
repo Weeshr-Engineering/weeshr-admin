@@ -187,7 +187,7 @@
                                   </TableBody>
                               </Table>
                         </div>
-                        <div class='text-[#020721] flex items-center justify-between p-4 text-xs font-medium bg-[#D7DBF5] w-[70%] md:w-full rounded-md'>
+                        <div class='text-[#020721] flex items-center justify-between p-4 text-xs font-medium bg-[#D7DBF5] w-full rounded-md'>
                             <p>Verification Score</p>
                             <p>10</p>
                         </div>
