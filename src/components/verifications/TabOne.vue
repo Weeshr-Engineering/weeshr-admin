@@ -15,15 +15,15 @@
                         <p class="text-[#020721] text-clip text-sm">https://www.instagram.com/phonoflix</p>
                     </div>
                 </div>
-                <div class="grid grid-cols-5 gap-2 px-2 mb-2 max-w-full">
-                    <div class="col-span-2">
+                <div class="gap-2 px-2 mb-2 max-w-full">
+                    <div class="my-2">
                         <FormField v-slot="{ componentField }" name="state">
                             <FormItem>
                                 <FormControl>
                                     <Label for="address">Address</Label>
                                     <Select
                                         v-bind="componentField"
-                                        class='bg-gray-50 min-w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'>
+                                        class='bg-gray-50 w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'>
                                         <SelectTrigger class="">
                                             <SelectValue placeholder="State" />
                                             </SelectTrigger>
@@ -118,9 +118,10 @@
                                         <FormItem class="space-y-3">
                                         <FormControl>
                                             <RadioGroup
-                                            class="flex"
+                                            class="flex relative"
                                             v-bind="componentField"
                                             >
+                                            <FormMessage :for='item.name' class='text-xs absolute bottom-0 left-0'/>
                                             <FormItem class="flex items-center space-y-0 gap-x-3">
                                                 <FormControl>
                                                     <TableCell class=''>
@@ -138,7 +139,6 @@
                                             </FormItem>
                                                 </RadioGroup>
                                             </FormControl>
-                                            <!-- <FormMessage :for='item.name'/> -->
                                             </FormItem>
                                         </FormField>
                                   </TableRow>
@@ -162,9 +162,10 @@
                                                 <!-- <FormMessage :for='item.name'/> -->
                                             <FormControl>
                                                 <RadioGroup
-                                                class="flex"
+                                                class="flex relative"
                                                 v-bind="componentField"
                                                 >
+                                                <FormMessage :for='item.name' class='text-xs absolute bottom-0 left-0'/>
                                                 <FormItem class="flex items-center space-y-0 gap-x-3">
                                                     <FormControl>
                                                         <TableCell class=''>
@@ -179,6 +180,7 @@
                                                         </TableCell>
                                                     </FormControl>
                                                 </FormItem>
+                                                
                                                     </RadioGroup>
                                                 </FormControl>
                                                 </FormItem>
@@ -220,13 +222,15 @@
                         </div>
                     </div>
                     <Textarea placeholder="Type your message here." class='my-2'/>
-                    <Button class='bg-[#D7DBF5] text-[#020721]'>
-                        Change Status
-                    </Button>
+                    <div class='w-full grid grid-cols-5 justify-end'><span class="col-span-2"></span>
+                        <Button class='bg-[#D7DBF5] col-span-3 text-[#020721]'>
+                            Change Status
+                        </Button>
+                    </div>
                 </div>
             </div>
-            <div class='flex flex-col md:flex-row md:justify-between my-4 w-5/6 md:w-11/12 p-2 px-4'>
-                <Button type='submit' class='w-full md:min-w-sm '>
+            <div class='flex flex-col md:flex-row md:justify-between my-4 w-full p-2 px-2'>
+                <Button type='submit' class='w-full'>
                     Next
                 </Button>
             </div>
@@ -323,7 +327,7 @@ const formSchema = toTypedSchema(z.object({
     state: z.string(),
     street: z.string(),
     change: z.string(),
-    data: z.string(),
+    date: z.string(),
     social: z.string(),
     engagement: z.string(),
     followership: z.string(),
