@@ -165,7 +165,7 @@
                                             <div class="bg-[#D7DBF5] text-[#020721] h-14 font-medium rounded-tr-3xl rounded-tl-3xl p-4">
                                                 Payment Status
                                             </div>
-                                            <div class='min-h-72 p-2'>
+                                            <div class='min-h-96 p-2'>
                                                 <div class='p-2'>
                                                     <img 
                                                     src='https://res.cloudinary.com/dotojp6xu/image/upload/v1720669798/Illustration_twyh5k.svg'

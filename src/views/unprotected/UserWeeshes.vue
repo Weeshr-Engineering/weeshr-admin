@@ -20,7 +20,7 @@
         </div>
       </Card>
       <Card
-        class="h-[150px] rounded-[24px] transition-transform transform hover:scale-95 bg-[#EE9F39] cardShadow2 border-transparent"
+        class="h-[150px] rounded-[24px] transition-transform transform hover:scale-95 delay-150 bg-[#EE9F39] cardShadow2 border-transparent"
         @click="() => handleStatus('INITIATED')"
       >
         <div class="h-[130px] pt-4 relative rounded-tr-[24px] rounded-tl-[24px]">
@@ -37,7 +37,7 @@
         </div>
       </Card>
       <Card
-        class="h-[150px] rounded-[24px] transition-transform transform hover:scale-95 bg-[#6A70FF] cardShadow3 border-transparent"
+        class="h-[150px] rounded-[24px] transition-transform transform hover:scale-95 delay-150 bg-[#6A70FF] cardShadow3 border-transparent"
         @click="() => handleStatus('FULFULLIED')"
       >
         <div class="h-[130px] pt-4 relative rounded-tr-[24px] rounded-tl-[24px]">
@@ -54,7 +54,7 @@
         </div>
       </Card>
       <Card
-        class="h-[150px] rounded-[24px] transition-transform transform hover:scale-95 bg-[#00C37F] cardShadow4 border-transparent"
+        class="h-[150px] rounded-[24px] transition-transform transform hover:scale-95 delay-150 bg-[#00C37F] cardShadow4 border-transparent"
         @click="() => handleStatus('DELIVERED')"
       >
         <div class="h-[130px] pt-4 relative rounded-tr-[24px] rounded-tl-[24px]">
