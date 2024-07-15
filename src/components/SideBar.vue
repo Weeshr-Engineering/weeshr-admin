@@ -30,6 +30,13 @@ const users = computed(() => {
   }
   return false
 })
+const weeshes = computed(()=>{
+  const weesh = ability.can('read', 'weeshes')
+  if(weesh){
+    return true
+  }
+  return false
+})
 const logout = async () => {
   await superAdminStore.logout()
 }
@@ -68,7 +75,7 @@ const openNotificationsBoard = () => {
         </a>
       </li>
 
-      <li :class="{ 'dashboard-active': isActive('/weeshes') }">
+      <li v-if="weeshes" :class="{ 'dashboard-active': isActive('/weeshes') }">
         <a @click="$router.push({ name: 'weeshes' })">
           <div class="icon-grid">
             <Icon icon="codicon:note" width="17" height="17" class="icons-sidebar" />

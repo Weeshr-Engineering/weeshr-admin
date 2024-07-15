@@ -21,7 +21,7 @@ import ActivityLog from '@/views/protected/AdminModule/ActivityLog.vue'
 import ConfigHub from '@/views/protected/ConfigModule/RoleModule/ConfigHub.vue'
 import RoleManager from '@/views/protected/ConfigModule/RoleModule/RoleManager.vue'
 import WeeshesConfig from '@/views/protected/ConfigModule/WeeshesCategories/WeeshesConfig.vue'
-
+import WeeshDetails from '@/views/protected/WeeshModule/WeeshDetails.vue'
 const routes = [
   {
     path: '/',
@@ -120,6 +120,11 @@ const routes = [
     path: '/weeshes',
     name: 'weeshes',
     component: WeeshesPage
+  },
+  {
+    path: '/weeshes/details/:Id',
+    name: 'weeshedetails',
+    component: WeeshDetails
   },
 
   {

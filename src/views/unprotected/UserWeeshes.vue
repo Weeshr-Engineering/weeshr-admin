@@ -3,7 +3,7 @@
     <MainNav class="mx-6" headingText="Weeshes" />
     <div class="w-full grid gap-4 md:grid-cols-2 md:gap-6 lg:grid-cols-4">
       <Card
-        class="h-[150px] rounded-[24px] transition-transform transform hover:scale-105 bg-[#FFFFFF] cardShadow1 border-transparent"
+        class="h-[150px] rounded-[24px] transition-transform transform hover:scale-95 bg-[#FFFFFF] cardShadow1 border-transparent"
         @click="() => handleStatus('ADDED')"
       >
         <div class="h-[130px] pt-4 relative rounded-tr-[24px] rounded-tl-[24px]">
@@ -20,7 +20,7 @@
         </div>
       </Card>
       <Card
-        class="h-[150px] rounded-[24px] transition-transform transform hover:scale-105 bg-[#EE9F39] cardShadow2 border-transparent"
+        class="h-[150px] rounded-[24px] transition-transform transform hover:scale-95 delay-150 bg-[#EE9F39] cardShadow2 border-transparent"
         @click="() => handleStatus('INITIATED')"
       >
         <div class="h-[130px] pt-4 relative rounded-tr-[24px] rounded-tl-[24px]">
@@ -37,7 +37,7 @@
         </div>
       </Card>
       <Card
-        class="h-[150px] rounded-[24px] transition-transform transform hover:scale-105 bg-[#6A70FF] cardShadow3 border-transparent"
+        class="h-[150px] rounded-[24px] transition-transform transform hover:scale-95 delay-150 bg-[#6A70FF] cardShadow3 border-transparent"
         @click="() => handleStatus('FULFULLIED')"
       >
         <div class="h-[130px] pt-4 relative rounded-tr-[24px] rounded-tl-[24px]">
@@ -54,7 +54,7 @@
         </div>
       </Card>
       <Card
-        class="h-[150px] rounded-[24px] transition-transform transform hover:scale-105 bg-[#00C37F] cardShadow4 border-transparent"
+        class="h-[150px] rounded-[24px] transition-transform transform hover:scale-95 delay-150 bg-[#00C37F] cardShadow4 border-transparent"
         @click="() => handleStatus('DELIVERED')"
       >
         <div class="h-[130px] pt-4 relative rounded-tr-[24px] rounded-tl-[24px]">
@@ -178,6 +178,7 @@
                 <TableHead>
                   <div class="flex items-center">Status</div>
                 </TableHead>
+                <TableHead></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -210,6 +211,27 @@
                   >
                     {{ weesh.fulfilledStatus.toLocaleLowerCase() }}
                   </div>
+                </TableCell>
+                <TableCell>
+                  <router-link :to="`/weeshes/details/${weesh._id}`">
+                    <svg
+                      width="20"
+                      height="50"
+                      viewBox="0 0 20 50"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M7 31L12.5118 26.0606C13.1627 25.4773 13.1627 24.5227 12.5118 23.9394L7 19"
+                        stroke="#54586D"
+                        stroke-opacity="0.8"
+                        stroke-width="2"
+                        stroke-miterlimit="10"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                  </router-link>
                 </TableCell>
               </TableRow>
             </TableBody>
