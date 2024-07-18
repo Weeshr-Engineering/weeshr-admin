@@ -14,12 +14,21 @@ import { toTypedSchema } from '@vee-validate/zod'
 import { Button } from "@/components/ui/button"
 import * as z from 'zod'
 import router from '@/router'
+import { Badge } from '@/components/ui/badge'
 import CountryCodes from '@/lib/CountryCodes'
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import {
+  Table,
+  TableRow,
+  TableBody,
+  TableHeader,
+  TableCell,
+  TableHead,
+} from '@/components/ui/table';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 
@@ -30,11 +39,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+// import {
+//   Pagination,
+//   PaginationEllipsis,
+//   PaginationFirst,
+//   PaginationLast,
+//   PaginationList,
+//   PaginationListItem,
+//   PaginationNext,
+//   PaginationPrev,
+// } from '@/components/ui/pagination';
+
 import { ability, defineAbilities, verifyAbilities } from '@/lib/ability'
 
 defineAbilities()
 
 const edit = ability.can('update', 'admins')
+const activity = ability.can('read', 'activity-logs')
 const editStyle = computed(() => {
   return edit ? 'flex' : 'flex cursor-not-allowed opacity-20'
 })
@@ -47,11 +68,27 @@ const deleteStyle = computed(() => {
 const route = useRoute();
 const id = route.params.Id;
 const superAdminStore = useSuperAdminStore()
-
 const user = ref<any>({})
 const dobFormat = ref('')
 const loading = ref(false)
 const adminListStore = useAdminListStore()
+const activityLog = computed(()=>{
+  return adminListStore.activityLog
+})
+// const currentPage = computed(()=>{
+//   return adminListStore.currentPage
+// });
+// const totalPages = computed(()=>{
+//   return adminListStore.totalPages
+// })
+
+// const paginationItems = computed(() => {
+//   const pages = [];
+//   for (let i = 1; i <= totalPages.value; i++) {
+//     pages.push({ type: 'page', value: i });
+//   }
+//   return pages;
+// });
 const roleLoading = ref(false)
 const roles = ref<any[]>([])
 const defaultRole = ref<any[]>([])
@@ -257,14 +294,11 @@ const modifyArrayValue = async (arr: any[], value: string) => {
   return arr;
 }
 
-// const containsTargetId: boolean = (role: any, val: string)=>{
-//   role.some((obj: any) =>
-//   Object.values(obj).some((innerObj: any) => innerObj._id === val)
-// );
-// }
+
 // fetch data on mount
 onMounted(() => {
   fetchUsersData('data fetched')
+  adminListStore.getActivityLog(id)
   getRoles()
 })
 
@@ -571,13 +605,13 @@ const onSubmit = contactForm((values) => {
           <TabsList
             class="border-[#DEDFE8] bg-transparent lg:w-[560px] lg:flex lg:justify-between px-0 lg:px-6 md:px-6 py-2">
             <TabsTrigger value="role"> Role Permissions </TabsTrigger>
-            <TabsTrigger value="activity" disabled> Activity log </TabsTrigger>
+            <TabsTrigger value="activity" :disabled='!activity'> Activity log </TabsTrigger>
           </TabsList>
           <TabsContent value="role">
             <Card>
               <CardHeader>
                 <CardTitle>Role Permissions</CardTitle>
-                <CardDescription class="fle justify-between items-center">
+                <CardDescription class="flex justify-between items-center">
                   <div>Assign roles to {{ user.firstName }}</div>
                   <Loader2 v-if="roleLoading" class="w-4 h-4 mr-2 text-black animate-spin" />
                 </CardDescription>
@@ -602,6 +636,63 @@ const onSubmit = contactForm((values) => {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value='activity'>
+                <div class=" bg-white rounded-lg shadow max-h-[85svh] overflow-y-scroll">
+                  <Table class="w-full">
+                    <TableHeader>
+                      <TableRow class="text-[#02072199] font-semibold bg-gray-200">
+                        <TableHead class="text-sm">
+                          <div class="flex items-center cursor-pointer">
+                            Timestamp
+                          </div>
+                        </TableHead>
+                        <TableHead class="text-left">User</TableHead>
+                        <TableHead class="text-left">Action</TableHead>
+                        <TableHead class="text-left">Status</TableHead>
+                        <TableHead class="text-left">Description</TableHead>
+                      </TableRow>
+                    </TableHeader>
+          
+                    <TableBody class='overflow-y-scroll'>
+                      <TableRow v-for="log in activityLog" :key="log.id">
+                        <TableCell class="text-xs md:text-sm lg:text-xs">{{ new Date(log.timestamp).toLocaleString() }}
+                        </TableCell>
+                        <TableCell class="text-xs md:text-sm lg:text-xs">{{ log?.user.extras.lastName + ' ' +
+                          log.user.extras.firstName }}</TableCell>
+                        <TableCell class="text-xs md:text-sm lg:text-xs">{{ log.action }}</TableCell>
+                        <TableCell>
+                          <Badge
+                              :class="{ 'bg-[#00C37F]': log.status === 'SUCCESS', 'bg-[#020721]': !(log.status === 'SUCCESS')}" class='px-1.5 py-0.5 text-xs capitalize'>
+                              {{ log.status }}
+                          </Badge>
+                        </TableCell>
+                        <TableCell class="text-xs md:text-sm lg:text-xs">{{ log.description }}</TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </div>
+                <!-- <div class="flex gap-2 max-w-full flex-wrap justify-end mt-8 mr-4 items-center text-[15px]">
+                  <Pagination :total="totalPages" :sibling-count="1" show-edges :default-page="1" @change="adminListStore.handlePageChange">
+                    <PaginationList class="flex items-center gap-1">
+                      <PaginationFirst @click="adminListStore.handlePageChange(1)" />
+                      <PaginationPrev @click="adminListStore.handlePageChange(Math.max(currentPage - 1, 1))" />
+                      <template v-for="(item, index) in paginationItems" :key="index">
+                        <PaginationListItem v-if="item.type === 'page'" :value="item.value" as-child>
+                          <Button class="w-10 h-10 p-0" :variant="item.value === currentPage ? 'default' : 'outline'" @click="adminListStore.handlePageChange(item.value)">
+                            {{ item.value }}
+                          </Button>
+                        </PaginationListItem>
+                        <PaginationEllipsis v-else :index="index" />
+                      </template>
+                      <PaginationNext @click="adminListStore.handlePageChange(Math.min(currentPage + 1, totalPages))" />
+                      <PaginationLast @click="adminListStore.handlePageChange(totalPages)" />
+                    </PaginationList>
+                  </Pagination>
+                </div> -->
+              <!-- </CardContent> -->
+            <!-- </Card> -->
           </TabsContent>
         </Tabs>
       </div>

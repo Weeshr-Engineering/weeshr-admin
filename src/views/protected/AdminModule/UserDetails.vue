@@ -371,7 +371,7 @@ const hideBalance = ref(true)
       </CardHeader>
     </Card>
 
-    <Card class="px-2 py-4 w-full rounded-xl shadow-md">
+    <Card class="px-2 py-4 w-full rounded-xl shadow-md max-h-screen overflow-y-scroll">
       <Tabs default-value="weeshes" class="space-y-2">
         <TabsList class="w-full bg-transparent">
           <TabsTrigger
