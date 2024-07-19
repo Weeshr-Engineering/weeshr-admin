@@ -142,12 +142,13 @@ function toggleContributors(id: string) {
 
 //progress bar
 const getContributionPercentage = (weeshes: Weeshes) => {
-  const totalContributions = weeshes.contributions.reduce(
-    (sum: number, contribution) => sum + contribution.amount,
-    0
-  )
-  const percentage = Math.floor((totalContributions / weeshes.price.total) * 100)
-  return percentage > 100 ? 100 : percentage
+  return weeshes.donationProgress || 0;
+  // const totalContributions = weeshes.contributions.reduce(
+  //   (sum: number, contribution) => sum + contribution.amount,
+  //   0
+  // )
+  // const percentage = Math.floor((totalContributions / weeshes.price.total) * 100)
+  // return percentage > 100 ? 100 : percentage
 }
 
 //status
