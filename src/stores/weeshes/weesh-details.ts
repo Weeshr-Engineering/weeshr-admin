@@ -2,12 +2,9 @@ import { defineStore } from "pinia"
 import axios from "@/services/ApiService";
 import { toast } from "@/components/ui/toast";
 import router from '@/router'
+import { useGeneralStore } from "../general-use";
 
-interface Details {
-    vendor: string,
-    category: any[],
-    [key: string]: any; // Assuming the structure of Role is dynamic
-  }
+// const store = useGeneralStore()
 
 interface WeeshDetailsStore {
     detail: any,
@@ -26,8 +23,9 @@ export const useWeeshDetailStore = defineStore('weeshDetail', {
     }),
     actions: {
     async getWeeshDetails(id: any){
-        this.loading = true
         try{
+            this.loading = true
+            // useGeneralStore().setLoadingToTrue()
             const response = await axios.get(`/api/v1/admin/weesh/${id}`)
             if (response.status === 200 || response.status === 201) {
                 const data = response.data.data
@@ -39,11 +37,14 @@ export const useWeeshDetailStore = defineStore('weeshDetail', {
                 if(data.images?.length !== 0){
                     this.image = data.images[0]
                 }
+                // useGeneralStore().setLoadingToFalse()
                 this.loading = false;
             }
         }catch(error){
+            // useGeneralStore().setLoadingToFalse()
+            // useGeneralStore().setLoading(false)
             this.catchErr(error)
-            // this.loading = false;
+            this.loading = false;
         }
     }, 
     setStage (val: string){
@@ -59,6 +60,11 @@ export const useWeeshDetailStore = defineStore('weeshDetail', {
         }
         this.stage = number.toString();
         console.log(this.stage, number)
+    },
+    formatPrice (val: string){
+        const price = parseInt(val)
+        const formattedPrice = new Intl.NumberFormat('en-US').format(price);
+        return formattedPrice;
     },
     catchErr(error: any) {
         if (error.response.status === 400) {

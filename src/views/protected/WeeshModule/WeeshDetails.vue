@@ -1,5 +1,5 @@
 <template>
-    <div v-if="loading" class='w-full h-screen absolute top-0 left-0 z-50 flex justify-center items-center bg-white'>
+    <div v-if="loading" class='w-full h-screen fixed top-0 left-0 z-50 flex justify-center items-center bg-white opacity-100'>
         <LoadingSpinner />
     </div>
     <div class="flex-col flex bg-[#f0f8ff] h-full px-4 sm:px-10 pb-10">
@@ -13,7 +13,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 w-full gap-2 px-4">
                     <Card class="md:col-span-2 rounded-3xl bg-[#34389B1A] bg-opacity-10">
                         <CardContent class="flex flex-col sm:flex-row justify-start items-start md:items-center gap-4 p-4">
-                            <img :src="imageData?.url" class='w-17 h-17 rounded-md md:w-20 md:h-22'/>
+                            <img :src="imageData?.url" class='w-17 h-17 sm:h-16 sm:w-16 rounded-md lg:w-20 lg:h-22'/>
                                 <div>
                                     <h1 class="text-base text-[#02072199]"> {{category?.name || 'No category name'}} </h1>
                                     <p class="text-[#020721] text-2xl font-bold"> {{details.name || 'No name'}} </p>
@@ -26,7 +26,7 @@
                                 <img src="https://res.cloudinary.com/dotojp6xu/image/upload/v1720070852/money-4_pu9pa9.svg"/>
                             </div>
                             <div class="lg:min-h-full flex flex-col md:justify-end w-full md:mr-4"> 
-                                <p class="text-[#020721] text-xl lg:text-xl xl:text-3xl font-bold">₦ {{details.price?.price || 'No price'}} </p>
+                                <p class="text-[#020721] text-xl lg:text-xl xl:text-3xl font-bold">₦ {{details.price?.price ? store.formatPrice(details.price.price) : 'No price'}} </p>
                             </div>
                         </div>
                 </div>
@@ -120,22 +120,22 @@
                 <CardHeader class="bg-[#020721] text-white rounded-tr-3xl rounded-tl-3xl">
                     Vendor Details
                 </CardHeader>
-                <CardContent class="min-h-full flex flex-col mt-4 lg:flex-row items-start justify-between lg:items-center gap-4 lg:gap-0">
-                    <div>
+                <CardContent class="min-h-full flex flex-col mt-4 lg:grid lg:grid-cols-10 items-start justify-between lg:items-center gap-4 lg:gap-0">
+                    <div class='col-span-2'>
                         <h1 class="text-sm md:text-base text-[#02072199]">Source</h1>
                         <p class="text-[#020721] text-base md:text-lg">{{details?.vendor}}</p>
                     </div>
-                    <div>
+                    <div class='col-span-2'>
                         <h1 class="text-sm md:text-base text-[#02072199]">Location</h1>
                         <p class="text-[#020721] text-base md:text-lg">Lagos State</p>
                     </div>
-                    <div class='max-w-full'>
+                    <div class='max-w-full lg:col-span-4'>
                         <h1 class="text-sm md:text-base text-[#02072199]">Link</h1>
-                        <p class="text-[#020721] text-base overflow-clip lg:text-lg text-wrap">{{details?.link}}</p>
+                        <p class="text-[#020721] text-base lg:text-lg flex items-center gap-2"> <span class='max-w-[50%] whitespace-nowrap overflow-hidden overflow-ellipsis'>{{details?.link}}</span>  <Icon icon="mdi:content-copy" @click="()=>copyText(details.link)" class="cursor-pointer" /></p>
                     </div>
                     <Sheet>
                         <SheetTrigger as-child>
-                            <Button class="bg-[#020721] opacity-90" :disabled='success'>Start Verification <Icon icon="mdi:chevron-right" class="ml-2" /></Button>
+                            <Button class="bg-[#020721] opacity-90 lg:col-span-2" :disabled='success'>Start Verification <Icon icon="mdi:chevron-right" class="ml-2" /></Button>
                         </SheetTrigger>
                         <SheetContent class="overflow-y-auto">
                             <h1 class="text-xl my-4">Verification</h1>
@@ -207,7 +207,7 @@ import { Button } from '@/components/ui/button';
 import { Icon } from '@iconify/vue'
 import { Badge } from '@/components/ui/badge';
 import { useWeeshDetailStore } from '@/stores/weeshes/weesh-details';
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import {
   Sheet,
   SheetContent,
@@ -222,6 +222,7 @@ import TabOne from '@/components/verifications/TabOne.vue';
 // import axios from "@/services/ApiService";
 import { useRoute } from 'vue-router';
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
+import { toast } from "@/components/ui/toast";
 
 const success = ref(false)
 const store = useWeeshDetailStore()
@@ -243,6 +244,17 @@ const stage = computed(()=>{
 const loading = computed(()=>{
     return store.loading
 })
+const copyText = (text: string)=> {
+    //   const textToCopy = 'Your text to copy';
+      navigator.clipboard.writeText(text).then(() => {
+        toast({
+            description: 'Copied...',
+            variant: 'loading'
+          })
+      }).catch(err => {
+        console.error('Could not copy text: ', err);
+      });
+}
 
 const setStage = store.setStage
 
@@ -250,5 +262,7 @@ const route = useRoute();
 const id = route.params.Id;
 // const id = '65a41c16e7004dd9b408b60c'
 // '6639626d054298235b7d5bb8'
-store.getWeeshDetails(id)
+onMounted(()=>{
+    store.getWeeshDetails(id)
+})
 </script>

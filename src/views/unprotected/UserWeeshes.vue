@@ -192,10 +192,10 @@
                 </TableCell>
                 <TableCell v-else class="text-xs md:text-sm lg:text-sm"> ---- </TableCell>
                 <TableCell class="text-xs md:text-sm lg:text-sm"
-                  >{{ weesh.currency.code }} {{ weesh.price.price }}
+                  >{{ weesh.currency.code }} {{ formatPrice(weesh.price.price) }}
                 </TableCell>
                 <TableCell class="text-xs md:text-sm lg:text-sm"
-                  >{{ weesh.currency.code }} {{ weesh.price.genieGratuity }}</TableCell
+                  >{{ weesh.currency.code }} {{ formatPrice(weesh.price.genieGratuity) }}</TableCell
                 >
                 <TableCell class="flex items-center mt-4">
                   <div
@@ -422,6 +422,11 @@ const visiblePaginationItems = computed(() => {
 
 const handlePageChange = (page: number) => {
   loadWeeshes(page)
+}
+const formatPrice = (val: string)=>{
+  const price = parseInt(val)
+  const formattedPrice = new Intl.NumberFormat('en-US').format(price);
+  return formattedPrice;
 }
 </script>
 
