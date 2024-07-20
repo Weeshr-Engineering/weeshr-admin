@@ -252,10 +252,11 @@ onMounted(() => {
         <div class="flex justify-end">
             <Pagination :total="pagination.totalPages" :sibling-count="1" show-edges :default-page="currentPage || 1">
                 <PaginationList class="flex items-center gap-1">
-                    <PaginationFirst @click="paginationMethods().setPage(1)" />
-                    <PaginationPrev @click="paginationMethods().prevPage()" />
-                    <PaginationNext @click="paginationMethods().nextPage()" />
-                    <PaginationLast @click="paginationMethods().setPage(pagination.totalPages)" />
+                    <PaginationFirst @click="paginationMethods().setPage(1)" :disabled="false" />
+                    <PaginationPrev @click="paginationMethods().prevPage()" :disabled="(pagination.currentPage <= 1)" />
+                    <PaginationNext @click="paginationMethods().nextPage()"
+                        :disabled="(pagination.currentPage >= pagination.totalPages)" />
+                    <PaginationLast @click="paginationMethods().setPage(pagination.totalPages)" :disabled="false" />
                 </PaginationList>
             </Pagination>
         </div>
