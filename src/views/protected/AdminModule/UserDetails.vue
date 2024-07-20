@@ -52,7 +52,8 @@ const route = useRoute()
 const _id = route.params.id
 
 const { appUser, error, load } = getUser()
-const { userLog, count, logPagination, logError, log, logActions, logStatus } = getUserLog()
+const { userLog, count, logPagination, logError, log, logActions, logStatus, getFilter } =
+  getUserLog()
 const { userWeeshesList, weeshesError, totalPages, currentPage, userWeeshes } = getUserWeeshes()
 const { userWallet, getWallet } = getUserWallet()
 const { walletError, userWalletList, pagination, walletCount, getWalletList } = getUserWalletList()
@@ -60,6 +61,7 @@ const { walletError, userWalletList, pagination, walletCount, getWalletList } = 
 onMounted(() => {
   load(_id)
   userWeeshes(_id)
+  getFilter()
 })
 
 const wallet = (_id: string | string[]) => {
@@ -115,12 +117,6 @@ const filter = reactive<Filter>({
   sort_direction: 'asc'
 })
 
-//Sort user log
-const handleSort = () => {
-  filter.sort_direction = filter.sort_direction === 'asc' ? 'desc' : 'asc'
-  log(_id, filter)
-}
-
 watch(filter, () => {
   log(_id, filter)
 })
@@ -171,13 +167,7 @@ function toggleContributors(id: string) {
 
 //progress bar
 const getContributionPercentage = (weeshes: Weeshes) => {
-  return weeshes.donationProgress || 0;
-  // const totalContributions = weeshes.contributions.reduce(
-  //   (sum: number, contribution) => sum + contribution.amount,
-  //   0
-  // )
-  // const percentage = Math.floor((totalContributions / weeshes.price.total) * 100)
-  // return percentage > 100 ? 100 : percentage
+  return weeshes.donationProgress || 0
 }
 
 //Weeshes Pagination
@@ -384,7 +374,7 @@ const hideBalance = ref(true)
             class="text-[#000000] data-[state=active]:border-[#baef23]"
             @click="
               () => {
-                log(_id, filter)
+                log(_id)
               }
             "
           >
@@ -841,7 +831,15 @@ const hideBalance = ref(true)
               </div>
             </Button>
 
-            <Button variant="outline" class="rounded-2xl bg-[#EEEFF5]" @click="() => handleSort()">
+            <Button
+              variant="outline"
+              class="rounded-2xl bg-[#EEEFF5]"
+              @click="
+                () => {
+                  filter.sort_direction = filter.sort_direction === 'asc' ? 'desc' : 'asc'
+                }
+              "
+            >
               <div class="flex items-center text-[10px] md:text-xs">Sort By Date</div>
             </Button>
 

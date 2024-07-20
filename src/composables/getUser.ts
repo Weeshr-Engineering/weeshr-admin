@@ -77,8 +77,8 @@ export interface Weeshes {
         lastName: string
       }
     }
-  ],
-  donationProgress: number;
+  ]
+  donationProgress: number
 }
 
 interface Wallet {
@@ -162,7 +162,6 @@ export const getUserLog = () => {
     const response = await axios.get('/api/v1/admin/accounts/user/logs/filters-and-meta')
 
     if (response.data.code === 200) {
-      console.log(response.data)
       logActions.value = response.data.data.filters.log_action
       logStatus.value = response.data.data.filters.log_status
     }
@@ -206,8 +205,6 @@ export const getUserLog = () => {
         count.value = response.data.data.count
         logPagination.value = response.data.data.pagination
 
-        getFilter()
-
         toast({
           description: response.data.message,
           variant: 'success'
@@ -222,7 +219,7 @@ export const getUserLog = () => {
     }
   }
 
-  return { userLog, logPagination, count, logError, log, logActions, logStatus }
+  return { userLog, logPagination, count, logError, log, logActions, logStatus, getFilter }
 }
 
 export const getUserWeeshes = () => {
