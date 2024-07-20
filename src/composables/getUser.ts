@@ -1,5 +1,5 @@
 import { ref, type Ref } from 'vue'
-import axios from "@/services/ApiService";
+import axios from '@/services/ApiService'
 import { useToast } from '@/components/ui/toast'
 
 interface User {
@@ -89,11 +89,36 @@ interface Wallet {
   currency: string
 }
 
+interface WalletList {
+  id: string
+  currency: string
+  type: string
+  amount: string
+  time: string
+  status: string
+}
+
+interface Pagination {
+  from: number
+  per_page: number
+  to?: number
+  next_from?: number
+  valid_next_page?: boolean
+  prev_from?: number
+  valid_prev_page?: boolean
+}
+
+export type Filter = {
+  page_item_from: number
+  per_page: number
+  log_action?: string
+  log_status?: string
+  sort_direction: 'asc' | 'desc'
+}
 
 const { toast } = useToast()
 
 export const getUser = () => {
-  const token = sessionStorage.getItem('token') || ''
   const appUser = ref<User | null>(null)
   const error: Ref<string> = ref('')
 
@@ -103,9 +128,7 @@ export const getUser = () => {
         description: 'Loading....',
         variant: 'loading'
       })
-      const response = await axios.get(
-        '/api/v1/admin/accounts/users/' + _id,
-      )
+      const response = await axios.get('/api/v1/admin/accounts/users/' + _id)
 
       if (response.data.code === 200) {
         appUser.value = response.data.data
@@ -127,25 +150,62 @@ export const getUser = () => {
 }
 
 export const getUserLog = () => {
-  const token = sessionStorage.getItem('token') || ''
-
   const userLog = ref<Log[]>([])
+  const logPagination = ref<Pagination | null>(null)
   const logError: Ref<string> = ref('')
   const count = ref<number>(0)
+  const logActions: Ref<string[]> = ref([])
+  const logStatus: Ref<string[]> = ref([])
 
-  const log = async (_id: string | string[], next: number, perPage: number) => {
+  const getFilter = async () => {
+    const response = await axios.get('/api/v1/admin/accounts/user/logs/filters-and-meta')
+
+    if (response.data.code === 200) {
+      console.log(response.data)
+      logActions.value = response.data.data.filters.log_action
+      logStatus.value = response.data.data.filters.log_status
+    }
+  }
+
+  const log = async (_id: string | string[], filter?: Filter) => {
+    const base = `/api/v1/admin/accounts/user/${_id}/logs?`
+
+    let queryString = ''
+
+    for (const key in filter) {
+      if (Object.prototype.hasOwnProperty.call(filter, key)) {
+        const value = filter[key as keyof Filter]
+        if (value !== undefined && value !== '') {
+          if (key === 'sort_direction') {
+            if (queryString !== '') {
+              queryString += '&'
+            }
+            queryString += `sort_column=timestamp&${key}=${value}`
+          } else {
+            if (queryString !== '') {
+              queryString += '&'
+            }
+            queryString += `${key}=${value}`
+          }
+        }
+      }
+    }
+
+    const url = base + queryString
+
     try {
       toast({
         description: 'Loading....',
         variant: 'loading'
       })
-      const response = await axios.get(
-        `/api/v1/admin/accounts/user/${_id}/logs?&per_page=${perPage}&page_item_from=${next}`,
-      )
+      const response = await axios.get(url)
 
       if (response.data.code === 200) {
         userLog.value = response.data.data.data
         count.value = response.data.data.count
+        logPagination.value = response.data.data.pagination
+
+        getFilter()
 
         toast({
           description: response.data.message,
@@ -161,19 +221,17 @@ export const getUserLog = () => {
     }
   }
 
-  return { userLog, count, logError, log }
+  return { userLog, logPagination, count, logError, log, logActions, logStatus }
 }
 
 export const getUserWeeshes = () => {
-  const token = sessionStorage.getItem('token') || ''
-
   const userWeeshesList: Ref<Weeshes[]> = ref([])
   const weeshesError: Ref<string> = ref('')
   const totalPages = ref(0)
   const currentPage = ref(0)
 
   const userWeeshes = async (_id: string | string[], options?: string | number) => {
-    const base = `https://api.staging.weeshr.com/api/v1/admin/accounts/users/${_id}/weeshes?`
+    const base = `api/v1/admin/accounts/users/${_id}/weeshes?`
 
     const url = () => {
       if (typeof options === 'string') {
@@ -193,11 +251,7 @@ export const getUserWeeshes = () => {
         description: 'Loading....',
         variant: 'loading'
       })
-      const response = await axios.get(url(), {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      })
+      const response = await axios.get(url())
 
       if (response.data.code === 200) {
         userWeeshesList.value = response.data.data.data
@@ -222,8 +276,6 @@ export const getUserWeeshes = () => {
 }
 
 export const getUserWallet = () => {
-  const token = sessionStorage.getItem('token') || ''
-
   const userWallet = ref<Wallet | null>(null)
 
   const getWallet = async (_id: string | string[]) => {
@@ -232,14 +284,7 @@ export const getUserWallet = () => {
         description: 'Loading....',
         variant: 'loading'
       })
-      const response = await axios.get(
-        `https://api.staging.weeshr.com/api/v1/admin/user/${_id}/wallet`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      )
+      const response = await axios.get(`api/v1/admin/user/${_id}/wallet`)
       if (response.data.code === 200) {
         userWallet.value = response.data.data
         toast({
@@ -258,28 +303,44 @@ export const getUserWallet = () => {
 }
 
 export const getUserWalletList = () => {
-  const token = sessionStorage.getItem('token') || ''
-
-  const userWalletList = ref<Wallet | null>(null)
+  const userWalletList = ref<WalletList[]>([])
   const walletError: Ref<string> = ref('')
+  const walletCount = ref(0)
+  const pagination = ref<Pagination | null>(null)
 
-  const getWalletList = async (_id: string | string[]) => {
+  const getWalletList = async (
+    _id: string | string[],
+    walletPage?: {
+      page_item_from: number
+      per_page: number
+    },
+    sortType?: string
+  ) => {
+    const base = `api/v1/admin/user/${_id}/wallet/transactions?`
+
+    const url = () => {
+      if (walletPage) {
+        return base + `per_page=${walletPage.per_page}&page_item_from=${walletPage.page_item_from}`
+      }
+      if (sortType) {
+        if (sortType === 'INFLOW' || sortType === 'OUTFLOW') {
+          return base + `type=${sortType}`
+        }
+      }
+      return base
+    }
+
     try {
       toast({
         description: 'Loading....',
         variant: 'loading'
       })
-      const response = await axios.get(
-        `https://api.staging.weeshr.com/api/v1/admin/user/${_id}/wallet/transactions`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      )
+      const response = await axios.get(url())
 
       if (response.data.code === 200) {
         userWalletList.value = response.data.data.data
+        pagination.value = response.data.data.pagination
+        walletCount.value = response.data.data.count
         toast({
           description: response.data.message,
           variant: 'success'
@@ -293,7 +354,14 @@ export const getUserWalletList = () => {
       })
     }
   }
-  return { walletError, userWalletList, getWalletList }
+
+  return {
+    walletError,
+    userWalletList,
+    pagination,
+    walletCount,
+    getWalletList
+  }
 }
 
 export default {
