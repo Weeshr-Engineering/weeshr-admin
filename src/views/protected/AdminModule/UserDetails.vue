@@ -171,12 +171,13 @@ function toggleContributors(id: string) {
 
 //progress bar
 const getContributionPercentage = (weeshes: Weeshes) => {
-  const totalContributions = weeshes.contributions.reduce(
-    (sum: number, contribution) => sum + contribution.amount,
-    0
-  )
-  const percentage = Math.floor((totalContributions / weeshes.price.total) * 100)
-  return percentage > 100 ? 100 : percentage
+  return weeshes.donationProgress || 0;
+  // const totalContributions = weeshes.contributions.reduce(
+  //   (sum: number, contribution) => sum + contribution.amount,
+  //   0
+  // )
+  // const percentage = Math.floor((totalContributions / weeshes.price.total) * 100)
+  // return percentage > 100 ? 100 : percentage
 }
 
 //Weeshes Pagination
@@ -350,7 +351,7 @@ const hideBalance = ref(true)
       </CardHeader>
     </Card>
 
-    <Card class="px-2 py-4 w-full rounded-xl shadow-md">
+    <Card class="px-2 py-4 w-full rounded-xl shadow-md max-h-screen overflow-y-scroll">
       <Tabs default-value="weeshes" class="space-y-2">
         <TabsList class="w-full bg-transparent">
           <TabsTrigger

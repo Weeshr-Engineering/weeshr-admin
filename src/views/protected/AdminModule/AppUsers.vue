@@ -16,11 +16,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-
+import { computed } from 'vue';
 import { Button } from '@/components/ui/button'
 import CountryCodes from '@/lib/CountryCodes'
 import createUser from '@/composables/createUser';
 import usersTable from '@/components/usersTable.vue';
+import { ability, defineAbilities, verifyAbilities } from '@/lib/ability'
+
+defineAbilities()
+const create = ability.can('create', 'users')
+const createStyle = computed(()=>{
+  return create ? 'bg-[#020721] px-4 py-2 rounded-xl w-50 h-12' : 'bg-[#020721] cursor-not-allowed opacity-20 px-4 py-2 rounded-xl w-50 h-12'
+})
 
 //Create User
 const {loading, newUser, userLoad} = createUser()
@@ -38,9 +45,24 @@ const {loading, newUser, userLoad} = createUser()
     <Sheet>
       <SheetTrigger asChild>
         <div class="flex justify-end ml-3 my-4">
-          <Button class="rounded-full px-4 py-6 bg-[#020721] md:px-6 md:text-xl">Create New User
-            <Icon icon="mdi:plus-circle" width="26px" height="26px" class="ml-4 pt-1"/>
-          </Button>
+          <button @click="verifyAbilities('create', 'users')"  :class='createStyle'>
+            <div class="text-base text-[#F8F9FF] text-center flex items-center">
+              Create New User
+              <svg
+                width="20"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                class="ml-6"
+              >
+                <path
+                  d="M12 2C6.49 2 2 6.49 2 12C2 17.51 6.49 22 12 22C17.51 22 22 17.51 22 12C22 6.49 17.51 2 12 2ZM16 12.75H12.75V16C12.75 16.41 12.41 16.75 12 16.75C11.59 16.75 11.25 16.41 11.25 16V12.75H8C7.59 12.75 7.25 12.41 7.25 12C7.25 11.59 7.59 11.25 8 11.25H11.25V8C11.25 7.59 11.59 7.25 12 7.25C12.41 7.25 12.75 7.59 12.75 8V11.25H16C16.41 11.25 16.75 11.59 16.75 12C16.75 12.41 16.41 12.75 16 12.75Z"
+                  fill="#F8F9FF"
+                />
+              </svg>
+            </div>
+          </button>
         </div>
       </SheetTrigger>
       <Card class="container px-4 pt-6 pb-10 mx-auto sm:px-6 lg:px-8 bg-[#FFFFFF] rounded-2xl">

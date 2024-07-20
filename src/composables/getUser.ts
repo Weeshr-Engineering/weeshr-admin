@@ -77,7 +77,8 @@ export interface Weeshes {
         lastName: string
       }
     }
-  ]
+  ],
+  donationProgress: number;
 }
 
 interface Wallet {

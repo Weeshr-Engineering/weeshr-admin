@@ -36,7 +36,8 @@ interface AdminListStore {
   currentPage: number,
   totalpage: any[],
   detailLoading: boolean,
-  totalPages: number
+  totalPages: number,
+  activityLog: any[]
 }
 
 export const useAdminListStore = defineStore({
@@ -49,7 +50,8 @@ export const useAdminListStore = defineStore({
     currentPage: 1,
     totalpage: [],
     detailLoading: false,
-    totalPages: 1
+    totalPages: 1,
+    activityLog: []
   }),
   actions: {
     async fetchUsersData() {
@@ -213,6 +215,73 @@ export const useAdminListStore = defineStore({
           this.catchErr(error)
         });
     },
+    async getActivityLog (id: any){
+      console.log('activity log')
+        toast({
+          title: 'Loading Data',
+          description: 'Fetching data...',
+          variant: 'loading',
+          duration: 0 // Set duration to 0 to make it indefinite until manually closed
+        })
+
+        // useGeneralStore().setLoading(true)
+        try {
+          // Set loading to true
+
+          const response = await axios.get(
+            `/api/v1/admin/logs/activity-logs?user_id=${id}`,
+          )
+
+          if (response.status === 200 || response.status === 201) {
+            // Show success toast
+            toast({
+              title: 'Success',
+              description: `data fetched`,
+              variant: 'success'
+            })
+
+            console.log(response.data)
+          }
+
+          // Update the users data with the response
+          const data = response.data.data.data
+          // console.log(data)
+          this.activityLog = data
+          // this.users = data.reverse()
+          // adminListStore.setUsers(data.reverse())
+
+          // set page data
+          //   this.perPage= response.data.data.perPage
+          // this.currentPage = response.data.data.currentPage
+          // this.totalPages = response.data.data.totalPages
+
+          // close loading screen
+          // useGeneralStore().setLoading(false)
+        } catch (error: any) {
+          this.catchErr(error)
+          if (error.response.status === 401) {
+            sessionStorage.removeItem('token')
+            // Clear token from superAdminStore
+            // superAdminStore.setToken('')
+
+            setTimeout(() => {
+              router.push({ name: 'home' })
+            }, 3000)
+
+            toast({
+              title: 'Unauthorized',
+              description: 'You are not authorized to perform this action. Redirecting to home page...',
+              variant: 'warning'
+            })
+            // Redirect after 3 seconds
+          } else {
+            toast({
+              title: error.response.data.message || 'An error occurred',
+              variant: 'destructive'
+            })
+          }
+        }
+      },
     catchErr(error: any) {
       if (error.response.status === 400) {
         toast({

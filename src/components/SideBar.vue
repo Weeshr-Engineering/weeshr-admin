@@ -37,6 +37,13 @@ const weeshes = computed(()=>{
   }
   return false
 })
+const activityLogs = computed(()=>{
+  const activity = ability.can('read', 'activity-logs')
+  if(activity){
+    return true
+  }
+  return false
+})
 const logout = async () => {
   await superAdminStore.logout()
 }
@@ -125,7 +132,7 @@ const openNotificationsBoard = () => {
         </a>
       </li>
 
-      <li :class="{ 'dashboard-active': isActive('/activity') }">
+      <li v-if="activityLogs" :class="{ 'dashboard-active': isActive('/activity') }">
         <a @click="$router.push({ name: 'activity' })">
           <div class="icon-grid">
             <Icon icon="octicon:log-24" width="16" height="16" class="icons-sidebar" />

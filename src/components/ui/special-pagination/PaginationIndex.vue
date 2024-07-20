@@ -79,6 +79,7 @@ const startPage = (): void => {
 watch(selectedPerPage, () => {
   if (props.showPerPageOptions) {
     emit('per_page', Number(selectedPerPage.value));
+    emit('next', 1);
   }
 });
 
