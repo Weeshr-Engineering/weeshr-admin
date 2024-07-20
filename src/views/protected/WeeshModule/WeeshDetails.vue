@@ -1,29 +1,32 @@
 <template>
+    <div v-if="loading" class='w-full h-screen absolute top-0 left-0 z-50 flex justify-center items-center bg-white'>
+        <LoadingSpinner />
+    </div>
     <div class="flex-col flex bg-[#f0f8ff] h-full px-4 sm:px-10 pb-10">
         <MainNav class="mx-6" headingText="Weeshes" />
         <div class="flex flex-col gap-4">
             <Card class='flex flex-col items-center justify-center'>
                 <div class="w-full px-8 my-4 flex items-center justify-between">
                     <h3 class="text-lg font-semibold">Weesh Details</h3>
-                    <Badge class="rounded-full">Added</Badge>
+                    <Badge class="rounded-full"> {{ details.status }} </Badge>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-3 w-full gap-2 px-4">
                     <Card class="md:col-span-2 rounded-3xl bg-[#34389B1A] bg-opacity-10">
-                        <CardContent class="flex flex-col sm:flex-row justify-start items-start gap-4 p-4">
-                            <img src="https://res.cloudinary.com/dotojp6xu/image/upload/v1720071091/Rectangle_3624_om6xeb.png"/>
+                        <CardContent class="flex flex-col sm:flex-row justify-start items-start md:items-center gap-4 p-4">
+                            <img :src="imageData?.url" class='w-17 h-17 rounded-md md:w-20 md:h-22'/>
                                 <div>
-                                    <h1 class="text-base text-[#02072199]">Gadget</h1>
-                                    <p class="text-[#020721] text-2xl font-bold">iPhone 15 Pro Max</p>
-                                    <h1 class="text-base text-[#02072199]">A Pink 256GB phone, new one oh</h1>
+                                    <h1 class="text-base text-[#02072199]"> {{category?.name || 'No category name'}} </h1>
+                                    <p class="text-[#020721] text-2xl font-bold"> {{details.name || 'No name'}} </p>
+                                    <h1 class="text-base text-[#02072199]">{{details.description || 'No description'}}</h1>
                                 </div>
                         </CardContent>
                     </Card>
-                        <div class="col-span-1 rounded-3xl bg-[#34389B1A] bg-opacity-10 min-w-full min-h-32 flex flex-col justify-between lg:flex-row lg:justify-stretch gap-4 pt-4 pb-8 px-4 lg:px-6">
+                        <div class="col-span-1 rounded-3xl bg-[#34389B1A] bg-opacity-10 min-w-full min-h-32 md:min-h-fit flex flex-col justify-between md:flex-row lg:justify-stretch gap-4 pt-4 pb-8 md:pb-4 lg:pb-8 px-4 lg:px-6">
                             <div class="h-full flex flex-col items-start min-w-8">
                                 <img src="https://res.cloudinary.com/dotojp6xu/image/upload/v1720070852/money-4_pu9pa9.svg"/>
                             </div>
-                            <div class="lg:min-h-full flex flex-col lg:justify-end w-full lg:mr-4"> 
-                                <p class="text-[#020721] text-xl lg:text-xl xl:text-3xl font-bold">₦ 1,565,987.00</p>
+                            <div class="lg:min-h-full flex flex-col md:justify-end w-full md:mr-4"> 
+                                <p class="text-[#020721] text-xl lg:text-xl xl:text-3xl font-bold">₦ {{details.price?.price || 'No price'}} </p>
                             </div>
                         </div>
                 </div>
@@ -96,8 +99,8 @@
                                 <img src="https://res.cloudinary.com/dotojp6xu/image/upload/v1720077681/truck-fast_dqi4bx.svg"/>
                             </div>
                             <div class="md:min-h-full mt-4 md:mt-0 flex flex-col justify-end w-full"> 
-                                <h1 class="text-sm text-[#02072199]">Deliery Status</h1>
-                                <p class="text-[#020721] text-base font-bold">Not Initiated</p>
+                                <h1 class="text-sm text-[#02072199]">Delivery Status</h1>
+                                <p class="text-[#020721] text-base font-bold">{{details.fulfilledStatus || 'Not Initiated'}}</p>
                             </div>
                         </div>
                         <div class="min-w-full md:min-w-44 lg:min-w-0 md:col-span-2 lg:col-span-1 min-h-32 rounded-3xl bg-[#3A8EE5] md:flex flex-1 justify-stretch gap-4 py-6 px-4">
@@ -106,7 +109,7 @@
                             </div>
                             <div class="md:min-h-full mt-4 md:mt-0 flex flex-col justify-end w-full"> 
                                 <h1 class="text-sm text-[#02072199]">Procurement Status</h1>
-                                <p class="text-[#020721] text-base font-bold">Not Initiated</p>
+                                <p class="text-[#020721] text-base font-bold">{{details.status || 'Not Initiated'}}</p>
                             </div>
                         </div>
                     <!-- </div> -->
@@ -120,7 +123,7 @@
                 <CardContent class="min-h-full flex flex-col mt-4 lg:flex-row items-start justify-between lg:items-center gap-4 lg:gap-0">
                     <div>
                         <h1 class="text-sm md:text-base text-[#02072199]">Source</h1>
-                        <p class="text-[#020721] text-base md:text-lg">Media</p>
+                        <p class="text-[#020721] text-base md:text-lg">{{details?.vendor}}</p>
                     </div>
                     <div>
                         <h1 class="text-sm md:text-base text-[#02072199]">Location</h1>
@@ -128,7 +131,7 @@
                     </div>
                     <div class='max-w-full'>
                         <h1 class="text-sm md:text-base text-[#02072199]">Link</h1>
-                        <p class="text-[#020721] text-base overflow-clip lg:text-lg text-wrap">https://www.instagram.com/phonoflix</p>
+                        <p class="text-[#020721] text-base overflow-clip lg:text-lg text-wrap">{{details?.link}}</p>
                     </div>
                     <Sheet>
                         <SheetTrigger as-child>
@@ -217,23 +220,35 @@ import TabTwo from '@/components/verifications/TabTwo.vue';
 import TabOne from '@/components/verifications/TabOne.vue';
 // import { toast } from '@/components/ui/toast'
 // import axios from "@/services/ApiService";
-// import { useRoute } from 'vue-router';
+import { useRoute } from 'vue-router';
+import LoadingSpinner from '@/components/LoadingSpinner.vue'
 
 const success = ref(false)
 const store = useWeeshDetailStore()
 const done = ()=>{
     success.value= true
 }
-
+const details = computed(()=>{
+    return store.detail
+})
+const category = computed(()=>{
+    return store.category
+})
+const imageData = computed(()=>{
+    return store.image
+})
 const stage = computed(()=>{
     return store.stage
+})
+const loading = computed(()=>{
+    return store.loading
 })
 
 const setStage = store.setStage
 
-// const route = useRoute();
-// const id = route.params.Id;
+const route = useRoute();
+const id = route.params.Id;
 // const id = '65a41c16e7004dd9b408b60c'
 // '6639626d054298235b7d5bb8'
-// store.getWeeshDetails(id)
+store.getWeeshDetails(id)
 </script>
