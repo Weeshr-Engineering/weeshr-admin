@@ -1,9 +1,16 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue'
+import { onMounted, ref, watch, reactive } from 'vue'
 import { Icon } from '@iconify/vue'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Card, CardDescription, CardHeader } from '@/components/ui/card'
-import { Table, TableRow, TableBody, TableHeader, TableHead } from '@/components/ui/table'
+import {
+  Table,
+  TableRow,
+  TableBody,
+  TableHeader,
+  TableHead,
+  TableCell
+} from '@/components/ui/table'
 
 import {
   Carousel,
@@ -22,40 +29,44 @@ import {
   getUserWeeshes
 } from '@/composables/getUser'
 import { useRoute } from 'vue-router'
-import { computed } from 'vue'
-import { Pagination, PaginationList, PaginationListItem } from '@/components/ui/pagination'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuCheckboxItem,
-  DropdownMenuTrigger
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem
 } from '@/components/ui/dropdown-menu'
 import Search from '@/components/UseSearch.vue'
 import { Progress } from '@/components/ui/progress'
 import type { Weeshes } from '@/composables/getUser'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { reactive } from 'vue'
 import PagePagination from '@/components/PagePagination.vue'
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
+import PaginationIndex from '@/components/ui/special-pagination/PaginationIndex.vue'
+import type { Filter } from '@/composables/getUser'
 
 //get User
 const route = useRoute()
 const _id = route.params.id
 
 const { appUser, error, load } = getUser()
-const { userLog, count, logError, log } = getUserLog()
+const { userLog, count, logPagination, logError, log, logActions, logStatus, getFilter } =
+  getUserLog()
 const { userWeeshesList, weeshesError, totalPages, currentPage, userWeeshes } = getUserWeeshes()
 const { userWallet, getWallet } = getUserWallet()
-const { walletError, userWalletList, getWalletList } = getUserWalletList()
+const { walletError, userWalletList, pagination, walletCount, getWalletList } = getUserWalletList()
 
 onMounted(() => {
   load(_id)
   userWeeshes(_id)
+  getFilter()
 })
 
 const wallet = (_id: string | string[]) => {
   getWallet(_id)
-  getWalletList(_id)
+  getWalletList(_id, walletPage)
 }
 
 const dateFormat = (dob: string, time?: string): string => {
@@ -95,26 +106,22 @@ const dateFormat = (dob: string, time?: string): string => {
   return formattedDate
 }
 
-//Sort user log
-let order = ref<string>('')
+//USER LOG
 
-const handleSort = () => {
-  order.value = order.value === 'sort' ? '' : 'sort'
-}
-
-const sortItem = computed(() => {
-  let userLogs = [...userLog.value]
-
-  if (order.value === 'sort') {
-    userLogs.sort((a, b) => {
-      const dateA = new Date(a.timestamp).getTime()
-      const dateB = new Date(b.timestamp).getTime()
-      return dateB - dateA
-    })
-  }
-  return userLogs
+//Log pagination
+const filter = reactive<Filter>({
+  page_item_from: 1,
+  per_page: 25,
+  log_action: '',
+  log_status: '',
+  sort_direction: 'asc'
 })
 
+watch(filter, () => {
+  log(_id, filter)
+})
+
+// USER WEESHES
 //search
 const search = ref('')
 
@@ -129,29 +136,7 @@ watch(sortPrice, () => {
   userWeeshes(_id, sortPrice.value)
 })
 
-//contributor list
-interface VisibleContributors {
-  [key: string]: boolean
-}
-
-const visibleContributors: VisibleContributors = reactive({})
-
-function toggleContributors(id: string) {
-  visibleContributors[id] = !visibleContributors[id]
-}
-
-//progress bar
-const getContributionPercentage = (weeshes: Weeshes) => {
-  return weeshes.donationProgress || 0;
-  // const totalContributions = weeshes.contributions.reduce(
-  //   (sum: number, contribution) => sum + contribution.amount,
-  //   0
-  // )
-  // const percentage = Math.floor((totalContributions / weeshes.price.total) * 100)
-  // return percentage > 100 ? 100 : percentage
-}
-
-//status
+//Weeshes status
 const statusBg = (status: string) => {
   switch (status) {
     case 'ADDED':
@@ -169,62 +154,46 @@ const statusBg = (status: string) => {
   }
 }
 
-//pagination
-const pageTotal = ref(count)
-const perPage = ref(20)
-const pageCurrent = ref(1)
+//contributor list
+interface VisibleContributors {
+  [key: string]: boolean
+}
 
+const visibleContributors: VisibleContributors = reactive({})
+
+function toggleContributors(id: string) {
+  visibleContributors[id] = !visibleContributors[id]
+}
+
+//progress bar
+const getContributionPercentage = (weeshes: Weeshes) => {
+  return weeshes.donationProgress || 0
+}
+
+//Weeshes Pagination
 const weeshesPageTotal = ref(totalPages)
 const weeshesCurrentPage = ref(currentPage)
-
-const handleClick = (pageItem: number) => {
-  perPage.value = pageItem
-  log(_id, 1, perPage.value)
-}
-
-const paginationItems = computed(() => {
-  const pages = []
-  for (let i = 1; i <= Math.ceil(pageTotal.value / perPage.value); i++) {
-    pages.push(i)
-  }
-  return pages
-})
-
-const visiblePaginationItems = computed(() => {
-  const totalItems = paginationItems.value.length
-  const currentPage = pageCurrent.value
-  if (totalItems <= 3) {
-    return paginationItems.value
-  } else {
-    let start = Math.max(1, currentPage - 1)
-    let end = Math.min(totalItems, currentPage + 1)
-
-    if (currentPage === 1 && totalItems > 3) {
-      end = Math.min(totalItems, 3)
-    }
-
-    return paginationItems.value.slice(start - 1, end)
-  }
-})
-
-const isLastPage = computed(() => {
-  return pageCurrent.value === Math.ceil(pageTotal.value / perPage.value)
-})
-
-const handlePageChange = (page: number, index: number) => {
-  const totalPages = Math.ceil(pageTotal.value / perPage.value)
-  if (index === totalPages) {
-    pageCurrent.value = totalPages
-  } else {
-    pageCurrent.value = index + 1
-  }
-
-  log(_id, page, perPage.value)
-}
 
 const handleWeeshesPageChange = (page: number) => {
   userWeeshes(_id, page)
 }
+
+//USER WALLET
+
+//sort wallet by type
+const handleTypeSort = (type: string) => {
+  getWalletList(_id, walletPage, type)
+}
+
+//wallet pagination
+const walletPage = reactive({
+  page_item_from: 1,
+  per_page: 25
+})
+
+watch(walletPage, () => {
+  getWalletList(_id, walletPage)
+})
 
 //hide details
 const hideAccount = ref(true)
@@ -397,15 +366,15 @@ const hideBalance = ref(true)
           >
             Wallet
           </TabsTrigger>
-          <TabsTrigger value="support" class="text-[#000000] data-[state=active]:border-[#baef23]"
+          <!-- <TabsTrigger value="support" class="text-[#000000] data-[state=active]:border-[#baef23]"
             >Support
-          </TabsTrigger>
+          </TabsTrigger> -->
           <TabsTrigger
             value="activity"
             class="text-[#000000] data-[state=active]:border-[#baef23]"
             @click="
               () => {
-                log(_id, 1, perPage)
+                log(_id)
               }
             "
           >
@@ -748,78 +717,94 @@ const hideBalance = ref(true)
               {{ walletError }}
             </div>
             <div v-else-if="userWalletList">
-              <Table class="min-w-full">
-                <TableHeader>
-                  <TableRow
-                    class="text-xs sm:text-sm md:text-base text-[#02072199] font-semibold bg-gray-200"
+              <Card>
+                <div
+                  class="flex gap-2 w-11/12 flex-wrap justify-end my-4 mr-4 items-center text-[15px]"
+                >
+                  <Button
+                    variant="outline"
+                    class="rounded-2xl bg-[#EEEFF5] col-span-3 md:col-span-1"
+                    @click="() => getWalletList(_id)"
                   >
-                    <TableHead>
-                      <div class="flex items-center">
-                        Type
-                        <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
-                      </div>
-                    </TableHead>
-                    <TableHead>
-                      <div class="flex items-center">
-                        Date
-                        <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
-                      </div>
-                    </TableHead>
-                    <TableHead>
-                      <div class="flex items-center">
-                        Amount
-                        <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
-                      </div>
-                    </TableHead>
-                    <TableHead>
-                      <div class="flex items-center">
-                        Status
-                        <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
-                      </div>
-                    </TableHead>
-                    <TableHead></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  <!-- <TableRow>
-                    <TableCell class="font-medium">{{ user2.type }}</TableCell>
-                    <TableCell class="font-medium">{{ user2.date }}</TableCell>
-                    <TableCell class="font-normal text-xs">{{ user2.amount }} </TableCell>
-                    <TableCell class="">
-                      <template v-for="status in user2.status" :key="status">
-                        <span
-                          :class="{
-                            'bg-[#53eeb8] text-[#F8F9FF]': status === 'Successful',
-                            'bg-[#373B4D] text-[#F8F9FF]': status === ' Pending',
-                            'bg-[#EE9F39] text-[#F8F9FF]': status === 'Failed'
-                          }"
-                          class="inline-block bg-[#373B4D] text-[#F8F9FF] rounded-full px-2 py-1 text-sm"
-                          >{{ status }}</span
-                        >
-                      </template>
-                    </TableCell>
-                    <TableCell>
-                      <svg
-                        width="20"
-                        height="50"
-                        viewBox="0 0 20 50"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
+                    <div class="flex items-center text-[10px] md:text-xs">
+                      <Icon icon="tdesign:clear" width="15" height="15" class="me-2" />
+                      Clear Filter
+                    </div>
+                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger as-child class="rounded-2xl bg-[#EEEFF5]">
+                      <Button variant="outline">
+                        <div class="flex items-center text-[10px] md:text-xs">
+                          Sort by Type
+                          <Icon icon="ion:chevron-down-outline" class="ml-1" />
+                        </div>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent class="item-center justify-between">
+                      <DropdownMenuCheckboxItem @click="() => handleTypeSort('INFLOW')">
+                        INFLOW
+                      </DropdownMenuCheckboxItem>
+                      <DropdownMenuCheckboxItem @click="() => handleTypeSort('OUTFLOW')">
+                        OUTFLOW
+                      </DropdownMenuCheckboxItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+                <Table class="min-w-full">
+                  <TableHeader>
+                    <TableRow
+                      class="text-xs sm:text-sm md:text-base text-[#02072199] font-semibold bg-gray-200"
+                    >
+                      <TableHead>
+                        <div class="flex items-center">Type</div>
+                      </TableHead>
+                      <TableHead>
+                        <div class="flex items-center">Date</div>
+                      </TableHead>
+                      <TableHead>
+                        <div class="flex items-center">Amount</div>
+                      </TableHead>
+                      <TableHead>
+                        <div class="flex items-center">Status</div>
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    <TableRow
+                      v-for="transaction in userWalletList"
+                      :key="transaction.id"
+                      class="border-b-2 border-black"
+                    >
+                      <TableCell
+                        :class="transaction.type === 'INFLOW' ? 'text-[#baef23]' : 'text-red-300'"
+                        >{{ transaction.type }}</TableCell
                       >
-                        <path
-                          d="M7 31L12.5118 26.0606C13.1627 25.4773 13.1627 24.5227 12.5118 23.9394L7 19"
-                          stroke="#54586D"
-                          stroke-opacity="0.8"
-                          stroke-width="2"
-                          stroke-miterlimit="10"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                        />
-                      </svg>
-                    </TableCell>
-                  </TableRow> -->
-                </TableBody>
-              </Table>
+                      <TableCell>{{ dateFormat(transaction.time) }}</TableCell>
+                      <TableCell>{{ transaction.currency }} {{ transaction.amount }}</TableCell>
+                      <TableCell class="font-medium">
+                        {{ transaction.status }}
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+                <div
+                  class="flex gap-2 w-11/12 flex-wrap justify-end my-8 mr-4 items-center text-[15px]"
+                >
+                  <PaginationIndex
+                    :count="walletCount"
+                    :per-page="pagination?.per_page"
+                    :from="pagination?.from"
+                    :to="pagination?.to"
+                    :next-from="pagination?.next_from"
+                    :valid-next-page="pagination?.valid_next_page"
+                    :prev-from="pagination?.prev_from"
+                    :valid-prev-page="pagination?.valid_prev_page"
+                    @per_page="(val: number) => (walletPage.per_page = val)"
+                    @prev="(val: number) => (walletPage.page_item_from = val)"
+                    @next="(val: number) => (walletPage.page_item_from = val)"
+                  />
+                </div>
+              </Card>
             </div>
             <div v-else class="text-[#02072199] p-10">
               <p>No user data available</p>
@@ -827,50 +812,103 @@ const hideBalance = ref(true)
           </div>
         </TabsContent>
 
-        <TabsContent value="support" class="space-y-4"> </TabsContent>
+        <!-- <TabsContent value="support" class="space-y-4"> </TabsContent> -->
 
         <TabsContent value="activity" class="space-y-4">
+          <div class="flex gap-2 w-11/12 flex-wrap justify-end mt-8 mr-4 items-center text-[15px]">
+            <Button
+              variant="outline"
+              class="rounded-2xl bg-[#EEEFF5]"
+              @click="
+                () => {
+                  log(_id)
+                }
+              "
+            >
+              <div class="flex items-center text-[12px]">
+                <Icon icon="tdesign:clear" width="15" height="15" class="me-2" />
+                Clear Filter
+              </div>
+            </Button>
+
+            <Button
+              variant="outline"
+              class="rounded-2xl bg-[#EEEFF5]"
+              @click="
+                () => {
+                  filter.sort_direction = filter.sort_direction === 'asc' ? 'desc' : 'asc'
+                }
+              "
+            >
+              <div class="flex items-center text-[10px] md:text-xs">Sort By Date</div>
+            </Button>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger as-child class="rounded-2xl bg-[#EEEFF5]">
+                <Button variant="outline">
+                  <div class="flex items-center text-[10px] md:text-xs">
+                    {{ filter.log_action || 'All Actions' }}
+                    <Icon icon="ion:chevron-down-outline" class="ml-1" />
+                  </div>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent class="item-center justify-between max-h-80 overflow-y-auto">
+                <DropdownMenuLabel class="item-center justify-center text-center">
+                  Select Action
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuRadioGroup v-model="filter.log_action">
+                  <DropdownMenuRadioItem value="" class="item-center text-center">
+                    All Actions
+                  </DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem
+                    v-for="action in logActions"
+                    :key="action"
+                    :value="action"
+                    class="item-center text-center"
+                  >
+                    {{ action }}
+                  </DropdownMenuRadioItem>
+                </DropdownMenuRadioGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger as-child class="rounded-2xl bg-[#EEEFF5]">
+                <Button variant="outline">
+                  <div class="flex items-center text-[10px] md:text-xs">
+                    {{ filter.log_status || 'All Status' }}
+                    <Icon icon="ion:chevron-down-outline" class="ml-1" />
+                  </div>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent class="item-center justify-between max-h-80 overflow-y-auto">
+                <DropdownMenuLabel class="item-center justify-center text-center">
+                  Select Status
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuRadioGroup v-model="filter.log_status">
+                  <DropdownMenuRadioItem value="" class="item-center text-center">
+                    All Status
+                  </DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem
+                    v-for="status in logStatus"
+                    :key="status"
+                    :value="status"
+                    class="item-center text-center"
+                  >
+                    {{ status }}
+                  </DropdownMenuRadioItem>
+                </DropdownMenuRadioGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
           <div v-if="logError" class="text-[#02072199] p-10">
             <p>{{ logError }}</p>
           </div>
-          <div v-else-if="sortItem && sortItem.length" class="relative">
-            <div
-              class="flex gap-2 w-11/12 flex-wrap justify-end mt-8 mr-4 items-center text-[15px]"
-            >
-              <Button
-                variant="outline"
-                class="rounded-2xl bg-[#EEEFF5]"
-                @click="() => handleSort()"
-              >
-                <div class="flex items-center text-[10px] md:text-xs">Sort By Date</div>
-              </Button>
-              <DropdownMenu>
-                <DropdownMenuTrigger as-child class="rounded-2xl bg-[#EEEFF5]">
-                  <Button variant="outline">
-                    <div class="flex items-center text-[10px] md:text-xs">
-                      Number Per Page
-                      <Icon icon="ion:chevron-down-outline" class="ml-1" />
-                    </div>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent class="item-center justify-between">
-                  <DropdownMenuCheckboxItem @click="() => handleClick(20)">
-                    20
-                  </DropdownMenuCheckboxItem>
-                  <DropdownMenuCheckboxItem @click="() => handleClick(50)">
-                    50
-                  </DropdownMenuCheckboxItem>
-                  <DropdownMenuCheckboxItem @click="() => handleClick(100)">
-                    100
-                  </DropdownMenuCheckboxItem>
-                  <DropdownMenuCheckboxItem @click="() => handleClick(200)">
-                    200
-                  </DropdownMenuCheckboxItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
+          <div v-else-if="userLog && userLog.length" class="relative">
             <div class="timeline">
-              <div v-for="logItem in sortItem" :key="logItem.id">
+              <div v-for="logItem in userLog" :key="logItem.id">
                 <Card class="px-4 my-2 relative ms-8 md:ms-12 xl:ms-16 w-10/12 me-4 shadow-md">
                   <CardHeader>
                     <p
@@ -911,73 +949,19 @@ const hideBalance = ref(true)
             <div
               class="flex gap-2 w-11/12 flex-wrap justify-end mt-8 mr-4 items-center text-[15px]"
             >
-              <Pagination
-                :total="pageTotal"
-                :sibling-count="1"
-                show-edges
-                :default-page="1"
-                @change="handlePageChange"
-              >
-                <PaginationList class="flex items-center gap-1">
-                  <Button
-                    class="w-10 h-10 p-0"
-                    variant="outline"
-                    @click="handlePageChange(1, 0)"
-                    :disabled="pageCurrent === 1"
-                  >
-                    <Icon icon="heroicons:chevron-double-left-20-solid" />
-                  </Button>
-                  <Button
-                    class="w-10 h-10 p-0"
-                    variant="outline"
-                    @click="
-                      handlePageChange(perPage * (pageCurrent - 1) - (perPage - 1), pageCurrent - 2)
-                    "
-                    :disabled="pageCurrent === 1"
-                  >
-                    <Icon icon="heroicons:chevron-left-20-solid" />
-                  </Button>
-
-                  <template v-for="(item, index) in visiblePaginationItems" :key="index">
-                    <PaginationListItem :value="item" as-child>
-                      <Button
-                        class="w-10 h-10 p-0"
-                        :variant="item === pageCurrent ? 'default' : 'outline'"
-                        @click="handlePageChange(perPage * item - (perPage - 1), index)"
-                      >
-                        {{ item }}
-                      </Button>
-                    </PaginationListItem>
-                  </template>
-
-                  <Button
-                    class="w-10 h-10 p-0"
-                    variant="outline"
-                    @click="
-                      handlePageChange(perPage * (pageCurrent + 1) - (perPage - 1), pageCurrent)
-                    "
-                    :disabled="isLastPage"
-                  >
-                    <Icon icon="heroicons:chevron-right-20-solid" />
-                  </Button>
-                  <Button
-                    class="w-10 h-10 p-0"
-                    variant="outline"
-                    @click="
-                      () => {
-                        handlePageChange(
-                          Math.floor(pageTotal - perPage + 1),
-                          Math.ceil(pageTotal / perPage)
-                        )
-                      }
-                    "
-                    :disabled="isLastPage"
-                  >
-                    <Icon icon="heroicons:chevron-double-right-20-solid" />
-                  </Button>
-                </PaginationList>
-              </Pagination>
-              <p>Showing {{ pageCurrent }} of {{ Math.ceil(pageTotal / perPage) }} page(s)</p>
+              <PaginationIndex
+                :count="count"
+                :per-page="logPagination?.per_page"
+                :from="logPagination?.from"
+                :to="logPagination?.to"
+                :next-from="logPagination?.next_from"
+                :valid-next-page="logPagination?.valid_next_page"
+                :prev-from="logPagination?.prev_from"
+                :valid-prev-page="logPagination?.valid_prev_page"
+                @per_page="(val: number) => (filter.per_page = val)"
+                @prev="(val: number) => (filter.page_item_from = val)"
+                @next="(val: number) => (filter.page_item_from = val)"
+              />
             </div>
           </div>
           <div v-else class="text-[#02072199] p-10">
@@ -994,10 +978,10 @@ const hideBalance = ref(true)
   content: '';
   position: absolute;
   width: 6px;
-  height: 90%;
+  height: 98%;
   background: rgb(255, 255, 255);
   background: linear-gradient(132deg, rgba(255, 255, 255, 1) 1%, rgba(186, 239, 35, 1) 58%);
-  top: 3%;
+  top: 0;
   left: 5%;
 }
 .fade-enter-active,
