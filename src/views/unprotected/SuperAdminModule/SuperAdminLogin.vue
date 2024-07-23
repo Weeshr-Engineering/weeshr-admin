@@ -157,21 +157,21 @@ const onSubmit = form.handleSubmit(async () => {
       if ([400, 401].includes(status)) {
 
         return toast({
-          title: data?.message || 'Invalid Credentials',
+          description: data?.message || 'Invalid Credentials',
           variant: 'destructive'
         });
       }
 
       if (status === 422) {
         return toast({
-          title: data.error || 'Invalid Credentials',
+          description: data.error || 'Invalid Credentials',
           variant: 'destructive'
         });
       }
 
       // Handle login errors, such as displaying error messages to the user
       return toast({
-        title: data?.message || 'An error occurred',
+        description: data?.message || 'An error occurred',
         variant: 'destructive'
       })
     }
@@ -179,7 +179,7 @@ const onSubmit = form.handleSubmit(async () => {
   } else {
     // Handle the case when form fields are empty
     toast({
-      title: 'Please enter your username/email and password.',
+      description: 'Please enter your username/email and password.',
       variant: 'destructive'
     })
 

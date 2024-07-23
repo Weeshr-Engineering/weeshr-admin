@@ -246,7 +246,7 @@ const paginationItems = computed(() => {
 
 
 onMounted(async()=>{
-  store.getWeesheCategories(page.value, 'Data fetched')
+  store.getWeesheCategories(10, 'Data fetched')
 })
 </script>
 
@@ -283,7 +283,7 @@ onMounted(async()=>{
                     
                     </SheetHeader>
                     <SheetDescription class="flex items-center gap-4">
-                      Active <Switch @click="store.handleActive()" :checked="store.active"/>
+                      <!-- Active <Switch @click="store.handleActive()" :checked="store.active"/> -->
                     </SheetDescription>
                 </div>
                 
@@ -348,7 +348,7 @@ onMounted(async()=>{
         </div>
         <div class="w-full flex justify-center">
             <div class="w-3/4">
-                <div class="flex justify-end w-full text-sm text-[#6A70FF]">
+                <div class="flex justify-end w-full text-sm text-[#6A70FF]" disabled>
                     <p>Only show active</p>
                 </div>
                 <div class="w-full min-h-72">
