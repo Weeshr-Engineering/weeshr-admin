@@ -129,25 +129,7 @@ const onUpdate = () => {
       })
       .catch((error) => {
         console.log(error);
-        if (error.response.status === 401) {
-                // sessionStorage.removeItem('token')
-    
-          setTimeout(() => {
-            router.push({ name: 'home' })
-          }, 3000)
-    
-          toast({
-            title: 'Unauthorized',
-            description: 'You are not authorized to perform this action. Redirecting to home page...',
-            variant: 'destructive'
-          })
-          // Redirect after 3 seconds
-        } else {
-          toast({
-            title: error.response.data.message || 'An error occurred',
-            variant: 'destructive'
-          })
-        }
+        store.catchErr(error)
       });
       }
       loading.value = false
@@ -199,23 +181,7 @@ const onSubmit = formSubmit(async (values) => {
   })
   .catch((error) => {
     console.log(error);
-    if (error.response.status === 401) {    
-      setTimeout(() => {
-        router.push({ name: 'home' })
-      }, 3000)
-
-      toast({
-        title: 'Unauthorized',
-        description: 'You are not authorized to perform this action. Redirecting to home page...',
-        variant: 'destructive'
-      })
-      // Redirect after 3 seconds
-    } else {
-      toast({
-        title: error.response.data.message || 'An error occurred',
-        variant: 'destructive'
-      })
-    }
+    store.catchErr(error)
   });
   loading.value = false
 })
@@ -349,7 +315,7 @@ onMounted(async()=>{
         <div class="w-full flex justify-center">
             <div class="w-3/4">
                 <div class="flex justify-end w-full text-sm text-[#6A70FF]" disabled>
-                    <p>Only show active</p>
+                    <!-- <p>Only show active</p> -->
                 </div>
                 <div class="w-full min-h-72">
                   <Card Content class="mt-4" v-for="(category, key) in categories" :key="key">

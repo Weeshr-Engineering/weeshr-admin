@@ -181,8 +181,8 @@ export const useWeeshConfigStore = defineStore('weeshConfig', {
                 })
               }else if(error.response.status === 500 ){
                 toast({
-                  title:  error.response.data.message || 'Server Error',
-                  description: 'Pls try again later',
+                  description:  error.response.data.message || 'Server Error',
+                  // description: 'Pls try again later',
                   variant: 'destructive'
                 })
               }else if(error.response.status === 404 ){
