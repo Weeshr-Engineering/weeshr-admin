@@ -91,7 +91,7 @@ const handleFileUpdate = (event: any) => {
   updateImg.value = file
 }
 
-const onUpdate = () => {  
+const onUpdate = async() => {  
   toast({
     title: 'Updating',
     description: `Updating Weeshe Category`,
@@ -112,25 +112,43 @@ const onUpdate = () => {
         return;
   }else{
       const data = {
-        'name': updateName.value,
+        // 'name': updateName.value,
         'image': updateImg.value
       }
-      let config = {
-        method: 'patch',
-        maxBodyLength: Infinity,
-        url: `/api/v1/admin/weesh/category/${currentCategory.value}`,
-        data : data
-      };
 
-      axios.request(config)
-      .then((response) => {
-        console.log(response.data);
-        store.getWeesheCategories(store.page, `${response.data.message}`)
-      })
-      .catch((error) => {
-        console.log(error);
+      try{
+        const response = await axios.patch(`/api/v1/admin/weesh/category/${currentCategory.value}`, data, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+        if (response.status === 200 || response.status === 201) {
+            toast({
+                description: `${response.data.message}`,
+                variant: 'success'
+              })
+              store.getWeesheCategories(store.page, 'Success')
+          }
+      }catch(error){
+        console.log(error)
         store.catchErr(error)
-      });
+      }
+      // let config = {
+      //   method: 'patch',
+      //   maxBodyLength: Infinity,
+      //   url: `/api/v1/admin/weesh/category/${currentCategory.value}`,
+      //   data : data
+      // };
+
+      // axios.request(config)
+      // .then((response) => {
+      //   console.log(response.data);
+      //   store.getWeesheCategories(store.page, `${response.data.message}`)
+      // })
+      // .catch((error) => {
+      //   console.log(error);
+      //   store.catchErr(error)
+      // });
       }
       loading.value = false
 }
@@ -153,7 +171,7 @@ const { handleSubmit: formSubmit } = useForm({
   validationSchema: formSchema
 })
 
-const img = ref<any[]>([])
+const img = ref<File | any>(null)
 
 const handleFileChange = (event: any) => {
   const file = event.target.files[0];
@@ -168,21 +186,40 @@ const onSubmit = formSubmit(async (values) => {
     'isCash': values.isCash,
     'disabled': `${active.value}`
   }
-  let config = {
-    method: 'post',
-    maxBodyLength: Infinity,
-    url: '/api/v1/admin/weesh/category',
-    data : data
-  };
-
-  axios.request(config)
-  .then((response) => {
-    console.log(response.data);
-  })
-  .catch((error) => {
-    console.log(error);
+  
+  try{
+    const response = await axios.post('/api/v1/admin/weesh/category', data, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    if (response.status === 200 || response.status === 201) {
+        toast({
+            description: `${response.data.message}`,
+            variant: 'success'
+          })
+          store.getWeesheCategories(page.value, 'Success')
+      }
+  }catch(error){
+    console.log(error)
     store.catchErr(error)
-  });
+  }
+  
+  // let config = {
+  //   method: 'post',
+  //   maxBodyLength: Infinity,
+  //   url: '/api/v1/admin/weesh/category',
+  //   data : data
+  // };
+
+  // axios.request(config)
+  // .then((response) => {
+  //   console.log(response.data);
+  // })
+  // .catch((error) => {
+  //   console.log(error);
+  //   store.catchErr(error)
+  // });
   loading.value = false
 })
 
@@ -212,7 +249,7 @@ const paginationItems = computed(() => {
 
 
 onMounted(async()=>{
-  store.getWeesheCategories(10, 'Data fetched')
+  store.getWeesheCategories(page.value, 'Data fetched')
 })
 </script>
 
