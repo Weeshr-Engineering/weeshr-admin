@@ -91,7 +91,7 @@ const handleFileUpdate = (event: any) => {
   updateImg.value = file
 }
 
-const onUpdate = () => {  
+const onUpdate = async() => {  
   toast({
     title: 'Updating',
     description: `Updating Weeshe Category`,
@@ -112,43 +112,43 @@ const onUpdate = () => {
         return;
   }else{
       const data = {
-        'name': updateName.value,
+        // 'name': updateName.value,
         'image': updateImg.value
       }
-      let config = {
-        method: 'patch',
-        maxBodyLength: Infinity,
-        url: `/api/v1/admin/weesh/category/${currentCategory.value}`,
-        data : data
-      };
 
-      axios.request(config)
-      .then((response) => {
-        console.log(response.data);
-        store.getWeesheCategories(store.page, `${response.data.message}`)
-      })
-      .catch((error) => {
-        console.log(error);
-        if (error.response.status === 401) {
-                // sessionStorage.removeItem('token')
-    
-          setTimeout(() => {
-            router.push({ name: 'home' })
-          }, 3000)
-    
-          toast({
-            title: 'Unauthorized',
-            description: 'You are not authorized to perform this action. Redirecting to home page...',
-            variant: 'destructive'
-          })
-          // Redirect after 3 seconds
-        } else {
-          toast({
-            title: error.response.data.message || 'An error occurred',
-            variant: 'destructive'
-          })
-        }
-      });
+      try{
+        const response = await axios.patch(`/api/v1/admin/weesh/category/${currentCategory.value}`, data, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+        if (response.status === 200 || response.status === 201) {
+            toast({
+                description: `${response.data.message}`,
+                variant: 'success'
+              })
+              store.getWeesheCategories(store.page, 'Success')
+          }
+      }catch(error){
+        console.log(error)
+        store.catchErr(error)
+      }
+      // let config = {
+      //   method: 'patch',
+      //   maxBodyLength: Infinity,
+      //   url: `/api/v1/admin/weesh/category/${currentCategory.value}`,
+      //   data : data
+      // };
+
+      // axios.request(config)
+      // .then((response) => {
+      //   console.log(response.data);
+      //   store.getWeesheCategories(store.page, `${response.data.message}`)
+      // })
+      // .catch((error) => {
+      //   console.log(error);
+      //   store.catchErr(error)
+      // });
       }
       loading.value = false
 }
@@ -171,7 +171,7 @@ const { handleSubmit: formSubmit } = useForm({
   validationSchema: formSchema
 })
 
-const img = ref<any[]>([])
+const img = ref<File | any>(null)
 
 const handleFileChange = (event: any) => {
   const file = event.target.files[0];
@@ -186,37 +186,40 @@ const onSubmit = formSubmit(async (values) => {
     'isCash': values.isCash,
     'disabled': `${active.value}`
   }
-  let config = {
-    method: 'post',
-    maxBodyLength: Infinity,
-    url: '/api/v1/admin/weesh/category',
-    data : data
-  };
+  
+  try{
+    const response = await axios.post('/api/v1/admin/weesh/category', data, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    if (response.status === 200 || response.status === 201) {
+        toast({
+            description: `${response.data.message}`,
+            variant: 'success'
+          })
+          store.getWeesheCategories(page.value, 'Success')
+      }
+  }catch(error){
+    console.log(error)
+    store.catchErr(error)
+  }
+  
+  // let config = {
+  //   method: 'post',
+  //   maxBodyLength: Infinity,
+  //   url: '/api/v1/admin/weesh/category',
+  //   data : data
+  // };
 
-  axios.request(config)
-  .then((response) => {
-    console.log(response.data);
-  })
-  .catch((error) => {
-    console.log(error);
-    if (error.response.status === 401) {    
-      setTimeout(() => {
-        router.push({ name: 'home' })
-      }, 3000)
-
-      toast({
-        title: 'Unauthorized',
-        description: 'You are not authorized to perform this action. Redirecting to home page...',
-        variant: 'destructive'
-      })
-      // Redirect after 3 seconds
-    } else {
-      toast({
-        title: error.response.data.message || 'An error occurred',
-        variant: 'destructive'
-      })
-    }
-  });
+  // axios.request(config)
+  // .then((response) => {
+  //   console.log(response.data);
+  // })
+  // .catch((error) => {
+  //   console.log(error);
+  //   store.catchErr(error)
+  // });
   loading.value = false
 })
 
@@ -283,7 +286,7 @@ onMounted(async()=>{
                     
                     </SheetHeader>
                     <SheetDescription class="flex items-center gap-4">
-                      Active <Switch @click="store.handleActive()" :checked="store.active"/>
+                      <!-- Active <Switch @click="store.handleActive()" :checked="store.active"/> -->
                     </SheetDescription>
                 </div>
                 
@@ -348,8 +351,8 @@ onMounted(async()=>{
         </div>
         <div class="w-full flex justify-center">
             <div class="w-3/4">
-                <div class="flex justify-end w-full text-sm text-[#6A70FF]">
-                    <p>Only show active</p>
+                <div class="flex justify-end w-full text-sm text-[#6A70FF]" disabled>
+                    <!-- <p>Only show active</p> -->
                 </div>
                 <div class="w-full min-h-72">
                   <Card Content class="mt-4" v-for="(category, key) in categories" :key="key">

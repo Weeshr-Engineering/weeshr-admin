@@ -44,6 +44,7 @@ export const useWeeshConfigStore = defineStore('weeshConfig', {
             toast({
               title: 'Loading Data',
               description: 'Fetching data...',
+              variant: 'loading',
               duration: 0 // Set duration to 0 to make it indefinite until manually closed
             })
             const config = {
@@ -95,7 +96,7 @@ export const useWeeshConfigStore = defineStore('weeshConfig', {
             if (response.status === 200 || response.status === 201) {
               // Show success toast
               // this.adminStatus = !this.adminStatus
-              this.getWeesheCategories(this.page, '')
+              this.getWeesheCategories(this.page, `${!status ? `${category} Disabled` : `${category} Activated`}`)
               console.log(response)
               toast({
                   title: 'Success',
@@ -134,7 +135,13 @@ export const useWeeshConfigStore = defineStore('weeshConfig', {
                 description: `Successful: data deleted`,
                 variant: 'success'
               })
-              this.getWeesheCategories(this.page, '')
+              if(this.categories.length === 1 && this.page !== 1){
+                this.getWeesheCategories(this.page - 1, '')
+              }else{
+                this.getWeesheCategories(this.page, '')
+              }
+              
+              
             })
             .catch((error) => {
               this.catchErr(error)
@@ -150,8 +157,7 @@ export const useWeeshConfigStore = defineStore('weeshConfig', {
             catchErr (error: any){
               if(error.response.status === 400){
                 toast({
-                  title:  error.response.data.message || 'Bad Request',
-                  description: 'Pls reach out to the management reguarding this request',
+                  description:  error.response.data.message || 'Bad Request',
                   variant: 'destructive'
                 })
               }else if(error.response.status === 401){
@@ -159,15 +165,13 @@ export const useWeeshConfigStore = defineStore('weeshConfig', {
                   router.push({ name: 'superAdmin-login' })
                 }, 1000)
                 toast({
-                  title:  error.response.data.message || 'Unauthenticated',
-                  description: 'Pls Signin again',
+                  description:  error.response.data.message || 'Unauthenticated',
                   variant: 'destructive'
                 })
                 sessionStorage.removeItem('token')
               }else if(error.response.status === 403){
                 toast({
-                  title:  error.response.data.message || 'Unauthorized',
-                  description: 'You are not authorized to access this feature',
+                  description:  error.response.data.message || 'Unauthorized',
                   variant: 'destructive'
                 })
                 setTimeout(() => {
@@ -175,20 +179,17 @@ export const useWeeshConfigStore = defineStore('weeshConfig', {
                 }, 3000)
               }else if(error.response.status === 422 ){
                 toast({
-                  title:  error.response.data.message || 'Validation Error',
-                  description: 'Your request is not validated, Pls try again ',
+                  description:  error.response.data.message || 'Validation Error',
                   variant: 'destructive'
                 })
               }else if(error.response.status === 500 ){
                 toast({
-                  title:  error.response.data.message || 'Server Error',
-                  description: 'Pls try again later',
+                  description:  error.response.data.message || 'Server Error',
                   variant: 'destructive'
                 })
               }else if(error.response.status === 404 ){
                 toast({
-                  title:  error.response.data.message || 'Not found',
-                  description: '404 Error',
+                  description:  error.response.data.message || 'Not found',
                   variant: 'destructive'
                 })
               }
