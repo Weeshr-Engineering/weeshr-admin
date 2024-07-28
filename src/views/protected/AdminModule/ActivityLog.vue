@@ -89,7 +89,7 @@
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-        <Search class="mt-3 lg:mt-0" />
+        <Search v-model="searchTerm" class="mt-3 lg:mt-0" />
       </div>
 
       <div class="overflow-auto bg-white rounded-lg shadow">
@@ -114,7 +114,7 @@
           </TableHeader>
 
           <TableBody>
-            <TableRow v-for="log in logs" :key="log.id">
+            <TableRow v-for="log in filteredLogs" :key="log.id">
               <TableCell class="text-xs md:text-sm lg:text-xs">{{ new Date(log.timestamp).toLocaleString() }}
               </TableCell>
               <TableCell class="text-xs md:text-sm lg:text-xs">{{ log.user.extras.lastName + ' ' +
@@ -130,7 +130,6 @@
               <TableCell class="text-xs md:text-sm lg:text-xs min-w-full">{{ log.description }}</TableCell>
               <TableCell @click="openModal(log)">
                 <Icon icon="uil:angle-right" class="ml-1" width="25" height="25" />
-
               </TableCell>
             </TableRow>
           </TableBody>
@@ -149,9 +148,9 @@
 
     </Card>
     <DashboardFooter />
-
   </div>
 </template>
+
 
 
 <script setup lang="ts">
@@ -223,7 +222,6 @@ const logs = ref<ActivityLogItem[]>(store.logs);
 const loading = ref(store.loading);
 const error = ref(store.error);
 const filters = ref<Partial<IActivityLogReqParams>>({
-  // columns?: string;
   sort_direction: 'desc',
   sort_column: 'timestamp',
   per_page: 25,
@@ -276,6 +274,24 @@ const statusBg = (status: string) => {
   }
 };
 
+const searchTerm = ref('');
+
+const filteredLogs = computed(() => {
+  if (!searchTerm.value) return logs.value;
+  return logs.value.filter(log =>
+    log.user.extras.lastName.toLowerCase().includes(searchTerm.value.toLowerCase()) ||
+    log.user.extras.firstName.toLowerCase().includes(searchTerm.value.toLowerCase()) ||
+    log.user.extras.email.toLowerCase().includes(searchTerm.value.toLowerCase()) ||
+    log.action.toLowerCase().includes(searchTerm.value.toLowerCase()) ||
+    log.status.toLowerCase().includes(searchTerm.value.toLowerCase()) ||
+    log.description.toLowerCase().includes(searchTerm.value.toLowerCase())
+  );
+});
+
+watch(searchTerm, () => {
+  filters.value.page_item_from = 1;
+});
+
 const toggleSortOrder = () => {
   filters.value.sort_column = 'timestamp';
   filters.value.sort_direction = filters.value.sort_direction === 'desc' ? 'asc' : 'desc';
@@ -288,6 +304,7 @@ const openModal = (log: ActivityLogItem) => {
   selectedLog.value = log;
   isModalVisible.value = true;
 };
+
 const actionTypes = computed<string[]>(() => store.filters.log_action);
 const statusTypes = computed<string[]>(() => store.filters.log_status);
 const userTypes = computed<string[]>(() => store.filters.log_user_types);
