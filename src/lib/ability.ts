@@ -16,7 +16,7 @@ export const defineAbilities = async ()=> {
 export const verifyAbilities = (action: string, subject: string)=>{
     if(!ability.can(action, subject)){
       toast({
-          title: `You do not have ${action.toUpperCase()} access to this feature`,
+          description: `You do not have ${action.toUpperCase()} access to this feature`,
           variant: 'destructive'
         })
     }
