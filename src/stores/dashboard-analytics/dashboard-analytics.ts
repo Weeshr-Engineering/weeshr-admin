@@ -61,6 +61,7 @@ export const useDashboardAnalyticsStore = defineStore('dashboardAnalytics', {
       } catch (error: any) { // Typing the error as any
         this.error = error.message || 'An unexpected error occurred';
         toast({
+          description:  error.response.data.message || 'Unauthenticated',
           variant: 'destructive'
         });
       } finally {
