@@ -226,7 +226,7 @@ onMounted(() => {
         <!-- Filters -->
         <div class="w-full flex items-center justify-between">
             <!-- LHS -->
-            <div class=" flex gap-2 absolute top-12 right-4">
+            <div class=" flex gap-2 absolute top-12 right-0 md:right-4">
                 <PageFilters :filters @selected="val => selectedFilters = val as IFilterValues" />
             </div>
             <!-- LHS Ends -->
