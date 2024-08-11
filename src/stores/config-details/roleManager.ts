@@ -192,48 +192,42 @@ export const useRoleStore = defineStore({
           this.catchErr(error)
         });
     },
-    catchErr(error: any) {
-      if (error.response.status === 400) {
+    catchErr (error: any){
+      if(error.response.status === 400){
         toast({
-          title: error.response.data.message || 'Bad Request',
-          description: 'Pls reach out to the management reguarding this request',
+          description:  error.response.data.message || 'Bad Request',
           variant: 'destructive'
         })
-      } else if (error.response.status === 401) {
-        toast({
-          title: error.response.data.message || 'Unauthenticated',
-          description: 'Pls Signin again',
-          variant: 'destructive'
-        })
-        sessionStorage.removeItem('token')
+      }else if(error.response.status === 401){
         setTimeout(() => {
           router.push({ name: 'superAdmin-login' })
         }, 1000)
-      } else if (error.response.status === 403) {
         toast({
-          title: error.response.data.message || 'Unauthorized',
-          description: 'You are not authorized to access this feature',
+          description:  error.response.data.message || 'Unauthenticated',
+          variant: 'destructive'
+        })
+        sessionStorage.removeItem('token')
+      }else if(error.response.status === 403){
+        toast({
+          description:  error.response.data.message || 'Unauthorized',
           variant: 'destructive'
         })
         setTimeout(() => {
           router.push({ name: 'home' })
         }, 3000)
-      } else if (error.response.status === 422) {
+      }else if(error.response.status === 422 ){
         toast({
-          title: error.response.data.message || 'Validation Error',
-          description: 'Your request is not validated, Pls try again ',
+          description:  error.response.data.message || 'Validation Error',
           variant: 'destructive'
         })
-      } else if (error.response.status === 500) {
+      }else if(error.response.status === 500 ){
         toast({
-          title: error.response.data.message || 'Server Error',
-          description: 'Pls try again later',
+          description:  error.response.data.message || 'Server Error',
           variant: 'destructive'
         })
-      } else if (error.response.status === 404) {
+      }else if(error.response.status === 404 ){
         toast({
-          title: error.response.data.message || 'Not found',
-          description: '404 Error',
+          description:  error.response.data.message || 'Not found',
           variant: 'destructive'
         })
       }

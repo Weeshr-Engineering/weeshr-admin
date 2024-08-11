@@ -72,7 +72,7 @@ function formatNumberWithCommas(number: number): string {
                     />
                     <div class="text-2xl lg:text-2xl font-medium text-[#020721] absolute bottom-2 left-5">
                     <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" />
-                    <p v-else >₦ {{formatNumberWithCommas (wallet.total_current_balance.balance) }}</p>
+                    <p class='whitespace-nowrap text-adaptive' else >₦ {{formatNumberWithCommas (wallet.total_current_balance.balance) }}</p>
                     </div>
                 </CardContent>   
             </div>

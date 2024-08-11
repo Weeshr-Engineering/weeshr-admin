@@ -23,6 +23,11 @@ module.exports = {
         '2xl': '1400px'
       }
     },
+    
+    fontFamily: {
+      'outfit': ['Outfit', 'sans-serif'],
+      'sans': ['Outfit', 'sans-serif'],
+    },
     extend: {
       colors: {
         border: 'hsl(var(--border))',
@@ -57,7 +62,13 @@ module.exports = {
         card: {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))'
-        }
+        },
+        fontFamily: {
+          sans: ['Outfit', 'sans-serif'], // Set Outfit as the default sans-serif font
+        },
+        fontSize: {
+          'adaptive': 'clamp(0.75rem, 2vw, 1.25rem)', // Adjust these values as needed to control adaptivity
+        },
       },
       borderRadius: {
         xl: 'calc(var(--radius) + 4px)',
