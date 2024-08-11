@@ -7,9 +7,9 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuShortcut,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
+import router from '@/router'
 
 import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
 
@@ -18,6 +18,10 @@ const user = superAdminStore.getLocalstorageData()
 
 const logout = async () => {
   await superAdminStore.logout()
+}
+
+const redirect = (link: string) => {
+  router.push(link)
 }
 </script>
 
@@ -28,37 +32,26 @@ const logout = async () => {
         variant="ghost"
         class="relative h-12 w-12 bg-[#EBCE7E] hover:bg-[#EBCE7E] rounded-2xl ml-2"
       >
-      {{user.firstname[0]}}{{user.lastname[0]}}
+        {{ user.firstname[0] }}{{ user.lastname[0] }}
       </Button>
     </DropdownMenuTrigger>
     <DropdownMenuContent class="w-56" align="end">
       <DropdownMenuLabel class="flex font-normal">
         <div class="flex flex-col space-y-1">
-          <p class="text-sm font-medium leading-none">{{user.firstname[0]}}{{user.lastname[0]}}</p>
-          <p class="text-xs leading-none text-muted-foreground">{{user.email}}</p>
+          <p class="text-sm font-medium leading-none">
+            {{ user.firstname[0] }}{{ user.lastname[0] }}
+          </p>
+          <p class="text-xs leading-none text-muted-foreground">{{ user.email }}</p>
         </div>
       </DropdownMenuLabel>
       <DropdownMenuSeparator />
       <DropdownMenuGroup>
-        <DropdownMenuItem>
-          Profile
-          <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
-        </DropdownMenuItem>
-        <DropdownMenuItem>
-          Billing
-          <DropdownMenuShortcut>⌘B</DropdownMenuShortcut>
-        </DropdownMenuItem>
-        <DropdownMenuItem>
-          Settings
-          <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
-        </DropdownMenuItem>
-        <DropdownMenuItem>New Team</DropdownMenuItem>
+        <DropdownMenuItem @click="redirect(`/admindetails/${user.id}`)">Profile </DropdownMenuItem>
+        <DropdownMenuItem @click="redirect(`/user`)"> Users </DropdownMenuItem>
+        <DropdownMenuItem @click="redirect(`/config`)"> Configuration </DropdownMenuItem>
       </DropdownMenuGroup>
       <DropdownMenuSeparator />
-      <DropdownMenuItem @click="logout">
-        Log out
-        <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
-      </DropdownMenuItem>
+      <DropdownMenuItem @click="logout"> Log out </DropdownMenuItem>
     </DropdownMenuContent>
   </DropdownMenu>
 </template>
