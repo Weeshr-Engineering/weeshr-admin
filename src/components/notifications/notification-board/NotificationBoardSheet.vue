@@ -48,7 +48,7 @@ defineExpose({
         <SheetContent class="space-y-2">
             <SheetHeader class='mb-8'>
                 <div class='grid grid-cols-3'>
-                    <div class='col-span-2'>
+                    <div class='col-span-2 text-left'>
                         <h3 class="text-2xl font-medium">General Notifications</h3>
                         <SheetDescription class="text-xs">
                             Notifications for all administrators
