@@ -50,27 +50,27 @@ onMounted(() => {
   setInterval(updateYear, 1000 * 60 * 60 * 24 * 30) // Update the year once a month
 
   // Choose a random index for variety
-  const randomIndex = Math.floor(Math.random() * quotes.length)
+  // const randomIndex = Math.floor(Math.random() * quotes.length)
 
   // Set the data properties
-  quote.value = quotes[randomIndex]
-  author.value = authors[randomIndex]
+  // quote.value = quotes[randomIndex]
+  // author.value = authors[randomIndex]
 })
 
 const loading = ref(false)
 
-const quotes = [
-  'Weehr App turns my ordinary moments into extraordinary 🌟 memories...',
-  'Experiencing pure joy is just a 🎉 tap away with Weehr App...',
-  'Weehr App has redefined the art of wish fulfillment, making 🎂 dreams come true effortlessly...',
-  "Navigating life's wishes is a 🎁 breeze, thanks to the intuitive Weehr App...",
-  "Every 🌈 wish feels like pure magic, courtesy of Weehr App's innovation and simplicity..."
-]
+// const quotes = [
+//   'Weehr App turns my ordinary moments into extraordinary 🌟 memories...',
+//   'Experiencing pure joy is just a 🎉 tap away with Weehr App...',
+//   'Weehr App has redefined the art of wish fulfillment, making 🎂 dreams come true effortlessly...',
+//   "Navigating life's wishes is a 🎁 breeze, thanks to the intuitive Weehr App...",
+//   "Every 🌈 wish feels like pure magic, courtesy of Weehr App's innovation and simplicity..."
+// ]
 
-const authors = ['Chloe Thompson', 'Mason Carter', 'Isabella Scott', 'Noah Adams', 'Ava Miller']
+// const authors = ['Chloe Thompson', 'Mason Carter', 'Isabella Scott', 'Noah Adams', 'Ava Miller']
 
-const quote = ref<string>('')
-const author = ref<string>('')
+// const quote = ref<string>('')
+// const author = ref<string>('')
 
 const formSchema = toTypedSchema(
   z.object({
@@ -109,7 +109,9 @@ const onSubmit = form.handleSubmit(async () => {
         password: password
       })
 
-      const { data: { data } } = response;
+      const {
+        data: { data }
+      } = response
 
       // Check if the token property exists in the response
       if (data && data.user && data.user.token) {
@@ -210,10 +212,10 @@ const onSubmit = form.handleSubmit(async () => {
               src="https://res.cloudinary.com/drykej1am/image/upload/v1697377875/weehser%20pay/Weeshr_Light_lrreyo.svg"
               alt=""
             />
-            <h4 class="text-[#F8F9FFB2] tracking-widest">SUPER ADMIN FACTORY</h4>
+            <h4 class="text-[#F8F9FFB2] tracking-widest font-outfit">SUPER ADMIN FACTORY</h4>
           </div>
 
-          <div class="absolute w-[80%] z-20 mt-auto bottom-[300px] text-white">
+          <!-- <div class="absolute w-[80%] z-20 mt-auto bottom-[300px] text-white">
             <blockquote class="space-y-2">
               <p class="text-lg text-left">
                 {{ quote }}
@@ -222,7 +224,7 @@ const onSubmit = form.handleSubmit(async () => {
                 {{ author }}
               </footer>
             </blockquote>
-          </div>
+          </div> -->
         </div>
       </div>
       <div class="flex justify-center w-full lg:p-8">
@@ -258,13 +260,13 @@ const onSubmit = form.handleSubmit(async () => {
               />
 
               <CardHeader class="space-y-1 pt-9">
-                <CardTitle class="text-2xl text-white"> Sign In </CardTitle>
+                <CardTitle class="text-2xl text-white font-outfit"> Sign in </CardTitle>
               </CardHeader>
               <CardContent class="grid gap-4">
                 <form class="space-y-4" @submit.prevent="onSubmit">
                   <FormField v-slot="{ componentField }" name="userEmail">
                     <FormItem v-auto-animate>
-                      <FormLabel class="font-normal text-white">Username/Email</FormLabel>
+                      <FormLabel class="font-normal text-white font-outfit">Email</FormLabel>
                       <FormControl>
                         <Input
                           id="email"
@@ -280,7 +282,7 @@ const onSubmit = form.handleSubmit(async () => {
                   </FormField>
                   <FormField v-slot="{ componentField }" name="password">
                     <FormItem>
-                      <FormLabel class="font-normal text-white">Password</FormLabel>
+                      <FormLabel class="font-normal text-white font-outfit">Password</FormLabel>
                       <FormControl>
                         <Input
                           id="password"

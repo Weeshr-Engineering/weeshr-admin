@@ -30,7 +30,7 @@ const gistStyle= computed(()=>{
             @click="verifyAbilities('read', 'roles')"
           >
             <span class="flex flex-col justify-between h-full">
-              <RouterLink :to="ability.can('read', 'admins') ? '/config/role' : ''" class="flex flex-col h-full">
+              <RouterLink :to="readRole ? '/config/role' : ''" class="flex flex-col h-full">
                 <CardHeader class="flex flex-col items-center justify-center flex-grow">
                   <img
                     class="mb-2"
@@ -85,7 +85,7 @@ const gistStyle= computed(()=>{
             @click="verifyAbilities('read', 'weesh-gist')"
           >
             <span class="flex flex-col justify-between h-full">
-              <RouterLink :to="ability.can('read', 'weesh-gist') ? '/config/wish' : '#'" class="flex flex-col h-full">
+              <RouterLink :to="ability.can('read', 'weesh-gist') ? '/config/wish' : ''" class="flex flex-col h-full">
                 <CardHeader class="flex flex-col items-center justify-center flex-grow">
                   <img
                     class="mb-2"

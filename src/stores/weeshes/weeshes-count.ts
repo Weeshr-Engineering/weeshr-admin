@@ -1,7 +1,9 @@
 import { defineStore } from "pinia"
 import axios from "@/services/ApiService";
 import { useToast } from '@/components/ui/toast';
+import { useGeneralStore } from "../general-use";
 
+// const store = useGeneralStore()
 export const useWeeshStore = defineStore('weeshStore', {
     state: () => ({
         addedCount: 0,
@@ -32,13 +34,21 @@ export const useWeeshStore = defineStore('weeshStore', {
                     this.loading = false
                 }else {
                     toast({
-                        description: response.data.message,
+                        description: response.data.message || 'Network Error',
                         variant: 'destructive'
                     })
                 }
             }
             catch (err: any) {
                 console.log(err)
+                if(err.response){
+                    useGeneralStore().catchErr(err)
+                }else{
+                    toast({
+                        description:  err.message || 'Poor network',
+                        variant: 'destructive'
+                      })      
+                }
             }
         }
     }

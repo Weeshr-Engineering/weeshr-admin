@@ -66,52 +66,46 @@ export const useWeeshDetailStore = defineStore('weeshDetail', {
         const formattedPrice = new Intl.NumberFormat('en-US').format(price);
         return formattedPrice;
     },
-    catchErr(error: any) {
-        if (error.response.status === 400) {
-          toast({
-            title: error.response.data.message || 'Bad Request',
-            description: 'Pls reach out to the management reguarding this request',
-            variant: 'destructive'
-          })
-        } else if (error.response.status === 401) {
-          sessionStorage.removeItem('token')
-          setTimeout(() => {
-            router.push({ name: 'superAdmin-login' })
-          }, 1000)
-          toast({
-            title: error.response.data.message || 'Unauthenticated',
-            description: 'Pls Signin again',
-            variant: 'destructive'
-          })
-        } else if (error.response.status === 403) {
-          toast({
-            title: error.response.data.message || 'Unauthorized',
-            description: 'You are not authorized to access this feature',
-            variant: 'destructive'
-          })
-          setTimeout(() => {
-            router.push({ name: 'home' })
-          }, 3000)
-        } else if (error.response.status === 422) {
-          toast({
-            title: error.response.data.message || 'Validation Error',
-            description: 'Your request is not validated, Pls try again ',
-            variant: 'destructive'
-          })
-        } else if (error.response.status === 500) {
-          toast({
-            title: error.response.data.message || 'Server Error',
-            description: 'Pls try again later',
-            variant: 'destructive'
-          })
-        } else if (error.response.status === 404) {
-          toast({
-            title: error.response.data.message || 'Not found',
-            description: '404 Error',
-            variant: 'destructive'
-          })
-        }
+    catchErr (error: any){
+      if(error.response.status === 400){
+        toast({
+          description:  error.response.data.message || 'Bad Request',
+          variant: 'destructive'
+        })
+      }else if(error.response.status === 401){
+        setTimeout(() => {
+          router.push({ name: 'superAdmin-login' })
+        }, 1000)
+        toast({
+          description:  error.response.data.message || 'Unauthenticated',
+          variant: 'destructive'
+        })
+        sessionStorage.removeItem('token')
+      }else if(error.response.status === 403){
+        toast({
+          description:  error.response.data.message || 'Unauthorized',
+          variant: 'destructive'
+        })
+        setTimeout(() => {
+          router.push({ name: 'home' })
+        }, 3000)
+      }else if(error.response.status === 422 ){
+        toast({
+          description:  error.response.data.message || 'Validation Error',
+          variant: 'destructive'
+        })
+      }else if(error.response.status === 500 ){
+        toast({
+          description:  error.response.data.message || 'Server Error',
+          variant: 'destructive'
+        })
+      }else if(error.response.status === 404 ){
+        toast({
+          description:  error.response.data.message || 'Not found',
+          variant: 'destructive'
+        })
       }
+    }
     }
 })
 // /accounts/users/:id/weeshes

@@ -11,6 +11,15 @@ import {
     PaginationNext,
     PaginationPrev,
 } from '@/components/ui/pagination';
+import {
+    Sheet,
+    SheetContent,
+    SheetHeader,
+    SheetClose,
+    SheetDescription,
+    SheetTrigger
+} from '@/components/ui/sheet';
+import { Icon } from '@iconify/vue';
 import PageFilters from '@/components/notifications/notification-board/partials/PageFilters.vue'
 import type { IFilters, IFilterValues, INotification, INotificationReadByUser } from './types';
 import { useDebounceFn } from '@vueuse/core';
@@ -28,6 +37,11 @@ const selectedFilters = ref<IFilterValues>({
     type: "",
     priority: ""
 } as IFilterValues)
+
+const clearFilters = (): void => {
+    selectedFilters.value.type = "";
+    selectedFilters.value.priority = "";
+}
 
 const notifications = ref<Array<INotification>>([] as Array<INotification>);
 
@@ -210,36 +224,42 @@ onMounted(() => {
     <div class="space-y-2 h-full">
 
         <!-- Filters -->
-        <div class="w-full inline-flex">
+        <div class="w-full flex items-center justify-between">
             <!-- LHS -->
-            <div class="w-1/2 flex gap-2">
+            <div class=" flex gap-2 absolute top-12 right-4">
                 <PageFilters :filters @selected="val => selectedFilters = val as IFilterValues" />
             </div>
             <!-- LHS Ends -->
 
             <!-- RHS -->
-            <div class="w-1/2 inline-flex justify-end gap-3">
+            <div class="inline-flex justify-start gap-3 h-11">
                 <!-- Toggle Read/Unread -->
-                <div class="rounded-lg p-1 inline-flex font-bold text-xs capitalize bg-stone-50">
+                <div class="rounded-lg p-1 inline-flex font-bold text-xs capitalize bg-[#E9F4D1]">
                     <button type="button" @click="readFilter = 'all'"
-                        class="rounded-lg py-0.5 px-3 inline-flex justify-center align-middle"
+                        class="rounded-lg py-0.5 px-3 inline-flex justify-center items-center align-middle"
                         :class="{ 'bg-black text-white': readFilter == 'all' }">
                         All
                     </button>
                     <button type="button" @click="readFilter = 'unread'"
                         :class="{ 'bg-black text-white': readFilter == 'unread' }"
-                        class="rounded-lg py-0.5 px-3 inline-flex justify-center align-middle">
+                        class="rounded-lg py-0.5 px-3 inline-flex justify-center items-center align-middle">
                         Unread
                     </button>
                 </div>
                 <!-- Toggle Read/Unread -->
             </div>
             <!-- RHS Ends -->
+
+            <!-- RHS -->
+                <div class='text-[#020721] text-sm cursor-pointer' @click='clearFilters'>
+                    Clear all
+                </div>
+            <!-- LHS -->
         </div>
         <!-- Filters End -->
 
         <!-- Notifications List -->
-        <div class="flex-col space-y-3 py-4 overflow-y-auto h-[80%] scrollbar_custom">
+        <div class="flex-col space-y-3 h-96 overflow-y-scroll">
             <!-- Notification -->
             <NotificationBox v-for="(notification, index) in notifications" :key="index" :data="notification"
                 @read="value => updateReadUser(notification._id, value as INotificationReadByUser)"
@@ -252,11 +272,11 @@ onMounted(() => {
         <div class="flex justify-end">
             <Pagination :total="pagination.totalPages" :sibling-count="1" show-edges :default-page="currentPage || 1">
                 <PaginationList class="flex items-center gap-1">
-                    <PaginationFirst @click="paginationMethods().setPage(1)" :disabled="false" />
+                    <PaginationFirst class='bg-[#E9F4D1]' @click="paginationMethods().setPage(1)" :disabled="false" />
                     <PaginationPrev @click="paginationMethods().prevPage()" :disabled="(pagination.currentPage <= 1)" />
                     <PaginationNext @click="paginationMethods().nextPage()"
                         :disabled="(pagination.currentPage >= pagination.totalPages)" />
-                    <PaginationLast @click="paginationMethods().setPage(pagination.totalPages)" :disabled="false" />
+                    <PaginationLast class='bg-[#E9F4D1]' @click="paginationMethods().setPage(pagination.totalPages)" :disabled="false" />
                 </PaginationList>
             </Pagination>
         </div>
