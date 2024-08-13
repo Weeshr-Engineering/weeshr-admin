@@ -3,13 +3,11 @@ import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
-import router from '@/router'
 
 import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
 
@@ -18,10 +16,6 @@ const user = superAdminStore.getLocalstorageData()
 
 const logout = async () => {
   await superAdminStore.logout()
-}
-
-const redirect = (link: string) => {
-  router.push(link)
 }
 </script>
 
@@ -44,12 +38,12 @@ const redirect = (link: string) => {
           <p class="text-xs leading-none text-muted-foreground">{{ user.email }}</p>
         </div>
       </DropdownMenuLabel>
-      <DropdownMenuSeparator />
+      <!-- <DropdownMenuSeparator />
       <DropdownMenuGroup>
         <DropdownMenuItem @click="redirect(`/admindetails/${user.id}`)">Profile </DropdownMenuItem>
         <DropdownMenuItem @click="redirect(`/user`)"> Users </DropdownMenuItem>
         <DropdownMenuItem @click="redirect(`/config`)"> Configuration </DropdownMenuItem>
-      </DropdownMenuGroup>
+      </DropdownMenuGroup> -->
       <DropdownMenuSeparator />
       <DropdownMenuItem @click="logout"> Log out </DropdownMenuItem>
     </DropdownMenuContent>
