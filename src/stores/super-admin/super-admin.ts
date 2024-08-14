@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import axios from "@/services/ApiService";
+import axios from '@/services/ApiService'
 import router from '@/router'
 import { toast } from '@/components/ui/toast'
 import { useGeneralStore } from '@/stores/general-use'
@@ -7,6 +7,7 @@ import { useGeneralStore } from '@/stores/general-use'
 interface SuperAdminState {
   userEmail: string
   password: string
+  id: string
   newUser: NewUser[]
   token: string
 }
@@ -22,6 +23,7 @@ export const useSuperAdminStore = defineStore({
   state: (): SuperAdminState => ({
     userEmail: '',
     password: '',
+    id: '',
     newUser: [],
     token: sessionStorage.getItem('token') || ''
   }),
@@ -34,16 +36,17 @@ export const useSuperAdminStore = defineStore({
       this.token = token
       sessionStorage.setItem('token', token)
     },
-    setLocalStorage(firstname: string, lastname: string, email: string){
+    setLocalStorage(firstname: string, lastname: string, email: string, id: string) {
       const user = {
         firstname,
         lastname,
-        email
+        email,
+        id
       }
       // store basic user data in local storage
       localStorage.setItem('user', JSON.stringify(user))
     },
-    getLocalstorageData (){
+    getLocalstorageData() {
       const data = localStorage.getItem('user')!
       return JSON.parse(data)
     },
