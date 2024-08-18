@@ -60,8 +60,10 @@
                 </TableHeader>
                 <TableBody>
                   <TableRow v-for="user in users" :key="user._id" class='text-nowrap'>
-                    <TableCell class='flex items-center justify-center'>
-                        <input type='checkbox' class='p-2 accent-[#020721] border-2'/>
+                    <TableCell>
+                        <div class='flex items-center justify-center w-full h-full'>
+                            <input type='checkbox' class='p-2 accent-[#020721] border-2'/>
+                        </div>
                     </TableCell>
                     <TableCell class="text-xs md:text-sm lg:text-sm">{{ user.recipient }} </TableCell>
                     <TableCell class="text-xs md:text-sm lg:text-sm">{{ user.id }}</TableCell>
@@ -120,6 +122,10 @@ import { Icon } from '@iconify/vue'
 import { ref } from 'vue';
 import Search from '@/components/UseSearch.vue'
 import { Badge } from '@/components/ui/badge';
+import { ability, defineAbilities, verifyAbilities } from '@/lib/ability';
+
+defineAbilities()
+const createRole = ability.can('create', 'wallet-payouts');
 
 import {
   Table,

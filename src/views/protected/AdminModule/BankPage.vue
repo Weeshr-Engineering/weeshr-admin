@@ -2,7 +2,7 @@
   <div class="flex-col flex bg-[#f0f8ff] h-full px-4 sm:px-10 pb-10">
     <MainNav class="mx-6" headingText="Bank" />
 
-    <div class="w-full grid gap-4 md:grid-cols-2 md:gap-6 lg:grid-cols-4 pt-6">
+    <div class="w-full grid gap-4 md:grid-cols-2 md:gap-6 lg:grid-cols-4 pt-6 text-nowrap">
       <Card
         class="h-[150px] rounded-[24px] transition-transform transform hover:scale-105 bg-[#FFFFFF] cardShadow1 border-transparent"
       >
@@ -12,7 +12,7 @@
             <div class="weeshr-icon2 rounded-[7px]">
               <Icon icon="solar:book-bold" width="24px" height="24px" color="#020721" />
             </div>
-            <p class="text-2xl md:text-2xl xl:text-3xl font-medium text-[#020721] absolute bottom-2 left-5">
+            <p class="text-2xl md:text-xl xl:text-3xl font-medium text-[#020721] absolute bottom-2 left-5">
               ₦ 78,351,823.74
             </p>
           </CardContent>
@@ -34,7 +34,7 @@
               />
             </div>
 
-            <p class="text-2xl md:text-2xl xl:text-3xl font-medium text-[#ffffff] absolute bottom-2 left-5">
+            <p class="text-2xl md:text-xl xl:text-3xl font-medium text-[#ffffff] absolute bottom-2 left-5">
               ₦ 176,405,287.78
             </p>
           </CardContent>
@@ -51,7 +51,7 @@
               <Icon icon="heroicons:bars-3" width="24px" height="24px" color="#EE9F39" />
             </div>
 
-            <p class="text-2xl md:text-2xl xl:text-3xl font-medium text-[#ffffff] absolute bottom-2 left-5">
+            <p class="text-2xl md:text-xl xl:text-3xl font-medium text-[#ffffff] absolute bottom-2 left-5">
               ₦ 32,125.00
             </p>
           </CardContent>
@@ -73,7 +73,7 @@
               />
             </div>
 
-            <p class="text-2xl md:text-2xl xl:text-3xl font-medium text-[#ffffff] absolute bottom-2 left-5">
+            <p class="text-2xl md:text-xl xl:text-3xl font-medium text-[#ffffff] absolute bottom-2 left-5">
               ₦ 98,021,339.04
             </p>
           </CardContent>
@@ -82,7 +82,7 @@
     </div>
 
     <!-- Account -->
-    <div class="w-full px-6 py-4 flex flex-col gap-8 md:gap-0 md:flex-row items-start md:items-center justify-between bg-[#E4E6F5] rounded-xl mt-4 md:mt-6">
+    <div v-if='readRole' class="w-full px-6 py-4 flex flex-col gap-8 md:gap-0 md:flex-row items-start md:items-center justify-between bg-[#E4E6F5] rounded-xl mt-4 md:mt-6">
       <div class='flex items-center gap-2'>
         <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M14.7906 23.2841C15.1111 23.3587 15.1405 23.7785 14.8283 23.8826L12.985 24.4892C8.3533 25.9826 5.91497 24.7342 4.40997 20.1026L2.91664 15.4942C1.4233 10.8626 2.65997 8.41255 7.29164 6.91922L8.0723 6.66069C8.47517 6.52727 8.86472 6.9304 8.74591 7.33781C8.66197 7.62565 8.58233 7.92946 8.50497 8.24922L7.36164 13.1376C6.0783 18.6326 7.95664 21.6659 13.4516 22.9726L14.7906 23.2841Z" fill="#020721"/>
@@ -154,8 +154,8 @@
               <TableCell class="text-xs md:text-sm lg:text-sm">{{ user.id }}</TableCell>
               <TableCell class="text-xs md:text-sm lg:text-sm">{{ user.weeshes }} </TableCell>
               <TableCell class="text-xs md:text-sm lg:text-sm">{{ user.type }} </TableCell>
-              <TableCell class="text-xs md:text-sm lg:text-sm">{{ user.date }} </TableCell>
-              <TableCell class="text-xs md:text-sm lg:text-sm">{{ user.amount }} </TableCell>
+              <TableCell class="text-xs md:text-sm lg:text-sm text-nowrap">{{ user.date }} </TableCell>
+              <TableCell class="text-xs md:text-sm lg:text-sm text-nowrap">{{ user.amount }} </TableCell>
               <TableCell>
                 <div
                   :class="statusBg(user.status)"
@@ -212,6 +212,11 @@ import DashboardFooter from '@/components/DashboardFooter.vue'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Icon } from '@iconify/vue'
+import { ability, defineAbilities, verifyAbilities } from '@/lib/ability';
+
+defineAbilities()
+const readRole = ability.can('read', 'wallet-payouts');
+
 
 import {
   Table,
