@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, watch, reactive } from 'vue'
+import { ref, watch, reactive, onMounted } from 'vue'
 import { Icon } from '@iconify/vue'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Card, CardDescription, CardHeader } from '@/components/ui/card'
@@ -26,7 +26,8 @@ import {
   getUserLog,
   getUserWallet,
   getUserWalletList,
-  getUserWeeshes
+  getUserWeeshes,
+  getUserPayout
 } from '@/composables/getUser'
 import { useRoute } from 'vue-router'
 import {
@@ -38,14 +39,14 @@ import {
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem
 } from '@/components/ui/dropdown-menu'
-import Search from '@/components/UseSearch.vue'
 import { Progress } from '@/components/ui/progress'
 import type { Weeshes } from '@/composables/getUser'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import PagePagination from '@/components/PagePagination.vue'
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
-import PaginationIndex from '@/components/ui/special-pagination/PaginationIndex.vue'
 import type { Filter } from '@/composables/getUser'
+import CardContent from '@/components/ui/card/CardContent.vue'
+import PagePagination from '@/components/PagePagination.vue'
+import PaymentApproval from '@/components/PaymentApproval.vue'
 
 //get User
 const route = useRoute()
@@ -57,6 +58,7 @@ const { userLog, count, logPagination, logError, log, logActions, logStatus, get
 const { userWeeshesList, weeshesError, totalPages, currentPage, userWeeshes } = getUserWeeshes()
 const { userWallet, getWallet } = getUserWallet()
 const { walletError, userWalletList, pagination, walletCount, getWalletList } = getUserWalletList()
+const { getPayout } = getUserPayout()
 
 onMounted(() => {
   load(_id)
@@ -67,6 +69,7 @@ onMounted(() => {
 const wallet = (_id: string | string[]) => {
   getWallet(_id)
   getWalletList(_id, walletPage)
+  getPayout(_id)
 }
 
 const dateFormat = (dob: string, time?: string): string => {
@@ -195,9 +198,15 @@ watch(walletPage, () => {
   getWalletList(_id, walletPage)
 })
 
-//hide details
-const hideAccount = ref(true)
-const hideBalance = ref(true)
+const openApprovalModal = ref<boolean>(false)
+
+const items = [
+  { name: 'Felixant', amount: 1500000, id: 1 },
+  { name: 'Gbengax', amount: 40000, id: 2 },
+  { name: 'KayodeOdulay', amount: 2400500, id: 3 },
+  { name: 'DancingQueen', amount: 750000, id: 4 },
+  { name: 'FastFuriousGuy', amount: 500000, id: 5 }
+]
 </script>
 
 <template>
@@ -205,9 +214,7 @@ const hideBalance = ref(true)
     <LoadingSpinner />
   </div>
   <div v-else class="flex-col lg:flex lg:flex-row gap-1">
-    <Card
-      class="sm:col-span-3 md:col-span-3 bg-[#F8F9FF] sm:items-center shadow-xl lg:min-w-[450px]"
-    >
+    <Card class="lg:w-5/12 bg-[#F8F9FF] sm:items-center shadow-xl">
       <CardHeader>
         <div class="flex items-center text-xl mb-8">
           <RouterLink :to="{ name: 'appuser' }" class="text-gray-500">App Users</RouterLink>
@@ -217,7 +224,7 @@ const hideBalance = ref(true)
         <CardDescription>
           <div v-if="appUser">
             <div v-if="appUser.images.length">
-              <Carousel class="w-6/12 h-2/5 mx-auto">
+              <Carousel class="w-6/12 h-2/5 lg:h-1/5 lg:w-4/12 mx-auto">
                 <CarouselContent>
                   <CarouselItem v-for="image in appUser.images" :key="image.resource.asset_id">
                     <img
@@ -341,7 +348,7 @@ const hideBalance = ref(true)
       </CardHeader>
     </Card>
 
-    <Card class="px-2 py-4 w-full rounded-xl shadow-md max-h-screen overflow-y-scroll">
+    <Card class="px-2 py-4 w-full lg:w-7/12 rounded-xl shadow-md overflow-y-scroll">
       <Tabs default-value="weeshes" class="space-y-2">
         <TabsList class="w-full bg-transparent">
           <TabsTrigger
@@ -493,7 +500,7 @@ const hideBalance = ref(true)
                     </div>
                   </div>
                 </div>
-                <div class="my-6 w-full w-11/12 mx-auto">
+                <div class="my-6 w-11/12 mx-auto">
                   <Button
                     variant="outline"
                     class="rounded-xl bg-[#EEEFF5] col-span-3 md:col-span-1 my-4"
@@ -568,7 +575,7 @@ const hideBalance = ref(true)
                           >
                             <img
                               :src="contributors.contributor.avatar"
-                              class="w-4/12 rounded-full border border-2 border-[#baef23]"
+                              class="w-4/12 rounded-full border-2 border-[#baef23]"
                               alt="avatar"
                             />
                           </div>
@@ -599,117 +606,123 @@ const hideBalance = ref(true)
         </TabsContent>
 
         <TabsContent value="bank" class="space-y-4">
-          <div class="xl:flex gap-4 mx-4 mt-8 mb-14" v-if="userWallet">
+          <div class="xl:flex gap-2 mt-8 mx-4" v-if="userWallet">
             <Card
-              class="h-[200px] rounded-[24px] transition-transform w-11/12 mx-auto xl:w-6/12 transform hover:scale-105 bg-[#EE9F39] cardShadow2 border-transparent"
+              class="h-[230px] rounded-lg w-11/12 mx-auto xl:w-6/12 border-transparent mt-8 xl:mt-0 flex-grow bg-blue-50"
             >
-              <div class="h-[200px] pt-4 relative rounded-tr-[24px] rounded-tl-[24px]">
-                <CardContent class="flex justify-end space-y-0">
-                  <div class="weeshr-icon2 rounded-[7px] mr-4">
-                    <Icon
-                      icon="iconamoon:profile-light"
-                      width="24px"
-                      height="24px"
-                      color="#ee9f39"
-                    />
-                  </div>
-                  <div class="text-sm text-[#ffffff] absolute bottom-10 left-5 w-10/12">
-                    <div class="md:flex items-center justify-between">
-                      <p>Account Name :</p>
-                      <p class="italic font-medium text-lg">{{ userWallet.account_name }}</p>
-                    </div>
-                    <div>
-                      <p>Account Number :</p>
-                      <div class="md:flex md:justify-between items-center gap-4">
-                        <div v-if="hideAccount" class="flex py-2">
-                          <Icon icon="mage:stars-c" width="18" height="18" />
-                          <Icon icon="mage:stars-c" width="18" height="18" />
-                          <Icon icon="mage:stars-c" width="18" height="18" />
-                          <Icon icon="mage:stars-c" width="18" height="18" />
-                          <Icon icon="mage:stars-c" width="18" height="18" />
-                          <Icon icon="mage:stars-c" width="18" height="18" />
-                          <Icon icon="mage:stars-c" width="18" height="18" />
-                          <Icon icon="mage:stars-c" width="18" height="18" />
-                          <Icon icon="mage:stars-c" width="18" height="18" />
-                          <Icon icon="mage:stars-c" width="18" height="18" />
-                        </div>
-                        <p v-else class="italic font-medium">
-                          {{ userWallet.account_number }}
-                        </p>
-                        <Icon
-                          :icon="
-                            hideAccount ? 'fluent:eye-off-16-regular' : 'fluent:eye-16-regular'
-                          "
-                          @click="
-                            () => {
-                              hideAccount = !hideAccount
-                            }
-                          "
-                          width="24"
-                          height="24"
-                        />
-                      </div>
+              <CardContent class="w-full">
+                <div class="flex justify-between px-2 mt-4">
+                  <p class="font-medium">Bank Balance</p>
+                  <Icon icon="tdesign:money" width="24px" height="24px" />
+                </div>
+                <div class="text-sm mt-2">
+                  <div class="md:flex items-center justify-between">
+                    <div class="flex justify-between items-center gap-2 mt-6">
+                      <p class="font-medium text-lg">
+                        {{ userWallet.currency }}
+                        {{ userWallet.balance.toLocaleString('en-US') }}
+                      </p>
                     </div>
                   </div>
-                </CardContent>
-              </div>
+                  <div class="w-full mt-4">
+                    <div class="flex rounded-md bg-gray-200 justify-between mb-3 p-2">
+                      <p>Total Inflow</p>
+                      <p class="font-medium text-lg">
+                        {{ userWallet.currency }}
+                        {{ userWallet.total_inflow.toLocaleString('en-US') }}
+                      </p>
+                    </div>
+                    <div class="flex rounded-md bg-gray-200 justify-between p-2">
+                      <p>Total Outflow</p>
+                      <p class="font-medium text-lg">
+                        {{ userWallet.currency }}
+                        {{ userWallet.total_outflow.toLocaleString('en-US') }}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
             </Card>
             <Card
-              class="h-[200px] rounded-[24px] transition-transform w-11/12 mx-auto xl:w-6/12 px-4 transform hover:scale-105 bg-[#6A70FF] cardShadow3 border-transparent mt-8 xl:mt-0"
+              class="h-[230px] rounded-lg bg-blue-50 w-11/12 mx-auto xl:w-3/12 border-transparent mt-8 xl:mt-0"
             >
-              <div class="h-[200px] pt-4 relative rounded-tr-[24px] rounded-tl-[24px]">
-                <CardContent class="flex justify-end space-y-0">
-                  <div class="weeshr-icon2 rounded-[7px]">
-                    <Icon icon="tdesign:money" width="24px" height="24px" color="#6a70ff" />
-                  </div>
-                  <div class="text-sm text-[#ffffff] absolute bottom-10 left-5 w-10/12">
-                    <div class="md:flex items-center justify-between">
-                      <p>Balance :</p>
-                      <div class="flex justify-between items-center gap-4">
-                        <div v-if="hideBalance" class="flex py-2">
-                          <Icon icon="mage:stars-c" width="18" height="18" />
-                          <Icon icon="mage:stars-c" width="18" height="18" />
-                          <Icon icon="mage:stars-c" width="18" height="18" />
-                          <Icon icon="mage:stars-c" width="18" height="18" />
-                          <Icon icon="mage:stars-c" width="18" height="18" />
+              <CardContent class="flex flex-col justify-between h-full">
+                <div class="w-full flex justify-between mt-4">
+                  <p class="font-medium">Cash Request</p>
+                  <Icon
+                    icon="heroicons-outline:external-link"
+                    width="24px"
+                    height="24px"
+                    @click="openApprovalModal = true"
+                  />
+                  <PaymentApproval
+                    :openApprovalModal="openApprovalModal"
+                    :items="items"
+                    @update:openApprovalModal="(value) => (openApprovalModal = value)"
+                  />
+                </div>
+                <div class="md:flex items-center justify-between -mt-6">
+                  <p class="font-medium text-lg">
+                    {{ userWallet.currency }}
+                    {{ userWallet.balance.toLocaleString('en-US') }}
+                  </p>
+                </div>
+                <div class="flex justify-end">
+                  <Button @click="openApprovalModal = true" class="rounded-full bg-[#00c37f]"
+                    >Approve</Button
+                  >
+                </div>
+              </CardContent>
+            </Card>
+            <Card
+              class="h-[230px] rounded-lg bg-blue-50 w-11/12 mx-auto xl:w-3/12 border-transparent mt-8 xl:mt-0"
+            >
+              <CardContent class="flex flex-col justify-between h-full">
+                <div class="w-full flex justify-between mt-4">
+                  <p class="font-medium">Lien</p>
+                  <Icon icon="fluent:arrow-enter-16-filled" width="24px" height="24px" />
+                  <!-- <div
+                    class="fixed inset-0 flex items-center justify-center w-full h-full bg-black/30 backdrop-blur-md z-50"
+                  >
+                    <Card>
+                      <CardHeader><Icon icon="ri:secure-payment-line" /></CardHeader>
+                      <CardDescription>
+                        <p>Be sure to review carefully</p>
+                        <p>You're about to approve the following transactions</p>
+                      </CardDescription>
+                      <CardContent>
+                        <div v-if="items">
+                          <div v-for="item in items" :key="item.id">
+                            <div class="flex">
+                              <p>{{ item.name }}</p>
+                              <p>{{ item.amount }}</p>
+                            </div>
+                          </div>
+                          <div class="flex justify-between">
+                            <div>
+                              <p>Total amount approved</p>
+                              <p>{{ item.total }}</p>
+                            </div>
+                            <div>
+                              <Button>Approve</Button>
+                            </div>
+                          </div>
                         </div>
-                        <p v-else class="italic font-medium text-lg">
-                          {{ userWallet.currency }}
-                          {{ userWallet.balance.toLocaleString('en-US') }}
-                        </p>
-                      </div>
-                    </div>
-                    <div class="md:flex items-center justify-between mt-2">
-                      <p>Ledger Balance :</p>
-                      <div class="flex justify-between items-center">
-                        <div v-if="hideBalance" class="flex py-2 mr-2">
-                          <Icon icon="mage:stars-c" width="18" height="18" />
-                          <Icon icon="mage:stars-c" width="18" height="18" />
-                          <Icon icon="mage:stars-c" width="18" height="18" />
-                          <Icon icon="mage:stars-c" width="18" height="18" />
-                          <Icon icon="mage:stars-c" width="18" height="18" />
-                        </div>
-                        <p v-else class="italic font-medium text-md mr-2">
-                          {{ userWallet.currency }}
-                          {{ userWallet.ledger_balance.toLocaleString('en-US') }}
-                        </p>
-                        <Icon
-                          :icon="
-                            hideBalance ? 'fluent:eye-off-16-regular' : 'fluent:eye-16-regular'
-                          "
-                          @click="
-                            () => {
-                              hideBalance = !hideBalance
-                            }
-                          "
-                          width="24"
-                          height="24"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </div>
+                        <div v-else>No transaction is currently awaiting approval</div>
+                      </CardContent>
+                    </Card>
+                  </div> -->
+                </div>
+                <div class="md:flex items-center justify-between -mt-6">
+                  <p class="font-medium text-lg">
+                    {{ userWallet.currency }}
+                    {{ userWallet.balance.toLocaleString('en-US') }}
+                  </p>
+                </div>
+                <div class="flex justify-end">
+                  <Button class="rounded-full bg-gray-200 text-gray-500">View</Button>
+                </div>
+              </CardContent>
             </Card>
           </div>
           <div class="overflow-auto bg-white rounded-md md:mx-6">
@@ -753,7 +766,7 @@ const hideBalance = ref(true)
                 <Table class="min-w-full">
                   <TableHeader>
                     <TableRow
-                      class="text-xs sm:text-sm md:text-base text-[#02072199] font-semibold bg-gray-200"
+                      class="text-xs sm:text-sm md:text-base text-[#02072199] font-semibold bg-gray-100 shadow"
                     >
                       <TableHead>
                         <div class="flex items-center">Type</div>
@@ -771,16 +784,16 @@ const hideBalance = ref(true)
                   </TableHeader>
                   <TableBody>
                     <TableRow
-                      v-for="transaction in userWalletList"
+                      v-for="(transaction, index) in userWalletList"
                       :key="transaction.id"
-                      class="border-b-2 border-black"
+                      :class="index % 2 === 0 ? 'bg-gray-50' : ''"
                     >
-                      <TableCell
-                        :class="transaction.type === 'INFLOW' ? 'text-[#baef23]' : 'text-red-300'"
-                        >{{ transaction.type }}</TableCell
-                      >
+                      <TableCell>{{ transaction.type }}</TableCell>
                       <TableCell>{{ dateFormat(transaction.time) }}</TableCell>
-                      <TableCell>{{ transaction.currency }} {{ transaction.amount }}</TableCell>
+                      <TableCell
+                        >{{ transaction.currency }}
+                        {{ transaction.amount.toLocaleString() }}</TableCell
+                      >
                       <TableCell class="font-medium">
                         {{ transaction.status }}
                       </TableCell>
