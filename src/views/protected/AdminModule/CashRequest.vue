@@ -1,0 +1,196 @@
+<template>
+    <div>
+        <MainNav headingText="Bank / Cash request" class=''/>
+        <div>
+            <Card
+            class="container px-4 pt-6 pb-10 mx-auto sm:px-6 lg:px-8 bg-[#FFFFFF] rounded-2xl mt-14 mb-4"
+          >
+            <div class="flex flex-col sm:flex-row items-center justify-between py-4">
+              <div class="text-xl sm:text-xl font-bold tracking-tight text-[#020721] mb-2 sm:mb-0">
+                Cash Request
+                <p class="text-xs sm:text-sm font-normal text-[#02072199]">List of cash payout</p>
+              </div>
+              <div class='md:flex items-center gap-6'>
+                <Search class="mt-3 md:mt-0" />
+                <Button class='text-white bg-[#00C37F] rounded-full my-2 md:my-0'>Approve Selection</Button>
+              </div>
+            </div>
+            <div class="overflow-auto bg-white rounded-lg shadow">
+              <Table class="lg:w-full w-[800px]">
+                <TableHeader>
+                  <TableRow
+                    class="text-xs sm:text-sm md:text-base text-[#02072199] font-semibold bg-gray-200"
+                  >
+                    <TableHead>Select</TableHead>
+                    <TableHead>Recipient </TableHead>
+                    <TableHead>Username </TableHead>
+                    <TableHead>
+                        <div class="flex items-center">
+                            Wallet Balance
+                            <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
+                        </div>
+                    </TableHead>
+                    <TableHead>
+                      <div class="flex items-center">
+                        Requested Amount
+                        <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
+                      </div>
+                    </TableHead>
+                    <TableHead>
+                      <div class="flex items-center">
+                        Resquest Date
+                        <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
+                      </div>
+                    </TableHead>
+                    <TableHead>
+                      <div class="flex items-center">
+                        TAT
+                        <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
+                      </div>
+                    </TableHead>
+      
+                    <TableHead>
+                      <div class="flex items-center">
+                        Status
+                        <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
+                      </div>
+                    </TableHead>
+                    <TableHead></TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  <TableRow v-for="user in users" :key="user._id" class='text-nowrap'>
+                    <TableCell class='flex items-center justify-center'>
+                        <input type='checkbox' class='p-2 accent-[#020721] border-2'/>
+                    </TableCell>
+                    <TableCell class="text-xs md:text-sm lg:text-sm">{{ user.recipient }} </TableCell>
+                    <TableCell class="text-xs md:text-sm lg:text-sm">{{ user.id }}</TableCell>
+                    <TableCell class="text-xs md:text-sm lg:text-sm">₦{{ user.balance }} </TableCell>
+                    <TableCell class="text-xs md:text-sm lg:text-sm">{{ user.amount }} </TableCell>
+                    <TableCell class="text-xs md:text-sm lg:text-sm">{{ user.date }} </TableCell>
+                    <TableCell class="text-xs md:text-sm lg:text-sm"> {{ user.tat[0].toString().padStart(2, '0') }}<span class='font-bold'>D</span>{{ user.tat[1].toString().padStart(2, '0') }}:<span class='font-bold'>H</span>{{ user.tat[2].toString().padStart(2, '0') }}:<span class='font-bold'>M</span> </TableCell>
+                    <TableCell><Badge class='text-white bg-[#00C37F] rounded-full'>Approve</Badge></TableCell>
+                    <TableCell>
+                      <router-link :to="`/usersdetails/${user._id}`">
+                        <svg
+                          width="20"
+                          height="50"
+                          viewBox="0 0 20 50"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M7 31L12.5118 26.0606C13.1627 25.4773 13.1627 24.5227 12.5118 23.9394L7 19"
+                            stroke="#54586D"
+                            stroke-opacity="0.8"
+                            stroke-width="2"
+                            stroke-miterlimit="10"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          />
+                        </svg>
+                      </router-link>
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </div>
+            <div class="flex gap-2 max-w-full flex-wrap justify-end mt-8 mr-4 items-center text-[15px]">
+              <Button variant="secondary"> <Icon icon="radix-icons:chevron-left" /> </Button>
+              <Button variant="secondary" class="bg-[#020721] text-gray-400"> 1 </Button>
+              <Button variant="outline"> 2 </Button>
+              <Button variant="outline"> &#8230; </Button>
+              <Button variant="outline"> 74</Button>
+              <Button variant="outline"> 75 </Button>
+              <Button variant="outline"> <Icon icon="radix-icons:chevron-right" /> </Button>
+              <a href="#"><p class="text-[blue]">See all</p></a>
+            </div>
+          </Card>
+        </div>
+        <DashboardFooter/>
+    </div>
+</template>
+
+<script lang="ts" setup>
+import MainNav from '@/components/MainNav.vue';
+import DashboardFooter from '@/components/DashboardFooter.vue'
+import { Card, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Icon } from '@iconify/vue'
+import { ref } from 'vue';
+import Search from '@/components/UseSearch.vue'
+import { Badge } from '@/components/ui/badge';
+
+import {
+  Table,
+  TableRow,
+  TableBody,
+  TableHeader,
+  TableCell,
+  TableHead
+} from '@/components/ui/table'
+
+
+const users = ref<any[]>([
+  {
+    _id: 1,
+    recipient: 'Weeshr Bank',
+    id: '@harrison',
+    weeshes: 'iphone 15 Pro Max',
+    balance: '500,000',
+    tat: [2,3,55],
+    type: 'Inflow',
+    date: '01 Nov 1978',
+    amount: '₦ 1,565,987.00',
+    status: 'successful'
+  },
+  {
+    _id: 2,
+    recipient: 'Weeshr Bank',
+    id: '@dario',
+    weeshes: 'Mary K Facial Cleanser',
+    balance: '500,000',
+    tat: [2,3,55],
+    type: 'Inflow',
+    date: '03 Sep 1995',
+    amount: '₦ 51,000,087.66',
+    status: 'successful'
+  },
+  {
+    _id: 3,
+    recipient: 'Weeshr Bank',
+    id: '@sidney101',
+    weeshes: '2014 Honda Accord',
+    balance: '500,000',
+    tat: [2,3,55],
+    type: 'Inflow',
+    date: '25 Aug 1994',
+    amount: '₦ 1,927.0',
+    status: 'successful'
+  },
+  {
+    _id: 4,
+    recipient: 'Ajax Logistics',
+    id: '@kemiller',
+    weeshes: 'Lacoste White Sneakers',
+    balance: '500,000',
+    tat: [2,3,55],
+    type: 'Outflow',
+    date: '06 Apr 1991',
+    amount: '₦ 1,565,987.00',
+    status: 'pending'
+  },
+  {
+    _id: 5,
+    recipient: 'WeeshrBank',
+    id: '@saderizder',
+    weeshes: 'Money',
+    balance: '500,000',
+    tat: [2,3,55],
+    type: 'Inflow',
+    date: '28 Dec 1988',
+    amount: '₦ 200,000.00',
+    status: 'failed'
+  },
+])
+</script>

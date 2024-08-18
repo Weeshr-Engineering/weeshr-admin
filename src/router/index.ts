@@ -17,6 +17,7 @@ import AdminList from '@/views/protected/SuperAdminModule/AdminList.vue'
 import CreateUser from '@/views/protected/SuperAdminModule/CreateUser.vue'
 import DepotPage from '@/views/protected/AdminModule/DepotPage.vue'
 import BankPage from '@/views/protected/AdminModule/BankPage.vue'
+import CashRequest from '@/views/protected/AdminModule/CashRequest.vue'
 import ActivityLog from '@/views/protected/AdminModule/ActivityLog.vue'
 import ConfigHub from '@/views/protected/ConfigModule/RoleModule/ConfigHub.vue'
 import RoleManager from '@/views/protected/ConfigModule/RoleModule/RoleManager.vue'
@@ -137,6 +138,12 @@ const routes = [
     path: '/bank',
     name: 'bank',
     component: BankPage,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/bank/cash-request',
+    name: 'cash-request',
+    component: CashRequest,
     meta: { requiresAuth: true }
   },
   {
