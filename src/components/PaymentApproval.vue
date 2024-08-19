@@ -18,7 +18,7 @@
         <p class="text-lg mb-10">You're about to approve the following transactions</p>
       </CardDescription>
       <CardContent>
-        <div v-if="items">
+        <div v-if="items.length !== 0">
           <div v-for="item in items" :key="item.id">
             <div class="flex justify-between bg-gray-200 p-2 mb-2 rounded-md">
               <p>{{ item.name }}</p>
@@ -40,7 +40,7 @@
             <p class="text-gray-300">Cancel</p>
           </div>
         </div>
-        <div v-else>No transaction is currently awaiting approval</div>
+        <div v-else class="text-center text-sm md:text-base">No transaction is currently awaiting approval</div>
       </CardContent>
     </Card>
   </div>
@@ -51,10 +51,9 @@ import { Card, CardDescription, CardHeader } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Icon } from '@iconify/vue'
 import { defineProps, defineEmits } from 'vue'
-import type { Ref } from 'vue'
 
 interface Props {
-  openApprovalModal: Ref<boolean>
+  openApprovalModal: boolean
   items: Array<{ id: number; name: string; amount: number }>
 }
 
