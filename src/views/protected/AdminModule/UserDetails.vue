@@ -47,6 +47,7 @@ import type { Filter } from '@/composables/getUser'
 import CardContent from '@/components/ui/card/CardContent.vue'
 import PagePagination from '@/components/PagePagination.vue'
 import PaymentApproval from '@/components/PaymentApproval.vue'
+import LienComponent from '@/components/LienComponent.vue'
 
 //get User
 const route = useRoute()
@@ -199,6 +200,7 @@ watch(walletPage, () => {
 })
 
 const openApprovalModal = ref<boolean>(false)
+const openLienModal = ref<boolean>(false)
 
 const items = [
   { name: 'Felixant', amount: 1500000, id: 1 },
@@ -608,7 +610,7 @@ const items = [
         <TabsContent value="bank" class="space-y-4">
           <div class="xl:flex gap-2 mt-8 mx-4" v-if="userWallet">
             <Card
-              class="h-[230px] rounded-lg w-11/12 mx-auto xl:w-6/12 border-transparent mt-8 xl:mt-0 flex-grow bg-blue-50"
+              class="md:h-[230px] h-fit rounded-lg w-11/12 mx-auto xl:w-6/12 border-transparent mt-8 xl:mt-0 flex-grow bg-blue-50"
             >
               <CardContent class="w-full">
                 <div class="flex justify-between px-2 mt-4">
@@ -625,15 +627,15 @@ const items = [
                     </div>
                   </div>
                   <div class="w-full mt-4">
-                    <div class="flex rounded-md bg-gray-200 justify-between mb-3 p-2">
-                      <p>Total Inflow</p>
+                    <div class="md:flex rounded-md bg-gray-200 justify-between mb-3 p-2">
+                      <p class="mb-2 md:mb-0">Total Inflow</p>
                       <p class="font-medium text-lg">
                         {{ userWallet.currency }}
                         {{ userWallet.total_inflow.toLocaleString('en-US') }}
                       </p>
                     </div>
-                    <div class="flex rounded-md bg-gray-200 justify-between p-2">
-                      <p>Total Outflow</p>
+                    <div class="md:flex rounded-md bg-gray-200 justify-between p-2">
+                      <p class="mb-2 md:mb-0">Total Outflow</p>
                       <p class="font-medium text-lg">
                         {{ userWallet.currency }}
                         {{ userWallet.total_outflow.toLocaleString('en-US') }}
@@ -680,38 +682,17 @@ const items = [
               <CardContent class="flex flex-col justify-between h-full">
                 <div class="w-full flex justify-between mt-4">
                   <p class="font-medium">Lien</p>
-                  <Icon icon="fluent:arrow-enter-16-filled" width="24px" height="24px" />
-                  <!-- <div
-                    class="fixed inset-0 flex items-center justify-center w-full h-full bg-black/30 backdrop-blur-md z-50"
-                  >
-                    <Card>
-                      <CardHeader><Icon icon="ri:secure-payment-line" /></CardHeader>
-                      <CardDescription>
-                        <p>Be sure to review carefully</p>
-                        <p>You're about to approve the following transactions</p>
-                      </CardDescription>
-                      <CardContent>
-                        <div v-if="items">
-                          <div v-for="item in items" :key="item.id">
-                            <div class="flex">
-                              <p>{{ item.name }}</p>
-                              <p>{{ item.amount }}</p>
-                            </div>
-                          </div>
-                          <div class="flex justify-between">
-                            <div>
-                              <p>Total amount approved</p>
-                              <p>{{ item.total }}</p>
-                            </div>
-                            <div>
-                              <Button>Approve</Button>
-                            </div>
-                          </div>
-                        </div>
-                        <div v-else>No transaction is currently awaiting approval</div>
-                      </CardContent>
-                    </Card>
-                  </div> -->
+                  <Icon
+                    icon="fluent:arrow-enter-16-filled"
+                    width="24px"
+                    height="24px"
+                    @click="openLienModal = true"
+                  />
+                  <LienComponent
+                    :openLienModal="openLienModal"
+                    :items="items"
+                    @update:openLienModal="(value) => (openLienModal = value)"
+                  />
                 </div>
                 <div class="md:flex items-center justify-between -mt-6">
                   <p class="font-medium text-lg">
@@ -720,7 +701,11 @@ const items = [
                   </p>
                 </div>
                 <div class="flex justify-end">
-                  <Button class="rounded-full bg-gray-200 text-gray-500">View</Button>
+                  <Button
+                    class="rounded-full bg-gray-200 text-gray-500"
+                    @click="openLienModal = true"
+                    >View</Button
+                  >
                 </div>
               </CardContent>
             </Card>
