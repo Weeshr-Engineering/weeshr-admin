@@ -94,7 +94,7 @@
         <p class='text-lg md:text-2xl'>
           ₦ 5,190,500.00
         </p>
-        <RouterLink to="/bank/cash-request"><svg width="40" height="40" class='h-6 w-6 md:w-auto md:h-auto' viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <RouterLink to="/bank/cash-request"><svg width="35" height="35" class='h-6 w-6 md:w-auto md:h-auto' viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M15 36.6673H25C33.3334 36.6673 36.6667 33.334 36.6667 25.0007V15.0007C36.6667 6.66732 33.3334 3.33398 25 3.33398H15C6.66671 3.33398 3.33337 6.66732 3.33337 15.0007V25.0007C3.33337 33.334 6.66671 36.6673 15 36.6673Z" stroke="#020721" stroke-opacity="0.6" stroke-width="3.0625" stroke-linecap="round" stroke-linejoin="round"/>
           <path d="M17.9 25.8839L23.7667 20.0005L17.9 14.1172" stroke="#020721" stroke-opacity="0.6" stroke-width="3.0625" stroke-linecap="round" stroke-linejoin="round"/>
         </svg></RouterLink>

@@ -3,6 +3,7 @@
         <MainNav headingText="Bank / Cash request" class=''/>
         <div>
             <PaymentApproval :items="stage" :openApprovalModal="modal"  @update:openApprovalModal="handleModal"/>
+            <PaymentApproval :items="stageGroup" :openApprovalModal="groupModal"  @update:openApprovalModal="handleGroupModal"/>
             <!-- <LienComponent :items="items" :openApprovalModal="modal"  @update:openApprovalModal="handleModal"/> -->
             <Card
             class="container px-4 pt-6 pb-10 mx-auto sm:px-6 lg:px-8 bg-[#FFFFFF] rounded-2xl mt-14 mb-4"
@@ -14,7 +15,7 @@
               </div>
               <div class='flex flex-col sm:flex-row items-start sm:gap-6 gap-3'>
                 <Search class="mt-3 md:mt-0" />
-                <Button class='text-white bg-[#00C37F] rounded-full my-2 sm:my-0' @click='approveGroup'>Approve Selection</Button>
+                <Button :class='createStyle' @click='approveGroup'>Approve Selection</Button>
               </div>
             </div>
             <div class="overflow-auto bg-white rounded-lg shadow">
@@ -57,7 +58,7 @@
                         <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
                       </div>
                     </TableHead>
-                    <TableHead></TableHead>
+                    <TableHead v-if='createRole'></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -74,9 +75,9 @@
                     <TableCell class="text-xs md:text-sm lg:text-sm">{{ item.date }} </TableCell>
                     <TableCell class="text-xs md:text-sm lg:text-sm"> {{ item.tat[0].toString().padStart(2, '0') }}<span class='font-bold'>D</span>{{ item.tat[1].toString().padStart(2, '0') }}:<span class='font-bold'>H</span>{{ item.tat[2].toString().padStart(2, '0') }}:<span class='font-bold'>M</span> </TableCell>
                     <TableCell><Badge class='text-white bg-[#00C37F] rounded-full'>Approve</Badge></TableCell>
-                    <TableCell>
+                    <TableCell v-if='createRole'>
                         <svg
-
+                          @click='singleRequest(item.id, items, stage)'
                           width="20"
                           height="50"
                           viewBox="0 0 20 50"
@@ -128,7 +129,11 @@ import PaymentApproval from '@/components/PaymentApproval.vue';
 
 defineAbilities()
 const createRole = ability.can('create', 'wallet-payouts');
-
+const createStyle = computed(()=>{
+  return(
+    createRole ? 'text-white bg-[#00C37F] rounded-full my-2 sm:my-0' : 'cursor-not-allowed opacity-20 text-white bg-[#00C37F] rounded-full my-2 sm:my-0'
+  )
+})
 import {
   Table,
   TableRow,
@@ -140,8 +145,15 @@ import {
 
 
 const modal = ref(false)
+const groupModal = ref(false)
 const handleModal = ()=>{
     modal.value = (!modal.value)
+}
+const handleGroupModal = ()=>{
+  verifyAbilities('create', 'wallet-payouts')
+  if(createRole){
+    groupModal.value = (!groupModal.value)
+  }
 }
 
 const items = ref<any[]>([
@@ -207,7 +219,8 @@ const items = ref<any[]>([
   },
 ])
 
-const stage = ref<Stage[]>([])
+  const stage = ref<Stage[]>([])
+  const stageGroup = ref<Stage[]>([])
 
 interface Item {
     id: string;
@@ -218,8 +231,6 @@ interface Stage {
     name: string;
     amount: number;
 }
-  
-const stageGroup = ref<Stage[]>([])
 
   function updateStageArray(
     id: string, 
@@ -242,7 +253,7 @@ const stageGroup = ref<Stage[]>([])
             amount: parseInt(item.amount)
         }
         stageArray.push(tempObj);
-        stage.value = stageArray
+        // stage.value = stageArray
     } else {
         // If the checkbox is unchecked, remove the item from the stage array
         const index = stageArray.findIndex((obj) => obj.id === parseInt(id));
@@ -253,9 +264,7 @@ const stageGroup = ref<Stage[]>([])
   }
 
   const approveGroup = ()=>{
-    console.log(stageGroup)
-    stage.value = stageGroup.value
-    handleModal()
+    handleGroupModal()
   }
 
   //@click='singleRequest(item.id, items, stage)'
