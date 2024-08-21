@@ -28,7 +28,7 @@
           <div class="flex justify-between items-center my-12">
             <div>
               <p>Total amount approved</p>
-              <p class="font-bold text-2xl">NGN 5,190,500</p>
+              <p class="font-bold text-2xl">NGN {{ total.toLocaleString() }}</p>
             </div>
             <div>
               <Button @click="approveTransactions" class="rounded-md bg-[#00c37f]">
@@ -50,7 +50,7 @@
 import { Card, CardDescription, CardHeader } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Icon } from '@iconify/vue'
-import { defineProps, defineEmits } from 'vue'
+import { defineProps, defineEmits, computed } from 'vue'
 
 interface Props {
   openApprovalModal: boolean
@@ -70,4 +70,20 @@ function approveTransactions() {
   // Logic for approving transactions
   emit('update:openApprovalModal', false)
 }
+
+interface Item {
+    id: number;
+    amount: number;
+    name: string;
+    [key: string]: any; // Other properties of the item
+  }
+const total = computed(()=>{
+  return(
+    sumAmounts(props.items)
+  )
+})
+function sumAmounts(items: Item[]): number {
+  return items.reduce((total, item) => total + item.amount, 0);
+}
+
 </script>

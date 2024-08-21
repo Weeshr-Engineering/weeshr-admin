@@ -166,7 +166,7 @@ const items = ref<any[]>([
     tat: [2,3,55],
     type: 'Inflow',
     date: '01 Nov 1978',
-    amount: '1,565,987.00',
+    amount: '1565987.00',
     status: 'successful'
   },
   {
@@ -178,7 +178,7 @@ const items = ref<any[]>([
     tat: [2,3,55],
     type: 'Inflow',
     date: '03 Sep 1995',
-    amount: '51,000,087.66',
+    amount: '51000087.66',
     status: 'successful'
   },
   {
@@ -190,7 +190,7 @@ const items = ref<any[]>([
     tat: [2,3,55],
     type: 'Inflow',
     date: '25 Aug 1994',
-    amount: '1,927.0',
+    amount: '1927.0',
     status: 'successful'
   },
   {
@@ -202,7 +202,7 @@ const items = ref<any[]>([
     tat: [2,3,55],
     type: 'Outflow',
     date: '06 Apr 1991',
-    amount: '1,565,987.00',
+    amount: '1565987.00',
     status: 'pending'
   },
   {
@@ -214,7 +214,7 @@ const items = ref<any[]>([
     tat: [2,3,55],
     type: 'Inflow',
     date: '28 Dec 1988',
-    amount: '200,000.00',
+    amount: '200000.00',
     status: 'failed'
   },
 ])
@@ -267,7 +267,7 @@ interface Stage {
     handleGroupModal()
   }
 
-  //@click='singleRequest(item.id, items, stage)'
+
   const singleRequest = (
     id: string, 
     sourceArray: Item[], 
@@ -280,13 +280,12 @@ interface Stage {
       return;
     }
     const tempObj: Stage = {
-                id: parseInt(item.id),
-                name: item.name,
-                amount: parseInt(item.amount)
-            }
-        // stageSingle.value = tempObj
-        stageArray.splice(0, stageArray.length, tempObj)
-        handleModal()
+        id: parseInt(item.id),
+        name: item.name,
+        amount: parseInt(item.amount)
+    }
+    stageArray.splice(0, stageArray.length, tempObj)
+    handleModal()
   }
   
 </script>
