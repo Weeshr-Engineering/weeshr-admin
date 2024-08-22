@@ -209,6 +209,17 @@ const items = [
   { name: 'DancingQueen', amount: 750000, id: 4 },
   { name: 'FastFuriousGuy', amount: 500000, id: 5 }
 ]
+
+const currencySymbol = (currency: string) => {
+  switch (currency) {
+    case 'USD':
+      return '$'
+    case 'NGN':
+      return '₦'
+    default:
+      return currency
+  }
+}
 </script>
 
 <template>
@@ -466,7 +477,7 @@ const items = [
                       >
                         <span class="text-[#02072199] text-xs md:text-sm lg:text-sm">Price :</span>
                         <span class="text-xs md:text-sm lg:text-sm text-[#020721]"
-                          >{{ weeshes.currency.code }}
+                          >{{ currencySymbol(weeshes.currency.code) }}
                           {{ weeshes.price.price.toLocaleString('en-US') }}</span
                         >
                       </p>
@@ -477,7 +488,7 @@ const items = [
                           >Genie Charges :</span
                         >
                         <span class="text-xs md:text-sm lg:text-sm text-[#020721]"
-                          >{{ weeshes.currency.code }}
+                          >{{ currencySymbol(weeshes.currency.code) }}
                           {{ weeshes.price.genieGratuity.toLocaleString('en-US') }}</span
                         >
                       </p>
@@ -564,7 +575,7 @@ const items = [
                             {{ contributors.contributor.lastName }}
                           </p>
                           <p class="italic text-xs md:text-sm lg:text-sm text-[#020721]">
-                            {{ weeshes.currency.code }}
+                            {{ currencySymbol(weeshes.currency.code) }}
                             {{ contributors.amount.toLocaleString('en-US') }}
                           </p>
                         </div>
@@ -610,7 +621,7 @@ const items = [
         <TabsContent value="bank" class="space-y-4">
           <div class="xl:flex gap-2 mt-8 mx-4" v-if="userWallet">
             <Card
-              class="md:h-[230px] h-fit rounded-lg w-11/12 mx-auto xl:w-6/12 border-transparent mt-8 xl:mt-0 flex-grow bg-blue-50"
+              class="md:h-[230px] h-fit rounded-lg w-11/12 mx-auto xl:w-6/12 border-transparent mt-8 xl:mt-0 flex-grow bg-[#F8F9FF]"
             >
               <CardContent class="w-full">
                 <div class="flex justify-between px-2 mt-4">
@@ -621,23 +632,23 @@ const items = [
                   <div class="md:flex items-center justify-between">
                     <div class="flex justify-between items-center gap-2 mt-6">
                       <p class="font-medium text-lg">
-                        {{ userWallet.currency }}
+                        {{ currencySymbol(userWallet.currency) }}
                         {{ userWallet.balance.toLocaleString('en-US') }}
                       </p>
                     </div>
                   </div>
                   <div class="w-full mt-4">
-                    <div class="md:flex rounded-md bg-gray-200 justify-between mb-3 p-2">
+                    <div class="md:flex rounded-md bg-[#34389B1A] justify-between mb-3 p-2">
                       <p class="mb-2 md:mb-0">Total Inflow</p>
                       <p class="font-medium text-lg">
-                        {{ userWallet.currency }}
+                        {{ currencySymbol(userWallet.currency) }}
                         {{ userWallet.total_inflow.toLocaleString('en-US') }}
                       </p>
                     </div>
-                    <div class="md:flex rounded-md bg-gray-200 justify-between p-2">
+                    <div class="md:flex rounded-md bg-[#34389B1A] justify-between p-2">
                       <p class="mb-2 md:mb-0">Total Outflow</p>
                       <p class="font-medium text-lg">
-                        {{ userWallet.currency }}
+                        {{ currencySymbol(userWallet.currency) }}
                         {{ userWallet.total_outflow.toLocaleString('en-US') }}
                       </p>
                     </div>
@@ -646,7 +657,7 @@ const items = [
               </CardContent>
             </Card>
             <Card
-              class="h-[230px] rounded-lg bg-blue-50 w-11/12 mx-auto xl:w-3/12 border-transparent mt-8 xl:mt-0"
+              class="h-[230px] rounded-lg bg-[#F8F9FF] w-11/12 mx-auto xl:w-3/12 border-transparent mt-8 xl:mt-0"
             >
               <CardContent class="flex flex-col justify-between h-full">
                 <div class="w-full flex justify-between mt-4">
@@ -665,7 +676,7 @@ const items = [
                 </div>
                 <div class="md:flex items-center justify-between -mt-6">
                   <p class="font-medium text-lg">
-                    {{ userWallet.currency }}
+                    {{ currencySymbol(userWallet.currency) }}
                     {{ userWallet.balance.toLocaleString('en-US') }}
                   </p>
                 </div>
@@ -677,7 +688,7 @@ const items = [
               </CardContent>
             </Card>
             <Card
-              class="h-[230px] rounded-lg bg-blue-50 w-11/12 mx-auto xl:w-3/12 border-transparent mt-8 xl:mt-0"
+              class="h-[230px] rounded-lg bg-[#F8F9FF] w-11/12 mx-auto xl:w-3/12 border-transparent mt-8 xl:mt-0"
             >
               <CardContent class="flex flex-col justify-between h-full">
                 <div class="w-full flex justify-between mt-4">
@@ -696,7 +707,7 @@ const items = [
                 </div>
                 <div class="md:flex items-center justify-between -mt-6">
                   <p class="font-medium text-lg">
-                    {{ userWallet.currency }}
+                    {{ currencySymbol(userWallet.currency) }}
                     {{ userWallet.balance.toLocaleString('en-US') }}
                   </p>
                 </div>
@@ -751,7 +762,7 @@ const items = [
                 <Table class="min-w-full">
                   <TableHeader>
                     <TableRow
-                      class="text-xs sm:text-sm md:text-base text-[#02072199] font-semibold bg-gray-100 shadow"
+                      class="text-xs sm:text-sm md:text-base text-[#02072199] font-semibold bg-[#F9FAFB] shadow"
                     >
                       <TableHead>
                         <div class="flex items-center">Type</div>
@@ -771,12 +782,12 @@ const items = [
                     <TableRow
                       v-for="(transaction, index) in userWalletList"
                       :key="transaction.id"
-                      :class="index % 2 === 0 ? 'bg-gray-50' : ''"
+                      :class="(index + 1) % 2 === 0 ? 'bg-[#F9FAFB]' : ''"
                     >
                       <TableCell>{{ transaction.type }}</TableCell>
                       <TableCell>{{ dateFormat(transaction.time) }}</TableCell>
-                      <TableCell
-                        >{{ transaction.currency }}
+                      <TableCell>
+                        {{ currencySymbol(transaction.currency) }}
                         {{ transaction.amount.toLocaleString() }}</TableCell
                       >
                       <TableCell class="font-medium">

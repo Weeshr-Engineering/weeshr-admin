@@ -2,7 +2,7 @@
   <div
     v-if="props.openApprovalModal"
     @click.self="closeModal"
-    class="fixed inset-0 flex items-center justify-center w-full h-full bg-black/30 backdrop-blur-md overflow-y-scroll z-[500]"
+    class="fixed inset-0 flex items-center justify-center w-full h-full bg-black/30 backdrop-blur-md z-[500]"
   >
     <Card class="rounded-[25px] px-6 w-10/12 md:w-1/3 my-4 ms-10 md:ms-0 mt-10">
       <CardHeader class="mt-10">
@@ -24,13 +24,13 @@
           <div v-for="item in items" :key="item.id">
             <div class="flex justify-between bg-gray-200 p-2 mb-2 rounded-md">
               <p>{{ item.name }}</p>
-              <p>NGN {{ item.amount.toLocaleString() }}</p>
+              <p>₦ {{ item.amount.toLocaleString() }}</p>
             </div>
           </div>
           <div class="flex flex-col md:flex-row justify-between items-center my-12">
             <div class="mb-4 md:mb-0">
               <p>Total amount approved</p>
-              <p class="font-bold text-2xl">NGN 5,190,500</p>
+              <p class="font-bold text-2xl">₦ 5,190,500</p>
             </div>
             <div>
               <Button
