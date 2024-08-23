@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class='bg-[#f0f8ff] h-full px-4 sm:px-10 pb-10'>
         <MainNav headingText="Bank / Cash request" class=''/>
         <div>
             <PaymentApproval :items="stage" :openApprovalModal="modal"  @update:openApprovalModal="handleModal"/>
@@ -8,14 +8,14 @@
             <Card
             class="container px-4 pt-6 pb-10 mx-auto sm:px-6 lg:px-8 bg-[#FFFFFF] rounded-2xl mt-14 mb-4"
           >
-            <div class="flex flex-col sm:flex-row items-center justify-between py-4">
+            <div class="flex flex-col sm:flex-row sm:gap-4 items-center justify-between py-4">
               <div class="text-xl sm:text-xl font-bold tracking-tight text-[#020721] mb-2 sm:mb-0">
                 Cash Request
                 <p class="text-xs sm:text-sm font-normal text-[#02072199]">List of cash payout</p>
               </div>
-              <div class='flex flex-col sm:flex-row items-start sm:gap-6 gap-3'>
-                <Search class="mt-3 md:mt-0" />
-                <Button :class='createStyle' @click='approveGroup'>Approve Selection</Button>
+              <div class='flex flex-col sm:flex-row sm:gap-4 gap-3 items-centerh-full'>
+                <Search class="mt-3 sm:mt-0" />
+                <Button :class='createStyle' @click='approveGroup' :disabled="stageGroup.length === 0" >Approve Selection</Button>
               </div>
             </div>
             <div class="overflow-auto bg-white rounded-lg shadow">
@@ -61,23 +61,24 @@
                     <TableHead v-if='createRole'></TableHead>
                   </TableRow>
                 </TableHeader>
-                <TableBody>
-                  <TableRow v-for="item in items" :key="item.id" class='text-nowrap'>
+                <TableBody class='min-h-52'>
+                  <TableRow v-for="(item, key) in payout" :key="item._id" class='text-nowrap'>
                     <TableCell>
                         <div class='flex items-center justify-center w-full h-full'>
-                            <input type='checkbox' class='p-2 accent-[#020721] border-2' @click='updateStageArray(item.id, items, stageGroup)'/>
+                            <input type='checkbox' class='p-2 accent-[#020721] border-2' @click='updateStageArray(item._id, payout, stageGroup, key)'/>
                         </div>
                     </TableCell>
-                    <TableCell class="text-xs md:text-sm lg:text-sm">{{ item.recipient }} </TableCell>
-                    <TableCell class="text-xs md:text-sm lg:text-sm">{{ item.name }}</TableCell>
-                    <TableCell class="text-xs md:text-sm lg:text-sm">₦{{ item.balance }} </TableCell>
-                    <TableCell class="text-xs md:text-sm lg:text-sm">₦ {{ item.amount }} </TableCell>
-                    <TableCell class="text-xs md:text-sm lg:text-sm">{{ item.date }} </TableCell>
-                    <TableCell class="text-xs md:text-sm lg:text-sm"> {{ item.tat[0].toString().padStart(2, '0') }}<span class='font-bold'>D</span>{{ item.tat[1].toString().padStart(2, '0') }}:<span class='font-bold'>H</span>{{ item.tat[2].toString().padStart(2, '0') }}:<span class='font-bold'>M</span> </TableCell>
+                    <TableCell class="text-xs md:text-sm lg:text-sm">{{ item?.wallet?.account_name }} </TableCell>
+                    <TableCell class="text-xs md:text-sm lg:text-sm">{{ item.user?.userName }}</TableCell>
+                    <TableCell class="text-xs md:text-sm lg:text-sm"> {{item.wallet.currency}} {{ item.wallet?.balance.toLocaleString() }} </TableCell>
+                    <TableCell class="text-xs md:text-sm lg:text-sm">{{item.wallet.currency}} {{ item.amount.toLocaleString() }} </TableCell>
+                    <TableCell class="text-xs md:text-sm lg:text-sm"> 01 Nov 1978</TableCell>
+                    <TableCell class="text-xs md:text-sm lg:text-sm"> 02<span class='font-bold'>D</span>03:<span class='font-bold'>H</span>55:<span class='font-bold'>M</span> </TableCell>
+                    <!-- <TableCell class="text-xs md:text-sm lg:text-sm"> {{ item.tat[0].toString().padStart(2, '0') }}<span class='font-bold'>D</span>{{ item.tat[1].toString().padStart(2, '0') }}:<span class='font-bold'>H</span>{{ item.tat[2].toString().padStart(2, '0') }}:<span class='font-bold'>M</span> </TableCell> -->
                     <TableCell><Badge class='text-white bg-[#00C37F] rounded-full'>Approve</Badge></TableCell>
                     <TableCell v-if='createRole'>
                         <svg
-                          @click='singleRequest(item.id, items, stage)'
+                          @click='singleRequest(item._id, payout, stage, key)'
                           width="20"
                           height="50"
                           viewBox="0 0 20 50"
@@ -99,15 +100,23 @@
                 </TableBody>
               </Table>
             </div>
-            <div class="flex gap-2 max-w-full flex-wrap justify-end mt-8 mr-4 items-center text-[15px]">
-              <Button variant="secondary"> <Icon icon="radix-icons:chevron-left" /> </Button>
-              <Button variant="secondary" class="bg-[#020721] text-gray-400"> 1 </Button>
-              <Button variant="outline"> 2 </Button>
-              <Button variant="outline"> &#8230; </Button>
-              <Button variant="outline"> 74</Button>
-              <Button variant="outline"> 75 </Button>
-              <Button variant="outline"> <Icon icon="radix-icons:chevron-right" /> </Button>
-              <a href="#"><p class="text-[blue]">See all</p></a>
+            <div class="flex gap-2 max-w-full flex-wrap justify-end mt-8 mr-4 items-center text-[15px]" v-if="payout.length !== 0">
+              <Pagination :total="totalPages" :sibling-count="1" show-edges :default-page="1" @change="store.handlePageChange">
+                <PaginationList class="flex items-center gap-1">
+                  <PaginationFirst @click="store.handlePageChange(1)" />
+                  <PaginationPrev @click="store.handlePageChange(Math.max(currentPage - 1, 1))" />
+                  <template v-for="(item, index) in paginationItems" :key="index">
+                    <PaginationListItem v-if="item.type === 'page'" :value="item.value" as-child>
+                      <Button class="w-10 h-10 p-0" :variant="item.value === currentPage ? 'default' : 'outline'" @click="store.handlePageChange(item.value)">
+                        {{ item.value }}
+                      </Button>
+                    </PaginationListItem>
+                    <PaginationEllipsis v-else :index="index" />
+                  </template>
+                  <PaginationNext @click="store.handlePageChange(Math.min(currentPage + 1, totalPages))" />
+                  <PaginationLast @click="store.handlePageChange(totalPages)" />
+                </PaginationList>
+              </Pagination>
             </div>
           </Card>
         </div>
@@ -126,12 +135,13 @@ import Search from '@/components/UseSearch.vue'
 import { Badge } from '@/components/ui/badge';
 import { ability, defineAbilities, verifyAbilities } from '@/lib/ability';
 import PaymentApproval from '@/components/PaymentApproval.vue';
+import { usePayoutStore } from '@/stores/bank/payout-store';
 
 defineAbilities()
 const createRole = ability.can('create', 'wallet-payouts');
 const createStyle = computed(()=>{
   return(
-    createRole ? 'text-white bg-[#00C37F] rounded-full my-2 sm:my-0' : 'cursor-not-allowed opacity-20 text-white bg-[#00C37F] rounded-full my-2 sm:my-0'
+    createRole ? `text-white bg-[#00C37F] rounded-full my-2 sm:my-0 ${stageGroup.value.length !== 0 ? '' : 'cursor-not-allowed'}` : 'cursor-not-allowed opacity-20 text-white bg-[#00C37F] rounded-full my-2 sm:my-0'
   )
 })
 import {
@@ -141,10 +151,25 @@ import {
   TableHeader,
   TableCell,
   TableHead
-} from '@/components/ui/table'
+} from '@/components/ui/table';
+import {
+  Pagination,
+  PaginationEllipsis,
+  PaginationFirst,
+  PaginationLast,
+  PaginationList,
+  PaginationListItem,
+  PaginationNext,
+  PaginationPrev,
+} from '@/components/ui/pagination';
 
 
+const store = usePayoutStore()
+store.getPayout()
 const modal = ref(false)
+const payout = computed(()=>{
+  return store.payout
+})
 const groupModal = ref(false)
 const handleModal = ()=>{
     modal.value = (!modal.value)
@@ -156,89 +181,44 @@ const handleGroupModal = ()=>{
   }
 }
 
-const items = ref<any[]>([
-  {
-    id: 1,
-    recipient: 'Weeshr Bank',
-    name: '@harrison',
-    weeshes: 'iphone 15 Pro Max',
-    balance: '500,000',
-    tat: [2,3,55],
-    type: 'Inflow',
-    date: '01 Nov 1978',
-    amount: '1565987.00',
-    status: 'successful'
-  },
-  {
-    id: 2,
-    recipient: 'Weeshr Bank',
-    name: '@dario',
-    weeshes: 'Mary K Facial Cleanser',
-    balance: '500,000',
-    tat: [2,3,55],
-    type: 'Inflow',
-    date: '03 Sep 1995',
-    amount: '51000087.66',
-    status: 'successful'
-  },
-  {
-    id: 3,
-    recipient: 'Weeshr Bank',
-    name: '@sidney101',
-    weeshes: '2014 Honda Accord',
-    balance: '500,000',
-    tat: [2,3,55],
-    type: 'Inflow',
-    date: '25 Aug 1994',
-    amount: '1927.0',
-    status: 'successful'
-  },
-  {
-    id: 4,
-    recipient: 'Ajax Logistics',
-    name: '@kemiller',
-    weeshes: 'Lacoste White Sneakers',
-    balance: '500,000',
-    tat: [2,3,55],
-    type: 'Outflow',
-    date: '06 Apr 1991',
-    amount: '1565987.00',
-    status: 'pending'
-  },
-  {
-    id: 5,
-    recipient: 'WeeshrBank',
-    name: '@saderizder',
-    weeshes: 'Money',
-    balance: '500,000',
-    tat: [2,3,55],
-    type: 'Inflow',
-    date: '28 Dec 1988',
-    amount: '200000.00',
-    status: 'failed'
-  },
-])
-
   const stage = ref<Stage[]>([])
   const stageGroup = ref<Stage[]>([])
+  // const page = computed(()=>{
+  //   return store.page
+  // })
+  const currentPage = computed(()=>{
+    return store.currentPage
+  });
+  const totalPages = computed(()=>{
+    return store.totalPages
+  })
+  const paginationItems = computed(() => {
+    const pages = [];
+    for (let i = 1; i <= totalPages.value; i++) {
+      pages.push({ type: 'page', value: i });
+    }
+    return pages;
+  });
 
 interface Item {
-    id: string;
+    _id: string;
     [key: string]: any; // Other properties of the item
   }
 interface Stage {
     id: number;
     name: string;
     amount: number;
+    _id: string
 }
 
   function updateStageArray(
-    id: string, 
+    id: string,
     sourceArray: Item[], 
     stageArray: Stage[],
+    key: number
   ): void {
     // Find the item in the source array using the provided id
-    const item = sourceArray.find((obj) => obj.id === id);
+    const item = sourceArray.find((obj) => obj._id === id);
   
     if (!item) {
       console.error(`Item with id ${id} not found in sourceArray.`);
@@ -246,17 +226,18 @@ interface Stage {
     }
     
         // If the checkbox is checked, add the item to the stage array if it doesn't exist
-    if (!stageArray.some((obj) => obj.id === parseInt(id))) {
+    if (!stageArray.some((obj) => obj._id === id)) {
         const tempObj = {
-            id: parseInt(item.id),
-            name: item.name,
+            id: key,
+            _id: id,
+            name: item.wallet?.account_name,
             amount: parseInt(item.amount)
         }
         stageArray.push(tempObj);
         // stage.value = stageArray
     } else {
         // If the checkbox is unchecked, remove the item from the stage array
-        const index = stageArray.findIndex((obj) => obj.id === parseInt(id));
+        const index = stageArray.findIndex((obj) => obj._id === id);
         if (index !== -1) {
             stageArray.splice(index, 1);
         }
@@ -269,20 +250,22 @@ interface Stage {
 
 
   const singleRequest = (
-    id: string, 
+    id: string,
     sourceArray: Item[], 
     stageArray: Stage[],
+    key: number
   )=>{
-    const item = sourceArray.find((obj) => obj.id === id);
+    const item = sourceArray.find((obj) => obj._id === id);
     
     if (!item) {
       console.error(`Item with id ${id} not found in sourceArray.`);
       return;
     }
     const tempObj: Stage = {
-        id: parseInt(item.id),
-        name: item.name,
-        amount: parseInt(item.amount)
+        _id: id,
+        name: item.wallet?.account_name,
+        amount: parseInt(item.amount),
+        id: key
     }
     stageArray.splice(0, stageArray.length, tempObj)
     handleModal()

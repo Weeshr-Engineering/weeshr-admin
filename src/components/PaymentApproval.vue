@@ -28,7 +28,7 @@
           <div class="flex justify-between items-center my-12">
             <div>
               <p>Total amount approved</p>
-              <p class="font-bold text-2xl">NGN {{ total.toLocaleString() }}</p>
+              <p class="font-bold text-2xl">NGN {{ total.toLocaleString()  }}</p>
             </div>
             <div>
               <Button @click="approveTransactions" class="rounded-md bg-[#00c37f]">
