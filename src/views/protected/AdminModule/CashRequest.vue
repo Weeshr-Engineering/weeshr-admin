@@ -19,7 +19,7 @@
               </div>
             </div>
             <div class="overflow-auto bg-white rounded-lg shadow">
-              <Table class="lg:w-full w-[800px]">
+              <Table class="lg:w-full w-[800px] min-h-52">
                 <TableHeader>
                   <TableRow
                     class="text-xs sm:text-sm md:text-base text-[#02072199] font-semibold bg-gray-200"
