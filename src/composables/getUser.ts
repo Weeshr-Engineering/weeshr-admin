@@ -88,6 +88,8 @@ interface Wallet {
   balance: number
   ledger_balance: number
   currency: string
+  total_inflow: number
+  total_outflow: number
 }
 
 interface WalletList {
@@ -285,6 +287,7 @@ export const getUserWallet = () => {
       const response = await axios.get(`api/v1/admin/user/${_id}/wallet`)
       if (response.data.code === 200) {
         userWallet.value = response.data.data
+        console.log(userWallet)
         toast({
           description: response.data.message,
           variant: 'success'
@@ -362,10 +365,61 @@ export const getUserWalletList = () => {
   }
 }
 
+export const getUserPayout = () => {
+  const userPayout = ref<WalletList[]>([])
+  const payoutError: Ref<string> = ref('')
+
+  const getPayout = async (_id: string | string[]) => {
+    const base = `api/v1/admin/user/${_id}/wallet/payouts`
+
+    // const url = () => {
+    //   if (walletPage) {
+    //     return base + `per_page=${walletPage.per_page}&page_item_from=${walletPage.page_item_from}`
+    //   }
+    //   if (sortType) {
+    //     if (sortType === 'INFLOW' || sortType === 'OUTFLOW') {
+    //       return base + `type=${sortType}`
+    //     }
+    //   }
+    //   return base
+    // }
+
+    try {
+      toast({
+        description: 'Loading....',
+        variant: 'loading'
+      })
+      const response = await axios.get(base)
+
+      if (response.data.code === 200) {
+        // userWalletList.value = response.data.data.data
+        console.log(response)
+        toast({
+          description: response.data.message,
+          variant: 'success'
+        })
+      }
+    } catch (err: any) {
+      payoutError.value = `${err.response.data.message}, ${err.response.data.error}.`
+      toast({
+        description: err.response.data.message,
+        variant: 'destructive'
+      })
+    }
+  }
+
+  return {
+    payoutError,
+    userPayout,
+    getPayout
+  }
+}
+
 export default {
   getUser,
   getUserLog,
   getUserWeeshes,
   getUserWallet,
-  getUserWalletList
+  getUserWalletList,
+  getUserPayout
 }
