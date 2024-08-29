@@ -60,12 +60,12 @@ const createStyle = computed(()=>{
 
 const edit = ability.can('update', 'featured-moments')
 const editStyle = computed(()=>{
-  return edit ? 'icons-sidebar border-2 border-gray-100' : 'cursor-not-allowed opacity-20 icons-sidebar border-2 border-gray-100'
+  return edit ? 'border-2 border-gray-100' : 'cursor-not-allowed opacity-20 icons-sidebar border-2 border-gray-100'
 })
 
-const deleteWeeshCategory = ability.can('delete', 'featured-moments')
+const deleteWeeshfeature = ability.can('delete', 'featured-moments')
 const deleteStyle = computed(()=>{
-  return deleteWeeshCategory ? 'icons-sidebar text-red-600' : 'cursor-not-allowed opacity-20 icons-sidebar text-red-600'
+  return deleteWeeshfeature ? 'text-red-600' : 'cursor-not-allowed opacity-20 icons-sidebar text-red-600'
 })
 
 const store = useFeaturedStore()
@@ -74,11 +74,11 @@ const active = computed(()=>{
   return store.active
 })
 
-const currentCategory = ref('')
-const setCurrentCategory = (id: string)=>{
+const feature = ref('')
+const setfeature = (id: string)=>{
   verifyAbilities('update', 'featured-moments')
-  currentCategory.value= id
-  console.log(id)
+  feature.value= id
+  // console.log(id)
 }
 
 const updateImg = ref<any[]>([])
@@ -92,13 +92,13 @@ const handleFileUpdate = (event: any) => {
 const onUpdate = async() => {  
   toast({
     title: 'Updating',
-    description: `Updating Weeshe Category`,
+    description: `Updating Weeshe feature`,
     variant: 'default'
   })
   loading.value = true
   const stringSchema = z.string()      
-    .min(2, { message: 'First name must be at least 2 characters long' })
-    .max(50, { message: 'First name cannot be longer than 50 characters' })
+    .min(2, { message: 'Title must be at least 2 characters long' })
+    .max(50, { message: 'Title cannot be longer than 50 characters' })
   
   const name = stringSchema.safeParse(updateName.value)
   if (!name.success && updateImg.value.length == 0) {
@@ -115,17 +115,13 @@ const onUpdate = async() => {
       }
 
       try{
-        // const response = await axios.patch(`/api/v1/admin/featured-moment/${currentCategory.value}`, data, {
-        //   headers: {
-        //     'Content-Type': 'multipart/form-data',
-        //   },
-        // });
+        // const response = await axios.put(`/api/v1/admin/featured-moment/${feature.value}`, data);
         // if (response.status === 200 || response.status === 201) {
         //     toast({
         //         description: `${response.data.message}`,
         //         variant: 'success'
         //       })
-        //       store.getWeesheCategories(store.page, 'Success')
+        //       store.getFeatures(store.page, 'Success')
         //   }
       }catch(error){
         console.log(error)
@@ -139,13 +135,13 @@ const formSchema = toTypedSchema(
   z.object({
     title: z
       .string()
-      .min(2, { message: 'First name must be at least 2 characters long' })
-      .max(50, { message: 'First name cannot be longer than 50 characters' })
-      .nonempty('Please enter your first name'),
+      .min(2, { message: 'Title must be at least 2 characters long' })
+      .max(50, { message: 'Title cannot be longer than 50 characters' })
+      .nonempty('Please enter your Title'),
     link: z
       .string()
-      .min(2, { message: 'First name must be at least 2 characters long' })
-      .max(50, { message: 'First name cannot be longer than 50 characters' })
+      .min(2, { message: 'Link must be at least 2 characters long' })
+      .max(50, { message: 'Link cannot be longer than 50 characters' })
       .nonempty('Add the link for the moment'),
     color: z.string(),
     scheduledDate: z.string().nonempty('Please enter your date of birth').optional(),
@@ -172,15 +168,15 @@ const onSubmit = formSubmit(async (values) => {
     data = {...value}
   }
   try{
-    console.log(data)
-    // const response = await axios.post('/api/v1/admin/featured-moment', data);
-    // if (response.status === 200 || response.status === 201) {
-    //     toast({
-    //         description: `${response.data.message}`,
-    //         variant: 'success'
-    //       })
-    //       store.getWeesheCategories(page.value, 'Success')
-    //   }
+    // console.log(data)
+    const response = await axios.post('/api/v1/admin/featured-moment', data);
+    if (response.status === 200 || response.status === 201) {
+        toast({
+            description: `${response.data.message}`,
+            variant: 'success'
+          })
+          store.getFeatures(page.value, 'Success')
+      }
   }catch(error){
     console.log(error)
     store.catchErr(error)
@@ -190,7 +186,7 @@ const onSubmit = formSubmit(async (values) => {
 
 
 
-const categories = computed(()=>{
+const features = computed(()=>{
   return store.featured
 })
 const page = computed(()=>{
@@ -219,7 +215,7 @@ const paginationItems = computed(() => {
 
 onMounted(async()=>{
   store.getColors()
-  store.getWeesheCategories(page.value, 'Data fetched')
+  store.getFeatures(page.value, 'Data fetched')
 })
 
 watch(theme, (newTheme)=>{
@@ -349,53 +345,50 @@ watch(theme, (newTheme)=>{
                     <!-- <p>Only show active</p> -->
                 </div>
                 <div class="w-full min-h-72">
-                <span v-for="(category, key) in categories" :key="key">
-                  <Card Content class="mt-4" :style="{'background-color': category.color}">
+                <span v-for="(feature, key) in features" :key="key">
+                  <Card Content class="mt-4" :style="{'background-color': feature.color}">
                       <CardContent
-                        class="flex items-center justify-between px-2 sm:px-4 py-4"
+                        class="flex flex-col gap-4 md:grid grid-cols-8 px-2 sm:px-4 py-4"
                       >
-                        <span class="flex gap-2 items-center"><div
-                          class="inline-block text-[#F8F9FF] w-14 h-14"
-                        >
-                          <!-- <img :src='category.image.secure_url' class="wfull h-full rounded-sm"/> -->
+                        <span class="flex flex-col gap-2 col-span-7 md:grid grid-cols-4 md:gap-4 w-full">
+                            <div
+                            class="col-span-2 text-[#000000] md:h-14 flex flex-col"
+                            >
+                              <p class='text-muted-foreground'>Title</p>
+                              <p>{{feature.title}}</p>
+                          </div>
+                        <div class='flex items-center justify-between gap-2 w-full col-span-2 md:grid grid-cols-2'>
+                          <div class="col-span-1 text-sm text-[#000000]">
+                            <p class='text-muted-foreground'>Theme</p>
+                            <p>{{feature.color}}</p>
+                          </div>
+                          <div class="col-span-1 flex flex-col text-muted-foreground items-center justify-center w-full">
+                            {{ feature.disabled === false ? 'Active' : 'Disabled' }} 
+                            <Switch :checked="!feature.disabled"/>
+                          </div>
                         </div>
-                        <p class="text-sm text-muted-foreground text-center text-[#000000]">
-                          {{category.title}}
-                        </p>
                       </span>
-                      <div class="flex items-center gap-4">
-                        <!-- <Switch :checked="!category.disabled" @click="store.handleSwitch(category._id, category.title, category.disabled)" :disabled="!edit"/> -->
+                      <div class="col-span-1 flex items-center justify-between gap-4 w-full">
+                        <!-- <Switch :checked="!feature.disabled" @click="store.handleSwitch(feature._id, feature.title, feature.disabled)" :disabled="!edit"/> -->
                         <Sheet>
                             <SheetTrigger>
-                                <Icon @click="setCurrentCategory(category._id)" icon="mdi:edit" width="17" height="17" :class="editStyle" />
+                                <Icon @click="setfeature(feature._id)" icon="mdi:edit" width="17" height="17" :class="editStyle" />
                             </SheetTrigger>
                             <SheetContent class="overflow-y-auto py-8" side="right" v-if="ability.can('update', 'featured-moments')">
                                 <div class="flex py-4 justify-between items-center">
                                   <SheetHeader>
-                                  <h3 class="text-2xl font-medium">EDIT {{category.title.toUpperCase()}} CATEGORY</h3>
+                                  <h3 class="text-2xl font-medium">EDIT {{feature.title.toUpperCase()}}</h3>
                                   </SheetHeader>
                                 </div>
                                 <form class="space-y-4" @submit.prevent="onUpdate">
                                   <div class="grid w-full max-w-sm items-center gap-1.5">
                                     <FormField name="updateName">
                                       <FormItem v-auto-animate>
-                                        <FormLabel class="text-blue-900">Edit Category Name</FormLabel>
+                                        <FormLabel class="text-blue-900">Edit Title</FormLabel>
                                         <FormControl>
-                                            <Input id="updateName" v-model="updateName" type="text" :placeholder="category.title" />
+                                            <Input id="updateName" v-model="updateName" type="text" :placeholder="feature.title" />
                                         </FormControl>
                                         <FormMessage for="updateName" />
-                                      </FormItem>
-                                    </FormField>
-                                  </div>
-
-                                  <div class="grid w-full max-w-sm items-center gap-1.5">
-                                    <FormField v-slot="{ componentField }" name="updateImage">
-                                      <FormItem v-auto-animate>
-                                        <FormLabel class="text-blue-900">Change Image</FormLabel>
-                                        <FormControl>
-                                          <input id="updatePicture" type="file"  @change="handleFileUpdate" v-bind="componentField" accept="image/*" class='border-[1px] border-gray-200 rounded-sm'/>
-                                        </FormControl>
-                                        <FormMessage for="updateImage" />
                                       </FormItem>
                                     </FormField>
                                   </div>
@@ -419,9 +412,9 @@ watch(theme, (newTheme)=>{
                             <Icon icon="mdi:delete" width="17" height="17" :class="deleteStyle" @click="verifyAbilities('delete', 'featured-moments')"/>
                           </AlertDialogTrigger>
                           <div>
-                          <AlertDialogContent v-if="deleteWeeshCategory">
+                          <AlertDialogContent v-if="deleteWeeshfeature">
                             <AlertDialogHeader>
-                              <AlertDialogTitle>Are you absolutely sure you want to delete {{category.title}}?</AlertDialogTitle>
+                              <AlertDialogTitle>Are you absolutely sure you want to delete {{feature.title}}?</AlertDialogTitle>
                               <AlertDialogDescription>
                                 This action cannot be undone. This will permanently delete this role
                                 and remove it from our servers.
@@ -429,7 +422,7 @@ watch(theme, (newTheme)=>{
                             </AlertDialogHeader>
                             <AlertDialogFooter>
                               <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction :onclick="()=>store.deleteWeeshCategory(category._id)">Delete</AlertDialogAction>
+                              <AlertDialogAction :onclick="()=>store.deleteFeature(feature._id)">Delete</AlertDialogAction>
                             </AlertDialogFooter>
                           </AlertDialogContent>
                           </div>
@@ -438,7 +431,7 @@ watch(theme, (newTheme)=>{
                       </CardContent>
                     </Card>
                 </span>
-                  <div class="flex gap-2 max-w-full flex-wrap justify-end mt-8 mr-4 items-center text-[15px]" v-if="categories.length !== 0">
+                  <div class="flex gap-2 max-w-full flex-wrap justify-end mt-8 mr-4 items-center text-[15px]" v-if="features.length !== 0">
                     <Pagination :total="totalPages" :sibling-count="1" show-edges :default-page="1" @change="store.handlePageChange">
                       <PaginationList class="flex items-center gap-1">
                         <PaginationFirst @click="store.handlePageChange(1)" />

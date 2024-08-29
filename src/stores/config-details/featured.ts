@@ -45,7 +45,7 @@ export const useFeaturedStore = defineStore('featured', {
         colors: [],
     }),
     actions: {
-        async getWeesheCategories(page: number, msg: string){
+        async getFeatures(page: number, msg: string){
             
             toast({
               title: 'Loading Data',
@@ -117,7 +117,7 @@ export const useFeaturedStore = defineStore('featured', {
             if (response.status === 200 || response.status === 201) {
               // Show success toast
               // this.adminStatus = !this.adminStatus
-              this.getWeesheCategories(this.page, `${!status ? `${category} Disabled` : `${category} Activated`}`)
+              this.getFeatures(this.page, `${!status ? `${category} Disabled` : `${category} Activated`}`)
               console.log(response)
               toast({
                   title: 'Success',
@@ -134,7 +134,7 @@ export const useFeaturedStore = defineStore('featured', {
         handleActive (){
           this.active= !this.active
         },
-        async deleteWeeshCategory (id: string){
+        async deleteFeature (id: string){
           
           toast({
               title: 'Deleting Data',
@@ -157,9 +157,9 @@ export const useFeaturedStore = defineStore('featured', {
                 variant: 'success'
               })
               if(this.featured.length === 1 && this.page !== 1){
-                this.getWeesheCategories(this.page - 1, '')
+                this.getFeatures(this.page - 1, '')
               }else{
-                this.getWeesheCategories(this.page, '')
+                this.getFeatures(this.page, '')
               }
               
               
@@ -172,7 +172,7 @@ export const useFeaturedStore = defineStore('featured', {
               if (newPage > 0 && newPage <= this.totalPages) {
                 this.currentPage = newPage;
                 this.page = newPage
-                this.getWeesheCategories(this.page, `Page ${this.page}`)
+                this.getFeatures(this.page, `Page ${this.page}`)
               }
             },
             catchErr (error: any){
