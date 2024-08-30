@@ -23,6 +23,8 @@ import ConfigHub from '@/views/protected/ConfigModule/RoleModule/ConfigHub.vue'
 import RoleManager from '@/views/protected/ConfigModule/RoleModule/RoleManager.vue'
 import WeeshesConfig from '@/views/protected/ConfigModule/WeeshesCategories/WeeshesConfig.vue'
 import WeeshDetails from '@/views/protected/WeeshModule/WeeshDetails.vue'
+import FeaturedConfig from '@/views/protected/ConfigModule/FeaturedModule/Featured-config.vue'
+
 const routes = [
   {
     path: '/',
@@ -168,6 +170,12 @@ const routes = [
     path: '/config/weesh',
     name: 'configWeesh',
     component: WeeshesConfig,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/config/featured',
+    name: 'featured',
+    component: FeaturedConfig,
     meta: { requiresAuth: true }
   },
   {
