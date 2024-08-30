@@ -18,6 +18,7 @@ import router from '@/router'
     isCash: boolean;
     title: string;
     _id: string;
+    scheduledDate: string
   }
 
   interface Color {

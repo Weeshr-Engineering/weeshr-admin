@@ -8,7 +8,7 @@ import {
   SheetDescription,
   SheetTrigger
 } from '@/components/ui/sheet'
-import { ref, onMounted,  computed, watch } from 'vue'
+import { ref, onMounted,  computed} from 'vue'
 import { Loader2 } from 'lucide-vue-next'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
@@ -74,61 +74,144 @@ const active = computed(()=>{
   return store.active
 })
 
+interface Updates {
+  updateColor: string,
+  updateLink: string, 
+  updateDate: string,
+  updateTitle: string
+}
+const updates = ref<Updates>({
+  updateColor: '',
+  updateLink: '', 
+  updateDate: '',
+  updateTitle: '',
+})
+
+
+interface CurrentUpdates {
+  updateColor: string,
+  updateLink: string, 
+  updateDate: string,
+  updateTitle: string,
+  disabled: boolean
+}
+const currentUpdates = ref<CurrentUpdates>({
+  updateColor: '',
+  updateLink: '', 
+  updateDate: '',
+  updateTitle: '',
+  disabled: false
+})
+
 const feature = ref('')
-const setfeature = (id: string)=>{
+const setfeature = async (id: string)=>{
   verifyAbilities('update', 'featured-moments')
   feature.value= id
-  // console.log(id)
+  const data = findId(id, store.featured)
+  updates.value = {
+    'updateColor': '',
+    'updateLink': '', 
+    'updateDate': '',
+    'updateTitle': ''
+  }
+  currentUpdates.value = {
+    'updateColor': data?.color || '',
+    'updateLink': data?.link || '', 
+    'updateDate': data?.scheduledDate || '',
+    'updateTitle': data?.title || '',
+    disabled: data?.disabled!
+  }
 }
 
-const updateImg = ref<any[]>([])
-const updateName = ref('')
-
-const handleFileUpdate = (event: any) => {
-  const file = event.target.files[0];
-  updateImg.value = file
+// handles active state of the featured moments
+const handleToggle = async (id: string)=>{
+  await setfeature(id)
+  onUpdate(true)
 }
 
-const onUpdate = async() => {  
+const onUpdate = async(state: boolean) => {
   toast({
-    title: 'Updating',
-    description: `Updating Weeshe feature`,
-    variant: 'default'
+    description: `Updating featured moment`,
+    variant: 'loading'
   })
   loading.value = true
   const stringSchema = z.string()      
-    .min(2, { message: 'Title must be at least 2 characters long' })
-    .max(50, { message: 'Title cannot be longer than 50 characters' })
+    .min(2, { message: 'Value must be at least 2 characters long' })
+    .max(50, { message: 'Value cannot be longer than 50 characters' })
   
-  const name = stringSchema.safeParse(updateName.value)
-  if (!name.success && updateImg.value.length == 0) {
-        toast({
-          title: 'No edit found',
-          description: 'You have to make a change first',
-          variant: 'destructive'
-        })
-        return;
-  }else{
-      const data = {
-        // 'name': updateName.value,
-        'image': updateImg.value
-      }
+  // Validates the input fields for the edit sheet. I had issues with having muliple zod objects and so i checked for each of them independently. Open to modifications/suggestions
+  const title = stringSchema.safeParse(updates.value.updateTitle)
+  const link = stringSchema.safeParse(updates.value.updateLink)
+  const color = stringSchema.safeParse(updates.value.updateColor)
+  const date = stringSchema.safeParse(updates.value.updateDate)
 
-      try{
-        // const response = await axios.put(`/api/v1/admin/featured-moment/${feature.value}`, data);
-        // if (response.status === 200 || response.status === 201) {
-        //     toast({
-        //         description: `${response.data.message}`,
-        //         variant: 'success'
-        //       })
-        //       store.getFeatures(store.page, 'Success')
-        //   }
+  // checking if the edit trigger is from the disabled switch
+  if(state === true){
+    const tempData = {
+      title: updates.value.updateTitle !== '' ? updates.value.updateTitle : currentUpdates.value.updateTitle,
+      color: updates.value.updateColor !== '' ? updates.value.updateColor : currentUpdates.value.updateColor,
+      link: updates.value.updateLink !== '' ? updates.value.updateLink : currentUpdates.value.updateLink,
+      disabled: !currentUpdates.value.disabled,
+      scheduledDate: updates.value.updateDate !== '' ? updates.value.updateDate : currentUpdates.value.updateDate.split('T')[0],
+    }
+    // console.log(tempData)
+    submit(tempData)
+    return
+  }
+  // checker for a regular edit form. checks if any input is field
+  if (title.success || link.success || color.success || date.success){
+    console.log('Edited')
+    const tempData = {
+      title: updates.value.updateTitle !== '' ? updates.value.updateTitle : currentUpdates.value.updateTitle,
+      color: updates.value.updateColor !== '' ? updates.value.updateColor : currentUpdates.value.updateColor,
+      link: updates.value.updateLink !== '' ? updates.value.updateLink : currentUpdates.value.updateLink,
+      disabled: currentUpdates.value.disabled,
+      scheduledDate: updates.value.updateDate !== '' ? updates.value.updateDate : currentUpdates.value.updateDate.split('T')[0],
+    }
+    console.log(tempData)
+    submit(tempData)
+  }else{
+    console.log('empty')
+      toast({
+      description: 'You have to make a change first',
+      variant: 'destructive'
+    })
+  }
+  loading.value = false
+}
+
+// handles submit for updating features
+const submit = async (data: any)=>{
+  try{
+        const response = await axios.put(`/api/v1/admin/featured-moment/${feature.value}`, data);
+        if (response.status === 200 || response.status === 201) {
+            toast({
+                description: `${response.data.message}`,
+                variant: 'success'
+              })
+              store.getFeatures(store.page, 'Success')
+          }
+        loading.value = false
+
+          return;
       }catch(error){
         console.log(error)
         store.catchErr(error)
       }
-      }
-      loading.value = false
+}
+// type set for the featured object
+interface Item {
+  _id: string;
+  color: string,
+  link: string,
+  title: string,
+  scheduledDate: string,
+  disabled: boolean
+}
+
+// function to find the object with the id from an array of objects. i.e the array of features
+function findId(id: string, items: Item[]): Item | undefined {
+  return items.find(item => item._id === id);
 }
 
 const formSchema = toTypedSchema(
@@ -152,7 +235,7 @@ const { handleSubmit: formSubmit } = useForm({
   validationSchema: formSchema
 })
 
-
+// submit funtion to create a new featured moment
 const onSubmit = formSubmit(async (values) => {
   loading.value = true
   let data = {}
@@ -168,7 +251,6 @@ const onSubmit = formSubmit(async (values) => {
     data = {...value}
   }
   try{
-    // console.log(data)
     const response = await axios.post('/api/v1/admin/featured-moment', data);
     if (response.status === 200 || response.status === 201) {
         toast({
@@ -185,7 +267,7 @@ const onSubmit = formSubmit(async (values) => {
 })
 
 
-
+// computed variables for values in the store
 const features = computed(()=>{
   return store.featured
 })
@@ -199,9 +281,6 @@ const totalPages = computed(()=>{
   return store.totalPages
 })
 const theme  = ref('')
-// = computed(()=>{
-//   return store.tempColor
-// })
 
 
 const paginationItems = computed(() => {
@@ -218,9 +297,6 @@ onMounted(async()=>{
   store.getFeatures(page.value, 'Data fetched')
 })
 
-watch(theme, (newTheme)=>{
-  console.log('chancged to '+newTheme)
-})
 </script>
 
 <template>
@@ -288,21 +364,21 @@ watch(theme, (newTheme)=>{
                         <Select
                         v-model="theme"
                         v-bind="componentField"
-                        id="isCash"
+                        id="color"
                         class='border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'>
                         <FormControl>
                           <SelectTrigger :style="{'background-color': theme}">
-                              <SelectValue placeholder="Theme colors" :onChange="()=>console.log('changed')"/>
+                              <SelectValue placeholder="Available themes"/>
                             </SelectTrigger>
                         </FormControl>
                           <SelectContent>
-                            <SelectItem v-for="(theme, key) in store.colors" :key="key" :value="theme.hexacode" :onclick="()=>console.log('clicked')"
+                            <SelectItem v-for="(theme, key) in store.colors" :key="key" :value="theme.hexacode"
                             :style="{'background-color': theme.hexacode}"
                             > {{theme.name}} - {{theme.hexacode}} </SelectItem>
                           </SelectContent>
                         </Select>
                       
-                      <FormMessage for="isCash" />
+                      <FormMessage for="color" />
                     </FormItem>
                   </FormField>
 
@@ -312,9 +388,9 @@ watch(theme, (newTheme)=>{
                         <FormLabel class="text-blue-900">Schedule Feature Date (optional)</FormLabel>
                         <FormControl>
                           <Input
-                            id="dob"
+                            id="schedule"
                             type="date"
-                            placeholder="Date of Birth"
+                            placeholder="Date"
                             class="focus-visible:ring-blue-600"
                             v-bind="componentField"
                           />
@@ -364,7 +440,7 @@ watch(theme, (newTheme)=>{
                           </div>
                           <div class="col-span-1 flex flex-col text-muted-foreground items-center justify-center w-full">
                             {{ feature.disabled === false ? 'Active' : 'Disabled' }} 
-                            <Switch :checked="!feature.disabled"/>
+                            <Switch :checked="!feature.disabled" @click='()=>handleToggle(feature._id)'/>
                           </div>
                         </div>
                       </span>
@@ -380,15 +456,67 @@ watch(theme, (newTheme)=>{
                                   <h3 class="text-2xl font-medium">EDIT {{feature.title.toUpperCase()}}</h3>
                                   </SheetHeader>
                                 </div>
-                                <form class="space-y-4" @submit.prevent="onUpdate">
+                                <form class="space-y-4" @submit.prevent="()=>onUpdate(false)">
                                   <div class="grid w-full max-w-sm items-center gap-1.5">
-                                    <FormField name="updateName">
+                                    <FormField name="updateTitle">
                                       <FormItem v-auto-animate>
                                         <FormLabel class="text-blue-900">Edit Title</FormLabel>
                                         <FormControl>
-                                            <Input id="updateName" v-model="updateName" type="text" :placeholder="feature.title" />
+                                            <Input id="updateTitle" v-model="updates.updateTitle" type="text" :placeholder="feature.title" />
                                         </FormControl>
-                                        <FormMessage for="updateName" />
+                                        <FormMessage for="updateTitle" />
+                                      </FormItem>
+                                    </FormField>
+                                  </div>
+                                  <div class="grid w-full max-w-sm items-center gap-1.5">
+                                    <FormField name="updateLink">
+                                      <FormItem v-auto-animate>
+                                        <FormLabel class="text-blue-900">Edit Link</FormLabel>
+                                        <FormControl>
+                                            <Input id="updateLink" v-model="updates.updateLink" type="text" :placeholder="feature.link" />
+                                        </FormControl>
+                                        <FormMessage for="updateNLine" />
+                                      </FormItem>
+                                    </FormField>
+                                  </div>
+                                  <FormField name="color">
+                                    <FormItem>
+                                      <FormLabel class="text-blue-900">Edit Theme color</FormLabel>
+                                      
+                                        <Select
+                                        v-model="updates.updateColor"
+                                        id="color"
+                                        class='border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'>
+                                        <FormControl>
+                                          <SelectTrigger :style="{'background-color': updates.updateColor}">
+                                              <SelectValue :placeholder="feature.color"/>
+                                            </SelectTrigger>
+                                        </FormControl>
+                                          <SelectContent>
+                                            <SelectItem v-for="(theme, key) in store.colors" :key="key" :value="theme.hexacode"
+                                            :style="{'background-color': theme.hexacode}"
+                                            > {{theme.name}} - {{theme.hexacode}} </SelectItem>
+                                          </SelectContent>
+                                        </Select>
+                                      
+                                      <FormMessage for="color" />
+                                    </FormItem>
+                                  </FormField>
+                                  <div>
+                                    <FormField name="scheduledDate">
+                                      <FormItem v-auto-animate>
+                                        <FormLabel class="text-blue-900">Edit Scheduled Date (optional)</FormLabel>
+                                        <FormControl>
+                                          <Input
+                                            id="updateSchedule"
+                                            type="date"
+                                            placeholder="Date"
+                                            class="focus-visible:ring-blue-600"
+                                            v-model="updates.updateDate"
+                                          />
+                                        </FormControl>
+                  
+                                        <FormMessage for="dob" />
                                       </FormItem>
                                     </FormField>
                                   </div>
