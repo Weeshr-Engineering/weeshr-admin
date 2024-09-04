@@ -9,7 +9,6 @@ import {
   SheetTrigger
 } from '@/components/ui/sheet'
 import { ref, onMounted,  computed } from 'vue'
-import { Loader2 } from 'lucide-vue-next'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import { Button } from "@/components/ui/button"
@@ -49,7 +48,6 @@ import {
   PaginationNext,
   PaginationPrev,
 } from '@/components/ui/pagination';
-import router from '@/router'
 import { useWeeshConfigStore } from '@/stores/config-details/weeshConfig'
 import { ability, defineAbilities, verifyAbilities } from '@/lib/ability'
 
@@ -70,7 +68,6 @@ const deleteStyle = computed(()=>{
 })
 
 const store = useWeeshConfigStore()
-const loading = ref(false);
 const MAX_FILE_SIZE = 1024 * 1024 * 2;
 const active = computed(()=>{
   return store.active
@@ -96,7 +93,6 @@ const onUpdate = async() => {
     description: `Updating Weeshe Category`,
     variant: 'default'
   })
-  loading.value = true
   const stringSchema = z.string()      
     .min(2, { message: 'First name must be at least 2 characters long' })
     .max(50, { message: 'First name cannot be longer than 50 characters' })
@@ -111,7 +107,7 @@ const onUpdate = async() => {
         return;
   }else{
       const data = {
-        // 'name': updateName.value,
+        'name': updateName.value,
         'image': updateImg.value
       }
 
@@ -133,7 +129,6 @@ const onUpdate = async() => {
         store.catchErr(error)
       }
     }
-      loading.value = false
 }
 
 const formSchema = toTypedSchema(
@@ -190,7 +185,6 @@ const onSubmit = formSubmit(async (values) => {
     console.log(error)
     store.catchErr(error)
   }
-  loading.value = false
 })
 
 
