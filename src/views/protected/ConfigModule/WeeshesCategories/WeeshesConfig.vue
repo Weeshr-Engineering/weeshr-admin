@@ -93,7 +93,6 @@ const handleFileUpdate = (event: any) => {
 
 const onUpdate = async() => {  
   toast({
-    title: 'Updating',
     description: `Updating Weeshe Category`,
     variant: 'default'
   })
@@ -133,23 +132,7 @@ const onUpdate = async() => {
         console.log(error)
         store.catchErr(error)
       }
-      // let config = {
-      //   method: 'patch',
-      //   maxBodyLength: Infinity,
-      //   url: `/api/v1/admin/weesh/category/${currentCategory.value}`,
-      //   data : data
-      // };
-
-      // axios.request(config)
-      // .then((response) => {
-      //   console.log(response.data);
-      //   store.getWeesheCategories(store.page, `${response.data.message}`)
-      // })
-      // .catch((error) => {
-      //   console.log(error);
-      //   store.catchErr(error)
-      // });
-      }
+    }
       loading.value = false
 }
 
@@ -179,7 +162,10 @@ const handleFileChange = (event: any) => {
 }
 
 const onSubmit = formSubmit(async (values) => {
-  loading.value = true
+  toast({
+      description: `Loading...`,
+      variant: 'loading'
+    })
   const data = {
     'image': img.value,
     'name': values.name,
@@ -204,22 +190,6 @@ const onSubmit = formSubmit(async (values) => {
     console.log(error)
     store.catchErr(error)
   }
-  
-  // let config = {
-  //   method: 'post',
-  //   maxBodyLength: Infinity,
-  //   url: '/api/v1/admin/weesh/category',
-  //   data : data
-  // };
-
-  // axios.request(config)
-  // .then((response) => {
-  //   console.log(response.data);
-  // })
-  // .catch((error) => {
-  //   console.log(error);
-  //   store.catchErr(error)
-  // });
   loading.value = false
 })
 
@@ -336,14 +306,7 @@ onMounted(async()=>{
                     </FormItem>
                   </FormField>
                   <Button type="submit" class="bg-[#4145A7] mt-2">
-                    <Loader2
-                      color="#ffffff"
-                      v-if="loading"
-                      class="w-4 h-4 mr-2 text-white animate-spin"
-                    />
                     Submit
-    
-                    <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-white animate-spin" />
                   </Button>
                 </form>
               </SheetContent>
@@ -407,15 +370,7 @@ onMounted(async()=>{
                                   </FormField>
                                 </div>
                                 <Button type="submit" class="bg-[#4145A7] mt-2">
-                    
-                                  <Loader2
-                                    color="#ffffff"
-                                    v-if="loading"
-                                    class="w-4 h-4 mr-2 text-white animate-spin"
-                                  />
                                   Submit
-                  
-                                  <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-white animate-spin" />
                                 </Button>
                               </form>
                           </SheetContent>
