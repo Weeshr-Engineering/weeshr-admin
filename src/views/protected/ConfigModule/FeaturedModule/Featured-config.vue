@@ -152,10 +152,18 @@ const onUpdate = async(state: boolean) => {
       color: updates.value.updateColor !== '' ? updates.value.updateColor : currentUpdates.value.updateColor,
       link: updates.value.updateLink !== '' ? updates.value.updateLink : currentUpdates.value.updateLink,
       disabled: !currentUpdates.value.disabled,
-      scheduledDate: updates.value.updateDate !== '' ? updates.value.updateDate : currentUpdates.value.updateDate.split('T')[0],
     }
-    // console.log(tempData)
-    submit(tempData)
+
+    if(currentUpdates.value.updateDate !== ''){
+      const data = { 
+        ...tempData,
+        scheduledDate: updates.value.updateDate !== '' ? updates.value.updateDate : currentUpdates.value.updateDate.split('T')[0]
+      }
+      submit(data)
+    }else {
+      submit(tempData)
+    }
+    
     return
   }
   // checker for a regular edit form. checks if any input is field
@@ -408,7 +416,6 @@ onMounted(async()=>{
                       class="w-4 h-4 mr-2 text-white animate-spin"
                     />
                     Submit
-    
                     <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-white animate-spin" />
                   </Button>
                 </form>

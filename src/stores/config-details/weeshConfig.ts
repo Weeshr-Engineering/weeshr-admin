@@ -76,8 +76,9 @@ export const useWeeshConfigStore = defineStore('weeshConfig', {
         async handleSwitch(value: string, category: string, status: boolean){
           toast({
               title: `${!status ? `Disabling ${category}...` : `Activating ${category}...`}`,
-              description: `${status ? `Disabling ${category} in progress...` : `Activating ${category} in progress...`}`,
-              duration: 0 // Set duration to 0 to make it indefinite until manually closed
+              description: `${!status ? `Disabling ${category} in progress...` : `Activating ${category} in progress...`}`,
+              duration: 0, // Set duration to 0 to make it indefinite until manually closed
+              variant: 'loading'
             })
           const data = JSON.stringify({
             "disabled": !status
@@ -118,7 +119,8 @@ export const useWeeshConfigStore = defineStore('weeshConfig', {
           toast({
               title: 'Deleting Data',
               description: 'Deleting data...',
-              duration: 0 // Set duration to 0 to make it indefinite until manually closed
+              duration: 0, // Set duration to 0 to make it indefinite until manually closed
+              variant: 'loading'
             })
           
             
@@ -140,8 +142,6 @@ export const useWeeshConfigStore = defineStore('weeshConfig', {
               }else{
                 this.getWeesheCategories(this.page, '')
               }
-              
-              
             })
             .catch((error) => {
               this.catchErr(error)
@@ -152,6 +152,11 @@ export const useWeeshConfigStore = defineStore('weeshConfig', {
                 this.currentPage = newPage;
                 this.page = newPage
                 this.getWeesheCategories(this.page, `Page ${this.page}`)
+                toast({
+                  description: `Loading page ${newPage}`,
+                  duration: 0, // Set duration to 0 to make it indefinite until manually closed
+                  variant: 'loading'
+                })
               }
             },
             catchErr (error: any){
