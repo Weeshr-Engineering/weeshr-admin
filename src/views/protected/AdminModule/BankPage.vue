@@ -13,7 +13,8 @@
               <Icon icon="solar:book-bold" width="24px" height="24px" color="#020721" />
             </div>
             <p class="text-2xl md:text-xl xl:text-3xl font-medium text-[#020721] absolute bottom-2 left-5">
-              ₦ 78,351,823.74
+              {{ currency }} {{ balance.toLocaleString() }}
+              <Loader2 v-if="balance === ''" class="w-4 h-4 mr-2 text-[#020721] animate-spin" />
             </p>
           </CardContent>
         </div>
@@ -58,7 +59,7 @@
         </div>
       </Card>
 
-      <Card
+      <RouterLink to="/bank/outflow"><Card
         class="h-[150px] rounded-[24px] transition-transform transform hover:scale-105 bg-[#E45044] cardShadow4 border-transparent"
       >
         <div class="h-[130px] pt-4 relative rounded-tr-[24px] rounded-tl-[24px]">
@@ -78,7 +79,7 @@
             </p>
           </CardContent>
         </div>
-      </Card>
+      </Card></RouterLink>
     </div>
 
     <!-- Account -->
@@ -206,18 +207,14 @@
 
 <script setup lang="ts">
 import Search from '@/components/UseSearch.vue'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import MainNav from '@/components/MainNav.vue'
 import DashboardFooter from '@/components/DashboardFooter.vue'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Icon } from '@iconify/vue'
 import { ability, defineAbilities, verifyAbilities } from '@/lib/ability';
-
-defineAbilities()
-const readRole = ability.can('read', 'wallet-payouts');
-
-
+import { useBankStore } from '@/stores/bank/bank'
 import {
   Table,
   TableRow,
@@ -226,7 +223,23 @@ import {
   TableCell,
   TableHead
 } from '@/components/ui/table'
+import { Loader2 } from 'lucide-vue-next'
 
+
+defineAbilities()
+const readRole = ability.can('read', 'wallet-payouts');
+
+const store = useBankStore()
+const balance = computed(()=>{
+  return store.balance
+})
+const currency = computed(()=>{
+  return store.currency
+})
+
+// if(balance.value === ''){
+  store.getBalance()
+// }
 // Define a ref to hold the users data
 // const users = ref([]);
 const users = ref<any[]>([
