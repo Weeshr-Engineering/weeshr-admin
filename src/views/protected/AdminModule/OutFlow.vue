@@ -83,7 +83,7 @@
                             </svg>
                           </div>
                         </SheetTrigger>
-                        <SheetContent>
+                        <SheetContent class='overflow-y-scroll'>
                           <SheetHeader>
                             <h3 class="text-2xl font-medium">Recipient Details</h3>
                             <SheetDescription>
