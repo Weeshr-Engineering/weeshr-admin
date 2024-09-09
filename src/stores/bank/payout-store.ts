@@ -46,10 +46,19 @@ export const usePayoutStore = defineStore('payout', {
     actions: {
     async getPayout(){
         try{
+          toast({
+            description: 'Fetching data...',
+            variant: 'loading',
+            duration: 0 // Set duration to 0 to make it indefinite until manually closed
+          })
             this.loading = true
             // useGeneralStore().setLoadingToTrue()
             const response = await axios.get(`/api/v1/admin/payouts/users/list`)
             if (response.status === 200 || response.status === 201) {
+              toast({
+                description: `Successful`,
+                variant: 'success'
+              })
                 const data = response.data.data
                 this.payout = data.data;
                 this.perPage = response.data.data.perPage
