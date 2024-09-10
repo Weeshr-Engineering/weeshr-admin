@@ -24,6 +24,7 @@ import RoleManager from '@/views/protected/ConfigModule/RoleModule/RoleManager.v
 import WeeshesConfig from '@/views/protected/ConfigModule/WeeshesCategories/WeeshesConfig.vue'
 import WeeshDetails from '@/views/protected/WeeshModule/WeeshDetails.vue'
 import FeaturedConfig from '@/views/protected/ConfigModule/FeaturedModule/Featured-config.vue'
+import OutFlow from '@/views/protected/AdminModule/OutFlow.vue'
 
 const routes = [
   {
@@ -146,6 +147,12 @@ const routes = [
     path: '/bank/cash-request',
     name: 'cash-request',
     component: CashRequest,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/bank/outflow',
+    name: 'outflow',
+    component: OutFlow,
     meta: { requiresAuth: true }
   },
   {
