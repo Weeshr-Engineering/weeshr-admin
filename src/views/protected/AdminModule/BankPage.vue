@@ -139,7 +139,7 @@
           <DropdownMenu>
             <DropdownMenuTrigger as-child class="rounded-2xl bg-[#EEEFF5]">
               <Button variant="outline">
-                <div class="flex items-center text-[10px] md:text-xs">
+                <div class="flex items-center text-[10px] md:text-xs capitalize">
                   {{ filter.status || 'Status' }}
                   <Icon icon="ion:chevron-down-outline" class="ml-1" />
                 </div>
@@ -160,17 +160,36 @@
               </DropdownMenuCheckboxItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button class="flex-grow-0">
+          <Button
+            class="flex-grow-0 bg-gray-50 text-gray-900 text-sm rounded-2xl dark:bg-gray-700 dark:placeholder-gray-400 dark:text-white"
+          >
             <span>From: </span>
             <Input type="date" @change="updateFromDate" class="bg-transparent text-white ms-2" />
           </Button>
-          <Button class="flex-grow-0">
+          <Button
+            class="flex-grow-0 bg-gray-50 text-gray-900 text-sm rounded-2xl dark:bg-gray-700 dark:placeholder-gray-400 dark:text-white"
+          >
             <span>To: </span>
             <Input type="date" @change="updateToDate" class="bg-transparent text-white ms-2" />
           </Button>
-          <Button class="">
-            Amount
-            <Input type="number" @keydown="filterAmount" class="bg-transparent text-white ms-2" />
+          <Button
+            class="bg-gray-50 text-gray-900 text-sm rounded-2xl dark:bg-gray-700 dark:placeholder-gray-400 dark:text-white"
+          >
+            <Input
+              type="number"
+              @keydown="filterAmount"
+              class="bg-transparent text-white ms-2"
+              placeholder="Amount"
+              :value="inputValue"
+              @input="updateInputValue"
+            />
+          </Button>
+          <Button
+            variant="outline"
+            class="rounded-2xl bg-[#EEEFF5] text-sm"
+            @click="() => resetFilters()"
+          >
+            Clear filter
           </Button>
           <Search class="mt-3 lg:mt-0 flex-grow" />
         </div>
@@ -266,6 +285,7 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 import { Loader2 } from 'lucide-vue-next'
+import { ref } from 'vue'
 
 defineAbilities()
 const readRole = ability.can('read', 'wallet-payouts')
@@ -376,12 +396,28 @@ const updateToDate = (e: Event) => {
   store.getTransactions(filter)
 }
 
+const inputValue = ref('')
+
+const updateInputValue = (event: Event) => {
+  const target = event.target as HTMLInputElement
+  inputValue.value = target.value
+}
+
 const filterAmount = (e: KeyboardEvent) => {
   if (e.key === 'Enter') {
     const target = e.target as HTMLInputElement
     filter.amount = parseInt(target.value)
     store.getTransactions(filter)
+    inputValue.value = ''
   }
+}
+
+const resetFilters = () => {
+  filter.status = ''
+  filter.from = ''
+  filter.to = ''
+  filter.amount = null
+  store.getTransactions(filter)
 }
 
 onMounted(async () => {

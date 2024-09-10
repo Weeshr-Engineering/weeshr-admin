@@ -45,7 +45,7 @@ export type FilterSort = {
   status?: string
   from?: string
   to?: string
-  amount?: number
+  amount?: number | null
 }
 
 export const useBankBalanceStore = defineStore('bank-balance', {
@@ -106,7 +106,7 @@ export const useBankBalanceStore = defineStore('bank-balance', {
         for (const key in filter) {
           if (Object.prototype.hasOwnProperty.call(filter, key)) {
             const value = filter[key as keyof FilterSort]
-            if (value !== undefined && value !== '') {
+            if (value !== undefined && value !== '' && value !== null) {
               if (queryString !== '') {
                 queryString += '&'
               }
