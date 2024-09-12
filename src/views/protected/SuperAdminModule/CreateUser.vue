@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import Search from '@/components/UseSearch.vue'
 import { ref, onMounted } from 'vue'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import * as z from 'zod'
 import { useDateFormat, useNow } from '@vueuse/core'
 import MainNav from '@/components/MainNav.vue'
-import axios from "@/services/ApiService";
+import axios from '@/services/ApiService'
 import { Loader2 } from 'lucide-vue-next'
 import router from '@/router'
 import {
@@ -77,7 +76,6 @@ const newUser = ref({
 const sheetOpen = ref(false)
 const loading = ref(false)
 const superAdminStore = useSuperAdminStore()
-
 
 const onSubmit = handleSubmit(async (values) => {
   loading.value = true
@@ -179,10 +177,7 @@ const fetchUsersData = async () => {
 const saveUserData = async (user: any) => {
   loading.value = true
   try {
-    const response = await axios.post(
-      '/api/v1/admin/administrator',
-      user
-    )
+    const response = await axios.post('/api/v1/admin/administrator', user)
 
     // Check if response status is 200 or 201
     if (response.status === 200 || response.status === 201) {
@@ -229,14 +224,14 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
 // onMounted(fetchUsersData);
 
 // Define the validateLastName function
-const validateLastName = () => {
-  // Get the last entered character
-  const lastChar = newUser.value.lastName.slice(-1)
-  // If the last entered character is not alphabetic, remove it
-  if (!/^[A-Za-z]*$/.test(lastChar)) {
-    newUser.value.lastName = newUser.value.lastName.slice(0, -1)
-  }
-}
+// const validateLastName = () => {
+//   // Get the last entered character
+//   const lastChar = newUser.value.lastName.slice(-1)
+//   // If the last entered character is not alphabetic, remove it
+//   if (!/^[A-Za-z]*$/.test(lastChar)) {
+//     newUser.value.lastName = newUser.value.lastName.slice(0, -1)
+//   }
+// }
 
 onMounted(async () => {
   // useGeneralStore().setLoading(true);
