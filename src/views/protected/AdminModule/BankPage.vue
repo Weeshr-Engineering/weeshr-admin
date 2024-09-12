@@ -65,9 +65,41 @@
                 {{ totalTransfers.amount.toLocaleString() }}</span
               >
             </p>
+
+            <p
+              class="text-2xl md:text-xl xl:text-3xl font-medium text-[#ffffff] absolute bottom-2 left-5"
+            >
+              ₦ 32,125.00
+            </p>
           </CardContent>
         </div>
       </Card>
+
+      <RouterLink to="/bank/outflow"
+        ><Card
+          class="h-[150px] rounded-[24px] transition-transform transform hover:scale-105 bg-[#E45044] cardShadow4 border-transparent"
+        >
+          <div class="h-[130px] pt-4 relative rounded-tr-[24px] rounded-tl-[24px]">
+            <CardContent class="flex items-center justify-between space-y-0">
+              <p class="text-l font-medium text-[#ffffff]">Outflow</p>
+              <div class="weeshr-icon2 rounded-[7px]">
+                <Icon
+                  icon="mingcute:arrow-right-up-line"
+                  width="24px"
+                  height="24px"
+                  color="#E45044"
+                />
+              </div>
+
+              <p
+                class="text-2xl md:text-xl xl:text-3xl font-medium text-[#ffffff] absolute bottom-2 left-5"
+              >
+                ₦ 98,021,339.04
+              </p>
+            </CardContent>
+          </div>
+        </Card></RouterLink
+      >
     </div>
 
     <!-- Account -->
@@ -261,6 +293,7 @@
 
 <script lang="ts" setup>
 import Search from '@/components/UseSearch.vue'
+import { computed, ref } from 'vue'
 import MainNav from '@/components/MainNav.vue'
 import DashboardFooter from '@/components/DashboardFooter.vue'
 import { Card, CardContent } from '@/components/ui/card'
@@ -268,6 +301,9 @@ import { Icon } from '@iconify/vue'
 import { ability, defineAbilities } from '@/lib/ability'
 import { useBankBalanceStore, type FilterSort } from '@/stores/bank/bank-balance'
 import { Button } from '@/components/ui/button'
+import { Icon } from '@iconify/vue'
+import { ability, defineAbilities, verifyAbilities } from '@/lib/ability'
+import { useBankStore } from '@/stores/bank/bank'
 import {
   Table,
   TableRow,
@@ -276,7 +312,22 @@ import {
   TableCell,
   TableHead
 } from '@/components/ui/table'
-import { computed, onMounted, reactive } from 'vue'
+import { Loader2 } from 'lucide-vue-next'
+
+defineAbilities()
+const readRole = ability.can('read', 'wallet-payouts')
+
+const store = useBankStore()
+const balance = computed(() => {
+  return store.balance
+})
+const currency = computed(() => {
+  return store.currency
+})
+
+// if(balance.value === ''){
+store.getBalance()
+// }import { computed, onMounted, reactive } from 'vue'
 import PagePagination from '@/components/PagePagination.vue'
 import {
   DropdownMenu,
