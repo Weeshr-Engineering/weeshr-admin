@@ -57,7 +57,7 @@ export const useFeaturedStore = defineStore('featured', {
             const config = {
               method: 'get',
               maxBodyLength: Infinity,
-              url: `/api/v1/admin//featured-moments`,
+              url: `/api/v1/admin/featured-moments`,
             };
             
             axios.request(config)
