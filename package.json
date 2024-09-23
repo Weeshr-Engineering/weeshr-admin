@@ -16,6 +16,7 @@
   "dependencies": {
     "@casl/ability": "^6.7.1",
     "@casl/vue": "^2.2.2",
+    "@radix-icons/vue": "^1.0.0",
     "@radix-ui/react-popover": "^1.0.7",
     "@vee-validate/zod": "^4.12.6",
     "@vueuse/core": "^10.11.0",

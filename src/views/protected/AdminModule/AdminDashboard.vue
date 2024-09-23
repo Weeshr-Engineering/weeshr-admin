@@ -47,7 +47,7 @@ function formatNumberWithCommas(number: number): string {
                     <div class="text-2xl lg:text-2xl font-medium text-[#020721] absolute bottom-2 left-5">
                     <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" />
                     <p v-else >{{formatNumberWithCommas (weeshes.all) }}</p>
-                     </div> 
+                     </div>
             </CardContent>
             </div>
             <div class="bg-[#020721] pt-2 h-[80px] rounded-bl-[24px] rounded-br-[24px]">
@@ -56,7 +56,7 @@ function formatNumberWithCommas(number: number): string {
                     <div class="text-2xl font-normal text-white">
                     <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-white animate-spin" />
                     <p v-else >{{formatNumberWithCommas (weeshes.fulfilled) }}</p>
-                    </div>    
+                    </div>
                 </CardContent>
             </div>
         </Card>
@@ -72,9 +72,9 @@ function formatNumberWithCommas(number: number): string {
                     />
                     <div class="text-2xl lg:text-2xl font-medium text-[#020721] absolute bottom-2 left-5">
                     <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" />
-                    <p class='whitespace-nowrap text-adaptive' else >₦ {{formatNumberWithCommas (wallet.total_current_balance.balance) }}</p>
+                    <p class='whitespace-nowrap text-adaptive' v-else >₦ {{formatNumberWithCommas (wallet.total_current_balance.balance) }}</p>
                     </div>
-                </CardContent>   
+                </CardContent>
             </div>
             <div class="bg-[#020721] pt-2 h-[80px] rounded-bl-[24px] rounded-br-[24px]">
                 <CardContent class="flex flex-col space-y-0">
@@ -82,7 +82,7 @@ function formatNumberWithCommas(number: number): string {
                     <div class="text-2xl font-normal text-white">
                     <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-white animate-spin" />
                     <p v-else >₦ {{formatNumberWithCommas (wallet.invested.balance) }}</p>
-                    </div>   
+                    </div>
                 </CardContent>
             </div>
         </Card>

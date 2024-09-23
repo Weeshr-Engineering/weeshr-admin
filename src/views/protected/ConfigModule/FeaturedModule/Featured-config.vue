@@ -6,7 +6,8 @@ import {
   SheetContent,
   SheetHeader,
   SheetDescription,
-  SheetTrigger
+  SheetTrigger,
+  SheetClose
 } from '@/components/ui/sheet'
 import { ref, onMounted,  computed} from 'vue'
 import { Loader2 } from 'lucide-vue-next'
@@ -49,13 +50,15 @@ import {
   PaginationNext,
   PaginationPrev,
 } from '@/components/ui/pagination';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import DateRanged from './Date-range.vue'
 import { useFeaturedStore } from '@/stores/config-details/featured'
 import { ability, defineAbilities, verifyAbilities } from '@/lib/ability'
 
 defineAbilities()
 const create = ability.can('create', 'featured-moments')
 const createStyle = computed(()=>{
-  return create ? 'bg-[#020721] px-4 py-2 rounded-xl w-50 h-12' : 'cursor-not-allowed opacity-20 bg-[#020721] px-4 py-2 rounded-xl w-50 h-12'
+  return create ? 'bg-[#020721] px-4 py-2 rounded-full w-50 h-12' : 'cursor-not-allowed opacity-20 bg-[#020721] px-4 py-2 rounded-full w-50 h-12'
 })
 
 const edit = ability.can('update', 'featured-moments')
@@ -70,6 +73,7 @@ const deleteStyle = computed(()=>{
 
 const store = useFeaturedStore()
 const loading = ref(false);
+const MAX_FILE_SIZE = 1024 * 1024 * 2;
 const active = computed(()=>{
   return store.active
 })
@@ -128,6 +132,14 @@ const handleToggle = async (id: string)=>{
   await setfeature(id)
   onUpdate(true)
 }
+
+const updateImg = ref<any[]>([])
+
+const handleFileUpdate = (event: any) => {
+  const file = event.target.files[0];
+  updateImg.value = file
+}
+
 
 const onUpdate = async(state: boolean) => {
   toast({
@@ -224,20 +236,42 @@ function findId(id: string, items: Item[]): Item | undefined {
 
 const formSchema = toTypedSchema(
   z.object({
-    title: z
+    intro: z
+      .string()
+      .min(2, { message: 'Title must be at least 2 characters long' })
+      .max(100, { message: 'Title cannot be longer than 100 characters' })
+      .nonempty('Please enter your Title'),
+    header: z
       .string()
       .min(2, { message: 'Title must be at least 2 characters long' })
       .max(50, { message: 'Title cannot be longer than 50 characters' })
-      .nonempty('Please enter your Title'),
+      .nonempty('Please enter your Header'),
+    title: z
+      .string()
+      .min(2, { message: 'Title must be at least 2 characters long' })
+      .max(100, { message: 'Title cannot be longer than 50 characters' })
+      .nonempty('Please select a call to action'),
     link: z
       .string()
       .min(2, { message: 'Link must be at least 2 characters long' })
       .max(50, { message: 'Link cannot be longer than 50 characters' })
       .nonempty('Add the link for the moment'),
-    color: z.string(),
-    scheduledDate: z.string().nonempty('Please enter your date of birth').optional(),
+    color: z.string().nonempty('Please select a color theme'),
+    image: z
+      .any()
+      .refine((file) => file?.size <= MAX_FILE_SIZE, `Max image size is 2MB.`),
+    // scheduledDate: z.string().nonempty('Please enter your date of birth').optional(),
   })
 )
+const img = ref<File | any>(null)
+const schedule = ref({
+  start: '',
+  end: ''
+})
+const handleFileChange = (event: any) => {
+  const file = event.target.files[0];
+  img.value = file
+}
 
 const { handleSubmit: formSubmit } = useForm({
   validationSchema: formSchema
@@ -245,21 +279,39 @@ const { handleSubmit: formSubmit } = useForm({
 
 // submit funtion to create a new featured moment
 const onSubmit = formSubmit(async (values) => {
-  loading.value = true
+  toast({
+      description: `Loading...`,
+      variant: 'loading'
+    })
   let data = {}
   const value = {
-    'title': values.title,
+    'image': img?.value,
+    'header': values.header,
+    'title': values.intro,
     'color': values.color,
+    'linkTitle': values.title,
     'link': values.link,
     'disabled': `${!active.value}`
   }
-  if(values.scheduledDate){
-    data = {...value, 'scheduledDate': values.scheduledDate}
-  }else{
-    data = {...value}
+  if (schedule.value.start !== '' && schedule.value.end !== ''){
+    data = {
+      ...value,
+      'scheduledDateFrom': schedule.value.start,
+      'scheduledDateTo': schedule.value.end
+    }
+    console.log(data)
+  }else {
+    data = {
+      ...value
+    }
+    console.log(data)
   }
   try{
-    const response = await axios.post('/api/v1/admin/featured-moment', data);
+    const response = await axios.post('/api/v1/admin/featured-moment', data, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
     if (response.status === 200 || response.status === 201) {
         toast({
             description: `${response.data.message}`,
@@ -271,7 +323,6 @@ const onSubmit = formSubmit(async (values) => {
     console.log(error)
     store.catchErr(error)
   }
-  loading.value = false
 })
 
 
@@ -290,6 +341,26 @@ const totalPages = computed(()=>{
 })
 const theme  = ref('')
 
+interface Period {
+  day: number,
+  month: number,
+  year: number
+}
+
+interface Schedule {
+  start: Period,
+  end: Period
+}
+const log = (val: Schedule)=>{
+  if(val.start && val.end){
+    const start = `${val.start.day.toString().padStart(2, '0')}/${val.start.month.toString().padStart(2, '0')}/${val.start.year.toString()}`
+    schedule.value.start = start
+
+    const end = `${val.end.day.toString().padStart(2, '0')}/${val.end.month.toString().padStart(2, '0')}/${val.end.year.toString()}`
+    schedule.value.end = end
+  }
+}
+
 
 const paginationItems = computed(() => {
   const pages = [];
@@ -299,6 +370,9 @@ const paginationItems = computed(() => {
   return pages;
 });
 
+const linkTitles = [
+  'Connect', 'Preview', 'Explore'
+]
 
 onMounted(async()=>{
   store.getColors()
@@ -309,7 +383,7 @@ onMounted(async()=>{
 
 <template>
     <div class="w-full">
-        <MainNav class="mx-6" headingText="Featured Moment" />
+        <MainNav class="mx-6" headingText="Featured Content" />
         <div class="px-10 py-10 ml-auto w-full flex justify-end">
             <Sheet>
               <SheetTrigger as-child @click="verifyAbilities('create', 'featured-moments')">
@@ -336,38 +410,50 @@ onMounted(async()=>{
                 <form class="space-y-4" @submit.prevent="onSubmit">
                 <div class="flex py-4 justify-between items-center">
                 <SheetHeader>
-                    <h3 class="text-2xl font-medium">New Featured Moment</h3>
+                    <h3 class="text-2xl font-medium">Add Featured</h3>
                     </SheetHeader>
                     <SheetDescription class="flex items-center gap-4">
-                      {{ store.active === true ? 'Enabled' : 'Disabled' }} <Switch @click="store.handleActive()" :checked="store.active"/>
+                      {{ store.active === true ? 'Active' : 'Disabled' }} <Switch @click="store.handleActive()" :checked="store.active"/>
                     </SheetDescription>
                 </div>
-                
+
                   <div class="grid w-full max-w-sm items-center gap-1.5">
-                    <FormField v-slot="{ componentField }" name="title">
+                    <FormField v-slot="{ componentField }" name="image">
                       <FormItem v-auto-animate>
-                        <FormLabel class="text-blue-900">Feature Title</FormLabel>
+                        <FormLabel class="text-blue-900">Upload feature image</FormLabel>
+                        <FormControl>
+                          <input id="picture" type="file"  @change="handleFileChange" v-bind="componentField"  class="w-full h-24 appearance-none border-[1px] border-gray-200 rounded-sm flex justify-center items-center" accept="image/*"/>
+                        </FormControl>
+                        <FormMessage for="image" />
+                      </FormItem>
+                    </FormField>
+                  </div>
+                  
+                  <div class="grid w-full max-w-sm items-center gap-1.5">
+                    <FormField v-slot="{ componentField }" name="intro">
+                      <FormItem v-auto-animate>
+                        <FormLabel class="text-blue-900">Intro title</FormLabel>
                         <FormControl>
                             <Input id="name" v-bind="componentField" type="text" placeholder="Title" />
                         </FormControl>
-                        <FormMessage for="name" />
+                        <FormMessage for="intro" />
                       </FormItem>
                     </FormField>
                   </div>
                   <div class="grid w-full max-w-sm items-center gap-1.5">
-                    <FormField v-slot="{ componentField }" name="link">
+                    <FormField v-slot="{ componentField }" name="header">
                       <FormItem v-auto-animate>
-                        <FormLabel class="text-blue-900">Link</FormLabel>
+                        <FormLabel class="text-blue-900">Header</FormLabel>
                         <FormControl>
-                            <Input id="name" v-bind="componentField" type="text" placeholder="Https://...." />
+                            <Input id="name" v-bind="componentField" type="text" placeholder="" />
                         </FormControl>
-                        <FormMessage for="name" />
+                        <FormMessage for="header" />
                       </FormItem>
                     </FormField>
                   </div>
-                  <FormField v-slot="{ componentField }" name="color">
+                  <FormField v-slot="{ componentField }" name="title">
                     <FormItem>
-                      <FormLabel class="text-blue-900">Select Theme color</FormLabel>
+                      <FormLabel class="text-blue-900">Link title</FormLabel>
                       
                         <Select
                         v-model="theme"
@@ -375,33 +461,52 @@ onMounted(async()=>{
                         id="color"
                         class='border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'>
                         <FormControl>
-                          <SelectTrigger :style="{'background-color': theme}">
-                              <SelectValue placeholder="Available themes"/>
+                          <SelectTrigger>
+                              <SelectValue placeholder="Select Link Title"/>
                             </SelectTrigger>
                         </FormControl>
                           <SelectContent>
-                            <SelectItem v-for="(theme, key) in store.colors" :key="key" :value="theme.hexacode"
-                            :style="{'background-color': theme.hexacode}"
-                            > {{theme.name}} - {{theme.hexacode}} </SelectItem>
+                            <SelectItem v-for="(item, key) in linkTitles" :key="key" :value="item"
+                            > {{ item }} </SelectItem>
                           </SelectContent>
                         </Select>
+                      
+                      <FormMessage for="title" />
+                    </FormItem>
+                  </FormField>
+
+                  <div class="grid w-full max-w-sm items-center gap-1.5">
+                    <FormField v-slot="{ componentField }" name="link">
+                      <FormItem v-auto-animate>
+                        <FormLabel class="text-blue-900">Link</FormLabel>
+                        <FormControl>
+                            <Input id="name" v-bind="componentField" type="text" placeholder="Https://...." />
+                        </FormControl>
+                        <FormMessage for="link" />
+                      </FormItem>
+                    </FormField>
+                  </div>
+
+                  <FormField v-slot="{ componentField }" name="color">
+                    <FormItem>
+                      <FormLabel class="text-blue-900">Select Theme color</FormLabel>
+                      
+                      <ToggleGroup type="single" v-bind="componentField">
+                        <ToggleGroupItem aria-label="Toggle bold" v-for="(theme, key) in store.colors" :key="key" :value="theme.hexacode">
+                          <div class='w-6 h-6 rounded-md' :style="{'background-color': theme.hexacode}"></div>
+                        </ToggleGroupItem>
+                      </ToggleGroup>
                       
                       <FormMessage for="color" />
                     </FormItem>
                   </FormField>
 
                   <div>
-                    <FormField v-slot="{ componentField }" name="scheduledDate">
+                    <FormField name="scheduledDate">
                       <FormItem v-auto-animate>
-                        <FormLabel class="text-blue-900">Schedule Feature Date (optional)</FormLabel>
+                        <FormLabel class="text-blue-900">Schedule (optional)</FormLabel>
                         <FormControl>
-                          <Input
-                            id="schedule"
-                            type="date"
-                            placeholder="Date"
-                            class="focus-visible:ring-blue-600"
-                            v-bind="componentField"
-                          />
+                          <DateRanged @updateValue="log"/>
                         </FormControl>
   
                         <FormMessage for="dob" />
@@ -409,53 +514,54 @@ onMounted(async()=>{
                     </FormField>
                   </div>
 
-                  <Button type="submit" class="bg-[#4145A7] mt-2">
-                    <Loader2
-                      color="#ffffff"
-                      v-if="loading"
-                      class="w-4 h-4 mr-2 text-white animate-spin"
-                    />
-                    Submit
-                    <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-white animate-spin" />
-                  </Button>
+                  <div class='flex gap-4 items-center justify-end'>
+                    <SheetClose>
+                        <Button type='button' class="bg-gray-300 mt-2">
+                          Close
+                        </Button>
+                    </SheetClose>
+                    <Button type="submit" class="bg-[#4145A7] mt-2">
+                      Submit
+                    </Button>  
+                  </div>
                 </form>
               </SheetContent>
             </Sheet>
         </div>
         <div class="w-full flex justify-center">
             <div class="w-3/4">
-                <div class="flex justify-end w-full text-sm text-[#6A70FF]" disabled>
+                <div class="flex justify-end w-full text-xs text-[#6A70FF]" disabled>
                     <!-- <p>Only show active</p> -->
                 </div>
                 <div class="w-full min-h-72">
                 <span v-for="(feature, key) in features" :key="key">
                   <Card Content class="mt-4" :style="{'background-color': feature.color}">
                       <CardContent
-                        class="flex flex-col gap-4 md:grid grid-cols-8 px-2 sm:px-4 py-4"
+                        class="grid grid-cols-8 px-2 sm:px-4 py-4"
                       >
-                        <span class="flex flex-col gap-2 col-span-7 md:grid grid-cols-4 md:gap-4 w-full">
-                            <div
+                        <span class="gap-2 col-span-8 md:col-span-6 grid grid-cols-4 md:gap-4 w-full">
+                          <div
                             class="col-span-2 text-[#000000] md:h-14 flex flex-col"
                             >
                               <p class='text-muted-foreground'>Title</p>
                               <p>{{feature.title}}</p>
                           </div>
-                        <div class='flex items-center justify-between gap-2 w-full col-span-2 md:grid grid-cols-2'>
-                          <div class="col-span-1 text-sm text-[#000000]">
-                            <p class='text-muted-foreground'>Theme</p>
-                            <p>{{feature.color}}</p>
+                          <div class='flex items-center justify-between gap-2 w-full col-span-2 md:grid grid-cols-2'>
+                            <div class="col-span-1 hidden md:inline-block text-sm text-[#000000]">
+                              <p class='text-muted-foreground'>Theme</p>
+                              <p>{{feature.color}}</p>
+                            </div>
+                            <div class="col-span-1 flex flex-col text-muted-foreground items-center justify-end md:justify-center w-full">
+                              {{ feature.disabled === false ? 'Active' : 'Disabled' }} 
+                              <Switch :checked="!feature.disabled" @click='()=>handleToggle(feature._id)'/>
+                            </div>
                           </div>
-                          <div class="col-span-1 flex flex-col text-muted-foreground items-center justify-center w-full">
-                            {{ feature.disabled === false ? 'Active' : 'Disabled' }} 
-                            <Switch :checked="!feature.disabled" @click='()=>handleToggle(feature._id)'/>
-                          </div>
-                        </div>
                       </span>
-                      <div class="col-span-1 flex items-center justify-between gap-4 w-full">
+                      <div class="md:col-span-2 hidden md:flex items-center justify-between gap-4 w-full">
                         <!-- <Switch :checked="!feature.disabled" @click="store.handleSwitch(feature._id, feature.title, feature.disabled)" :disabled="!edit"/> -->
                         <Sheet>
                             <SheetTrigger>
-                                <Icon @click="setfeature(feature._id)" icon="mdi:edit" width="17" height="17" :class="editStyle" />
+                                <Icon @click="setfeature(feature._id)" icon="mdi:edit" width="17" height="17" :class="editStyle" class='hidden md:inline-block'/>
                             </SheetTrigger>
                             <SheetContent class="overflow-y-auto py-8" side="right" v-if="ability.can('update', 'featured-moments')">
                                 <div class="flex py-4 justify-between items-center">
@@ -544,7 +650,7 @@ onMounted(async()=>{
 
                         <AlertDialog>
                           <AlertDialogTrigger>
-                            <Icon icon="mdi:delete" width="17" height="17" :class="deleteStyle" @click="verifyAbilities('delete', 'featured-moments')"/>
+                            <Icon icon="mdi:delete" width="17" height="17" :class="deleteStyle" class='hidden md:inline-block' @click="verifyAbilities('delete', 'featured-moments')"/>
                           </AlertDialogTrigger>
                           <div>
                           <AlertDialogContent v-if="deleteWeeshfeature">
