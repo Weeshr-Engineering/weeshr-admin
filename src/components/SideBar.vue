@@ -37,6 +37,13 @@ const weeshes = computed(()=>{
   }
   return false
 })
+const bank = computed(()=>{
+  const bankAbility = ability.can('read', 'weeshr-bank')
+  if(bankAbility){
+    return true
+  }
+  return false
+})
 const activityLogs = computed(()=>{
   const activity = ability.can('read', 'activity-logs')
   if(activity){
@@ -102,7 +109,7 @@ const openNotificationsBoard = () => {
         </a>
       </li>
 
-      <li :class="{ 'dashboard-active': isActive('/bank') }">
+      <li v-if='bank' :class="{ 'dashboard-active': isActive('/bank') }">
         <a @click="$router.push({ name: 'bank' })">
           <div class="icon-grid">
             <Icon icon="fluent:building-bank-16-filled" width="17" height="17" class="icons-sidebar" />

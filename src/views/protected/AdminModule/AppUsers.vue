@@ -30,7 +30,8 @@ const createStyle = computed(()=>{
 })
 
 //Create User
-const {loading, newUser, userLoad} = createUser()
+const {open, loading, newUser, userLoad} = createUser()
+
 
 </script>
 
@@ -42,29 +43,29 @@ const {loading, newUser, userLoad} = createUser()
       <Icon icon="tabler:chevron-right" width="22px" height="22px" class="ml-1 pt-1"/>
       <RouterLink :to="{name: 'appuser'}">App Users</RouterLink>
     </div>
-    <Sheet>
-      <SheetTrigger asChild>
+    <Sheet v-model:open="open">
         <div class="flex justify-end ml-3 my-4">
-          <button @click="verifyAbilities('create', 'users')"  :class='createStyle'>
-            <div class="text-base text-[#F8F9FF] text-center flex items-center">
-              Create New User
-              <svg
-                width="20"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                class="ml-6"
-              >
-                <path
-                  d="M12 2C6.49 2 2 6.49 2 12C2 17.51 6.49 22 12 22C17.51 22 22 17.51 22 12C22 6.49 17.51 2 12 2ZM16 12.75H12.75V16C12.75 16.41 12.41 16.75 12 16.75C11.59 16.75 11.25 16.41 11.25 16V12.75H8C7.59 12.75 7.25 12.41 7.25 12C7.25 11.59 7.59 11.25 8 11.25H11.25V8C11.25 7.59 11.59 7.25 12 7.25C12.41 7.25 12.75 7.59 12.75 8V11.25H16C16.41 11.25 16.75 11.59 16.75 12C16.75 12.41 16.41 12.75 16 12.75Z"
-                  fill="#F8F9FF"
-                />
-              </svg>
-            </div>
-          </button>
+          <SheetTrigger asChild>
+            <button @click="verifyAbilities('create', 'users')"  :class='createStyle'>
+              <div class="text-base text-[#F8F9FF] text-center flex items-center">
+                Create New User
+                <svg
+                  width="20"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="ml-6"
+                >
+                  <path
+                    d="M12 2C6.49 2 2 6.49 2 12C2 17.51 6.49 22 12 22C17.51 22 22 17.51 22 12C22 6.49 17.51 2 12 2ZM16 12.75H12.75V16C12.75 16.41 12.41 16.75 12 16.75C11.59 16.75 11.25 16.41 11.25 16V12.75H8C7.59 12.75 7.25 12.41 7.25 12C7.25 11.59 7.59 11.25 8 11.25H11.25V8C11.25 7.59 11.59 7.25 12 7.25C12.41 7.25 12.75 7.59 12.75 8V11.25H16C16.41 11.25 16.75 11.59 16.75 12C16.75 12.41 16.41 12.75 16 12.75Z"
+                    fill="#F8F9FF"
+                  />
+                </svg>
+              </div>
+            </button>
+        </SheetTrigger>
         </div>
-      </SheetTrigger>
       <Card class="container px-4 pt-6 pb-10 mx-auto sm:px-6 lg:px-8 bg-[#FFFFFF] rounded-2xl">
         <usersTable />
       </Card>
@@ -72,7 +73,7 @@ const {loading, newUser, userLoad} = createUser()
 
       <SheetContent class="bg-[#FFFFFF] overflow-y-scroll w-full">
         <h2 class="text-3xl font-bold ml-4 mt-8">Add User</h2>
-        <form class="space-y-4 rounded-xl my-8 mx-auto py-4 px-4 border-solid border border-black border-opacity-50" @submit.prevent="userLoad">
+        <div class="space-y-4 rounded-xl my-8 mx-auto py-4 px-4 border-solid border border-black border-opacity-50">
           <h3 class="text-2xl font-medium mb-4 pt-2.5">User Form</h3>
           <FormField v-slot="{ componentField }" name="firstName">
               <FormItem v-auto-animate>
@@ -255,7 +256,7 @@ const {loading, newUser, userLoad} = createUser()
                   Cancel
               </Button>
             </SheetClose>
-            <Button :disabled="loading" type="submit" class="rounded-lg px-4 py-1 bg-[#4145a7] ms-2">
+            <Button :disabled="loading" @click="userLoad" type="submit" class="rounded-lg px-4 py-1 bg-[#4145a7] ms-2">
             <Loader2
                 color="#ffffff"
                 v-if="loading"
@@ -264,7 +265,7 @@ const {loading, newUser, userLoad} = createUser()
             Save
             </Button>
           </div>
-        </form>
+        </div>
       </SheetContent>
     </Sheet>
   </div>
