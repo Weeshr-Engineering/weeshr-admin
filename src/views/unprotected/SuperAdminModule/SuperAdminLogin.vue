@@ -11,44 +11,66 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/comp
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { toast } from '@/components/ui/toast'
-import router from '@/router'
+import { useRoute, useRouter } from 'vue-router'
 import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
-import axios from 'axios'
+import axios from '@/services/ApiService'
+// import { ability } from '@/lib/ability'
+// import { useAbilityStore } from '@/stores/permissions/permission-store'
 
+// import { useAbilityStore } from '@/stores/permissions/permission-store'
+// const ability = useAbilityStore().ability
+// const updateAbility = useAbilityStore().updateAbility
+
+// console.log(ability.can('rea', 'Post') )// true)
+// console.log(ability.can('delete', 'Post')) // true)
+// setTimeout(()=>{
+//   // ability.update({'delete': 'Post'})
+//   // ability.update([]);
+//   ability.update([ // switch to readonly mode
+//   { action: 'rea', subject: 'Post' }
+// ]);
+//   setTimeout(()=>{
+//     console.log(ability.can('rea', 'Post') )// true)
+//   }, 3000)
+// }, 3000)
 const currentYear = ref(new Date().getFullYear())
 
 const updateYear = () => {
   currentYear.value = new Date().getFullYear()
 }
 
-const superAdminStore = useSuperAdminStore()
+const { setToken, setPassword, setuserEmail, setLocalStorage } = useSuperAdminStore()
+const route = useRoute()
+const router = useRouter()
+
+const { redirect_to } = route.query
 
 onMounted(() => {
   updateYear()
   setInterval(updateYear, 1000 * 60 * 60 * 24 * 30) // Update the year once a month
 
   // Choose a random index for variety
-  const randomIndex = Math.floor(Math.random() * quotes.length)
+  // const randomIndex = Math.floor(Math.random() * quotes.length)
 
   // Set the data properties
-  quote.value = quotes[randomIndex]
-  author.value = authors[randomIndex]
+  // quote.value = quotes[randomIndex]
+  // author.value = authors[randomIndex]
 })
 
 const loading = ref(false)
 
-const quotes = [
-  'Weehr App turns my ordinary moments into extraordinary 🌟 memories...',
-  'Experiencing pure joy is just a 🎉 tap away with Weehr App...',
-  'Weehr App has redefined the art of wish fulfillment, making 🎂 dreams come true effortlessly...',
-  "Navigating life's wishes is a 🎁 breeze, thanks to the intuitive Weehr App...",
-  "Every 🌈 wish feels like pure magic, courtesy of Weehr App's innovation and simplicity..."
-]
+// const quotes = [
+//   'Weehr App turns my ordinary moments into extraordinary 🌟 memories...',
+//   'Experiencing pure joy is just a 🎉 tap away with Weehr App...',
+//   'Weehr App has redefined the art of wish fulfillment, making 🎂 dreams come true effortlessly...',
+//   "Navigating life's wishes is a 🎁 breeze, thanks to the intuitive Weehr App...",
+//   "Every 🌈 wish feels like pure magic, courtesy of Weehr App's innovation and simplicity..."
+// ]
 
-const authors = ['Chloe Thompson', 'Mason Carter', 'Isabella Scott', 'Noah Adams', 'Ava Miller']
+// const authors = ['Chloe Thompson', 'Mason Carter', 'Isabella Scott', 'Noah Adams', 'Ava Miller']
 
-const quote = ref<string>('')
-const author = ref<string>('')
+// const quote = ref<string>('')
+// const author = ref<string>('')
 
 const formSchema = toTypedSchema(
   z.object({
@@ -77,48 +99,81 @@ const onSubmit = form.handleSubmit(async () => {
   if (form.values.userEmail && form.values.password) {
     const { userEmail, password } = form.values
 
-    console.log(userEmail, password)
-
     // Set the username and password in the store
-    superAdminStore.setuserEmail(userEmail)
-    superAdminStore.setPassword(password)
+    setuserEmail(userEmail)
+    setPassword(password)
 
     try {
-      const response = await axios.post('https://api.staging.weeshr.com/api/v1/admin/login', {
+      const response = await axios.post('/api/v1/admin/login', {
         email: userEmail,
         password: password
       })
 
-      // Check if the token property exists in the response
-      if (response.data.data && response.data.data.user && response.data.data.user.token) {
-        // Access the token from the response data
-        const token = response.data.data.user.token
+      const {
+        data: { data }
+      } = response
 
+      // Check if the token property exists in the response
+      if (data && data.user && data.user.token) {
+        // Access the data from the response data
+        const {
+          user: { token, firstName, lastName, _id: id, email: userEmail }
+        } = data
+
+        // save basic user data to local storage
+        setLocalStorage(firstName, lastName, userEmail, id)
+        // save user email
+        setuserEmail(userEmail)
         // Save the token in Pinia store
-        superAdminStore.setToken(token)
+        setToken(token)
+
+        sessionStorage.setItem('permissions', JSON.stringify(response.data.data.user.permissions))
+        // console.log(response.data)
+        // const permissions = modPermissions(response.data.data.user.permissions)
+        // ability.update(permissions)
+        // updateAbility(permissions)
+        // useAbilityStore().permissions = permissions
 
         // Save the token in sessionStorage
 
-        router.push({ name: 'home' })
+        return redirect_to ? router.push(redirect_to as string) : router.push({ name: 'home' })
       } else {
         router.push({ name: 'superAdmin-login' })
       }
 
       // Redirect to home page after successful login
-    } catch (error: any) {
+    } catch ({ response }: any) {
       loading.value = false
+
+      const { status, data, statusText } = response
+
+      if ([400, 401].includes(status)) {
+        return toast({
+          description: data?.message || 'Invalid Credentials',
+          variant: 'destructive'
+        })
+      }
+
+      if (status === 422) {
+        return toast({
+          description: data.error || 'Invalid Credentials',
+          variant: 'destructive'
+        })
+      }
+
       // Handle login errors, such as displaying error messages to the user
-      toast({
-        title: error.response.data.message || 'An error occurred',
+      return toast({
+        description: data?.message || 'An error occurred',
         variant: 'destructive'
       })
     }
   } else {
     // Handle the case when form fields are empty
     toast({
-      title: 'Please enter your username/email and password.',
+      description: 'Please enter your username/email and password.',
       variant: 'destructive'
     })
+
     loading.value = false
   }
 })
@@ -157,10 +212,10 @@ const onSubmit = form.handleSubmit(async () => {
               src="https://res.cloudinary.com/drykej1am/image/upload/v1697377875/weehser%20pay/Weeshr_Light_lrreyo.svg"
               alt=""
             />
-            <h4 class="text-[#F8F9FFB2] tracking-widest">SUPER ADMIN FACTORY</h4>
+            <h4 class="text-[#F8F9FFB2] tracking-widest font-outfit">SUPER ADMIN FACTORY</h4>
           </div>
 
-          <div class="absolute w-[80%] z-20 mt-auto bottom-[300px] text-white">
+          <!-- <div class="absolute w-[80%] z-20 mt-auto bottom-[300px] text-white">
             <blockquote class="space-y-2">
               <p class="text-lg text-left">
                 {{ quote }}
@@ -169,7 +224,7 @@ const onSubmit = form.handleSubmit(async () => {
                 {{ author }}
               </footer>
             </blockquote>
-          </div>
+          </div> -->
         </div>
       </div>
       <div class="flex justify-center w-full lg:p-8">
@@ -205,13 +260,13 @@ const onSubmit = form.handleSubmit(async () => {
               />
 
               <CardHeader class="space-y-1 pt-9">
-                <CardTitle class="text-2xl text-white"> Sign In </CardTitle>
+                <CardTitle class="text-2xl text-white font-outfit"> Sign in </CardTitle>
               </CardHeader>
               <CardContent class="grid gap-4">
                 <form class="space-y-4" @submit.prevent="onSubmit">
                   <FormField v-slot="{ componentField }" name="userEmail">
                     <FormItem v-auto-animate>
-                      <FormLabel class="font-normal text-white">Username/Email</FormLabel>
+                      <FormLabel class="font-normal text-white font-outfit">Email</FormLabel>
                       <FormControl>
                         <Input
                           id="email"
@@ -227,7 +282,7 @@ const onSubmit = form.handleSubmit(async () => {
                   </FormField>
                   <FormField v-slot="{ componentField }" name="password">
                     <FormItem>
-                      <FormLabel class="font-normal text-white">Password</FormLabel>
+                      <FormLabel class="font-normal text-white font-outfit">Password</FormLabel>
                       <FormControl>
                         <Input
                           id="password"

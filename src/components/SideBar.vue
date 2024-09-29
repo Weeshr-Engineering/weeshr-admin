@@ -1,41 +1,85 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue'
-
+import { ref, computed } from 'vue';
 import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
+import { ability, defineAbilities } from '@/lib/ability';
+import { useRoute } from 'vue-router';
+import NotificationBoardSheet from '@/components/notifications/notification-board/NotificationBoardSheet.vue'
+
+const notificationBoard = ref();
 
 const superAdminStore = useSuperAdminStore()
-
+defineAbilities()
+const route = useRoute()
+const isActive = (path: string) => {
+  return route.path.startsWith(path);
+};
+const config = computed(() => {
+  const role = ability.can('read', 'roles')
+  const categories = ability.can('read', 'weesh-categories')
+  if (role || categories) {
+    return true
+  }
+  return false
+})
+const users = computed(() => {
+  const admin = ability.can('read', 'admins')
+  const users = ability.can('read', 'users')
+  if (admin || users) {
+    return true
+  }
+  return false
+})
+const weeshes = computed(()=>{
+  const weesh = ability.can('read', 'weeshes')
+  if(weesh){
+    return true
+  }
+  return false
+})
+const bank = computed(()=>{
+  const bankAbility = ability.can('read', 'weeshr-bank')
+  if(bankAbility){
+    return true
+  }
+  return false
+})
+const activityLogs = computed(()=>{
+  const activity = ability.can('read', 'activity-logs')
+  if(activity){
+    return true
+  }
+  return false
+})
 const logout = async () => {
   await superAdminStore.logout()
+}
+
+const openNotificationsBoard = () => {
+  return notificationBoard.value?.openSheet();
 }
 </script>
 
 <template>
-  <nav class="main-menu">
+  <nav class="main-menu relative">
     <div class="flex items-start justify-center w-full py-8">
-      <img
-        class="nav-Icon"
+      <img class="nav-Icon"
         src="https://res.cloudinary.com/drykej1am/image/upload/v1697377875/weehser%20pay/Weeshr_Light_lrreyo.svg"
-        alt=""
-      />
+        alt="" />
     </div>
     <ul class="space-y-3">
-      <li :class="{ 'dashboard-active': $route.path === '/' }">
+      <li
+        :class="{ 'dashboard-active': $route.path === '/', 'opacity:20 cursor-not-allowed': ability.cannot('read', 'users') }">
         <a @click="$router.push({ name: 'home' })">
           <div class="icon-grid">
-            <Icon
-              icon="ri:dashboard-horizontal-fill"
-              width="16"
-              height="16"
-              class="icons-sidebar"
-            />
+            <Icon icon="ri:dashboard-horizontal-fill" width="16" height="16" class="icons-sidebar" />
           </div>
 
           <span class="nav-text"> Dashboard </span>
         </a>
       </li>
 
-      <li :class="{ 'dashboard-active': $route.path === '/user' }">
+      <li v-if="users" :class="{ 'dashboard-active': isActive('/user') }">
         <a @click="$router.push({ name: 'user' })">
           <div class="icon-grid">
             <Icon icon="teenyicons:users-solid" width="16" height="16" class="icons-sidebar" />
@@ -45,13 +89,43 @@ const logout = async () => {
         </a>
       </li>
 
-      <li :class="{ 'dashboard-active': $route.path === '/create-user' }">
-        <a @click="$router.push({ name: 'create-user' })">
+      <li v-if="weeshes" :class="{ 'dashboard-active': isActive('/weeshes') }">
+        <a @click="$router.push({ name: 'weeshes' })">
           <div class="icon-grid">
-            <Icon icon="iconoir:add-user" width="16" height="16" class="icons-sidebar" />
+            <Icon icon="codicon:note" width="17" height="17" class="icons-sidebar" />
           </div>
 
-          <span class="nav-text"> Create User </span>
+          <span class="nav-text"> Weeshes </span>
+        </a>
+      </li>
+
+      <li :class="{ 'dashboard-active': isActive('/depot') }">
+        <a @click="$router.push({ name: 'depot' })">
+          <div class="icon-grid">
+            <Icon icon="mdi:truck-fast" width="17" height="17" class="icons-sidebar" />
+          </div>
+
+          <span class="nav-text"> Depot </span>
+        </a>
+      </li>
+
+      <li v-if='bank' :class="{ 'dashboard-active': isActive('/bank') }">
+        <a @click="$router.push({ name: 'bank' })">
+          <div class="icon-grid">
+            <Icon icon="fluent:building-bank-16-filled" width="17" height="17" class="icons-sidebar" />
+          </div>
+
+          <span class="nav-text"> Bank </span>
+        </a>
+      </li>
+
+      <li v-if="config" :class="{ 'dashboard-active': isActive('/config') }">
+        <a @click="$router.push({ name: 'config' })">
+          <div class="icon-grid">
+            <Icon icon="mdi:settings" width="17" height="17" class="icons-sidebar" />
+          </div>
+
+          <span class="nav-text"> Configuration </span>
         </a>
       </li>
 
@@ -65,15 +139,26 @@ const logout = async () => {
         </a>
       </li>
 
-      <li>
-        <a>
+      <li v-if="activityLogs" :class="{ 'dashboard-active': isActive('/activity') }">
+        <a @click="$router.push({ name: 'activity' })">
           <div class="icon-grid">
             <Icon icon="octicon:log-24" width="16" height="16" class="icons-sidebar" />
+
           </div>
 
           <span class="nav-text"> Activity Log </span>
         </a>
       </li>
+      <li v-if="ability.can('read', 'admin-board-notifications')">
+        <a @click.prevent="openNotificationsBoard">
+          <div class="icon-grid">
+            <Icon icon="codicon:bell" width="17" height="17" class="icons-sidebar" />
+          </div>
+
+          <span class="nav-text"> Board </span>
+        </a>
+      </li>
+
     </ul>
 
     <ul class="logout">
@@ -88,6 +173,8 @@ const logout = async () => {
       </li>
     </ul>
   </nav>
+
+  <NotificationBoardSheet v-if="ability.can('read', 'admin-board-notifications')" :ref="val => notificationBoard = val" />
 </template>
 
 <style scoped>
@@ -95,13 +182,15 @@ const logout = async () => {
 
 .nav-Icon {
   width: auto;
-  transform: rotate(-90deg); /* Initial rotation */
+  transform: rotate(-90deg);
+  /* Initial rotation */
   height: 70px;
 }
 
 .main-menu:hover .nav-Icon {
   transition: opacity 0.3s ease;
-  transform: rotate(0deg); /* Rotate back to 0 degrees on hover */
+  transform: rotate(0deg);
+  /* Rotate back to 0 degrees on hover */
   transition: 0.3s ease;
   padding-top: 10px;
   padding-bottom: 10px;
@@ -117,7 +206,8 @@ const logout = async () => {
 }
 
 .dashboard-active .icon-grid {
-  background-color: #baef23; /* Change background color on dashboard active */
+  background-color: #baef23;
+  /* Change background color on dashboard active */
 }
 
 .icons-sidebar {
@@ -131,6 +221,7 @@ const logout = async () => {
 .fa-2x {
   font-size: 2em;
 }
+
 .fa {
   position: relative;
   display: table-cell;
@@ -150,20 +241,21 @@ nav.main-menu.expanded {
 .main-menu {
   background: #020721;
   border-right: 1px solid #e5e5e5;
-  position: absolute;
+  position: fixed;
   top: 0;
   bottom: 0;
-  height: 100%;
+  height: 100vh;
   left: 0;
   width: 65px;
   overflow: hidden;
   -webkit-transition: width 0.05s linear;
   transition: width 0.05s linear;
+  transform: translateZ(0) scale(1, 1);
   -webkit-transform: translateZ(0) scale(1, 1);
   z-index: 1000;
 }
 
-.main-menu > ul {
+.main-menu>ul {
   margin: 7px 0;
 }
 
@@ -173,7 +265,7 @@ nav.main-menu.expanded {
   width: 200px;
 }
 
-.main-menu li > a {
+.main-menu li>a {
   position: relative;
   display: table;
   border-collapse: collapse;
@@ -182,6 +274,7 @@ nav.main-menu.expanded {
   font-family: arial;
   font-size: 14px;
   text-decoration: none;
+  transform: translateZ(0) scale(1, 1);
   -webkit-transform: translateZ(0) scale(1, 1);
   -webkit-transition: all 0.1s linear;
   transition: all 0.1s linear;
@@ -205,7 +298,7 @@ nav.main-menu.expanded {
   font-family: 'Titillium Web', sans-serif;
 }
 
-.main-menu > ul.logout {
+.main-menu>ul.logout {
   position: absolute;
   left: 0;
   bottom: 0;
@@ -240,18 +333,20 @@ nav li {
   padding: 0;
   cursor: pointer;
 }
-.main-menu li:hover > a,
-nav.main-menu li.active > a,
-.dropdown-menu > li > a:hover,
-.dropdown-menu > li > a:focus,
-.dropdown-menu > .active > a,
-.dropdown-menu > .active > a:hover,
-.dropdown-menu > .active > a:focus,
+
+.main-menu li:hover>a,
+nav.main-menu li.active>a,
+.dropdown-menu>li>a:hover,
+.dropdown-menu>li>a:focus,
+.dropdown-menu>.active>a,
+.dropdown-menu>.active>a:hover,
+.dropdown-menu>.active>a:focus,
 .no-touch .dashboard-page nav.dashboard-menu ul li:hover a,
 .dashboard-page nav.dashboard-menu ul li.active a {
   color: #baef23;
   /* background-color:#000000; */
 }
+
 .area {
   float: left;
   background: white;
@@ -259,4 +354,3 @@ nav.main-menu li.active > a,
   height: 100%;
 }
 </style>
-@/stores/super-admin/super-admin@/stores/super-admin/super-admin

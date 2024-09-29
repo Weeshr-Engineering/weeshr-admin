@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Search from '@/components/UseSearch.vue'
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import * as z from 'zod'
@@ -8,10 +8,9 @@ import { useDateFormat, useNow } from '@vueuse/core'
 import MainNav from '@/components/MainNav.vue'
 import VueTelInput from 'vue-tel-input'
 import 'vue-tel-input/vue-tel-input.css'
-
-import axios from 'axios'
+// import axios from "@/services/ApiService";
 import { Loader2 } from 'lucide-vue-next'
-import router from '@/router'
+// import router from '@/router'
 import {
   Sheet,
   SheetContent,
@@ -32,9 +31,9 @@ import {
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { toast } from '@/components/ui/toast'
-import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
-import { useGeneralStore } from '@/stores/general-use'
+// import { toast } from '@/components/ui/toast'
+// import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
+// import { useGeneralStore } from '@/stores/general-use'
 
 const formSchema = toTypedSchema(
   z.object({
@@ -61,8 +60,7 @@ const newUser = ref({
 })
 const sheetOpen = ref(false)
 const loading = ref(false)
-const superAdminStore = useSuperAdminStore()
-const token = sessionStorage.getItem('token') || ''
+// const superAdminStore = useSuperAdminStore()
 
 const onSubmit = handleSubmit(async (values) => {
   loading.value = true
@@ -78,7 +76,9 @@ const onSubmit = handleSubmit(async (values) => {
     disabled: values.status || false
   }
 
-  await saveUserData(user)
+  // await saveUserData(user)
+
+  users.value.push(user)
 
   sheetOpen.value = false
 
@@ -93,145 +93,163 @@ const onSubmit = handleSubmit(async (values) => {
 })
 
 // Define a ref to hold the users data
-// const users = ref([]);
 const users = ref<any[]>([
-  { _id: 1, vendor: 'Abiola', category: 'Cash', dateJoined:'03 Jan 2024', deliveryrate:'85%'},
-  { _id: 2, vendor: 'Gitacy', category: 'Gift Cash', dateJoined:'03 Jan 2024', deliveryrate:'90%'},
-  { _id: 3, vendor: 'Ajax Logistics', category: 'All category', dateJoined:'03 Jan 2024', deliveryrate:'99%'},
-  { _id: 4, vendor: 'Middle Man Abuja',category: 'All category',  dateJoined:'03 Jan 2024', deliveryrate:'95%'},
-  { _id: 5, vendor: ' Middle Man Lagos', category: 'All category', dateJoined:'03 Jan 2024', deliveryrate:'70%'},
-
-]);
-// Define a function to fetch users data
-const fetchUsersData = async () => {
-  toast({
-    title: 'Loading Data',
-    description: 'Fetching data...',
-    duration: 0 // Set duration to 0 to make it indefinite until manually closed
-  })
-
-  // useGeneralStore().setLoading(true)
-  try {
-    // Set loading to true
-
-    const response = await axios.get(
-      'https:{{host}}/administrators?search=test_admin&disabled_status=disabled',
-      {
-        // params: {
-        //   search: 'test_admin',
-        //   disabled_status: 'disabled'
-        // },
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      }
-    )
-
-    if (response.status === 200 || response.status === 201) {
-      useGeneralStore().setLoadingToFalse()
-      // Show success toast
-      toast({
-        title: 'Success',
-        description: `data fetched`,
-        variant: 'success'
-      })
-
-      console.log('jiji' + JSON.stringify(response.data))
-    }
-
-    // Update the users data with the response
-
-    users.value = response.data.data.data
-  } catch (error: any) {
-    if (error.response.status === 401) {
-      sessionStorage.removeItem('token')
-      // Clear token from superAdminStore
-      superAdminStore.setToken('')
-
-      setTimeout(() => {
-        router.push({ name: 'super-admin-login' })
-      }, 3000)
-
-      toast({
-        title: 'Unauthorized',
-        description: 'You are not authorized to perform this action. Redirecting to home page...',
-        variant: 'destructive'
-      })
-      // Redirect after 3 seconds
-    } else {
-      toast({
-        title: error.response.data.message || 'An error occurred',
-        variant: 'destructive'
-      })
-    }
+  { _id: 1, vendor: 'Abiola', category: 'Cash', dateJoined: '03 Jan 2024', deliveryrate: '85%' },
+  {
+    _id: 2,
+    vendor: 'Gitacy',
+    category: 'Gift Cash',
+    dateJoined: '03 Jan 2024',
+    deliveryrate: '90%'
+  },
+  {
+    _id: 3,
+    vendor: 'Ajax Logistics',
+    category: 'All category',
+    dateJoined: '03 Jan 2024',
+    deliveryrate: '99%'
+  },
+  {
+    _id: 4,
+    vendor: 'Middle Man Abuja',
+    category: 'All category',
+    dateJoined: '03 Jan 2024',
+    deliveryrate: '95%'
+  },
+  {
+    _id: 5,
+    vendor: ' Middle Man Lagos',
+    category: 'All category',
+    dateJoined: '03 Jan 2024',
+    deliveryrate: '70%'
   }
-} // Call the fetchUsersData function when the component is mounted
+])
+
+// Define a function to fetch users data
+// const fetchUsersData = async () => {
+//   toast({
+//     title: 'Loading Data',
+//     description: 'Fetching data...',
+//     duration: 0 // Set duration to 0 to make it indefinite until manually closed
+//   })
+
+//   // useGeneralStore().setLoading(true)
+//   try {
+//     // Set loading to true
+
+//     const response = await axios.get(
+//       '/administrators?search=test_admin&disabled_status=disabled',
+//       {
+//         // params: {
+//         //   search: 'test_admin',
+//         //   disabled_status: 'disabled'
+//         // },
+//       }
+//     )
+
+//     if (response.status === 200 || response.status === 201) {
+//       useGeneralStore().setLoadingToFalse()
+//       // Show success toast
+//       toast({
+//         title: 'Success',
+//         description: `data fetched`,
+//         variant: 'success'
+//       })
+
+//       console.log('jiji' + JSON.stringify(response.data))
+//     }
+
+//     // Update the users data with the response
+
+//     users.value = response.data.data.data
+//   } catch (error: any) {
+//     if (error.response.status === 401) {
+//       sessionStorage.removeItem('token')
+//       // Clear token from superAdminStore
+//       superAdminStore.setToken('')
+
+//       setTimeout(() => {
+//         router.push({ name: 'super-admin-login' })
+//       }, 3000)
+
+//       toast({
+//         title: 'Unauthorized',
+//         description: 'You are not authorized to perform this action. Redirecting to home page...',
+//         variant: 'destructive'
+//       })
+//       // Redirect after 3 seconds
+//     } else {
+//       toast({
+//         title: error.response.data.message || 'An error occurred',
+//         variant: 'destructive'
+//       })
+//     }
+//   }
+// } // Call the fetchUsersData function when the component is mounted
 
 // Save user data to the /administrator endpoint
-const saveUserData = async (user: any) => {
-  loading.value = true
-  try {
-    const response = await axios.post(
-      'https:{{host}}/administrators?search=test_admin&disabled_status=disabled',
-      user,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      }
-    )
+// const saveUserData = async (user: any) => {
+//   loading.value = true
+//   try {
+//     const response = await axios.post(
+//       '/administrators?search=test_admin&disabled_status=disabled',
+//       user,
+//       {
 
-    // Check if response status is 200 or 201
-    if (response.status === 200 || response.status === 201) {
-      // Show success toast
-      toast({
-        title: 'Success',
-        description: `${user.vendor} User profile created successfully.`,
-        variant: 'success'
-      })
-    }
+//       }
+//     )
 
-    console.log(response.data)
-    loading.value = false
-    // Handle success
-  } catch (err: any) {
-    loading.value = false
-    if (err.response.data.code === 401) {
-      sessionStorage.removeItem('token')
-      // Clear token from superAdminStore
-      superAdminStore.setToken('')
+//     // Check if response status is 200 or 201
+//     if (response.status === 200 || response.status === 201) {
+//       // Show success toast
+//       toast({
+//         title: 'Success',
+//         description: `${user.vendor} User profile created successfully.`,
+//         variant: 'success'
+//       })
+//     }
 
-      setTimeout(() => {
-        router.push({ name: 'super-admin-login' })
-      }, 3000)
+//     console.log(response.data)
+//     loading.value = false
+//     // Handle success
+//   } catch (err: any) {
+//     loading.value = false
+//     if (err.response.data.code === 401) {
+//       sessionStorage.removeItem('token')
+//       // Clear token from superAdminStore
+//       superAdminStore.setToken('')
 
-      toast({
-        title: 'Unauthorized',
-        description: 'You are not authorized to perform this action. Redirecting to home page...',
-        variant: 'destructive'
-      })
-      // Redirect after 3 seconds
-    } else {
-      toast({
-        title: err.response.data.message || 'An error occurred',
-        variant: 'destructive'
-      })
-    }
-    // Handle other errors
-  }
-}
+//       setTimeout(() => {
+//         router.push({ name: 'super-admin-login' })
+//       }, 3000)
 
-const toggleStatus = (user: { status: boolean }) => {
-  user.status = !user.status
-}
+//       toast({
+//         title: 'Unauthorized',
+//         description: 'You are not authorized to perform this action. Redirecting to home page...',
+//         variant: 'destructive'
+//       })
+//       // Redirect after 3 seconds
+//     } else {
+//       toast({
+//         title: err.response.data.message || 'An error occurred',
+//         variant: 'destructive'
+//       })
+//     }
+//     // Handle other errors
+//   }
+// }
+
+// const toggleStatus = (user: { status: boolean }) => {
+//   user.status = !user.status
+// }
 const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
 
 // onMounted(fetchUsersData);
 
-onMounted(async () => {
-  // useGeneralStore().setLoading(true);
-  fetchUsersData()
-})
+// onMounted(async () => {
+//   // useGeneralStore().setLoading(true);
+//   fetchUsersData()
+// })
 </script>
 
 <template>
@@ -376,7 +394,6 @@ onMounted(async () => {
               <TableHead> Delivery Rate</TableHead>
               <TableHead>Status</TableHead>
               <TableHead></TableHead>
-
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -394,11 +411,24 @@ onMounted(async () => {
                 </button>
               </TableCell>
               <TableCell>
-        <svg width="20" height="50" viewBox="0 0 20 50" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M7 31L12.5118 26.0606C13.1627 25.4773 13.1627 24.5227 12.5118 23.9394L7 19" stroke="#54586D" stroke-opacity="0.8" stroke-width="2" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
-</svg>
-</TableCell>
-              
+                <svg
+                  width="20"
+                  height="50"
+                  viewBox="0 0 20 50"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M7 31L12.5118 26.0606C13.1627 25.4773 13.1627 24.5227 12.5118 23.9394L7 19"
+                    stroke="#54586D"
+                    stroke-opacity="0.8"
+                    stroke-width="2"
+                    stroke-miterlimit="10"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </TableCell>
             </TableRow>
           </TableBody>
         </Table>

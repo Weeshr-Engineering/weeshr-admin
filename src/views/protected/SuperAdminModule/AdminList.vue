@@ -6,9 +6,7 @@ import { toTypedSchema } from '@vee-validate/zod'
 import * as z from 'zod'
 import { useDateFormat, useNow } from '@vueuse/core'
 import MainNav from '@/components/MainNav.vue'
-import VueTelInput from 'vue-tel-input'
-import 'vue-tel-input/vue-tel-input.css'
-import axios from 'axios'
+import axios from "@/services/ApiService";
 import { Loader2 } from 'lucide-vue-next'
 import router from '@/router'
 import {
@@ -72,7 +70,7 @@ const newUser = ref({
 const sheetOpen = ref(false)
 const loading = ref(false)
 const superAdminStore = useSuperAdminStore()
-const token = sessionStorage.getItem('token') || ''
+
 
 const onSubmit = handleSubmit(async (values) => {
   loading.value = true
@@ -114,7 +112,7 @@ const onSubmit = handleSubmit(async (values) => {
 const users = ref<any[]>([
   {
     _id: 1,
-    firstName: 'Abiola',
+    firstName: 'Abiolaz',
     lastName: 'Tendo',
     admin_type: 'Super Admin',
     permissions:
@@ -163,15 +161,12 @@ const fetchUsersData = async () => {
     // Set loading to true
 
     const response = await axios.get(
-      'https:{{host}}/administrators?search=test_admin&disabled_status=disabled',
+      '/administrators?search=test_admin&disabled_status=disabled',
       {
         // params: {
         //   search: 'test_admin',
         //   disabled_status: 'disabled'
         // },
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
       }
     )
 
@@ -220,12 +215,9 @@ const saveUserData = async (user: any) => {
   loading.value = true
   try {
     const response = await axios.post(
-      'https:{{host}}/administrators?search=test_admin&disabled_status=disabled',
+      '/administrators?search=test_admin&disabled_status=disabled',
       user,
       {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
       }
     )
 
@@ -519,23 +511,25 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
                 </div>
               </TableCell>
               <TableCell>
-                <svg
-                  width="20"
-                  height="50"
-                  viewBox="0 0 20 50"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M7 31L12.5118 26.0606C13.1627 25.4773 13.1627 24.5227 12.5118 23.9394L7 19"
-                    stroke="#54586D"
-                    stroke-opacity="0.8"
-                    stroke-width="2"
-                    stroke-miterlimit="10"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
+                <router-link :to="`/admindetails/${user._id}`">
+                  <svg
+                    width="20"
+                    height="50"
+                    viewBox="0 0 20 50"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M7 31L12.5118 26.0606C13.1627 25.4773 13.1627 24.5227 12.5118 23.9394L7 19"
+                      stroke="#54586D"
+                      stroke-opacity="0.8"
+                      stroke-width="2"
+                      stroke-miterlimit="10"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </router-link>
               </TableCell>
             </TableRow>
           </TableBody>
