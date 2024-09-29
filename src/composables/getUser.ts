@@ -383,6 +383,7 @@ export const getUserPayout = () => {
     //   }
     //   return base
     // }
+    // https://api.staging.weeshr.com/api/v1/admin/user/665dbf437738398059648b66/wallet/payouts
 
     try {
       toast({
@@ -400,10 +401,12 @@ export const getUserPayout = () => {
         })
       }
     } catch (err: any) {
+      console.log(err)
       payoutError.value = `${err.response.data.message}, ${err.response.data.error}.`
       toast({
         description: err.response.data.message,
-        variant: 'destructive'
+        variant: 'destructive',
+        duration: 1000
       })
     }
   }

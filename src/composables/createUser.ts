@@ -51,6 +51,7 @@ const createUser = () => {
     const router = useRouter()
 
     const loading: Ref<boolean> = ref(false)
+    const open: Ref<boolean> = ref(false)
     const newUser = ref<User>({
         firstName: '',
         middleName: '',
@@ -66,7 +67,9 @@ const createUser = () => {
         isAdmin: false,
     })
 
-
+    const handleOpen = ()=>{
+        open.value = !open.value;
+    }
     const { toast } = useToast()
 
     const userLoad = async () => {
@@ -80,10 +83,26 @@ const createUser = () => {
 
             const response = await axios.post('/api/v1/admin/accounts/user', newUser.value);
 
-            if (response.data.code === 200) {
+            if (response.data.code === 200  || response.data.code === 201) {
+                handleOpen()
+                newUser.value = {
+                    firstName: '',
+                    middleName: '',
+                    lastName: '',
+                    userName: '',
+                    phone: {
+                        countryCode: '+234',
+                        phoneNumber: '',
+                    },
+                    dob: '',
+                    gender: '',
+                    email: '',
+                    isAdmin: false,
+                }
                 toast({
                     description: response.data.message,
-                    variant: 'success'
+                    variant: 'success',
+                    duration: 2000
                 })
             } else {
                 toast({
@@ -120,7 +139,7 @@ const createUser = () => {
 
     }
 
-    return { loading, newUser, userLoad }
+    return { open, loading, newUser, userLoad }
 }
 
 export default createUser
