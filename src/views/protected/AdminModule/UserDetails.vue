@@ -313,7 +313,7 @@ const items = [
             >
               <p class="text-[#02072199] text-xs md:text-sm lg:text-sm pt-2">Profile Privacy</p>
               <label class="relative inline-flex cursor-pointer items-center">
-                <input type="checkbox" value="" checked class="peer sr-only" />
+                <input type="checkbox" value="" :checked='!appUser.settings.isProfilePublic' disabled class="peer sr-only" />
                 <div
                   class="peer flex h-8 items-center gap-6 rounded-full bg-[#baef23] px-4 text-black after:absolute after:left-1 after: after:h-6 after:w-16 after:rounded-full after:bg-[#F4ffc8]/50 after:transition-all after:content-[''] peer-checked:bg-green-900 peer-checked:after:translate-x-full peer-focus:outline-none dark:border-slate-600 dark:bg-slate-700 text-sm peer-checked:text-white"
                 >
