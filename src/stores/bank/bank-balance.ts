@@ -71,7 +71,7 @@ export const useBankBalanceStore = defineStore('bank-balance', {
         const response = await axios.get(`/api/v1/admin/weeshr/bank/balance`)
 
         if (response.status === 200 || response.status === 201) {
-          this.balance = response.data.data[0].balance
+          this.balance = response.data.data[0].balance/100
           this.currency = response.data.data[0].currency
         }
 
