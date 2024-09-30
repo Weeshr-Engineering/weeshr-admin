@@ -24,7 +24,11 @@ interface User {
         secure_url: string
       }
     }
-  ]
+  ],
+  settings: {
+    isProfilePublic: boolean,
+    allowBiometricAccess: boolean
+  }
 }
 
 interface Log {

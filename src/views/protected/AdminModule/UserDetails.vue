@@ -48,10 +48,14 @@ import type { Filter } from '@/composables/getUser'
 import CardContent from '@/components/ui/card/CardContent.vue'
 import PagePagination from '@/components/PagePagination.vue'
 import PaymentApproval from '@/components/PaymentApproval.vue'
+import axios from "@/services/ApiService";
+import { toast } from "@/components/ui/toast";
+import { useUserhubStore } from '@/stores/userhub-details/userhub-details'
 
 //get User
 const route = useRoute()
 const _id = route.params.id
+const store = useUserhubStore()
 
 const { appUser, error, load } = getUser()
 const { userLog, count, logPagination, logError, log, logActions, logStatus, getFilter } =
@@ -66,7 +70,31 @@ onMounted(() => {
   userWeeshes(_id)
   getFilter()
 })
+const togglePrivacy =async (val: boolean)=>{
+  toast({
+      title: 'Loading Data',
+      description: 'Fetching data...',
+      variant: 'loading',
+      duration: 0 // Set duration to 0 to make it indefinite until manually closed
+    })
+  let data = {isPrivate: val};
 
+  try {
+      const response = await axios.post(`/api/v1/admin/accounts/users/${_id}/profile-privacy`, data)
+
+      if (response.data.code === 200 || response.data.code === 201) {
+        // appUser.value = response.data.data
+        toast({
+          description: response.data.message,
+          variant: 'success'
+        })
+        load(_id)
+      }
+    } catch (err: any) {
+        store.catchErr(error)
+        console.log(error);
+    }
+}
 const isInfluencer = ref(false);
 const isPublicFigure = ref(false);
 const isFeatured = ref(false);
@@ -312,8 +340,8 @@ const items = [
               class="flex justify-between lg:mx-4 px-4 shadow-md md:px-6 py-1 my-2 rounded-lg border"
             >
               <p class="text-[#02072199] text-xs md:text-sm lg:text-sm pt-2">Profile Privacy</p>
-              <label class="relative inline-flex cursor-pointer items-center">
-                <input type="checkbox" value="" checked class="peer sr-only" />
+              <label class="relative inline-flex cursor-pointer items-center" @click='(()=> togglePrivacy(appUser?.settings.isProfilePublic!))'>
+                <input type="checkbox" value="" :checked='!appUser.settings.isProfilePublic' disabled class="peer sr-only" />
                 <div
                   class="peer flex h-8 items-center gap-6 rounded-full bg-[#baef23] px-4 text-black after:absolute after:left-1 after: after:h-6 after:w-16 after:rounded-full after:bg-[#F4ffc8]/50 after:transition-all after:content-[''] peer-checked:bg-green-900 peer-checked:after:translate-x-full peer-focus:outline-none dark:border-slate-600 dark:bg-slate-700 text-sm peer-checked:text-white"
                 >

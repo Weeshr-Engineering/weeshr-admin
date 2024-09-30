@@ -152,7 +152,7 @@ const currencyStyle= computed(()=>{
                 <CardHeader class="flex flex-col items-center justify-center flex-grow">
                   <img
                     class="mb-2"
-                    src="https://res.cloudinary.com/drykej1am/image/upload/v1727720489/Currency_Rate_drvlhc.png"
+                    src="https://res.cloudinary.com/drykej1am/image/upload/v1727730386/money-exchange_m9sbfd.png"
                     alt="gradient"
                   />
     

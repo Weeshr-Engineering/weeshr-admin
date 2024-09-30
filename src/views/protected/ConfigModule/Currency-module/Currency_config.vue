@@ -2,7 +2,7 @@
     <div class="w-full">
         <MainNav class="mx-6" headingText="Currency Config" />
         <div class="px-10 py-5 md:py-10 ml-auto w-full flex justify-end">
-            <Sheet :close='sheetCLose'>
+            <Sheet v-model:open='store.state'>
               <SheetTrigger as-child>
                 <button @click="verifyAbilities('create', 'currency')" :class="createStyle">
                   <div class="text-base text-[#F8F9FF] text-center flex items-center">
@@ -30,7 +30,7 @@
                     
                     </SheetHeader>
                     <SheetDescription class="pt-2 flex items-center gap-4">
-                        Active <Switch :checked="true"/>
+                        Active <Switch v-model:checked='active' @click='()=> active=!active'/>
                     </SheetDescription>
                 </div>
                 <div>
@@ -120,12 +120,12 @@
                   </div>
 
                   <div>
-                    <Switch/>
+                    <Switch :checked='item.isEnabled' @click='store.updateState(!item.isEnabled, item._id)'/>
                   </div>
                     <div class="flex items-center gap-4">
                       <Sheet>
                         <SheetTrigger>
-                          <Icon icon="mdi:edit" width="17" height="17" :class="editStyle" />
+                          <Icon @click='handleItem(item._id)' icon="mdi:edit" width="17" height="17" :class="editStyle" />
                         </SheetTrigger>
                         <SheetContent class="overflow-y-auto py-8" side="right" v-if="edit">
                             <div class="flex py-4 justify-between items-center">
@@ -256,6 +256,7 @@ import { Form, Field, ErrorMessage } from 'vee-validate';
 import * as z from 'zod'
 import { toast } from '@/components/ui/toast'
 import { ability, defineAbilities, verifyAbilities } from '@/lib/ability'
+import { useCurrencyStore } from '@/stores/config-details/currencyStore'
 
 defineAbilities()
 const create = ability.can('create', 'currency')
@@ -263,6 +264,9 @@ const createStyle = computed(()=>{
   return create ? 'bg-[#020721] px-4 py-2 rounded-xl w-50 h-12' : 'cursor-not-allowed opacity-20 bg-[#020721] px-4 py-2 rounded-xl w-50 h-12'
 })
 
+const state = computed(()=>{
+    return store.state
+})
 const edit = ability.can('update', 'currency')
 const editStyle = computed(()=>{
   return edit ? 'icons-sidebar border-2 border-gray-100' : 'cursor-not-allowed opacity-20 icons-sidebar border-2 border-gray-100'
@@ -273,8 +277,14 @@ const deleteStyle = computed(()=>{
   return deleteRoles ? 'icons-sidebar text-red-600' : 'cursor-not-allowed opacity-20 icons-sidebar text-red-600'
 })
 
-const store = useRoleStore()
-store.getPermissions()
+const store = useCurrencyStore()
+store.getCurrencies('Success: currencies retrieved')
+const currency = ref('')
+const active = ref(true)
+const handleItem =(val:string)=>{
+    currency.value = val
+}
+// store.getPermissions()
 
 const schema = toTypedSchema(
   z.object({
@@ -285,17 +295,18 @@ const schema = toTypedSchema(
 )
 
 const deleteRole = async (id:string)=>{
-  await store.deleteRole(id)
+  await store.deleteCurrency(id)
 }
 const onSubmit=async (values:any)=> {
-  console.log(JSON.stringify(values, null, 2));
-//   const data = JSON.stringify({
-//     'name': values.currency,
-//     'description': values.code,
-//     'permissions': values.symbol
-//   })
-//   console.log(data)
-//   await store.createRole(data)
+//   console.log(JSON.stringify(values, null, 2));
+  const data = JSON.stringify({
+    'name': values.currency,
+    'code': values.code,
+    'symbol': values.symbol,
+    isEnabled: active.value
+  })
+  console.log(data)
+  await store.createCurrency(data)
 }
 
 const editSchema = toTypedSchema(
@@ -314,15 +325,18 @@ interface Currency {
     _id: string
 }
 
-const currencies: Currency[] = [
-    {
-        name: 'Naira',
-        code: 'NG',
-        symbol: '#',
-        isEnabled: true,
-        _id: 'ergdfdf',
-    }
-]
+const currencies = computed(()=>{
+    return store.currencies
+})
+// // : Currency[] = [
+//     {
+//         name: 'Naira',
+//         code: 'NG',
+//         symbol: '#',
+//         isEnabled: true,
+//         _id: 'ergdfdf',
+//     }
+// ]
 
 const onEdit= async (values:any)=> {
     let data = {
@@ -349,6 +363,7 @@ const onEdit= async (values:any)=> {
             }     
         }
         console.log(data)
+        store.updateCurrency(data, currency.value)
     }else{
         toast({
             description: 'All input fields are empty',

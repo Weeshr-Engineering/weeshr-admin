@@ -6,7 +6,9 @@ import router from '@/router'
 export const useCurrencyStore = defineStore({
   id: 'currencies',
   state: (): CurrencyStore => ({
-    currencies: []
+    currencies: [],
+    state: false,
+    editState: false
   }),
   actions: {
     async createCurrency(data: any) {
@@ -14,12 +16,13 @@ export const useCurrencyStore = defineStore({
       toast({
         title: 'Loading Data',
         description: 'Fetching data...',
+        variant: 'loading',
         duration: 0 // Set duration to 0 to make it indefinite until manually closed
       })
       const config = {
         method: 'post',
         maxBodyLength: Infinity,
-        url: `/api/v1/admin/role`,
+        url: `/api/v1/admin/currency`,
         data: data
       };
 
@@ -27,6 +30,7 @@ export const useCurrencyStore = defineStore({
         .then((response) => {
           if (response.status === 200 || response.status === 201) {
             this.getCurrencies('New Role Created')
+            this.state = false
           }
         })
         .catch((error) => {
@@ -38,6 +42,7 @@ export const useCurrencyStore = defineStore({
       toast({
         title: 'Loading Data',
         description: 'Fetching data...',
+        variant: 'loading',
         duration: 0 // Set duration to 0 to make it indefinite until manually closed
       })
       try {
@@ -53,7 +58,8 @@ export const useCurrencyStore = defineStore({
             variant: 'success'
           })
         }
-        this.currencies = response.data.data.data.reverse()
+        this.currencies = response.data.data.data
+        console.log(this.currencies)
         // set Loading to false
 
       } catch (error: any) {
@@ -65,13 +71,14 @@ export const useCurrencyStore = defineStore({
       toast({
         title: 'Loading Data',
         description: 'Fetching data...',
+        variant: 'loading',
         duration: 0 // Set duration to 0 to make it indefinite until manually closed
       })
 
       const config = {
         method: 'patch',
         maxBodyLength: Infinity,
-        url: `/api/v1/admin/role/${id}`,
+        url: `/api/v1/admin/currency/${id}`,
         data: data
       };
 
@@ -79,14 +86,17 @@ export const useCurrencyStore = defineStore({
         .then((response) => {
           // console.log(JSON.stringify(response.data));
           this.getCurrencies('Role Updated Successfully')
+          this.editState = false
         })
         .catch((error) => {
           console.log(error)
           this.catchErr(error)
         });
     },
-    updateState(data: any, id: string) {
-
+    updateState(state: boolean, id: string) {
+        const data = {
+            isEnabled: state
+        }
         toast({
           title: 'Loading Data',
           description: 'Fetching data...',
@@ -96,7 +106,7 @@ export const useCurrencyStore = defineStore({
         const config = {
           method: 'patch',
           maxBodyLength: Infinity,
-          url: `/api/v1/admin/role/${id}`,
+          url: `/api/v1/admin/currency/${id}`,
           data: data
         };
   
@@ -110,7 +120,7 @@ export const useCurrencyStore = defineStore({
             this.catchErr(error)
           });
       },
-    async deleteRole(id: string) {
+    async deleteCurrency(id: string) {
 
       toast({
         title: 'Deleting Data',
@@ -121,7 +131,7 @@ export const useCurrencyStore = defineStore({
 
       const config = {
         method: 'delete',
-        url: `/api/v1/admin/role/${id}`,
+        url: `/api/v1/admin/currency/${id}`,
       };
 
       axios.request(config)
@@ -133,35 +143,8 @@ export const useCurrencyStore = defineStore({
           this.catchErr(error)
         });
     },
-    async getPermissions() {
-
-      toast({
-        title: 'Loading Data',
-        description: 'Fetching data...',
-        duration: 0 // Set duration to 0 to make it indefinite until manually closed
-      })
-      try {
-        const response = await axios.get(
-          `/api/v1/admin/role/permissions?group_by=model`,
-         
-        )
-
-        if (response.status === 200 || response.status === 201) {
-          toast({
-            title: 'Success',
-            description: `Successful: data retrieved`,
-            variant: 'success'
-          })
-          // console.log(response.data.data)
-          const data = response.data.data
-          return data
-
-        }
-      } catch (error: any) {
-        this.catchErr(error)
-      }
-    },
     catchErr (error: any){
+        console.log(error)
       if(error.response.status === 400){
         toast({
           description:  error.response.data.message || 'Bad Request',
@@ -205,5 +188,7 @@ export const useCurrencyStore = defineStore({
 })
 
 interface CurrencyStore {
-  currencies: any[]
+  currencies: any[],
+  state: boolean,
+  editState: boolean
 }
