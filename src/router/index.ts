@@ -22,6 +22,7 @@ import ActivityLog from '@/views/protected/AdminModule/ActivityLog.vue'
 import ConfigHub from '@/views/protected/ConfigModule/RoleModule/ConfigHub.vue'
 import RoleManager from '@/views/protected/ConfigModule/RoleModule/RoleManager.vue'
 import WeeshesConfig from '@/views/protected/ConfigModule/WeeshesCategories/WeeshesConfig.vue'
+import CurrencyConfig from '@/views/protected/ConfigModule/Currency-module/Currency_config.vue'
 import WeeshDetails from '@/views/protected/WeeshModule/WeeshDetails.vue'
 import FeaturedConfig from '@/views/protected/ConfigModule/FeaturedModule/Featured-config.vue'
 import OutFlow from '@/views/protected/AdminModule/OutFlow.vue'
@@ -177,6 +178,12 @@ const routes = [
     path: '/config/weesh',
     name: 'configWeesh',
     component: WeeshesConfig,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/config/currency',
+    name: 'currencyConfig',
+    component: CurrencyConfig,
     meta: { requiresAuth: true }
   },
   {
