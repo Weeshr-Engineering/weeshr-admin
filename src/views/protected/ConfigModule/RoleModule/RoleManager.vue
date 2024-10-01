@@ -23,7 +23,7 @@
                   </div>
                 </button>
               </SheetTrigger>
-              <SheetContent class="overflow-y-auto py-8" v-if="create">
+              <SheetContent class="overflow-y-auto py-8" v-if="create" length='mid'>
                <div class="flex py-4 justify-between items-center">
                     <SheetHeader>
                     <h3 class="text-2xl font-medium">Add New Role</h3>
@@ -145,7 +145,7 @@
                         <SheetTrigger v-if="!item.immutable">
                           <Icon @click="()=>handleRolePermissions(item.permissions, item.name, item._id)" icon="mdi:edit" width="17" height="17" :class="editStyle" />
                         </SheetTrigger>
-                        <SheetContent class="overflow-y-auto py-8" side="right" v-if="edit">
+                        <SheetContent class="overflow-y-auto py-8" side="right" v-if="edit" length='mid'>
                             <div class="flex py-4 justify-between items-center">
                               <SheetHeader>
                               <h3 class="text-2xl font-medium">{{item.name.toUpperCase()}}</h3>
