@@ -81,129 +81,115 @@ const active = computed(()=>{
 interface Updates {
   updateColor: string,
   updateLink: string, 
-  updateDate: string,
   updateTitle: string
+  updateHeader: string,
+  updateLinkTitle: string,
+  updateDisabled: boolean
 }
 const updates = ref<Updates>({
   updateColor: '',
   updateLink: '', 
-  updateDate: '',
   updateTitle: '',
+  updateHeader: '',
+  updateLinkTitle: '',
+  updateDisabled: false
 })
 
-
-interface CurrentUpdates {
-  updateColor: string,
-  updateLink: string, 
-  updateDate: string,
-  updateTitle: string,
-  disabled: boolean
+interface Feature {
+color: string,
+disabled: boolean,
+header: string,
+image: string,
+link: string,
+linkTitle: string,
+scheduledDateFrom: string,
+scheduledDateTo: string,
+title: string,
+_id: string
 }
-const currentUpdates = ref<CurrentUpdates>({
-  updateColor: '',
-  updateLink: '', 
-  updateDate: '',
-  updateTitle: '',
-  disabled: false
+const feature = ref<Feature>({
+  color: "string",
+  disabled: false,
+  header: "Connect with friends!",
+  image: "https://res.cloudinary.com/drykej1am/image/upload/v1726165334/featured_content/zwbJH-o9AMftdj-_MeH8yS9V.jpg",
+  link: "https://www.weeshr.com",
+  linkTitle: "Connect",
+  scheduledDateFrom: '',
+  scheduledDateTo: '',
+  title: "Weeshr explore connects you with new friends",
+  _id: ''
 })
 
-const feature = ref('')
-const setfeature = async (id: string)=>{
-  verifyAbilities('update', 'featured-moments')
+const setfeature = async (id: Feature)=>{
+  console.log(id)
   feature.value= id
-  const data = findId(id, store.featured)
-  updates.value = {
-    'updateColor': '',
-    'updateLink': '', 
-    'updateDate': '',
-    'updateTitle': ''
+}
+
+const toggle = async(feature: Feature)=>{
+  
+  const data = {
+    title: feature.title,
+    header: feature.header,
+    color: feature.color,
+    link: feature.link,
+    linkTitle: feature.linkTitle,
+    disabled: !feature.disabled
   }
-  currentUpdates.value = {
-    'updateColor': data?.color || '',
-    'updateLink': data?.link || '', 
-    'updateDate': data?.scheduledDate || '',
-    'updateTitle': data?.title || '',
-    disabled: data?.disabled!
-  }
+  submit(data, feature._id)
 }
-
-// handles active state of the featured moments
-const handleToggle = async (id: string)=>{
-  await setfeature(id)
-  onUpdate(true)
-}
-
-const updateImg = ref<any[]>([])
-
-const handleFileUpdate = (event: any) => {
-  const file = event.target.files[0];
-  updateImg.value = file
-}
-
-
 const onUpdate = async(state: boolean) => {
   toast({
     description: `Updating featured moment`,
     variant: 'loading'
   })
-  loading.value = true
-  const stringSchema = z.string()      
-    .min(2, { message: 'Value must be at least 2 characters long' })
-    .max(50, { message: 'Value cannot be longer than 50 characters' })
-  
-  // Validates the input fields for the edit sheet. I had issues with having muliple zod objects and so i checked for each of them independently. Open to modifications/suggestions
-  const title = stringSchema.safeParse(updates.value.updateTitle)
-  const link = stringSchema.safeParse(updates.value.updateLink)
-  const color = stringSchema.safeParse(updates.value.updateColor)
-  const date = stringSchema.safeParse(updates.value.updateDate)
 
-  // checking if the edit trigger is from the disabled switch
-  if(state === true){
-    const tempData = {
-      title: updates.value.updateTitle !== '' ? updates.value.updateTitle : currentUpdates.value.updateTitle,
-      color: updates.value.updateColor !== '' ? updates.value.updateColor : currentUpdates.value.updateColor,
-      link: updates.value.updateLink !== '' ? updates.value.updateLink : currentUpdates.value.updateLink,
-      disabled: !currentUpdates.value.disabled,
-    }
-
-    if(currentUpdates.value.updateDate !== ''){
-      const data = { 
-        ...tempData,
-        scheduledDate: updates.value.updateDate !== '' ? updates.value.updateDate : currentUpdates.value.updateDate.split('T')[0]
-      }
-      submit(data)
-    }else {
-      submit(tempData)
-    }
-    
-    return
+  let data = {
+    title: '',
+    header: '',
+    color: '',
+    link: '',
+    linkTitle: '',
+    disabled: feature.value.disabled
   }
-  // checker for a regular edit form. checks if any input is field
-  if (title.success || link.success || color.success || date.success){
-    console.log('Edited')
-    const tempData = {
-      title: updates.value.updateTitle !== '' ? updates.value.updateTitle : currentUpdates.value.updateTitle,
-      color: updates.value.updateColor !== '' ? updates.value.updateColor : currentUpdates.value.updateColor,
-      link: updates.value.updateLink !== '' ? updates.value.updateLink : currentUpdates.value.updateLink,
-      disabled: currentUpdates.value.disabled,
-      scheduledDate: updates.value.updateDate !== '' ? updates.value.updateDate : currentUpdates.value.updateDate.split('T')[0],
+if(updates.value.updateTitle || updates.value.updateHeader || updates.value.updateColor || updates.value.updateLink || updates.value.updateLinkTitle){
+    if (updates.value.updateTitle !== ''){
+            data.title= updates.value.updateTitle
+    }else{
+        data.title= feature.value.title
     }
-    console.log(tempData)
-    submit(tempData)
+    if (updates.value.updateHeader !== ''){
+            data.header= updates.value.updateHeader
+    }else{
+        data.header= feature.value.header
+    }
+    if (updates.value.updateColor !== ''){
+            data.color= updates.value.updateColor
+    }else{
+        data.color= feature.value.color
+    }
+    if (updates.value.updateLink !== ''){
+            data.link= updates.value.updateLink
+    }else{
+        data.link= feature.value.link
+    }
+    if (updates.value.updateLinkTitle !== ''){
+            data.linkTitle= updates.value.updateLinkTitle
+    }else{
+        data.linkTitle= feature.value.linkTitle
+    }
+    submit(data, feature.value._id)
   }else{
-    console.log('empty')
       toast({
-      description: 'You have to make a change first',
-      variant: 'destructive'
-    })
+          description: 'All input fields are empty',
+          variant: 'destructive'
+      }) 
   }
-  loading.value = false
 }
 
 // handles submit for updating features
-const submit = async (data: any)=>{
+const submit = async (data: any, id: string)=>{
   try{
-        const response = await axios.put(`/api/v1/admin/featured-moment/${feature.value}`, data);
+        const response = await axios.put(`/api/v1/admin/featured-moment/${id}`, data);
         if (response.status === 200 || response.status === 201) {
             toast({
                 description: `${response.data.message}`,
@@ -219,20 +205,7 @@ const submit = async (data: any)=>{
         store.catchErr(error)
       }
 }
-// type set for the featured object
-interface Item {
-  _id: string;
-  color: string,
-  link: string,
-  title: string,
-  scheduledDate: string,
-  disabled: boolean
-}
 
-// function to find the object with the id from an array of objects. i.e the array of features
-function findId(id: string, items: Item[]): Item | undefined {
-  return items.find(item => item._id === id);
-}
 
 const formSchema = toTypedSchema(
   z.object({
@@ -535,7 +508,7 @@ onMounted(async()=>{
                 </div>
                 <div class="w-full min-h-72">
                 <span v-for="(feature, key) in features" :key="key">
-                  <Card Content class="mt-4" :style="{'background-color': feature.color}">
+                  <Card Content class="mt-4" :style="{'background-color': feature.color}" @click="setfeature(feature)">
                       <CardContent
                         class="grid grid-cols-8 px-2 sm:px-4 py-4"
                       >
@@ -553,7 +526,7 @@ onMounted(async()=>{
                             </div>
                             <div class="col-span-1 flex flex-col text-muted-foreground items-center justify-end md:justify-center w-full">
                               {{ feature.disabled === false ? 'Active' : 'Disabled' }} 
-                              <Switch :checked="!feature.disabled" @click='()=>handleToggle(feature._id)'/>
+                              <Switch :checked="!feature.disabled" @click='()=> toggle(feature)'/>
                             </div>
                           </div>
                       </span>
@@ -561,7 +534,7 @@ onMounted(async()=>{
                         <!-- <Switch :checked="!feature.disabled" @click="store.handleSwitch(feature._id, feature.title, feature.disabled)" :disabled="!edit"/> -->
                         <Sheet>
                             <SheetTrigger>
-                                <Icon @click="setfeature(feature._id)" icon="mdi:edit" width="17" height="17" :class="editStyle" class='hidden md:inline-block'/>
+                                <Icon icon="mdi:edit" width="17" height="17" :class="editStyle" class='hidden md:inline-block'/>
                             </SheetTrigger>
                             <SheetContent class="overflow-y-auto py-8" side="right" v-if="ability.can('update', 'featured-moments')">
                                 <div class="flex py-4 justify-between items-center">
@@ -592,7 +565,37 @@ onMounted(async()=>{
                                       </FormItem>
                                     </FormField>
                                   </div>
-                                  <FormField name="color">
+                                  <div class="grid w-full max-w-sm items-center gap-1.5">
+                                    <FormField name="updateLink">
+                                      <FormItem v-auto-animate>
+                                        <FormLabel class="text-blue-900">Edit Header</FormLabel>
+                                        <FormControl>
+                                            <Input id="updateLink" v-model="updates.updateHeader" type="text" :placeholder="feature.link" />
+                                        </FormControl>
+                                        <FormMessage for="updateNLine" />
+                                      </FormItem>
+                                    </FormField>
+                                  </div>
+                                  <div class="grid w-full max-w-sm items-center gap-1.5">
+                                    <FormField name="updateLink">
+                                      <FormItem v-auto-animate>
+                                        <FormLabel class="text-blue-900">Edit Link Title</FormLabel>
+                                        <FormControl>
+                                            <Input id="updateLink" v-model="updates.updateLinkTitle" type="text" :placeholder="feature.link" />
+                                        </FormControl>
+                                        <FormMessage for="updateNLine" />
+                                      </FormItem>
+                                    </FormField>
+                                  </div>
+                                  <p class="text-blue-900 mt-2">Select Theme color</p>    
+                                      <ToggleGroup type="single">
+                                        <ToggleGroupItem aria-label="Toggle bold" v-for="(theme, key) in store.colors" :key="key" :value="theme.hexacode">
+                                          <div class='w-6 h-6 rounded-md' :style="{'background-color': theme.hexacode}" @click='()=> updates.updateColor = theme.hexacode'></div>
+                                        </ToggleGroupItem>
+                                      </ToggleGroup>
+
+
+                                  <!-- <FormField name="color">
                                     <FormItem>
                                       <FormLabel class="text-blue-900">Edit Theme color</FormLabel>
                                       
@@ -614,8 +617,8 @@ onMounted(async()=>{
                                       
                                       <FormMessage for="color" />
                                     </FormItem>
-                                  </FormField>
-                                  <div>
+                                  </FormField> -->
+                                  <!-- <div>
                                     <FormField name="scheduledDate">
                                       <FormItem v-auto-animate>
                                         <FormLabel class="text-blue-900">Edit Scheduled Date (optional)</FormLabel>
@@ -632,7 +635,7 @@ onMounted(async()=>{
                                         <FormMessage for="dob" />
                                       </FormItem>
                                     </FormField>
-                                  </div>
+                                  </div> -->
                                   <Button type="submit" class="bg-[#4145A7] mt-2">
                       
                                     <Loader2
