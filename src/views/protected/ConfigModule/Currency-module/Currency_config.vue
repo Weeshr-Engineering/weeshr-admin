@@ -186,7 +186,7 @@
                                     </FormItem>
                                   </FormField>
                                 </div>
-                                <Button type="submit" class="bg-[#4145A7] mt-2"> Update Role</Button>
+                                <Button type="submit" class="bg-[#4145A7] mt-2"> Update currency</Button>
                               </Form>
                         </SheetContent>
                       </Sheet>
@@ -249,10 +249,9 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/comp
 import { Input } from '@/components/ui/input'
 import MainNav from '@/components/MainNav.vue'
 import DashboardFooter from '@/components/DashboardFooter.vue'
-import { ref, onMounted, computed } from 'vue'
-import { useRoleStore } from '@/stores/config-details/roleManager'
+import { ref, computed } from 'vue'
 import { toTypedSchema } from '@vee-validate/zod'
-import { Form, Field, ErrorMessage } from 'vee-validate';
+import { Form, ErrorMessage } from 'vee-validate';
 import * as z from 'zod'
 import { toast } from '@/components/ui/toast'
 import { ability, defineAbilities, verifyAbilities } from '@/lib/ability'
@@ -264,9 +263,6 @@ const createStyle = computed(()=>{
   return create ? 'bg-[#020721] px-4 py-2 rounded-xl w-50 h-12' : 'cursor-not-allowed opacity-20 bg-[#020721] px-4 py-2 rounded-xl w-50 h-12'
 })
 
-const state = computed(()=>{
-    return store.state
-})
 const edit = ability.can('update', 'currency')
 const editStyle = computed(()=>{
   return edit ? 'icons-sidebar border-2 border-gray-100' : 'cursor-not-allowed opacity-20 icons-sidebar border-2 border-gray-100'
@@ -317,27 +313,9 @@ const editSchema = toTypedSchema(
   })
 )
 
-interface Currency {
-    name: string,
-    code: string,
-    symbol: string,
-    isEnabled: boolean,
-    _id: string
-}
-
 const currencies = computed(()=>{
     return store.currencies
 })
-// // : Currency[] = [
-//     {
-//         name: 'Naira',
-//         code: 'NG',
-//         symbol: '#',
-//         isEnabled: true,
-//         _id: 'ergdfdf',
-//     }
-// ]
-
 const onEdit= async (values:any)=> {
     let data = {
 
@@ -372,10 +350,4 @@ const onEdit= async (values:any)=> {
     }
 }
 
-const sheetCLose = ref(true)
-
-// onMounted(async()=>{
-//     await store.getRoles('Roles found')
-//     allPermissions.value = await useRoleStore().allPermissions()
-// })
 </script>

@@ -11,14 +11,17 @@ import router from '@/router'
   }
   
   interface Item {
-    color: string;
-    disabled: boolean;
-    adminDetails: Admin
+    adminDetails: Admin,
+    color: string,
+    disabled: false,
+    header: string,
+    image: string,
     link: string,
-    isCash: boolean;
-    title: string;
-    _id: string;
-    scheduledDate: string
+    linkTitle: string,
+    scheduledDateFrom: any,
+    scheduledDateTo: any,
+    title: string,
+    _id: string
   }
 
   interface Color {

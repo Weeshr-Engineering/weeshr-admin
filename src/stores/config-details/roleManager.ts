@@ -7,7 +7,14 @@ export const useRoleStore = defineStore({
   id: 'admin-list',
   state: (): ConfigStore => ({
     permissions: [],
-    roles: []
+    roles: [],
+    config: {
+            "roles": 0,
+            "featured": 0,
+            "currencies": 0,
+            "weesh_gist": 0,
+            "weesh_categories": 0
+        }
   }),
   actions: {
     async createRole(data: any) {
@@ -15,6 +22,7 @@ export const useRoleStore = defineStore({
       toast({
         title: 'Loading Data',
         description: 'Fetching data...',
+        variant: 'loading',
         duration: 0 // Set duration to 0 to make it indefinite until manually closed
       })
       const config = {
@@ -39,6 +47,7 @@ export const useRoleStore = defineStore({
       toast({
         title: 'Loading Data',
         description: 'Fetching data...',
+        variant: 'loading',
         duration: 0 // Set duration to 0 to make it indefinite until manually closed
       })
       try {
@@ -66,6 +75,7 @@ export const useRoleStore = defineStore({
       toast({
         title: 'Loading Data',
         description: 'Fetching data...',
+        variant: 'loading',
         duration: 0 // Set duration to 0 to make it indefinite until manually closed
       })
 
@@ -91,6 +101,7 @@ export const useRoleStore = defineStore({
       toast({
         title: 'Deleting Data',
         description: 'Deleting data...',
+        variant: 'loading',
         duration: 0 // Set duration to 0 to make it indefinite until manually closed
       })
 
@@ -114,6 +125,7 @@ export const useRoleStore = defineStore({
       toast({
         title: 'Loading Data',
         description: 'Fetching data...',
+        variant: 'loading',
         duration: 0 // Set duration to 0 to make it indefinite until manually closed
       })
       try {
@@ -143,6 +155,7 @@ export const useRoleStore = defineStore({
       toast({
         title: 'Loading Data',
         description: 'Fetching data...',
+        variant: 'loading',
         duration: 0 // Set duration to 0 to make it indefinite until manually closed
       })
       try {
@@ -171,6 +184,7 @@ export const useRoleStore = defineStore({
       toast({
         title: 'Loading Data',
         description: 'Fetching data...',
+        variant: 'loading',
         duration: 0 // Set duration to 0 to make it indefinite until manually closed
       })
       const config = {
@@ -191,6 +205,35 @@ export const useRoleStore = defineStore({
         .catch((error) => {
           this.catchErr(error)
         });
+    },
+    async getAnalytics() {
+
+      toast({
+        title: 'Loading Data',
+        description: 'Fetching data...',
+        variant: 'loading',
+        duration: 0 // Set duration to 0 to make it indefinite until manually closed
+      })
+      try {
+        const response = await axios.get(
+          `/api/v1/admin/configuration/analytics`,
+         
+        )
+
+        if (response.status === 200 || response.status === 201) {
+          toast({
+            title: 'Success',
+            description: 'Success : Configuration data collected',
+            variant: 'success'
+          })
+        }
+        this.config = (response.data.data.count);
+        // this.roles = response.data.data.data.reverse()
+        // set Loading to false
+
+      } catch (error: any) {
+        this.catchErr(error)
+      }
     },
     catchErr (error: any){
       if(error.response.status === 400){
@@ -235,7 +278,15 @@ export const useRoleStore = defineStore({
   }
 })
 
+interface Count {
+  "roles": number,
+  "featured": number,
+  "currencies": number,
+  "weesh_gist": number,
+  "weesh_categories": number
+}
 interface ConfigStore {
   permissions: any[],
-  roles: any[]
+  roles: any[],
+  config: Count
 }
