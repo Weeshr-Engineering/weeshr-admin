@@ -340,7 +340,9 @@ const items = [
               class="flex justify-between lg:mx-4 px-4 shadow-md md:px-6 py-1 my-2 rounded-lg border"
             >
               <p class="text-[#02072199] text-xs md:text-sm lg:text-sm pt-2">Profile Privacy</p>
+
               <label class="relative inline-flex cursor-pointer items-center" @click='(()=> togglePrivacy(appUser?.settings.isProfilePublic!))'>
+
                 <input type="checkbox" value="" :checked='!appUser.settings.isProfilePublic' disabled class="peer sr-only" />
                 <div
                   class="peer flex h-8 items-center gap-6 rounded-full bg-[#baef23] px-4 text-black after:absolute after:left-1 after: after:h-6 after:w-16 after:rounded-full after:bg-[#F4ffc8]/50 after:transition-all after:content-[''] peer-checked:bg-green-900 peer-checked:after:translate-x-full peer-focus:outline-none dark:border-slate-600 dark:bg-slate-700 text-sm peer-checked:text-white"

@@ -71,7 +71,7 @@ export const useBankBalanceStore = defineStore('bank-balance', {
         const response = await axios.get(`/api/v1/admin/weeshr/bank/balance`)
 
         if (response.status === 200 || response.status === 201) {
-          this.balance = response.data.data[0].balance
+          this.balance = response.data.data[0].balance/100
           this.currency = response.data.data[0].currency
         }
 
@@ -139,10 +139,10 @@ export const useBankBalanceStore = defineStore('bank-balance', {
         const response = await axios.get(`/api/v1/admin/weeshr/bank/transaction_totals`)
 
         if (response.status === 200 || response.status === 201) {
-          this.totalTransactionsAmount = response.data.data.total_volume_by_currency[0].amount
+          this.totalTransactionsAmount = response.data.data.total_volume_by_currency[0].amount/100
           this.totalTransactionCurrency = response.data.data.total_volume_by_currency[0].currency
 
-          this.totalTransfersAmount = response.data.data.pending_transfers_by_currency[0].amount
+          this.totalTransfersAmount = response.data.data.pending_transfers_by_currency[0].amount/100
           this.totalTransfersCurrency = response.data.data.pending_transfers_by_currency[0].currency
         }
 
