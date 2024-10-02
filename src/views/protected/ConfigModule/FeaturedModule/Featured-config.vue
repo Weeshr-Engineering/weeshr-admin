@@ -10,7 +10,6 @@ import {
   SheetClose
 } from '@/components/ui/sheet'
 import { ref, onMounted,  computed} from 'vue'
-import { Loader2 } from 'lucide-vue-next'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import { Button } from "@/components/ui/button"
@@ -50,6 +49,16 @@ import {
   PaginationNext,
   PaginationPrev,
 } from '@/components/ui/pagination';
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import DateRanged from './Date-range.vue'
 import { useFeaturedStore } from '@/stores/config-details/featured'
@@ -72,11 +81,34 @@ const deleteStyle = computed(()=>{
 })
 
 const store = useFeaturedStore()
+const sheetState = ref(false)
+const updateSheetState = ref(false)
 const loading = ref(false);
 const MAX_FILE_SIZE = 1024 * 1024 * 2;
 const active = computed(()=>{
   return store.active
 })
+
+const updateImg = ref<any[]>([])
+const imageError = ref('')
+
+const handleFileUpdate = (event: any) => {
+  imageError.value = ''
+  const file = event.target.files[0];
+  const imageSchema = z.any().refine((file) => file?.size <= MAX_FILE_SIZE, `Max image size is 2MB.`);
+  const img = imageSchema.safeParse(file)
+  if (!img.success) {
+      toast({
+        description: 'Max image size is 2MB',
+        variant: 'destructive'
+      })
+      imageError.value = 'Max image size is 2MB'
+        return;
+  }
+
+
+  updateImg.value = file
+}
 
 interface Updates {
   updateColor: string,
@@ -137,13 +169,38 @@ const toggle = async(feature: Feature)=>{
   }
   submit(data, feature._id)
 }
+
+const updateSchedule = ref({
+  start: '',
+  end: ''
+})
+const updateLog = (val: Schedule)=>{
+  if(val.start && val.end){
+    const start = `${val.start.day.toString().padStart(2, '0')}/${val.start.month.toString().padStart(2, '0')}/${val.start.year.toString()}`
+    updateSchedule.value.start = start
+
+    const end = `${val.end.day.toString().padStart(2, '0')}/${val.end.month.toString().padStart(2, '0')}/${val.end.year.toString()}`
+    updateSchedule.value.end = end
+  }
+}
+
 const onUpdate = async(state: boolean) => {
   toast({
     description: `Updating featured moment`,
     variant: 'loading'
   })
-
-  let data = {
+  interface UpdateData {
+    color: string,
+    disabled: boolean,
+    header: string,
+    image?: any[],
+    link: string,
+    linkTitle: string,
+    scheduledDateFrom?: string,
+    scheduledDateTo?: string,
+    title: string,
+  }
+  let data: UpdateData = {
     title: '',
     header: '',
     color: '',
@@ -151,7 +208,7 @@ const onUpdate = async(state: boolean) => {
     linkTitle: '',
     disabled: feature.value.disabled
   }
-if(updates.value.updateTitle || updates.value.updateHeader || updates.value.updateColor || updates.value.updateLink || updates.value.updateLinkTitle){
+if(updates.value.updateTitle || updates.value.updateHeader || updates.value.updateColor || updates.value.updateLink || updates.value.updateLinkTitle || updateImg.value.length !== 0 || updateSchedule.value.start !== '' || updateSchedule.value.end !== ''){
     if (updates.value.updateTitle !== ''){
             data.title= updates.value.updateTitle
     }else{
@@ -177,6 +234,30 @@ if(updates.value.updateTitle || updates.value.updateHeader || updates.value.upda
     }else{
         data.linkTitle= feature.value.linkTitle
     }
+    if(updateImg.value.length !== 0 || updateSchedule.value.start !== '' || updateSchedule.value.end !== ''){
+      if(updateImg.value.length !== 0){
+          if(imageError.value !== ''){
+            toast({
+            description: imageError.value,
+            variant: 'destructive'
+          })
+          return;
+        }
+        data = {
+          ...data,
+          image: updateImg.value
+        }
+      }
+      if(updateSchedule.value.start !== '' && updateSchedule.value.end !== ''){
+        data = {
+          ...data,
+          scheduledDateFrom: updateSchedule.value.start,
+          scheduledDateTo: updateSchedule.value.end
+        }
+      }
+    }
+    // console.log(data)
+    updateSheetState.value = false;
     submit(data, feature.value._id)
   }else{
       toast({
@@ -286,6 +367,7 @@ const onSubmit = formSubmit(async (values) => {
       },
     });
     if (response.status === 200 || response.status === 201) {
+        sheetState.value = false;
         toast({
             description: `${response.data.message}`,
             variant: 'success'
@@ -358,7 +440,7 @@ onMounted(async()=>{
     <div class="w-full">
         <MainNav class="mx-6" headingText="Featured Content" />
         <div class="px-10 py-10 ml-auto w-full flex justify-end">
-            <Sheet>
+            <Sheet v-model:open='sheetState'>
               <SheetTrigger as-child @click="verifyAbilities('create', 'featured-moments')">
                 <button :class="createStyle">
                   <div class="text-base text-[#F8F9FF] text-center flex items-center">
@@ -508,11 +590,11 @@ onMounted(async()=>{
                 </div>
                 <div class="w-full min-h-72">
                 <span v-for="(feature, key) in features" :key="key">
-                  <Card Content class="mt-4" :style="{'background-color': feature.color}" @click="setfeature(feature)">
+                  <Card Content class="mt-4 h-fit" :style="{'background-color': feature.color}" @click="setfeature(feature)">
                       <CardContent
-                        class="grid grid-cols-8 px-2 sm:px-4 py-4"
+                        class="grid grid-cols-12 px-2 sm:px-4 py-4 md:pb-4 items-center"
                       >
-                        <span class="gap-2 col-span-8 md:col-span-6 grid grid-cols-4 md:gap-4 w-full">
+                        <span class="gap-2 col-span-11 md:col-span-10 grid grid-cols-4 md:gap-4 w-full">
                           <div
                             class="col-span-2 text-[#000000] md:h-14 flex flex-col"
                             >
@@ -530,9 +612,9 @@ onMounted(async()=>{
                             </div>
                           </div>
                       </span>
-                      <div class="md:col-span-2 hidden md:flex items-center justify-between gap-4 w-full">
+                      <div class="md:col-span-1 hidden md:flex items-center justify-between gap-4 w-full">
                         <!-- <Switch :checked="!feature.disabled" @click="store.handleSwitch(feature._id, feature.title, feature.disabled)" :disabled="!edit"/> -->
-                        <Sheet>
+                        <Sheet v-model:open='updateSheetState'>
                             <SheetTrigger>
                                 <Icon icon="mdi:edit" width="17" height="17" :class="editStyle" class='hidden md:inline-block'/>
                             </SheetTrigger>
@@ -543,6 +625,18 @@ onMounted(async()=>{
                                   </SheetHeader>
                                 </div>
                                 <form class="space-y-4" @submit.prevent="()=>onUpdate(false)">
+                                  <div class="grid w-full max-w-sm items-center gap-1.5">
+                                    <FormField v-slot="{ componentField }" name="updateImage">
+                                      <FormItem v-auto-animate>
+                                        <FormLabel class="text-blue-900">Change/Add Image (optional)</FormLabel>
+                                        <FormControl>
+                                          <input id="updatePicture" type="file"  @change="handleFileUpdate" v-bind="componentField" accept="image/*" class='border-[1px] border-gray-200 rounded-sm'/>
+                                        </FormControl>
+                                        <FormMessage for="updateImage" />
+                                      </FormItem>
+                                    </FormField>
+                                    <p class='text-red-600 mb-2'>{{imageError}}</p>
+                                  </div>
                                   <div class="grid w-full max-w-sm items-center gap-1.5">
                                     <FormField name="updateTitle">
                                       <FormItem v-auto-animate>
@@ -594,58 +688,21 @@ onMounted(async()=>{
                                         </ToggleGroupItem>
                                       </ToggleGroup>
 
-
-                                  <!-- <FormField name="color">
-                                    <FormItem>
-                                      <FormLabel class="text-blue-900">Edit Theme color</FormLabel>
-                                      
-                                        <Select
-                                        v-model="updates.updateColor"
-                                        id="color"
-                                        class='border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'>
-                                        <FormControl>
-                                          <SelectTrigger :style="{'background-color': updates.updateColor}">
-                                              <SelectValue :placeholder="feature.color"/>
-                                            </SelectTrigger>
-                                        </FormControl>
-                                          <SelectContent>
-                                            <SelectItem v-for="(theme, key) in store.colors" :key="key" :value="theme.hexacode"
-                                            :style="{'background-color': theme.hexacode}"
-                                            > {{theme.name}} - {{theme.hexacode}} </SelectItem>
-                                          </SelectContent>
-                                        </Select>
-                                      
-                                      <FormMessage for="color" />
-                                    </FormItem>
-                                  </FormField> -->
-                                  <!-- <div>
-                                    <FormField name="scheduledDate">
-                                      <FormItem v-auto-animate>
-                                        <FormLabel class="text-blue-900">Edit Scheduled Date (optional)</FormLabel>
-                                        <FormControl>
-                                          <Input
-                                            id="updateSchedule"
-                                            type="date"
-                                            placeholder="Date"
-                                            class="focus-visible:ring-blue-600"
-                                            v-model="updates.updateDate"
-                                          />
-                                        </FormControl>
-                  
-                                        <FormMessage for="dob" />
-                                      </FormItem>
-                                    </FormField>
-                                  </div> -->
-                                  <Button type="submit" class="bg-[#4145A7] mt-2">
-                      
-                                    <Loader2
-                                      color="#ffffff"
-                                      v-if="loading"
-                                      class="w-4 h-4 mr-2 text-white animate-spin"
-                                    />
-                                    Submit
+                                    <div>
+                                      <FormField name="scheduledDate">
+                                        <FormItem v-auto-animate>
+                                          <FormLabel class="text-blue-900">Schedule (optional)</FormLabel>
+                                          <FormControl>
+                                            <DateRanged @updateValue="updateLog"/>
+                                          </FormControl>
                     
-                                    <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-white animate-spin" />
+                                          <FormMessage for="dob" />
+                                        </FormItem>
+                                      </FormField>
+                                    </div>
+
+                                  <Button type="submit" class="bg-[#4145A7] mt-2">
+                                    Submit
                                   </Button>
                                 </form>
                             </SheetContent>
@@ -671,6 +728,57 @@ onMounted(async()=>{
                           </AlertDialogContent>
                           </div>
                         </AlertDialog>
+                      </div>
+                      <div class='h-full w-full grid grid-cols-1 items-center justify-center md:justify-end bg-red-400 col-sapn-1'>
+                        <Dialog>
+                          <DialogTrigger as-child>
+                            <Icon icon="uil:angle-right" class="ml-1 col-span-1" width="25" height="25" />
+                          </DialogTrigger>
+                          <DialogContent class="">
+                            <DialogHeader>
+                              <DialogTitle></DialogTitle>
+                              <DialogDescription>
+                              </DialogDescription>
+                            </DialogHeader>
+                            <div class="flex items-center space-x-2">
+                              <div>
+                                <div class='w-14 h-14 col-span-2 md:col-span-2'>
+                                  <img v-if='feature.image !== ""' :src='feature.image' class="w-full h-full rounded-sm"/>
+                                  <div v-else class='w-full h-full flex items-center justify-center border border-gray-500 rounded-sm'>
+                                    <Icon icon="mdi:broken-image" class="text-gray-500 h-full w-full" width="48" height="48"/>
+                                  </div>
+                                </div>
+                                <div class="col-span-2 text-[#000000] md:h-14 flex flex-col">
+                                    <p class='text-muted-foreground'>Header</p>
+                                    <p>{{feature.header}}</p>
+                                </div>
+                                <div class="col-span-2 text-[#000000] md:h-14 flex flex-col">
+                                  <p class='text-muted-foreground'>Scheduled date</p>
+                                  <p>{{feature.scheduledDateFrom}} - {{feature.scheduledDateTo}}</p>
+                              </div>
+                                <div class="col-span-2 text-[#000000] md:h-14 flex flex-col">
+                                    <p class='text-muted-foreground'>Link</p>
+                                    <p>{{feature.link}}</p>
+                                </div>
+                                <div class="col-span-2 md:hidden text-[#000000] md:h-14 flex flex-col">
+                                    <p class='text-muted-foreground'>Color</p>
+                                    <p>{{feature.color}}</p>
+                                </div>
+                                <div class="col-span-2 text-[#000000] md:h-14 flex flex-col">
+                                    <p class='text-muted-foreground'>Admin details</p>
+                                    <p>{{feature.adminDetails}}</p>
+                                </div>
+                              </div>
+                            </div>
+                            <DialogFooter class="sm:justify-start">
+                              <DialogClose as-child>
+                                <Button type="button" variant="secondary">
+                                  Close
+                                </Button>
+                              </DialogClose>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
                       </div>
                       </CardContent>
                     </Card>
