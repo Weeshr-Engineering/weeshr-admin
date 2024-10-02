@@ -590,13 +590,13 @@ onMounted(async()=>{
                 </div>
                 <div class="w-full min-h-72">
                 <span v-for="(feature, key) in features" :key="key">
-                  <Card Content class="mt-4 h-fit" :style="{'background-color': feature.color}" @click="setfeature(feature)">
+                  <Card Content class="mt-4 min-h-fit" :style="{'background-color': feature.color}" @click="setfeature(feature)">
                       <CardContent
                         class="grid grid-cols-12 px-2 sm:px-4 py-4 md:pb-4 items-center"
                       >
                         <span class="gap-2 col-span-11 md:col-span-10 grid grid-cols-4 md:gap-4 w-full">
                           <div
-                            class="col-span-2 text-[#000000] md:h-14 flex flex-col"
+                            class="col-span-2 text-[#000000] md:h-14 flex flex-col pb-4"
                             >
                               <p class='text-muted-foreground'>Title</p>
                               <p>{{feature.title}}</p>
@@ -729,10 +729,10 @@ onMounted(async()=>{
                           </div>
                         </AlertDialog>
                       </div>
-                      <div class='h-full w-full grid grid-cols-1 items-center justify-center md:justify-end bg-red-400 col-sapn-1'>
+                      <div class='h-full w-full grid grid-cols-1 items-center justify-center md:flex md:justify-end col-sapn-1'>
                         <Dialog>
                           <DialogTrigger as-child>
-                            <Icon icon="uil:angle-right" class="ml-1 col-span-1" width="25" height="25" />
+                            <Icon icon="uil:angle-right" class="ml-1 col-span-1 md:" width="20" height="20" />
                           </DialogTrigger>
                           <DialogContent class="">
                             <DialogHeader>
