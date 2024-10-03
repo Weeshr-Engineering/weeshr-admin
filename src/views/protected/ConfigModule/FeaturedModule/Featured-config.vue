@@ -621,7 +621,7 @@ onMounted(async()=>{
                             </div>
                           </div>
                       </span>
-                      <div class="col-span-2 lg:col-span-2 hidden md:grid grid-cols-2 items-center justify-end gap-2 w-full pr-2">
+                      <div class="col-span-2 lg:col-span-2 hidden md:grid grid-cols-2 items-center justify-end gap-2 w-full pr-2 md:pt-2">
                         <!-- <Switch :checked="!feature.disabled" @click="store.handleSwitch(feature._id, feature.title, feature.disabled)" :disabled="!edit"/> -->
                         <Sheet v-model:open='updateSheetState'>
                             <SheetTrigger as-child>
@@ -719,7 +719,7 @@ onMounted(async()=>{
 
                         <AlertDialog>
                           <AlertDialogTrigger>
-                            <div class='w-full h-full col-span-1 flex items-center pt-1'>
+                            <div class='w-full h-full col-span-1 flex items-center pt-1 md:pt-0'>
                               <Icon icon="mdi:delete" width="17" height="17" :class="deleteStyle" class='hidden md:inline-block' @click="verifyAbilities('delete', 'featured-moments')"/>
                             </div>
                           </AlertDialogTrigger>
