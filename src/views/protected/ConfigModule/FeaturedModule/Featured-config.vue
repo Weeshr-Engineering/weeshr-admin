@@ -183,6 +183,15 @@ const updateLog = (val: Schedule)=>{
     updateSchedule.value.end = end
   }
 }
+function modDate(dateString: string): string {
+  const [day, month, year] = dateString.split('/');
+  
+  // Ensure month and day are two digits
+  const formattedMonth = month.padStart(2, '0');
+  const formattedDay = day.padStart(2, '0');
+  
+  return `${year}-${formattedMonth}-${formattedDay}`;
+}
 
 const onUpdate = async(state: boolean) => {
   toast({
@@ -251,13 +260,12 @@ if(updates.value.updateTitle || updates.value.updateHeader || updates.value.upda
       if(updateSchedule.value.start !== '' && updateSchedule.value.end !== ''){
         data = {
           ...data,
-          scheduledDateFrom: updateSchedule.value.start,
-          scheduledDateTo: updateSchedule.value.end
+          scheduledDateFrom: modDate(updateSchedule.value.start),
+          scheduledDateTo: modDate(updateSchedule.value.end)
         }
       }
     }
-    // console.log(data)
-    updateSheetState.value = false;
+    console.log(data)
     submit(data, feature.value._id)
   }else{
       toast({
@@ -279,6 +287,7 @@ const submit = async (data: any, id: string)=>{
               store.getFeatures(store.page, 'Success')
           }
         loading.value = false
+        updateSheetState.value = false;
 
           return;
       }catch(error){
@@ -350,8 +359,8 @@ const onSubmit = formSubmit(async (values) => {
   if (schedule.value.start !== '' && schedule.value.end !== ''){
     data = {
       ...value,
-      'scheduledDateFrom': schedule.value.start,
-      'scheduledDateTo': schedule.value.end
+      'scheduledDateFrom': modDate(schedule.value.start),
+      'scheduledDateTo': modDate(schedule.value.end)
     }
     console.log(data)
   }else {
@@ -590,33 +599,33 @@ onMounted(async()=>{
                 </div>
                 <div class="w-full min-h-72">
                 <span v-for="(feature, key) in features" :key="key">
-                  <Card Content class="mt-4 min-h-fit" :style="{'background-color': feature.color}" @click="setfeature(feature)">
-                      <CardContent
+                  <div class="grid grid-cols-12 px-2 sm:px-4 py-4 md:pb-4 items-center mt-4 min-h-fit justify-center relative" :style="{'background-color': feature.color}" @click="setfeature(feature)">
+                      <!-- <CardContent
                         class="grid grid-cols-12 px-2 sm:px-4 py-4 md:pb-4 items-center"
-                      >
-                        <span class="gap-2 col-span-11 md:col-span-10 grid grid-cols-4 md:gap-4 w-full">
+                      > -->
+                        <span class="gap-2 col-span-11 md:col-span-10 grid grid-cols-6 md:gap-4 w-full min-h-fit">
                           <div
-                            class="col-span-2 text-[#000000] md:h-14 flex flex-col pb-4"
+                            class="col-span-5 lg:col-span-4 text-[#000000] md:h-14 flex flex-col pb-4"
                             >
                               <p class='text-muted-foreground'>Title</p>
                               <p>{{feature.title}}</p>
                           </div>
-                          <div class='flex items-center justify-between gap-2 w-full col-span-2 md:grid grid-cols-2'>
-                            <div class="col-span-1 hidden md:inline-block text-sm text-[#000000]">
+                          <div class='flex items-center justify-between gap-2 w-full col-span-1 lg:col-span-2 md:grid grid-cols-2'>
+                            <div class="col-span-1 hidden lg:inline-block text-sm text-[#000000]">
                               <p class='text-muted-foreground'>Theme</p>
                               <p>{{feature.color}}</p>
                             </div>
-                            <div class="col-span-1 flex flex-col text-muted-foreground items-center justify-end md:justify-center w-full">
+                            <div class="hidden col-span-1 md:flex flex-col text-muted-foreground items-center justify-end md:justify-center w-full">
                               {{ feature.disabled === false ? 'Active' : 'Disabled' }} 
                               <Switch :checked="!feature.disabled" @click='()=> toggle(feature)'/>
                             </div>
                           </div>
                       </span>
-                      <div class="md:col-span-1 hidden md:flex items-center justify-between gap-4 w-full">
+                      <div class="col-span-2 lg:col-span-2 hidden md:grid grid-cols-2 items-center justify-end gap-2 w-full pr-2">
                         <!-- <Switch :checked="!feature.disabled" @click="store.handleSwitch(feature._id, feature.title, feature.disabled)" :disabled="!edit"/> -->
                         <Sheet v-model:open='updateSheetState'>
-                            <SheetTrigger>
-                                <Icon icon="mdi:edit" width="17" height="17" :class="editStyle" class='hidden md:inline-block'/>
+                            <SheetTrigger as-child>
+                                <Icon icon="mdi:edit" width="17" height="17" :class="editStyle" class='hidden md:inline-block col-span-1'/>
                             </SheetTrigger>
                             <SheetContent class="overflow-y-auto py-8" side="right" v-if="ability.can('update', 'featured-moments')">
                                 <div class="flex py-4 justify-between items-center">
@@ -710,7 +719,9 @@ onMounted(async()=>{
 
                         <AlertDialog>
                           <AlertDialogTrigger>
-                            <Icon icon="mdi:delete" width="17" height="17" :class="deleteStyle" class='hidden md:inline-block' @click="verifyAbilities('delete', 'featured-moments')"/>
+                            <div class='w-full h-full col-span-1 flex items-center pt-1'>
+                              <Icon icon="mdi:delete" width="17" height="17" :class="deleteStyle" class='hidden md:inline-block' @click="verifyAbilities('delete', 'featured-moments')"/>
+                            </div>
                           </AlertDialogTrigger>
                           <div>
                           <AlertDialogContent v-if="deleteWeeshfeature">
@@ -729,59 +740,69 @@ onMounted(async()=>{
                           </div>
                         </AlertDialog>
                       </div>
-                      <div class='h-full w-full grid grid-cols-1 items-center justify-center md:flex md:justify-end col-sapn-1'>
+                      <div class='absolute right-3 place-self-center'>
+                      <!-- <div class='h-full w-full grid grid-cols-1 items-center justify-center md:flex md:justify-end col-sapn-1'> -->
                         <Dialog>
                           <DialogTrigger as-child>
                             <Icon icon="uil:angle-right" class="ml-1 col-span-1 md:" width="20" height="20" />
                           </DialogTrigger>
-                          <DialogContent class="">
+                          <DialogContent class="flex justify-center md:block">
                             <DialogHeader>
                               <DialogTitle></DialogTitle>
                               <DialogDescription>
                               </DialogDescription>
                             </DialogHeader>
-                            <div class="flex items-center space-x-2">
-                              <div>
-                                <div class='w-14 h-14 col-span-2 md:col-span-2'>
+                            <div class="flex items-center space-x-2 w-full pl-8">
+                              <div class='w-full grid grid-cols-2'>
+                                <div class='w-20 h-20 col-span-1 md:col-span-1'>
                                   <img v-if='feature.image !== ""' :src='feature.image' class="w-full h-full rounded-sm"/>
                                   <div v-else class='w-full h-full flex items-center justify-center border border-gray-500 rounded-sm'>
                                     <Icon icon="mdi:broken-image" class="text-gray-500 h-full w-full" width="48" height="48"/>
                                   </div>
                                 </div>
+                                <div class="col-span-1 flex flex-col text-muted-foreground items-center justify-end md:justify-center w-full">
+                                  {{ feature.disabled === false ? 'Active' : 'Disabled' }} 
+                                  <Switch :checked="!feature.disabled" @click='()=> toggle(feature)'/>
+                                </div>
                                 <div class="col-span-2 text-[#000000] md:h-14 flex flex-col">
                                     <p class='text-muted-foreground'>Header</p>
                                     <p>{{feature.header}}</p>
                                 </div>
-                                <div class="col-span-2 text-[#000000] md:h-14 flex flex-col">
-                                  <p class='text-muted-foreground'>Scheduled date</p>
-                                  <p>{{feature.scheduledDateFrom}} - {{feature.scheduledDateTo}}</p>
-                              </div>
+                                  <div class="col-span-2 text-[#000000] md:h-14 flex flex-col">
+                                      <p class='text-muted-foreground'>Scheduled date</p>
+                                      <p>{{feature.scheduledDateFrom}} - {{feature.scheduledDateTo}}</p>
+                                  </div>
                                 <div class="col-span-2 text-[#000000] md:h-14 flex flex-col">
                                     <p class='text-muted-foreground'>Link</p>
                                     <p>{{feature.link}}</p>
                                 </div>
-                                <div class="col-span-2 md:hidden text-[#000000] md:h-14 flex flex-col">
-                                    <p class='text-muted-foreground'>Color</p>
+                                <div class="col-span-1 md:hidden text-[#000000] md:h-14 flex flex-col">
+                                    <p class='text-muted-foreground'>Theme</p>
                                     <p>{{feature.color}}</p>
                                 </div>
-                                <div class="col-span-2 text-[#000000] md:h-14 flex flex-col">
+                                <div class="col-span-2 hidden text-[#000000] md:h-14 lg:flex flex-col mb-4">
                                     <p class='text-muted-foreground'>Admin details</p>
-                                    <p>{{feature.adminDetails}}</p>
+                                    <p><span class='text-muted-foreground'>Name:</span> {{feature.adminDetails.firstName}} <span class='text-muted-foreground'>Email:</span> {{feature.adminDetails.email}}</p>
                                 </div>
+                                <DialogClose class='col-span-1' as-child>
+                                  <Button type="button" variant="secondary">
+                                    Close
+                                  </Button>
+                                </DialogClose>
                               </div>
                             </div>
-                            <DialogFooter class="sm:justify-start">
+                            <!-- <DialogFooter class="sm:justify-start">
                               <DialogClose as-child>
                                 <Button type="button" variant="secondary">
                                   Close
                                 </Button>
                               </DialogClose>
-                            </DialogFooter>
+                            </DialogFooter> -->
                           </DialogContent>
                         </Dialog>
                       </div>
-                      </CardContent>
-                    </Card>
+                      <!-- </CardContent> -->
+                    </div>
                 </span>
                   <div class="flex gap-2 max-w-full flex-wrap justify-end mt-8 mr-4 items-center text-[15px]" v-if="features.length !== 0">
                     <Pagination :total="totalPages" :sibling-count="1" show-edges :default-page="1" @change="store.handlePageChange">
