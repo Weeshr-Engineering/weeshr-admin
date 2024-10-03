@@ -770,7 +770,7 @@ onMounted(async()=>{
                                 </div>
                                   <div class="col-span-2 text-[#000000] md:h-14 flex flex-col">
                                       <p class='text-muted-foreground'>Scheduled date</p>
-                                      <p>{{feature.scheduledDateFrom}} - {{feature.scheduledDateTo}}</p>
+                                      <p>{{feature.scheduledDateFrom.split('T')[0]}} / {{feature.scheduledDateTo.split('T')[0]}}</p>
                                   </div>
                                 <div class="col-span-2 text-[#000000] md:h-14 flex flex-col">
                                     <p class='text-muted-foreground'>Link</p>
