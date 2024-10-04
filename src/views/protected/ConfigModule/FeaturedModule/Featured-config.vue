@@ -10,7 +10,6 @@ import {
   SheetClose
 } from '@/components/ui/sheet'
 import { ref, onMounted,  computed} from 'vue'
-import { Loader2 } from 'lucide-vue-next'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import { Button } from "@/components/ui/button"
@@ -50,6 +49,16 @@ import {
   PaginationNext,
   PaginationPrev,
 } from '@/components/ui/pagination';
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import DateRanged from './Date-range.vue'
 import { useFeaturedStore } from '@/stores/config-details/featured'
@@ -72,11 +81,34 @@ const deleteStyle = computed(()=>{
 })
 
 const store = useFeaturedStore()
+const sheetState = ref(false)
+const updateSheetState = ref(false)
 const loading = ref(false);
 const MAX_FILE_SIZE = 1024 * 1024 * 2;
 const active = computed(()=>{
   return store.active
 })
+
+const updateImg = ref<any[]>([])
+const imageError = ref('')
+
+const handleFileUpdate = (event: any) => {
+  imageError.value = ''
+  const file = event.target.files[0];
+  const imageSchema = z.any().refine((file) => file?.size <= MAX_FILE_SIZE, `Max image size is 2MB.`);
+  const img = imageSchema.safeParse(file)
+  if (!img.success) {
+      toast({
+        description: 'Max image size is 2MB',
+        variant: 'destructive'
+      })
+      imageError.value = 'Max image size is 2MB'
+        return;
+  }
+
+
+  updateImg.value = file
+}
 
 interface Updates {
   updateColor: string,
@@ -137,13 +169,47 @@ const toggle = async(feature: Feature)=>{
   }
   submit(data, feature._id)
 }
+
+const updateSchedule = ref({
+  start: '',
+  end: ''
+})
+const updateLog = (val: Schedule)=>{
+  if(val.start && val.end){
+    const start = `${val.start.day.toString().padStart(2, '0')}/${val.start.month.toString().padStart(2, '0')}/${val.start.year.toString()}`
+    updateSchedule.value.start = start
+
+    const end = `${val.end.day.toString().padStart(2, '0')}/${val.end.month.toString().padStart(2, '0')}/${val.end.year.toString()}`
+    updateSchedule.value.end = end
+  }
+}
+function modDate(dateString: string): string {
+  const [day, month, year] = dateString.split('/');
+  
+  // Ensure month and day are two digits
+  const formattedMonth = month.padStart(2, '0');
+  const formattedDay = day.padStart(2, '0');
+  
+  return `${year}-${formattedMonth}-${formattedDay}`;
+}
+
 const onUpdate = async(state: boolean) => {
   toast({
     description: `Updating featured moment`,
     variant: 'loading'
   })
-
-  let data = {
+  interface UpdateData {
+    color: string,
+    disabled: boolean,
+    header: string,
+    image?: any[],
+    link: string,
+    linkTitle: string,
+    scheduledDateFrom?: string,
+    scheduledDateTo?: string,
+    title: string,
+  }
+  let data: UpdateData = {
     title: '',
     header: '',
     color: '',
@@ -151,7 +217,7 @@ const onUpdate = async(state: boolean) => {
     linkTitle: '',
     disabled: feature.value.disabled
   }
-if(updates.value.updateTitle || updates.value.updateHeader || updates.value.updateColor || updates.value.updateLink || updates.value.updateLinkTitle){
+if(updates.value.updateTitle || updates.value.updateHeader || updates.value.updateColor || updates.value.updateLink || updates.value.updateLinkTitle || updateImg.value.length !== 0 || updateSchedule.value.start !== '' || updateSchedule.value.end !== ''){
     if (updates.value.updateTitle !== ''){
             data.title= updates.value.updateTitle
     }else{
@@ -177,6 +243,29 @@ if(updates.value.updateTitle || updates.value.updateHeader || updates.value.upda
     }else{
         data.linkTitle= feature.value.linkTitle
     }
+    if(updateImg.value.length !== 0 || updateSchedule.value.start !== '' || updateSchedule.value.end !== ''){
+      if(updateImg.value.length !== 0){
+          if(imageError.value !== ''){
+            toast({
+            description: imageError.value,
+            variant: 'destructive'
+          })
+          return;
+        }
+        data = {
+          ...data,
+          image: updateImg.value
+        }
+      }
+      if(updateSchedule.value.start !== '' && updateSchedule.value.end !== ''){
+        data = {
+          ...data,
+          scheduledDateFrom: modDate(updateSchedule.value.start),
+          scheduledDateTo: modDate(updateSchedule.value.end)
+        }
+      }
+    }
+    console.log(data)
     submit(data, feature.value._id)
   }else{
       toast({
@@ -198,6 +287,7 @@ const submit = async (data: any, id: string)=>{
               store.getFeatures(store.page, 'Success')
           }
         loading.value = false
+        updateSheetState.value = false;
 
           return;
       }catch(error){
@@ -269,8 +359,8 @@ const onSubmit = formSubmit(async (values) => {
   if (schedule.value.start !== '' && schedule.value.end !== ''){
     data = {
       ...value,
-      'scheduledDateFrom': schedule.value.start,
-      'scheduledDateTo': schedule.value.end
+      'scheduledDateFrom': modDate(schedule.value.start),
+      'scheduledDateTo': modDate(schedule.value.end)
     }
     console.log(data)
   }else {
@@ -286,6 +376,7 @@ const onSubmit = formSubmit(async (values) => {
       },
     });
     if (response.status === 200 || response.status === 201) {
+        sheetState.value = false;
         toast({
             description: `${response.data.message}`,
             variant: 'success'
@@ -358,7 +449,7 @@ onMounted(async()=>{
     <div class="w-full">
         <MainNav class="mx-6" headingText="Featured Content" />
         <div class="px-10 py-10 ml-auto w-full flex justify-end">
-            <Sheet>
+            <Sheet v-model:open='sheetState'>
               <SheetTrigger as-child @click="verifyAbilities('create', 'featured-moments')">
                 <button :class="createStyle">
                   <div class="text-base text-[#F8F9FF] text-center flex items-center">
@@ -508,33 +599,33 @@ onMounted(async()=>{
                 </div>
                 <div class="w-full min-h-72">
                 <span v-for="(feature, key) in features" :key="key">
-                  <Card Content class="mt-4" :style="{'background-color': feature.color}" @click="setfeature(feature)">
-                      <CardContent
-                        class="grid grid-cols-8 px-2 sm:px-4 py-4"
-                      >
-                        <span class="gap-2 col-span-8 md:col-span-6 grid grid-cols-4 md:gap-4 w-full">
+                  <div class="grid grid-cols-12 px-2 sm:px-4 py-4 md:pb-4 items-center mt-4 min-h-fit justify-center relative" :style="{'background-color': feature.color}" @click="setfeature(feature)">
+                      <!-- <CardContent
+                        class="grid grid-cols-12 px-2 sm:px-4 py-4 md:pb-4 items-center"
+                      > -->
+                        <span class="gap-2 col-span-11 md:col-span-10 grid grid-cols-6 md:gap-4 w-full min-h-fit">
                           <div
-                            class="col-span-2 text-[#000000] md:h-14 flex flex-col"
+                            class="col-span-5 lg:col-span-4 text-[#000000] md:h-14 flex flex-col pb-4"
                             >
                               <p class='text-muted-foreground'>Title</p>
                               <p>{{feature.title}}</p>
                           </div>
-                          <div class='flex items-center justify-between gap-2 w-full col-span-2 md:grid grid-cols-2'>
-                            <div class="col-span-1 hidden md:inline-block text-sm text-[#000000]">
+                          <div class='flex items-center justify-between gap-2 w-full col-span-1 lg:col-span-2 md:grid grid-cols-2'>
+                            <div class="col-span-1 hidden lg:inline-block text-sm text-[#000000]">
                               <p class='text-muted-foreground'>Theme</p>
                               <p>{{feature.color}}</p>
                             </div>
-                            <div class="col-span-1 flex flex-col text-muted-foreground items-center justify-end md:justify-center w-full">
+                            <div class="hidden col-span-1 md:flex flex-col text-muted-foreground items-center justify-end md:justify-center w-full">
                               {{ feature.disabled === false ? 'Active' : 'Disabled' }} 
                               <Switch :checked="!feature.disabled" @click='()=> toggle(feature)'/>
                             </div>
                           </div>
                       </span>
-                      <div class="md:col-span-2 hidden md:flex items-center justify-between gap-4 w-full">
+                      <div class="col-span-2 lg:col-span-2 hidden md:grid grid-cols-2 items-center justify-end gap-2 w-full pr-2 md:pt-2">
                         <!-- <Switch :checked="!feature.disabled" @click="store.handleSwitch(feature._id, feature.title, feature.disabled)" :disabled="!edit"/> -->
-                        <Sheet>
-                            <SheetTrigger>
-                                <Icon icon="mdi:edit" width="17" height="17" :class="editStyle" class='hidden md:inline-block'/>
+                        <Sheet v-model:open='updateSheetState'>
+                            <SheetTrigger as-child>
+                                <Icon icon="mdi:edit" width="17" height="17" :class="editStyle" class='hidden md:inline-block col-span-1'/>
                             </SheetTrigger>
                             <SheetContent class="overflow-y-auto py-8" side="right" v-if="ability.can('update', 'featured-moments')">
                                 <div class="flex py-4 justify-between items-center">
@@ -543,6 +634,18 @@ onMounted(async()=>{
                                   </SheetHeader>
                                 </div>
                                 <form class="space-y-4" @submit.prevent="()=>onUpdate(false)">
+                                  <div class="grid w-full max-w-sm items-center gap-1.5">
+                                    <FormField v-slot="{ componentField }" name="updateImage">
+                                      <FormItem v-auto-animate>
+                                        <FormLabel class="text-blue-900">Change/Add Image (optional)</FormLabel>
+                                        <FormControl>
+                                          <input id="updatePicture" type="file"  @change="handleFileUpdate" v-bind="componentField" accept="image/*" class='border-[1px] border-gray-200 rounded-sm'/>
+                                        </FormControl>
+                                        <FormMessage for="updateImage" />
+                                      </FormItem>
+                                    </FormField>
+                                    <p class='text-red-600 mb-2'>{{imageError}}</p>
+                                  </div>
                                   <div class="grid w-full max-w-sm items-center gap-1.5">
                                     <FormField name="updateTitle">
                                       <FormItem v-auto-animate>
@@ -594,58 +697,21 @@ onMounted(async()=>{
                                         </ToggleGroupItem>
                                       </ToggleGroup>
 
-
-                                  <!-- <FormField name="color">
-                                    <FormItem>
-                                      <FormLabel class="text-blue-900">Edit Theme color</FormLabel>
-                                      
-                                        <Select
-                                        v-model="updates.updateColor"
-                                        id="color"
-                                        class='border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'>
-                                        <FormControl>
-                                          <SelectTrigger :style="{'background-color': updates.updateColor}">
-                                              <SelectValue :placeholder="feature.color"/>
-                                            </SelectTrigger>
-                                        </FormControl>
-                                          <SelectContent>
-                                            <SelectItem v-for="(theme, key) in store.colors" :key="key" :value="theme.hexacode"
-                                            :style="{'background-color': theme.hexacode}"
-                                            > {{theme.name}} - {{theme.hexacode}} </SelectItem>
-                                          </SelectContent>
-                                        </Select>
-                                      
-                                      <FormMessage for="color" />
-                                    </FormItem>
-                                  </FormField> -->
-                                  <!-- <div>
-                                    <FormField name="scheduledDate">
-                                      <FormItem v-auto-animate>
-                                        <FormLabel class="text-blue-900">Edit Scheduled Date (optional)</FormLabel>
-                                        <FormControl>
-                                          <Input
-                                            id="updateSchedule"
-                                            type="date"
-                                            placeholder="Date"
-                                            class="focus-visible:ring-blue-600"
-                                            v-model="updates.updateDate"
-                                          />
-                                        </FormControl>
-                  
-                                        <FormMessage for="dob" />
-                                      </FormItem>
-                                    </FormField>
-                                  </div> -->
-                                  <Button type="submit" class="bg-[#4145A7] mt-2">
-                      
-                                    <Loader2
-                                      color="#ffffff"
-                                      v-if="loading"
-                                      class="w-4 h-4 mr-2 text-white animate-spin"
-                                    />
-                                    Submit
+                                    <div>
+                                      <FormField name="scheduledDate">
+                                        <FormItem v-auto-animate>
+                                          <FormLabel class="text-blue-900">Schedule (optional)</FormLabel>
+                                          <FormControl>
+                                            <DateRanged @updateValue="updateLog"/>
+                                          </FormControl>
                     
-                                    <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-white animate-spin" />
+                                          <FormMessage for="dob" />
+                                        </FormItem>
+                                      </FormField>
+                                    </div>
+
+                                  <Button type="submit" class="bg-[#4145A7] mt-2">
+                                    Submit
                                   </Button>
                                 </form>
                             </SheetContent>
@@ -653,7 +719,9 @@ onMounted(async()=>{
 
                         <AlertDialog>
                           <AlertDialogTrigger>
-                            <Icon icon="mdi:delete" width="17" height="17" :class="deleteStyle" class='hidden md:inline-block' @click="verifyAbilities('delete', 'featured-moments')"/>
+                            <div class='w-full h-full col-span-1 flex items-center pt-1 md:pt-0'>
+                              <Icon icon="mdi:delete" width="17" height="17" :class="deleteStyle" class='hidden md:inline-block' @click="verifyAbilities('delete', 'featured-moments')"/>
+                            </div>
                           </AlertDialogTrigger>
                           <div>
                           <AlertDialogContent v-if="deleteWeeshfeature">
@@ -672,8 +740,69 @@ onMounted(async()=>{
                           </div>
                         </AlertDialog>
                       </div>
-                      </CardContent>
-                    </Card>
+                      <div class='absolute right-3 place-self-center'>
+                      <!-- <div class='h-full w-full grid grid-cols-1 items-center justify-center md:flex md:justify-end col-sapn-1'> -->
+                        <Dialog>
+                          <DialogTrigger as-child>
+                            <Icon icon="uil:angle-right" class="ml-1 col-span-1 md:" width="20" height="20" />
+                          </DialogTrigger>
+                          <DialogContent class="flex justify-center md:block">
+                            <DialogHeader>
+                              <DialogTitle></DialogTitle>
+                              <DialogDescription>
+                              </DialogDescription>
+                            </DialogHeader>
+                            <div class="flex items-center space-x-2 w-full pl-8">
+                              <div class='w-full grid grid-cols-2'>
+                                <div class='w-20 h-20 col-span-1 md:col-span-1'>
+                                  <img v-if='feature.image !== ""' :src='feature.image' class="w-full h-full rounded-sm"/>
+                                  <div v-else class='w-full h-full flex items-center justify-center border border-gray-500 rounded-sm'>
+                                    <Icon icon="mdi:broken-image" class="text-gray-500 h-full w-full" width="48" height="48"/>
+                                  </div>
+                                </div>
+                                <div class="col-span-1 flex flex-col text-muted-foreground items-center justify-end md:justify-center w-full">
+                                  {{ feature.disabled === false ? 'Active' : 'Disabled' }} 
+                                  <Switch :checked="!feature.disabled" @click='()=> toggle(feature)'/>
+                                </div>
+                                <div class="col-span-2 text-[#000000] md:h-14 flex flex-col">
+                                    <p class='text-muted-foreground'>Header</p>
+                                    <p>{{feature.header}}</p>
+                                </div>
+                                  <div class="col-span-2 text-[#000000] md:h-14 flex flex-col">
+                                      <p class='text-muted-foreground'>Scheduled date</p>
+                                      <p>{{feature.scheduledDateFrom.split('T')[0]}} / {{feature.scheduledDateTo.split('T')[0]}}</p>
+                                  </div>
+                                <div class="col-span-2 text-[#000000] md:h-14 flex flex-col">
+                                    <p class='text-muted-foreground'>Link</p>
+                                    <p>{{feature.link}}</p>
+                                </div>
+                                <div class="col-span-1 md:hidden text-[#000000] md:h-14 flex flex-col">
+                                    <p class='text-muted-foreground'>Theme</p>
+                                    <p>{{feature.color}}</p>
+                                </div>
+                                <div class="col-span-2 hidden text-[#000000] md:h-14 lg:flex flex-col mb-4">
+                                    <p class='text-muted-foreground'>Admin details</p>
+                                    <p><span class='text-muted-foreground'>Name:</span> {{feature.adminDetails.firstName}} <span class='text-muted-foreground'>Email:</span> {{feature.adminDetails.email}}</p>
+                                </div>
+                                <DialogClose class='col-span-1' as-child>
+                                  <Button type="button" variant="secondary">
+                                    Close
+                                  </Button>
+                                </DialogClose>
+                              </div>
+                            </div>
+                            <!-- <DialogFooter class="sm:justify-start">
+                              <DialogClose as-child>
+                                <Button type="button" variant="secondary">
+                                  Close
+                                </Button>
+                              </DialogClose>
+                            </DialogFooter> -->
+                          </DialogContent>
+                        </Dialog>
+                      </div>
+                      <!-- </CardContent> -->
+                    </div>
                 </span>
                   <div class="flex gap-2 max-w-full flex-wrap justify-end mt-8 mr-4 items-center text-[15px]" v-if="features.length !== 0">
                     <Pagination :total="totalPages" :sibling-count="1" show-edges :default-page="1" @change="store.handlePageChange">

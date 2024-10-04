@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { type Ref, ref, watch } from 'vue'
 import {
-  CalendarDate,
   DateFormatter,
   type DateValue,
   getLocalTimeZone,
@@ -23,7 +22,7 @@ const df = new DateFormatter('en-US', {
 
 const value = ref({
   start:  ref<DateValue>(),
-  end: new CalendarDate(2022, 1, 20).add({ days: 20 }),
+  end: ref<DateValue>(),
 }) as Ref<DateRange>
 
 // Watch for changes in 'value' and emit the updated value
