@@ -10,13 +10,9 @@
             <div class="weeshr-icon2 rounded-[7px]">
               <Icon icon="solar:book-bold" width="24px" height="24px" color="#020721" />
             </div>
-            <p
-              class="text-2xl md:text-xl xl:text-3xl font-medium text-[#020721] absolute bottom-2 left-5"
-            >
+            <p class="text-2xl md:text-xl xl:text-3xl font-medium text-[#020721] absolute bottom-2 left-5">
               <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" />
-              <span v-else
-                >{{ currencySymbol(currency) }} {{ balance.toLocaleString('en-US') }}</span
-              >
+              <span v-else>{{ currencySymbol(currency) }} {{ balance.toLocaleString('en-US') }}</span>
             </p>
           </CardContent>
         </div>
@@ -27,22 +23,13 @@
           <CardContent class="flex items-center justify-between space-y-0">
             <p class="text-l font-medium text-[#ffffff]">Inflow</p>
             <div class="weeshr-icon2 rounded-[7px]">
-              <Icon
-                icon="mingcute:arrow-left-down-line"
-                width="24px"
-                height="24px"
-                color="#00C37F"
-              />
+              <Icon icon="mingcute:arrow-left-down-line" width="24px" height="24px" color="#00C37F" />
             </div>
 
-            <p
-              class="text-2xl md:text-xl xl:text-3xl font-medium text-[#ffffff] absolute bottom-2 left-5"
-            >
+            <p class="text-2xl md:text-xl xl:text-3xl font-medium text-[#ffffff] absolute bottom-2 left-5">
               <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" />
-              <span v-else
-                >{{ currencySymbol(totalTransaction.currency) }}
-                {{ totalTransaction.amount.toLocaleString() }}</span
-              >
+              <span v-else>{{ currencySymbol(totalTransaction.currency) }}
+                {{ totalTransaction.amount.toLocaleString() }}</span>
             </p>
           </CardContent>
         </div>
@@ -50,8 +37,7 @@
 
       <RouterLink to="/bank/outflow">
         <Card
-          class="h-[150px] rounded-[24px] bg-[#EE9F39] cardShadow3 border-transparent transition-transform transform hover:scale-105"
-        >
+          class="h-[150px] rounded-[24px] bg-[#EE9F39] cardShadow3 border-transparent transition-transform transform hover:scale-105">
           <div class="h-[130px] pt-4 relative rounded-tr-[24px] rounded-tl-[24px]">
             <CardContent class="flex items-center justify-between space-y-0">
               <p class="text-l font-medium text-[#ffffff]">Transfers</p>
@@ -59,14 +45,10 @@
                 <Icon icon="heroicons:bars-3" width="24px" height="24px" color="#EE9F39" />
               </div>
 
-              <p
-                class="text-2xl md:text-xl xl:text-3xl font-medium text-[#ffffff] absolute bottom-2 left-5"
-              >
+              <p class="text-2xl md:text-xl xl:text-3xl font-medium text-[#ffffff] absolute bottom-2 left-5">
                 <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" />
-                <span v-else
-                  >{{ currencySymbol(totalTransfers.currency) }}
-                  {{ totalTransfers.amount.toLocaleString() }}</span
-                >
+                <span v-else>{{ currencySymbol(totalTransfers.currency) }}
+                  {{ totalTransfers.amount.toLocaleString() }}</span>
               </p>
             </CardContent>
           </div>
@@ -75,67 +57,36 @@
     </div>
 
     <!-- Account -->
-    <div
-      v-if="readRole"
-      class="w-full px-6 py-4 flex flex-col gap-8 md:gap-0 md:flex-row items-start md:items-center justify-between bg-[#E4E6F5] rounded-xl mt-4 md:mt-6"
-    >
+    <div v-if="readRole"
+      class="w-full px-6 py-4 flex flex-col gap-8 md:gap-0 md:flex-row items-start md:items-center justify-between bg-[#E4E6F5] rounded-xl mt-4 md:mt-6">
       <div class="flex items-center gap-2">
-        <svg
-          width="28"
-          height="28"
-          viewBox="0 0 28 28"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path
             d="M14.7906 23.2841C15.1111 23.3587 15.1405 23.7785 14.8283 23.8826L12.985 24.4892C8.3533 25.9826 5.91497 24.7342 4.40997 20.1026L2.91664 15.4942C1.4233 10.8626 2.65997 8.41255 7.29164 6.91922L8.0723 6.66069C8.47517 6.52727 8.86472 6.9304 8.74591 7.33781C8.66197 7.62565 8.58233 7.92946 8.50497 8.24922L7.36164 13.1376C6.0783 18.6326 7.95664 21.6659 13.4516 22.9726L14.7906 23.2841Z"
-            fill="#020721"
-          />
+            fill="#020721" />
           <path
             d="M20.0317 3.7446L18.0833 3.2896C14.1867 2.36794 11.865 3.12627 10.5 5.9496C10.15 6.66127 9.87001 7.5246 9.63667 8.51627L8.49334 13.4046C7.35001 18.2813 8.85501 20.6846 13.72 21.8396L15.68 22.3063C16.3567 22.4696 16.9867 22.5746 17.57 22.6213C21.21 22.9713 23.1467 21.2679 24.1267 17.0563L25.27 12.1796C26.4133 7.30294 24.92 4.88794 20.0317 3.7446ZM17.8383 15.5513C17.7333 15.9479 17.3833 16.2046 16.9867 16.2046C16.9167 16.2046 16.8467 16.1929 16.765 16.1813L13.37 15.3179C12.9033 15.2013 12.6233 14.7229 12.74 14.2563C12.8567 13.7896 13.335 13.5096 13.8017 13.6263L17.1967 14.4896C17.675 14.6063 17.955 15.0846 17.8383 15.5513ZM21.2567 11.6079C21.1517 12.0046 20.8017 12.2613 20.405 12.2613C20.335 12.2613 20.265 12.2496 20.1833 12.2379L14.525 10.8029C14.0583 10.6863 13.7783 10.2079 13.895 9.74127C14.0117 9.2746 14.49 8.9946 14.9567 9.11127L20.615 10.5463C21.0933 10.6513 21.3733 11.1296 21.2567 11.6079Z"
-            fill="#020721"
-          />
+            fill="#020721" />
         </svg>
         <p>Cash Request</p>
       </div>
       <div class="flex items-center gap-2 text-nowrap">
         <p class="text-lg md:text-2xl">₦ 5,190,500.00</p>
-        <RouterLink to="/bank/cash-request"
-          ><svg
-            width="35"
-            height="35"
-            class="h-6 w-6 md:w-auto md:h-auto"
-            viewBox="0 0 40 40"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
+        <RouterLink to="/bank/cash-request"><svg width="35" height="35" class="h-6 w-6 md:w-auto md:h-auto"
+            viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path
               d="M15 36.6673H25C33.3334 36.6673 36.6667 33.334 36.6667 25.0007V15.0007C36.6667 6.66732 33.3334 3.33398 25 3.33398H15C6.66671 3.33398 3.33337 6.66732 3.33337 15.0007V25.0007C3.33337 33.334 6.66671 36.6673 15 36.6673Z"
-              stroke="#020721"
-              stroke-opacity="0.6"
-              stroke-width="3.0625"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-            <path
-              d="M17.9 25.8839L23.7667 20.0005L17.9 14.1172"
-              stroke="#020721"
-              stroke-opacity="0.6"
-              stroke-width="3.0625"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            /></svg
-        ></RouterLink>
+              stroke="#020721" stroke-opacity="0.6" stroke-width="3.0625" stroke-linecap="round"
+              stroke-linejoin="round" />
+            <path d="M17.9 25.8839L23.7667 20.0005L17.9 14.1172" stroke="#020721" stroke-opacity="0.6"
+              stroke-width="3.0625" stroke-linecap="round" stroke-linejoin="round" />
+          </svg></RouterLink>
       </div>
     </div>
 
-    <Card
-      class="container px-4 pt-6 pb-10 mx-auto sm:px-6 lg:px-8 bg-[#FFFFFF] rounded-2xl mt-14 mb-4"
-    >
+    <Card class="container px-4 pt-6 pb-10 mx-auto sm:px-6 lg:px-8 bg-[#FFFFFF] rounded-2xl mt-14 mb-4">
       <div class="flex flex-col sm:flex-row items-center justify-between py-4 gap-4">
-        <div
-          class="text-xl sm:text-xl font-bold tracking-tight text-[#020721] mb-2 sm:mb-0 w-full lg:w-1/4"
-        >
+        <div class="text-xl sm:text-xl font-bold tracking-tight text-[#020721] mb-2 sm:mb-0 w-full lg:w-1/4">
           Bank Inflow
           <p class="text-xs sm:text-sm font-normal text-[#02072199]">List of Inflow</p>
         </div>
@@ -165,34 +116,21 @@
             </DropdownMenuContent>
           </DropdownMenu>
           <Button
-            class="flex-grow-0 bg-gray-50 text-gray-900 text-sm rounded-2xl dark:bg-gray-700 dark:placeholder-gray-400 dark:text-white"
-          >
+            class="flex-grow-0 bg-gray-50 text-gray-900 text-sm rounded-2xl dark:bg-gray-700 dark:placeholder-gray-400 dark:text-white">
             <span>From: </span>
             <Input type="date" @change="updateFromDate" class="bg-transparent text-white ms-2" />
           </Button>
           <Button
-            class="flex-grow-0 bg-gray-50 text-gray-900 text-sm rounded-2xl dark:bg-gray-700 dark:placeholder-gray-400 dark:text-white"
-          >
+            class="flex-grow-0 bg-gray-50 text-gray-900 text-sm rounded-2xl dark:bg-gray-700 dark:placeholder-gray-400 dark:text-white">
             <span>To: </span>
             <Input type="date" @change="updateToDate" class="bg-transparent text-white ms-2" />
           </Button>
           <Button
-            class="bg-gray-50 text-gray-900 text-sm rounded-2xl dark:bg-gray-700 dark:placeholder-gray-400 dark:text-white"
-          >
-            <Input
-              type="number"
-              @keydown="filterAmount"
-              class="bg-transparent text-white ms-2"
-              placeholder="Amount"
-              :value="inputValue"
-              @input="updateInputValue"
-            />
+            class="bg-gray-50 text-gray-900 text-sm rounded-2xl dark:bg-gray-700 dark:placeholder-gray-400 dark:text-white">
+            <Input type="number" @keydown="filterAmount" class="bg-transparent text-white ms-2" placeholder="Amount"
+              :value="inputValue" @input="updateInputValue" />
           </Button>
-          <Button
-            variant="outline"
-            class="rounded-2xl bg-[#EEEFF5] text-sm"
-            @click="() => resetFilters()"
-          >
+          <Button variant="outline" class="rounded-2xl bg-[#EEEFF5] text-sm" @click="() => resetFilters()">
             Clear filter
           </Button>
           <Search class="mt-3 lg:mt-0 flex-grow" />
@@ -201,9 +139,7 @@
       <div class="overflow-auto bg-white rounded-lg shadow">
         <Table class="lg:w-full w-[800px]">
           <TableHeader>
-            <TableRow
-              class="text-xs sm:text-sm md:text-base text-[#02072199] font-semibold bg-gray-200"
-            >
+            <TableRow class="text-xs sm:text-sm md:text-base text-[#02072199] font-semibold bg-gray-200">
               <TableHead>Recipient </TableHead>
               <!-- <TableHead>Weeshes</TableHead> -->
               <TableHead>Weesher</TableHead>
@@ -216,8 +152,8 @@
           </TableHeader>
           <TableBody>
             <TableRow v-for="transaction in bank" :key="transaction._id">
-              <TableCell class="text-xs md:text-sm lg:text-sm"
-                >{{ !transaction.metadata.user ? '--' : transaction.metadata.user.email }}
+              <TableCell class="text-xs md:text-sm lg:text-sm">{{ !transaction.metadata.user ? '--' :
+                transaction.metadata.user.email }}
               </TableCell>
               <!-- <TableCell class="text-xs md:text-sm lg:text-sm">
                 {{ }}</TableCell
@@ -227,21 +163,18 @@
                   ? '--'
                   : transaction.customer.email
               }}</TableCell>
-              <TableCell class="text-xs md:text-sm lg:text-sm text-nowrap"
-                >{{ transaction.paid_at ? dateFormat(transaction.paid_at) : '--' }}
+              <TableCell class="text-xs md:text-sm lg:text-sm text-nowrap">{{ transaction.paid_at ?
+                dateFormat(transaction.paid_at) : '--' }}
               </TableCell>
-              <TableCell class="text-xs md:text-sm lg:text-sm text-nowrap"
-                >{{ currencySymbol(transaction.currency) }}
+              <TableCell class="text-xs md:text-sm lg:text-sm text-nowrap">{{ currencySymbol(transaction.currency) }}
                 {{ transaction.amount.toLocaleString() }}
               </TableCell>
               <TableCell class="text-xs md:text-sm lg:text-sm">
                 {{ transaction.channel }}
               </TableCell>
               <TableCell>
-                <div
-                  class="rounded-[10px] w-fit px-2 py-0.5 text-white text-sm capitalize"
-                  :class="statusBg(transaction.status)"
-                >
+                <div class="rounded-[10px] w-fit px-2 py-0.5 text-white text-sm capitalize"
+                  :class="statusBg(transaction.status)">
                   {{ transaction.status }}
                 </div>
               </TableCell>
@@ -253,11 +186,7 @@
           </TableBody>
         </Table>
       </div>
-      <PagePagination
-        :page-total="pagination.pageCount"
-        :page-current="filter.page"
-        @pagination="handlePageChange"
-      />
+      <PagePagination :page-total="pagination.pageCount" :page-current="filter.page" @pagination="handlePageChange" />
     </Card>
     <DashboardFooter />
   </div>
@@ -355,7 +284,12 @@ const currency = computed(() => {
 })
 
 const bank = computed(() => {
-  return store.bank
+  return store.bank.map((transaction) => {
+    return {
+      ...transaction,
+      amount: (transaction.amount > 0) ? transaction.amount / 100 : transaction.amount
+    }
+  })
 })
 
 const loading = computed(() => {
@@ -442,6 +376,7 @@ onMounted(async () => {
     0px 31px 30px -23px #00c37f,
     inset 0px -23px 20px -23px rgba(0, 0, 0, 0.25);
 }
+
 .cardShadow3 {
   box-shadow:
     0px 31px 30px -23px #ee9f39,
@@ -453,9 +388,11 @@ onMounted(async () => {
     0px 31px 30px -23px #e45044,
     inset 0px -23px 20px -23px rgba(0, 0, 0, 0.25);
 }
+
 .weeshr-icon1 {
   background-color: black;
 }
+
 .weeshr-icon2 {
   background-color: white;
 }
