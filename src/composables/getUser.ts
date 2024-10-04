@@ -199,26 +199,6 @@ export const getUser = () => {
       console.log(error)
       catchErr(error)
     }
-    // patch {{admin_host}}/accounts/users/:id/status-badge
-  //   const axios = require('axios');
-  // let data = '{\n    "featured": true,\n    "public_figure": true,\n    "influencer": true,\n    "verified": true\n}';
-  
-  // let config = {
-  //   method: 'patch',
-  //   maxBodyLength: Infinity,
-  //   url: 'https://api.staging.weeshr.com/accounts/users/665dbf437738398059648b66/status-badge',
-  //   headers: { },
-  //   data : data
-  // };
-  
-  // axios.request(config)
-  // .then((response) => {
-  //   console.log(JSON.stringify(response.data));
-  // })
-  // .catch((error) => {
-  //   console.log(error);
-  // });
-  
   }
   return { appUser, error, load, toggleUserStatus }
 }
