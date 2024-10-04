@@ -1,6 +1,7 @@
 import { ref, type Ref } from 'vue'
 import axios from '@/services/ApiService'
 import { useToast } from '@/components/ui/toast'
+import { catchErr } from './catchError'
 
 interface User {
   firstName: string
@@ -28,6 +29,12 @@ interface User {
   settings: {
     isProfilePublic: boolean,
     allowBiometricAccess: boolean
+  },
+  statusBadge: {
+    featured: boolean,
+    influencer: boolean,
+    public_figure: boolean,
+    verified: boolean
   }
 }
 
@@ -139,6 +146,7 @@ export const getUser = () => {
 
       if (response.data.code === 200) {
         appUser.value = response.data.data
+        // console.log(response.data.data)
         toast({
           description: response.data.message,
           variant: 'success'
@@ -152,9 +160,69 @@ export const getUser = () => {
       })
     }
   }
-
-  return { appUser, error, load }
+  const toggleUserStatus = async (val: string, _id: string | string[]) =>{
+    let data = {}
+    if(val === 'featured'){
+      data = {
+        featured: !appUser.value?.statusBadge.featured
+      }
+    } else if(val === 'influencer'){
+      data = {
+        influencer: !appUser.value?.statusBadge.influencer
+      }
+    }else if(val === 'public_figure'){
+      data = {
+        public_figure: !appUser.value?.statusBadge.public_figure
+      }
+    } else if(val === 'verified'){
+      data = {
+        verified: !appUser.value?.statusBadge.verified
+      }
+    }else {
+      toast({
+        description: 'Status badge does not exist',
+        variant: 'destructive'
+      })
+    }
+    console.log(data)
+    try{
+      const response = await axios.patch(`/api/v1/admin/accounts/users/${_id}/status-badge`, data)
+      if(response.data.code === 200){
+        toast({
+          description: response.data.message,
+          variant: 'success',
+          duration: 3000
+        })
+        load(_id)
+      }
+    }catch(error){
+      console.log(error)
+      catchErr(error)
+    }
+    // patch {{admin_host}}/accounts/users/:id/status-badge
+  //   const axios = require('axios');
+  // let data = '{\n    "featured": true,\n    "public_figure": true,\n    "influencer": true,\n    "verified": true\n}';
+  
+  // let config = {
+  //   method: 'patch',
+  //   maxBodyLength: Infinity,
+  //   url: 'https://api.staging.weeshr.com/accounts/users/665dbf437738398059648b66/status-badge',
+  //   headers: { },
+  //   data : data
+  // };
+  
+  // axios.request(config)
+  // .then((response) => {
+  //   console.log(JSON.stringify(response.data));
+  // })
+  // .catch((error) => {
+  //   console.log(error);
+  // });
+  
+  }
+  return { appUser, error, load, toggleUserStatus }
 }
+
 
 export const getUserLog = () => {
   const userLog = ref<Log[]>([])
