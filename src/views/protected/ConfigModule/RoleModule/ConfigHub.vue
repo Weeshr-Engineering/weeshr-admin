@@ -27,11 +27,11 @@ const featuredStyle= computed(()=>{
 })
 const readCurrency = ability.can('read', 'currency');
 const currencyStyle= computed(()=>{
-  return readCurrency ? 'rounded-xl bg-[#C6EDF6] h-[450px] shadow-md transition-transform transform hover:scale-105 mb-5' : 'cursor-not-allowed opacity-20 rounded-xl bg-[#C6EDF6] h-[450px] shadow-md mb-5'
+  return readCurrency ? 'rounded-xl bg-[#C6F4EB] h-[450px] shadow-md transition-transform transform hover:scale-105 mb-5' : 'cursor-not-allowed opacity-20 rounded-xl bg-[#C6EDF6] h-[450px] shadow-md mb-5'
 })
 const readCountry = ability.can('read', 'country');
 const countryStyle= computed(()=>{
-  return readCountry ? 'rounded-xl bg-[#C6EDF6] h-[450px] shadow-md transition-transform transform hover:scale-105 mb-5' : 'cursor-not-allowed opacity-20 rounded-xl bg-[#C6EDF6] h-[450px] shadow-md mb-5'
+  return readCountry ? 'rounded-xl bg-[#DCDEFF] h-[450px] shadow-md transition-transform transform hover:scale-105 mb-5' : 'cursor-not-allowed opacity-20 rounded-xl bg-[#C6EDF6] h-[450px] shadow-md mb-5'
 })
 
 </script>
@@ -186,7 +186,7 @@ const countryStyle= computed(()=>{
                 <CardHeader class="flex flex-col items-center justify-center flex-grow">
                   <img
                     class="mb-2 h-44 w-44"
-                    src="https://res.cloudinary.com/drykej1am/image/upload/v1727730386/money-exchange_m9sbfd.png"
+                    src="https://res.cloudinary.com/drykej1am/image/upload/v1728318022/weeshr_admin/flags_lexpn1.png"
                     alt="gradient"
                   />
     
