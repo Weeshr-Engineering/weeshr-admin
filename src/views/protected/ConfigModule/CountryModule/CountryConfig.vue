@@ -250,22 +250,6 @@
                 </Card>
                 <div v-if="countries.length !== 0">
                     <PagePagination :page-current="store.page" :page-total="store.totalPages" @pagination="store.handlePageChange"/>
-                    <!-- <Pagination :total="totalPages" :sibling-count="1" show-edges :default-page="1" @change="store.handlePageChange">
-                      <PaginationList class="flex items-center gap-1">
-                        <PaginationFirst @click="store.handlePageChange(1)" />
-                        <PaginationPrev @click="store.handlePageChange(Math.max(currentPage - 1, 1))" />
-                        <template v-for="(item, index) in paginationItems" :key="index">
-                          <PaginationListItem v-if="item.type === 'page'" :value="item.value" as-child>
-                            <Button class="w-10 h-10 p-0" :variant="item.value === currentPage ? 'default' : 'outline'" @click="store.handlePageChange(item.value)">
-                              {{ item.value }}
-                            </Button>
-                          </PaginationListItem>
-                          <PaginationEllipsis v-else :index="index" />
-                        </template>
-                        <PaginationNext @click="store.handlePageChange(Math.min(currentPage + 1, totalPages))" />
-                        <PaginationLast @click="store.handlePageChange(totalPages)" />
-                      </PaginationList>
-                    </Pagination> -->
                   </div>
               </div>
         </div>
@@ -296,16 +280,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
-import {
-  Pagination,
-  PaginationEllipsis,
-  PaginationFirst,
-  PaginationLast,
-  PaginationList,
-  PaginationListItem,
-  PaginationNext,
-  PaginationPrev,
-} from '@/components/ui/pagination';
 import PagePagination from '@/components/PagePagination.vue';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
@@ -376,7 +350,6 @@ const onSubmit=async (values:any)=> {
     'dial_code': values.dial_code,
     isEnabled: active.value
   })
-  console.log(data)
   await store.createCountry(data)
 }
 
@@ -422,7 +395,6 @@ const onEdit= async (values:any)=> {
                 dial_code: values.editDial_code
             }     
         }
-        console.log(data)
         store.updateCountry(data, country.value)
     }else{
         toast({

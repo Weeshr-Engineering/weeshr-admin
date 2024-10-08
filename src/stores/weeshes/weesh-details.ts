@@ -2,7 +2,6 @@ import { defineStore } from "pinia"
 import axios from "@/services/ApiService";
 import { toast } from "@/components/ui/toast";
 import router from '@/router'
-import { useGeneralStore } from "../general-use";
 
 // const store = useGeneralStore()
 
@@ -30,7 +29,6 @@ export const useWeeshDetailStore = defineStore('weeshDetail', {
             if (response.status === 200 || response.status === 201) {
                 const data = response.data.data
                 this.detail = data;
-                console.log(data)
                 if(data.category?.length !== 0){
                     this.category = data.category[0]
                 }
@@ -59,7 +57,6 @@ export const useWeeshDetailStore = defineStore('weeshDetail', {
             number = Math.min(number + 1, 4);
         }
         this.stage = number.toString();
-        console.log(this.stage, number)
     },
     formatPrice (val: string){
         const price = parseInt(val)
@@ -124,5 +121,4 @@ export const useWeeshDetailStore = defineStore('weeshDetail', {
 //     number = Math.min(number + 1, 4);
 //   }
 //   stage.value = number.toString();
-//   console.log(stage.value, number)
 // }

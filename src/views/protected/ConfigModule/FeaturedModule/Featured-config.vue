@@ -153,7 +153,6 @@ const feature = ref<Feature>({
 })
 
 const setfeature = async (id: Feature)=>{
-  console.log(id)
   feature.value= id
 }
 
@@ -265,7 +264,6 @@ if(updates.value.updateTitle || updates.value.updateHeader || updates.value.upda
         }
       }
     }
-    console.log(data)
     submit(data, feature.value._id)
   }else{
       toast({
@@ -291,7 +289,6 @@ const submit = async (data: any, id: string)=>{
 
           return;
       }catch(error){
-        console.log(error)
         store.catchErr(error)
       }
 }
@@ -362,12 +359,10 @@ const onSubmit = formSubmit(async (values) => {
       'scheduledDateFrom': modDate(schedule.value.start),
       'scheduledDateTo': modDate(schedule.value.end)
     }
-    console.log(data)
   }else {
     data = {
       ...value
     }
-    console.log(data)
   }
   try{
     const response = await axios.post('/api/v1/admin/featured-moment', data, {
@@ -384,7 +379,6 @@ const onSubmit = formSubmit(async (values) => {
           store.getFeatures(page.value, 'Success')
       }
   }catch(error){
-    console.log(error)
     store.catchErr(error)
   }
 })

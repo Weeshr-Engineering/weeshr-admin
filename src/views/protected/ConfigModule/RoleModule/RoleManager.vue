@@ -326,7 +326,6 @@ const deleteRole = async (id:string)=>{
   await store.deleteRole(id)
 }
 const onSubmit=async (values:any)=> {
-  console.log(JSON.stringify(values, null, 2));
   const data = JSON.stringify({
     'name': values.roleName,
     'description': values.description,
@@ -375,14 +374,12 @@ const onEdit= async (values:any)=> {
   } else {
     arr = rolePermissions.value
   }
-  // console.log(arr)
   if(values.name){
     name = values.name
   }else{
     name = roleName.value
   }
   if(name == roleName.value && modified.value == false){
-    console.log(arr)
     toast({
       title: 'No edit found',
       description: 'You have to make a change first',

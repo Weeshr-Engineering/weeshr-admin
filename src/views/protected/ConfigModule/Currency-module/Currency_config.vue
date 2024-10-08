@@ -294,14 +294,12 @@ const deleteRole = async (id:string)=>{
   await store.deleteCurrency(id)
 }
 const onSubmit=async (values:any)=> {
-//   console.log(JSON.stringify(values, null, 2));
   const data = JSON.stringify({
     'name': values.currency,
     'code': values.code,
     'symbol': values.symbol,
     isEnabled: active.value
   })
-  console.log(data)
   await store.createCurrency(data)
 }
 
@@ -321,7 +319,6 @@ const onEdit= async (values:any)=> {
 
     }
     if(values.currency || values.code || values.symbol){
-        // console.log(values)
         if (values.currency){
             data = {
                 ...data,
@@ -340,7 +337,6 @@ const onEdit= async (values:any)=> {
                 symbol: values.symbol
             }     
         }
-        console.log(data)
         store.updateCurrency(data, currency.value)
     }else{
         toast({

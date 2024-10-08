@@ -65,12 +65,10 @@ export const useFeaturedStore = defineStore('featured', {
             
             axios.request(config)
             .then((response) => {
-              console.log(response.data.data);
               this.perPage = response.data.data.perPage
               this.currentPage = response.data.data.currentPage
               this.totalPages = response.data.data.totalPages
               this.featured = response.data.data.data
-            //   console.log(this.featured)
               toast({
                 title: 'Success',
                 description: `Successful: ${msg}`,
@@ -79,7 +77,6 @@ export const useFeaturedStore = defineStore('featured', {
               return response.data.data
             })
             .catch((error) => {
-              console.log(error)
               this.catchErr(error)
             });          
           },
@@ -88,7 +85,6 @@ export const useFeaturedStore = defineStore('featured', {
               const color = await axios.get('/api/v1/colors')
               if(color.status === 200){
                 this.colors = color.data.data
-                console.log(color)
                 toast({
                   description: `Successful: ${color.data.message}`,
                   variant: 'success'
@@ -122,7 +118,6 @@ export const useFeaturedStore = defineStore('featured', {
               // Show success toast
               // this.adminStatus = !this.adminStatus
               this.getFeatures(this.page, `${!status ? `${category} Disabled` : `${category} Activated`}`)
-              console.log(response)
               toast({
                   title: 'Success',
                   description: `${!status ? `${category} Disabled` : `${category} Activated`}`,
@@ -131,7 +126,6 @@ export const useFeaturedStore = defineStore('featured', {
             }
           })
           .catch((error) => {
-            console.log(error);
             this.catchErr(error)
           });
         },
@@ -154,7 +148,6 @@ export const useFeaturedStore = defineStore('featured', {
             
             axios.request(config)
             .then((response) => {
-              console.log(JSON.stringify(response.data));
               toast({
                 title: 'Success',
                 description: `Successful: data deleted`,

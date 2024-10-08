@@ -38,7 +38,6 @@ export const useCountryStore = defineStore({
           }
         })
         .catch((error) => {
-            console.log(error)
           catchErr(error)
         });
     },
@@ -124,7 +123,6 @@ export const useCountryStore = defineStore({
           this.editState = false
         })
         .catch((error) => {
-          console.log(error)
           catchErr(error)
         });
     },
@@ -152,7 +150,6 @@ export const useCountryStore = defineStore({
             this.getcountries(this.page, 'Country Updated Successfully')
           })
           .catch((error) => {
-            console.log(error)
             catchErr(error)
           });
       },

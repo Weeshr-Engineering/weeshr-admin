@@ -44,11 +44,11 @@ export const useBankStore = defineStore('bank', {
                 this.perPage = data.meta.perPage
                 this.currentPage = data.meta.pageCount
                 this.totalPages = data.meta.total
-                console.log(data)
-                console.log(this.outFlow)
+                
+                
             }
         }catch(error){
-            console.log(error)
+            
             this.catchErr(error)
             this.loading = false;
         }
@@ -66,12 +66,12 @@ export const useBankStore = defineStore('bank', {
               description: `Successful`,
               variant: 'success'
             })
-             console.log(response)
+             
              this.balance = response.data.data[0].balance
              this.currency = response.data.data[0].currency
           }
       }catch(error){
-          console.log(error)
+          
           this.catchErr(error)
           this.loading = false;
       }
