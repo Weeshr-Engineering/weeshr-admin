@@ -29,7 +29,7 @@ export const useCurrencyStore = defineStore({
       axios.request(config)
         .then((response) => {
           if (response.status === 200 || response.status === 201) {
-            this.getCurrencies('New Role Created')
+            this.getCurrencies('New Currency Created')
             this.state = false
           }
         })
@@ -59,7 +59,7 @@ export const useCurrencyStore = defineStore({
           })
         }
         this.currencies = response.data.data.data
-        console.log(this.currencies)
+        
         // set Loading to false
 
       } catch (error: any) {
@@ -84,12 +84,12 @@ export const useCurrencyStore = defineStore({
 
       axios.request(config)
         .then((response) => {
-          // console.log(JSON.stringify(response.data));
-          this.getCurrencies('Role Updated Successfully')
+          
+          this.getCurrencies('Currency Updated Successfully')
           this.editState = false
         })
         .catch((error) => {
-          console.log(error)
+          
           this.catchErr(error)
         });
     },
@@ -100,6 +100,7 @@ export const useCurrencyStore = defineStore({
         toast({
           title: 'Loading Data',
           description: 'Fetching data...',
+          variant: 'loading',
           duration: 0 // Set duration to 0 to make it indefinite until manually closed
         })
   
@@ -112,11 +113,11 @@ export const useCurrencyStore = defineStore({
   
         axios.request(config)
           .then((response) => {
-            // console.log(JSON.stringify(response.data));
-            this.getCurrencies('Role Updated Successfully')
+            
+            this.getCurrencies('Currency Updated Successfully')
           })
           .catch((error) => {
-            console.log(error)
+            
             this.catchErr(error)
           });
       },
@@ -125,6 +126,7 @@ export const useCurrencyStore = defineStore({
       toast({
         title: 'Deleting Data',
         description: 'Deleting data...',
+        variant: 'loading',
         duration: 0 // Set duration to 0 to make it indefinite until manually closed
       })
 
@@ -144,7 +146,7 @@ export const useCurrencyStore = defineStore({
         });
     },
     catchErr (error: any){
-        console.log(error)
+        
       if(error.response.status === 400){
         toast({
           description:  error.response.data.message || 'Bad Request',

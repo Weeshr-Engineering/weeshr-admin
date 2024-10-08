@@ -112,7 +112,6 @@ const fetchUsersData = async (msg: string) => {
 
     if (response.status === 200 || response.status === 201) {
       // Update the users data with the response
-      // console.log(response.data.data)
       const responseData = response.data.data[0]
       const phoneData = response.data.data[0].phoneNumber.normalizedNumber
       dobFormat.value = formatDate(response.data.data[0].dob)
@@ -120,8 +119,6 @@ const fetchUsersData = async (msg: string) => {
       // fill user data with response data
       user.value = data
       defaultRole.value = await getAllIds(responseData.roles)
-      // console.log(defaultRole.value)
-      // console.log(user.value)
       adminListStore.setAdminStatus(responseData.disabled)
       // Show success toast
       toast({
@@ -189,7 +186,6 @@ const editProfile = async (values: any) => {
     },
     "disabled": adminListStore.adminStatus
   })
-  console.log(adminProfile)
   let config = {
     method: 'patch',
     maxBodyLength: Infinity,
@@ -199,11 +195,9 @@ const editProfile = async (values: any) => {
 
   axios.request(config)
     .then((response) => {
-      console.log(JSON.stringify(response.data));
       fetchUsersData('data updated')
     })
     .catch((error) => {
-      console.log(error);
     });
 
 }
@@ -222,7 +216,6 @@ const getRoles = async () => {
         description: `Roles fetched successfully.`,
         variant: 'success'
       })
-      // console.log(response.data.data.data)
       roles.value = response.data.data.data.reverse()
       // fetchUsersData()
     }
@@ -247,14 +240,12 @@ const getRoles = async () => {
 
 const updateRole = async (roleId: string) => {
   roleLoading.value = true
-  console.log(roleId)
   const adminRole = await modifyArrayValue(defaultRole.value, roleId)
   let data = JSON.stringify({
     "roles": adminRole
   });
 
 
-  console.log(data)
   let config = {
     method: 'patch',
     maxBodyLength: Infinity,
@@ -264,7 +255,6 @@ const updateRole = async (roleId: string) => {
 
   axios.request(config)
     .then((response) => {
-      console.log(JSON.stringify(response.data));
       toast({
         title: 'Success',
         description: `${user.value.firstName}' s role is updated...'`,
@@ -272,7 +262,6 @@ const updateRole = async (roleId: string) => {
       })
     })
     .catch((error) => {
-      console.log(error);
       toast({
         title: error.response.data.message || 'An error occurred',
         variant: 'destructive'
@@ -330,7 +319,6 @@ const { handleSubmit: contactForm } = useForm({
   validationSchema: contactFormSchema
 })
 
-// console.log(contactForm((values)=>{return values}))
 const onSubmit = contactForm((values) => {
   function valueChecker<T extends Record<string, any>>(obj: T): boolean {
     return Object.values(obj).some(value => value !== undefined);

@@ -77,7 +77,6 @@ const currentCategory = ref('')
 const setCurrentCategory = (id: string)=>{
   verifyAbilities('update', 'weesh-categories')
   currentCategory.value= id
-  console.log(id)
 }
 
 const updateImg = ref<any[]>([])
@@ -125,7 +124,6 @@ const onUpdate = async() => {
               store.getWeesheCategories(store.page, 'Success')
           }
       }catch(error){
-        console.log(error)
         store.catchErr(error)
       }
     }
@@ -182,7 +180,6 @@ const onSubmit = formSubmit(async (values) => {
           store.getWeesheCategories(page.value, 'Success')
       }
   }catch(error){
-    console.log(error)
     store.catchErr(error)
   }
 })

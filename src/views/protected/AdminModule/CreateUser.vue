@@ -133,7 +133,6 @@ const fetchUsersData = async () => {
         variant: 'success'
       })
 
-      console.log('jiji' + JSON.stringify(response.data))
     }
 
     // Update the users data with the response
@@ -181,7 +180,6 @@ const saveUserData = async (user: any) => {
       })
     }
 
-    console.log(response.data)
     loading.value = false
     // Handle success
   } catch (err: any) {

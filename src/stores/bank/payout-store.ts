@@ -64,11 +64,11 @@ export const usePayoutStore = defineStore('payout', {
                 this.perPage = response.data.data.perPage
                 this.currentPage = response.data.data.currentPage
                 this.totalPages = response.data.data.totalPages
-                console.log(data)
-                console.log(this.payout)
+                
+                
             }
         }catch(error){
-            console.log(error)
+            
             this.catchErr(error)
             this.loading = false;
         }

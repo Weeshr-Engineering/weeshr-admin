@@ -55,12 +55,10 @@ export const useWeeshConfigStore = defineStore('weeshConfig', {
             
             axios.request(config)
             .then((response) => {
-              console.log(response.data.data);
               this.perPage = response.data.data.perPage
               this.currentPage = response.data.data.currentPage
               this.totalPages = response.data.data.totalPages
               this.categories = response.data.data.data
-              console.log(this.categories)
               toast({
                 title: 'Success',
                 description: `Successful: ${msg}`,
@@ -69,7 +67,6 @@ export const useWeeshConfigStore = defineStore('weeshConfig', {
               return response.data.data
             })
             .catch((error) => {
-              console.log(error)
               this.catchErr(error)
             });          
           },
@@ -98,7 +95,6 @@ export const useWeeshConfigStore = defineStore('weeshConfig', {
               // Show success toast
               // this.adminStatus = !this.adminStatus
               this.getWeesheCategories(this.page, `${!status ? `${category} Disabled` : `${category} Activated`}`)
-              console.log(response)
               toast({
                   title: 'Success',
                   description: `${!status ? `${category} Disabled` : `${category} Activated`}`,
@@ -107,7 +103,6 @@ export const useWeeshConfigStore = defineStore('weeshConfig', {
             }
           })
           .catch((error) => {
-            console.log(error);
             this.catchErr(error)
           });
         },
@@ -131,7 +126,6 @@ export const useWeeshConfigStore = defineStore('weeshConfig', {
             
             axios.request(config)
             .then((response) => {
-              console.log(JSON.stringify(response.data));
               toast({
                 title: 'Success',
                 description: `Successful: data deleted`,

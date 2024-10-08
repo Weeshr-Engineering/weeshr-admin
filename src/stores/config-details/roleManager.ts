@@ -88,11 +88,9 @@ export const useRoleStore = defineStore({
 
       axios.request(config)
         .then((response) => {
-          // console.log(JSON.stringify(response.data));
           this.getRoles('Role Updated Successfully')
         })
         .catch((error) => {
-          console.log(error)
           this.catchErr(error)
         });
     },
@@ -140,7 +138,6 @@ export const useRoleStore = defineStore({
             description: `Successful: data retrieved`,
             variant: 'success'
           })
-          // console.log(response.data.data)
           const data = response.data.data
           this.permissions = response.data.data
           return data
