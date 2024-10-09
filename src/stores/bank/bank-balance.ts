@@ -35,7 +35,8 @@ interface BankBalanceStore {
   totalTransactionsAmount: number
   totalTransactionCurrency: string
   totalTransfersAmount: number
-  totalTransfersCurrency: string
+  totalTransfersCurrency: string,
+  payout: number
 }
 
 export type FilterSort = {
@@ -60,7 +61,8 @@ export const useBankBalanceStore = defineStore('bank-balance', {
     loading: false,
     perPage: 0,
     pageCount: 0,
-    page: 1
+    page: 1,
+    payout: 0
   }),
 
   actions: {
@@ -131,7 +133,27 @@ export const useBankBalanceStore = defineStore('bank-balance', {
         this.loading = false
       }
     },
-
+    async getPayoutBalance(){
+      try{
+        toast({
+          description: 'Fetching data...',
+          variant: 'loading',
+          duration: 0 // Set duration to 0 to make it indefinite until manually closed
+        })
+          const response = await axios.get(`/api/v1/admin/payouts/amount/totals?status=REQUESTED,PENDING`)
+          if (response.status === 200 || response.status === 201) {
+            toast({
+              description: `Successful`,
+              variant: 'success'
+            })
+             this.payout = response.data.data.total
+          }
+      }catch(error){
+          
+          this.catchErr(error)
+          this.loading = false;
+      }
+  },
     async getTotals() {
       try {
         this.loading = true

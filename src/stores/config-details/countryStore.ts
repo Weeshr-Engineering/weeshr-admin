@@ -66,7 +66,6 @@ export const useCountryStore = defineStore({
         this.perPage = response.data.data.perPage
         this.currentPage = response.data.data.currentPage
         this.totalPages = response.data.data.totalPages
-        console.log(response)
         // set Loading to false
 
       } catch (error: any) {
