@@ -72,7 +72,7 @@
       </div>
       <div class="flex items-center gap-2 text-nowrap">
         <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" />
-        <p v-else class="text-lg md:text-2xl">₦ {{(payout/ 100).toLocaleString()}}</p>
+        <p v-else class="text-lg md:text-2xl">₦ {{payout.toLocaleString()}}</p>
         <RouterLink to="/bank/cash-request"><svg width="35" height="35" class="h-6 w-6 md:w-auto md:h-auto"
             viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path
@@ -169,7 +169,7 @@
               </TableCell>
               <TableCell class="text-xs md:text-sm lg:text-sm text-nowrap min-w-fit"
                 >{{ currencySymbol(transaction.currency) }}
-                {{ (transaction.amount / 100).toLocaleString() }}
+                {{ transaction.amount.toLocaleString() }}
               </TableCell>
               <TableCell class="text-xs md:text-sm lg:text-sm">
                 {{ transaction.channel }}
