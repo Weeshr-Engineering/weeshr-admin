@@ -27,7 +27,11 @@ const featuredStyle= computed(()=>{
 })
 const readCurrency = ability.can('read', 'currency');
 const currencyStyle= computed(()=>{
-  return readCurrency ? 'rounded-xl bg-[#C6EDF6] h-[450px] shadow-md transition-transform transform hover:scale-105 mb-5' : 'cursor-not-allowed opacity-20 rounded-xl bg-[#C6EDF6] h-[450px] shadow-md mb-5'
+  return readCurrency ? 'rounded-xl bg-[#C6F4EB] h-[450px] shadow-md transition-transform transform hover:scale-105 mb-5' : 'cursor-not-allowed opacity-20 rounded-xl bg-[#C6EDF6] h-[450px] shadow-md mb-5'
+})
+const readCountry = ability.can('read', 'country');
+const countryStyle= computed(()=>{
+  return readCountry ? 'rounded-xl bg-[#DCDEFF] h-[450px] shadow-md transition-transform transform hover:scale-105 mb-5' : 'cursor-not-allowed opacity-20 rounded-xl bg-[#C6EDF6] h-[450px] shadow-md mb-5'
 })
 
 </script>
@@ -166,6 +170,33 @@ const currencyStyle= computed(()=>{
                   <div class="pt-2 px-4 text-xs">
                     <p class="font-semibold tracking-tight text-gray-400">Currencies</p>
                     <p class="text-2xl font-semibold text-white"> {{store.config.currencies}} </p>
+                  </div>
+                </CardContent>
+              </RouterLink>
+            </span>
+            <!-- <UserhubSkeleton /> -->
+          </Card>
+
+          <Card
+            :class="countryStyle"
+            @click="verifyAbilities('read', 'country')"
+          >
+            <span class="flex flex-col justify-between h-full">
+              <RouterLink :to="ability.can('read', 'country') ? '/config/country' : ''" class="flex flex-col h-full">
+                <CardHeader class="flex flex-col items-center justify-center flex-grow">
+                  <img
+                    class="mb-2 h-44 w-44"
+                    src="https://res.cloudinary.com/drykej1am/image/upload/v1728318022/weeshr_admin/flags_lexpn1.png"
+                    alt="gradient"
+                  />
+    
+                  <p class="text-2xl font-bold text-gray-800">Country</p>
+                </CardHeader>
+    
+                <CardContent class="bg-[#020721] pt-2 h-[80px] rounded-bl-[12px] rounded-br-[12px] px-1 text-xs pb-4">
+                  <div class="pt-2 px-4 text-xs">
+                    <p class="font-semibold tracking-tight text-gray-400">Country</p>
+                    <p class="text-2xl font-semibold text-white"> 0 </p>
                   </div>
                 </CardContent>
               </RouterLink>

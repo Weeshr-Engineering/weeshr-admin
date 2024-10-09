@@ -11,5 +11,8 @@ module.exports = {
   ],
   parserOptions: {
     ecmaVersion: 'latest'
-  }
+  },
+  rules: {
+    'no-console': ['error', { allow: ['warn', 'error'] }], // Prevent `console.log`, allow `console.warn` and `console.error`
+  },
 }

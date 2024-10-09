@@ -1,10 +1,10 @@
 <template>
     <div class="w-full">
-        <MainNav class="mx-6" headingText="Currency Config" />
+        <MainNav class="mx-6" headingText="Country Config" />
         <div class="px-10 py-5 md:py-10 ml-auto w-full flex justify-end">
             <Sheet v-model:open='store.state'>
               <SheetTrigger as-child>
-                <button @click="verifyAbilities('create', 'currency')" :class="createStyle">
+                <button @click="verifyAbilities('create', 'country')" :class="createStyle">
                   <div class="text-base text-[#F8F9FF] text-center flex items-center">
                     Add New
                     <svg
@@ -26,7 +26,7 @@
               <SheetContent class="overflow-y-auto py-8" v-if="create">
                <div class="flex py-4 justify-between items-center">
                     <SheetHeader>
-                    <h3 class="text-2xl font-medium">Add New Currency</h3>
+                    <h3 class="text-2xl font-medium">Add New country</h3>
                     
                     </SheetHeader>
                     <SheetDescription class="pt-2 flex items-center gap-4">
@@ -36,9 +36,9 @@
                 <div>
                   <Form :validation-schema="schema" @submit="onSubmit">
                     <!-- <form class="space-y-4" @submit.prevent="onSubmit"> -->
-                        <FormField v-slot="{ componentField }" name="currency">
+                        <FormField v-slot="{ componentField }" name="name">
                             <FormItem v-auto-animate>
-                              <FormLabel class="text-blue-900">Currency name</FormLabel>
+                              <FormLabel class="text-blue-900">Country name</FormLabel>
                               <FormControl>
                                 <Input
                                   id="text"
@@ -48,7 +48,23 @@
                                 />
                               </FormControl>
             
-                              <FormMessage for="currency" />
+                              <FormMessage for="country" />
+                            </FormItem>
+                          </FormField>
+
+                          <FormField v-slot="{ componentField }" name="flag">
+                            <FormItem v-auto-animate>
+                              <FormLabel class="text-blue-900">Flag url</FormLabel>
+                              <FormControl>
+                                <Input
+                                  id="text"
+                                  type="text"
+                                  class="focus-visible:ring-blue-600"
+                                  v-bind="componentField"
+                                />
+                              </FormControl>
+            
+                              <FormMessage for="code" />
                             </FormItem>
                           </FormField>
 
@@ -64,13 +80,13 @@
                                 />
                               </FormControl>
             
-                              <FormMessage for="code" />
+                              <FormMessage for="symbol" />
                             </FormItem>
                           </FormField>
 
-                          <FormField v-slot="{ componentField }" name="symbol">
+                          <FormField v-slot="{ componentField }" name="dial_code">
                             <FormItem v-auto-animate>
-                              <FormLabel class="text-blue-900">Symbol</FormLabel>
+                              <FormLabel class="text-blue-900">Dial code</FormLabel>
                               <FormControl>
                                 <Input
                                   id="text"
@@ -97,35 +113,36 @@
         <div class="w-full flex justify-center">
             <div class="min-h-72 w-5/6">
                 <div class="flex justify-end w-full text-sm text-[#6A70FF]">
-                    <!-- <p>Only show active</p> -->
+                    <Button @click='store.resetSeed' :class='refreshStyle'>Refresh</Button>
                 </div>
-                <Card Content class="mt-4" v-for="(item, key) in currencies" :key="key">
+                <Card Content class="mt-4" v-for="(item, key) in countries" :key="key">
                   <CardContent
-                    class="flex items-center justify-between px-2 sm:px-6 py-4"
+                    class="grid grid-cols-7 px-2 sm:px-6 py-4"
                   >
-                  <div class="flex items-center gap-4">
-                      <div class="text-center flex flex-col gap-2 items-center">
-                        <p class='text-muted-foreground text-xs text-[#000000]'>Currency</p>
+                  <div class="col-span-3 flex items-center gap-4">
+                      <div class="flex flex-col gap-2">
+                        <p class='text-muted-foreground text-xs text-[#000000]'>Country</p>
                         {{ item.name}}
                       </div>
                   </div>
-                  <div class="hidden md:flex flex-col gap-2 items-center">
-                    <p class='text-muted-foreground text-xs text-[#000000]'>Symbol</p>
-                    {{ item.symbol.toUpperCase() }}
-                  </div>
 
-                  <div class="hidden md:flex flex-col gap-2 items-center">
+                  <div class="hidden col-span-1 md:flex flex-col gap-2">
                     <p class='text-muted-foreground text-xs text-[#000000]'>Code</p>
                     {{ item.code }}
                   </div>
 
-                  <div>
-                    <Switch :checked='item.isEnabled' @click='store.updateState(!item.isEnabled, item._id)'/>
+                  <div class="hidden col-span-1 md:flex flex-col gap-2">
+                    <p class='text-muted-foreground text-xs text-[#000000]'>Dial Code</p>
+                    {{ item.dial_code }}
                   </div>
-                    <div class="flex items-center gap-4">
+
+                  <div class='col-span-2 md:col-span-1 flex items-center justify-center'>
+                    <Switch :checked='item.isEnabled' @click='store.updateState(!item.isEnabled, item.code)'/>
+                  </div>
+                    <div class="col-span-2 md:col-span-1 flex items-center justify-end gap-4 md:w-full">
                       <Sheet>
                         <SheetTrigger>
-                          <Icon @click='handleItem(item._id)' icon="mdi:edit" width="17" height="17" :class="editStyle" />
+                          <Icon @click='handleItem(item.code)' icon="mdi:edit" width="17" height="17" :class="editStyle" />
                         </SheetTrigger>
                         <SheetContent class="overflow-y-auto py-8" side="right" v-if="edit">
                             <div class="flex py-4 justify-between items-center">
@@ -137,26 +154,26 @@
                               <Form :validation-schema="editSchema" @submit="onEdit">
                                 <div class="">
                                   <ErrorMessage name="permissionList" class="text-red-600 text-sm font-medium"/>
-                                  <FormField v-slot="{ componentField }" name="currency">
+                                  <FormField v-slot="{ componentField }" name="editName">
                                     <FormItem v-auto-animate>
-                                      <FormLabel class="text-blue-900">Edit Currency Name</FormLabel>
+                                      <FormLabel class="text-blue-900">Edit Country Name</FormLabel>
                                       <FormControl>
                                         <Input
                                           id="text"
                                           type="text"
-                                          placeholder="Edit currency name"
+                                          placeholder="Edit country name"
                                           class="focus-visible:ring-blue-600"
                                           v-bind="componentField"
                                         />
                                       </FormControl>
                     
-                                      <FormMessage for="currency" />
+                                      <FormMessage for="country" />
                                     </FormItem>
                                   </FormField>
 
-                                  <FormField v-slot="{ componentField }" name="code">
+                                  <FormField v-slot="{ componentField }" name="editFlag">
                                     <FormItem v-auto-animate>
-                                      <FormLabel class="text-blue-900">Code</FormLabel>
+                                      <FormLabel class="text-blue-900">Flag url</FormLabel>
                                       <FormControl>
                                         <Input
                                           id="text"
@@ -170,9 +187,25 @@
                                     </FormItem>
                                   </FormField>
 
-                                  <FormField v-slot="{ componentField }" name="symbol">
+                                  <FormField v-slot="{ componentField }" name="editCode">
                                     <FormItem v-auto-animate>
-                                      <FormLabel class="text-blue-900">Symbol</FormLabel>
+                                      <FormLabel class="text-blue-900">Code</FormLabel>
+                                      <FormControl>
+                                        <Input
+                                          id="text"
+                                          type="text"
+                                          class="focus-visible:ring-blue-600"
+                                          v-bind="componentField"
+                                        />
+                                      </FormControl>
+                    
+                                      <FormMessage for="symbol" />
+                                    </FormItem>
+                                  </FormField>
+
+                                  <FormField v-slot="{ componentField }" name="editDial_code">
+                                    <FormItem v-auto-animate>
+                                      <FormLabel class="text-blue-900">Dial code</FormLabel>
                                       <FormControl>
                                         <Input
                                           id="text"
@@ -186,14 +219,14 @@
                                     </FormItem>
                                   </FormField>
                                 </div>
-                                <Button type="submit" class="bg-[#4145A7] mt-2"> Update currency</Button>
+                                <Button type="submit" class="bg-[#4145A7] mt-2"> Update country</Button>
                               </Form>
                         </SheetContent>
                       </Sheet>
 
                       <AlertDialog>
                         <AlertDialogTrigger>
-                          <Icon icon="mdi:delete" width="17" height="17" :class="deleteStyle" @click="verifyAbilities('delete', 'currency')"/>
+                          <Icon icon="mdi:delete" width="17" height="17" :class="deleteStyle" @click="verifyAbilities('delete', 'country')"/>
                         </AlertDialogTrigger>
                         <div>
                         <AlertDialogContent v-if="deleteRoles">
@@ -206,7 +239,7 @@
                           </AlertDialogHeader>
                           <AlertDialogFooter>
                             <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction :onclick="()=>deleteRole(item._id)">Continue</AlertDialogAction>
+                            <AlertDialogAction :onclick="()=>deleteRole(item.code)">Continue</AlertDialogAction>
                           </AlertDialogFooter>
                         </AlertDialogContent>
                         </div>
@@ -215,6 +248,9 @@
 
                   </CardContent>
                 </Card>
+                <div v-if="countries.length !== 0">
+                    <PagePagination :page-current="store.page" :page-total="store.totalPages" @pagination="store.handlePageChange"/>
+                  </div>
               </div>
         </div>
         <DashboardFooter/>
@@ -244,7 +280,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
-
+import PagePagination from '@/components/PagePagination.vue';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import MainNav from '@/components/MainNav.vue'
@@ -255,89 +291,111 @@ import { Form, ErrorMessage } from 'vee-validate';
 import * as z from 'zod'
 import { toast } from '@/components/ui/toast'
 import { ability, defineAbilities, verifyAbilities } from '@/lib/ability'
-import { useCurrencyStore } from '@/stores/config-details/currencyStore'
+import { useCountryStore } from '@/stores/config-details/countryStore'
 
 defineAbilities()
-const create = ability.can('create', 'currency')
+const create = ability.can('create', 'country')
 const createStyle = computed(()=>{
   return create ? 'bg-[#020721] px-4 py-2 rounded-xl w-50 h-12' : 'cursor-not-allowed opacity-20 bg-[#020721] px-4 py-2 rounded-xl w-50 h-12'
 })
 
-const edit = ability.can('update', 'currency')
+const edit = ability.can('update', 'country')
 const editStyle = computed(()=>{
   return edit ? 'icons-sidebar border-2 border-gray-100' : 'cursor-not-allowed opacity-20 icons-sidebar border-2 border-gray-100'
 })
 
-const deleteRoles = ability.can('delete', 'currency')
+const deleteRoles = ability.can('delete', 'country')
 const deleteStyle = computed(()=>{
   return deleteRoles ? 'icons-sidebar text-red-600' : 'cursor-not-allowed opacity-20 icons-sidebar text-red-600'
 })
 
-const store = useCurrencyStore()
-store.getCurrencies('Success: currencies retrieved')
-const currency = ref('')
+const refresh = ability.can('update', 'country')
+const refreshStyle = computed(()=>{
+  return refresh ? '' : 'cursor-not-allowed opacity-20'
+})
+
+const store = useCountryStore()
+const currentPage = computed(()=>{
+  return store.currentPage
+});
+const totalPages = computed(()=>{
+  return store.totalPages
+})
+store.getcountries(store.page, 'Success: countries retrieved')
+const country = ref('')
 const active = ref(true)
 const handleItem =(val:string)=>{
-    currency.value = val
+    country.value = val
 }
 // store.getPermissions()
 
 const schema = toTypedSchema(
   z.object({
-    currency: z.string().nonempty('Please add a Name').min(3, { message: 'Cannot be more that 3 character'}),
-    code: z.string().nonempty('Add description').max(3, { message: 'Cannot be more that 3 character'}),
-    symbol: z.string().nonempty('Cannot be empty'),
+    name: z.string().nonempty('Add Name').min(3, { message: 'Cannot be less that 3 character'}),
+    flag: z.string().nonempty('Add flag').max(3, { message: 'Cannot be more that 2 character'}),
+    code: z.string().nonempty('Add code').max(3, { message: 'Cannot be more that 3 character'}),
+    dial_code: z.string().nonempty('Add dial code'),
   })
 )
 
 const deleteRole = async (id:string)=>{
-  await store.deleteCurrency(id)
+  await store.deleteCountry(id)
 }
 const onSubmit=async (values:any)=> {
+//   console.log(JSON.stringify(values, null, 2));
   const data = JSON.stringify({
-    'name': values.currency,
+    'name': values.name,
+    'flag': values.flag,
     'code': values.code,
-    'symbol': values.symbol,
+    'dial_code': values.dial_code,
     isEnabled: active.value
   })
-  await store.createCurrency(data)
+  await store.createCountry(data)
 }
 
 const editSchema = toTypedSchema(
   z.object({
-    currency: z.string().min(3, { message: 'Cannot be more that 3 character'}).optional(),
-    code: z.string().max(3, { message: 'Cannot be more that 3 character'}).optional(),
-    symbol: z.string().optional(),
+    editName: z.string().min(3, { message: 'Cannot be less that 3 character'}).optional(),
+    editFlag: z.string().max(3, { message: 'Cannot be more that 3 character'}).optional(),
+    editCode: z.string().max(3, { message: 'Cannot be more that 3 character'}).optional(),
+    editDial_code: z.string().optional(),
   })
 )
 
-const currencies = computed(()=>{
-    return store.currencies
+const countries = computed(()=>{
+    return store.countries
 })
 const onEdit= async (values:any)=> {
     let data = {
 
     }
-    if(values.currency || values.code || values.symbol){
-        if (values.currency){
+    if(values.editName || values.editFlag || values.editCode || values.editDial_code){
+        // console.log(values)
+        if (values.editName){
             data = {
                 ...data,
-                currency: values.currency
+                country: values.editName
             }     
         }
-        if (values.code){
+        if (values.editFlag){
             data = {
                 ...data,
-                code: values.code
+                flag: values.editFlag
             }     
         }
-        if (values.symbol){
+        if (values.editCode){
             data = {
                 ...data,
-                symbol: values.symbol
+                code: values.editCode
             }     
         }
-        store.updateCurrency(data, currency.value)
+        if (values.editDial_code){
+            data = {
+                ...data,
+                dial_code: values.editDial_code
+            }     
+        }
+        store.updateCountry(data, country.value)
     }else{
         toast({
             description: 'All input fields are empty',
@@ -345,5 +403,14 @@ const onEdit= async (values:any)=> {
         }) 
     }
 }
+
+
+const paginationItems = computed(() => {
+  const pages = [];
+  for (let i = 1; i <= totalPages.value; i++) {
+    pages.push({ type: 'page', value: i });
+  }
+  return pages;
+});
 
 </script>

@@ -44,7 +44,6 @@ export const useUserhubStore = defineStore({
             
         },
         catchErr (error: any){
-            console.log(error)
             if(error.response.status === 400){
               toast({
                 description:  error.response.data.message || 'Bad Request',

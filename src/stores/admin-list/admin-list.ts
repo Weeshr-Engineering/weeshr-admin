@@ -79,7 +79,7 @@ export const useAdminListStore = defineStore({
             variant: 'success'
           })
 
-          console.log(response.data)
+          
         }
 
         // Update the users data with the response
@@ -211,12 +211,12 @@ export const useAdminListStore = defineStore({
           }
         })
         .catch((error) => {
-          console.log(error);
+          
           this.catchErr(error)
         });
     },
     async getActivityLog (id: any){
-      console.log('activity log')
+      
         toast({
           title: 'Loading Data',
           description: 'Fetching data...',
@@ -240,12 +240,12 @@ export const useAdminListStore = defineStore({
               variant: 'success'
             })
 
-            console.log(response.data)
+            
           }
 
           // Update the users data with the response
           const data = response.data.data.data
-          // console.log(data)
+          // 
           this.activityLog = data
           // this.users = data.reverse()
           // adminListStore.setUsers(data.reverse())
