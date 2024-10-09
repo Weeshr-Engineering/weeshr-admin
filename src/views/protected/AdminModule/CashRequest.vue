@@ -70,8 +70,8 @@
                     </TableCell>
                     <TableCell class="text-xs md:text-sm lg:text-sm">{{ item?.wallet?.account_name }} </TableCell>
                     <TableCell class="text-xs md:text-sm lg:text-sm">{{ item.user?.userName }}</TableCell>
-                    <TableCell class="text-xs md:text-sm lg:text-sm"> {{item.wallet.currency}} {{ item.wallet?.balance.toLocaleString() }} </TableCell>
-                    <TableCell class="text-xs md:text-sm lg:text-sm">{{item.wallet.currency}} {{ item.amount.toLocaleString() }} </TableCell>
+                    <TableCell class="text-xs md:text-sm lg:text-sm"> {{item.wallet.currency}} {{ (item.wallet?.balance / 100).toLocaleString() }} </TableCell>
+                    <TableCell class="text-xs md:text-sm lg:text-sm">{{item.wallet.currency}} {{ (item.amount/100).toLocaleString() }} </TableCell>
                     <TableCell class="text-xs md:text-sm lg:text-sm"> 01 Nov 1978</TableCell>
                     <TableCell class="text-xs md:text-sm lg:text-sm"> 02<span class='font-bold'>D</span>03:<span class='font-bold'>H</span>55:<span class='font-bold'>M</span> </TableCell>
                     <!-- <TableCell class="text-xs md:text-sm lg:text-sm"> {{ item.tat[0].toString().padStart(2, '0') }}<span class='font-bold'>D</span>{{ item.tat[1].toString().padStart(2, '0') }}:<span class='font-bold'>H</span>{{ item.tat[2].toString().padStart(2, '0') }}:<span class='font-bold'>M</span> </TableCell> -->
