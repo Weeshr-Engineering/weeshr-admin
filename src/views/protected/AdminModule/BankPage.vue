@@ -291,12 +291,7 @@ const payout = computed(()=>{
 })
 
 const bank = computed(() => {
-  return store.bank.map((transaction) => {
-    return {
-      ...transaction,
-      amount: (transaction.amount > 0) ? transaction.amount / 100 : transaction.amount
-    }
-  })
+  return store.bank;
 })
 
 const loading = computed(() => {
