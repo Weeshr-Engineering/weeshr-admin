@@ -164,13 +164,12 @@
                   ? '--'
                   : transaction.customer.email
               }}</TableCell>
-              <TableCell class="text-xs md:text-sm lg:text-sm text-nowrap">{{ transaction.paid_at ?
+              <TableCell class="text-xs md:text-sm lg:text-sm text-nowrap min-w-fit">{{ transaction.paid_at ?
                 dateFormat(transaction.paid_at) : '--' }}
               </TableCell>
-              <TableCell class="text-xs md:text-sm lg:text-sm text-nowrap"
+              <TableCell class="text-xs md:text-sm lg:text-sm text-nowrap min-w-fit"
                 >{{ currencySymbol(transaction.currency) }}
-                {{ (transaction.amount / 100).toFixed(2).toLocaleString() }}
-           
+                {{ (transaction.amount / 100).toLocaleString() }}
               </TableCell>
               <TableCell class="text-xs md:text-sm lg:text-sm">
                 {{ transaction.channel }}
