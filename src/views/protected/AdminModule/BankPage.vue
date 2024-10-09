@@ -168,7 +168,7 @@
               </TableCell>
               <TableCell class="text-xs md:text-sm lg:text-sm text-nowrap"
                 >{{ currencySymbol(transaction.currency) }}
-                {{ (transaction.amount / 100).toLocaleString() }}
+                {{ (transaction.amount / 100).toLocaleString() || transaction.amount }}
            
               </TableCell>
               <TableCell class="text-xs md:text-sm lg:text-sm">
@@ -286,12 +286,7 @@ const currency = computed(() => {
 })
 
 const bank = computed(() => {
-  return store.bank.map((transaction) => {
-    return {
-      ...transaction,
-      amount: (transaction.amount > 0) ? transaction.amount / 100 : transaction.amount
-    }
-  })
+  return store.bank;
 })
 
 const loading = computed(() => {
