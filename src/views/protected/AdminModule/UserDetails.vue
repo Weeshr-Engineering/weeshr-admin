@@ -51,6 +51,11 @@ import PaymentApproval from '@/components/PaymentApproval.vue'
 import axios from "@/services/ApiService";
 import { toast } from "@/components/ui/toast";
 import { useUserhubStore } from '@/stores/userhub-details/userhub-details'
+import { ability, defineAbilities, verifyAbilities } from '@/lib/ability'
+
+defineAbilities()
+const update = ability.can('update', 'users')
+
 
 //get User
 const route = useRoute()
@@ -397,10 +402,10 @@ const items = [
                   </div>
                 </div>
                 <div class='w-full grid grid-cols-2 px-4 gap-2 mb-2'>
-                    <div class='col-span-2 md:col-span-1 flex items-center justify-between px-2'>Public Figure <Switch :checked='appUser.statusBadge.public_figure' @click='()=> toggleUserStatus("public_figure", _id)'/></div>
-                    <div class='col-span-2 md:col-span-1 flex items-center justify-between px-2'>Influencer <Switch :checked='appUser.statusBadge.influencer' @click='()=> toggleUserStatus("influencer", _id)'/></div>
-                    <div class='col-span-2 md:col-span-1 flex items-center justify-between px-2'>Featured <Switch :checked='appUser.statusBadge.featured' @click='()=> toggleUserStatus("featured", _id)'/></div>
-                    <div class='col-span-2 md:col-span-1 flex items-center justify-between px-2'>Verified <Switch :checked='appUser.statusBadge.verified' @click='()=> toggleUserStatus("verified", _id)'/></div>
+                    <div class='col-span-2 md:col-span-1 flex items-center justify-between px-2'>Public Figure <Switch :disabled='!update' :checked='appUser.statusBadge.public_figure' @click='()=> toggleUserStatus("public_figure", _id)'/></div>
+                    <div class='col-span-2 md:col-span-1 flex items-center justify-between px-2'>Influencer <Switch :disabled='!update' :checked='appUser.statusBadge.influencer' @click='()=> toggleUserStatus("influencer", _id)'/></div>
+                    <div class='col-span-2 md:col-span-1 flex items-center justify-between px-2'>Featured <Switch :disabled='!update' :checked='appUser.statusBadge.featured' @click='()=> toggleUserStatus("featured", _id)'/></div>
+                    <div class='col-span-2 md:col-span-1 flex items-center justify-between px-2'>Verified <Switch :disabled='!update' :checked='appUser.statusBadge.verified' @click='()=> toggleUserStatus("verified", _id)'/></div>
                 </div>
             </div>
           </div>
