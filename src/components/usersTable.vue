@@ -273,7 +273,7 @@ const sendVerification = async ()=>{
     </div>
     <div class="items-center grid grid-cols-3 md:grid-cols-4 gap-2 flex-row">
       <DropdownMenu v-if='update'>
-        <DropdownMenuTrigger as-child class="rounded-2xl">
+        <DropdownMenuTrigger as-child class="">
           <Button class='text-white' :disabled='selectedUsers.length == 0'>
             <div class="flex items-center text-[10px] md:text-xs">
               Mail format
