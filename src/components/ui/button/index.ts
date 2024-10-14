@@ -17,8 +17,17 @@ export const buttonVariants = cva(
       size: {
         default: 'h-10 px-4 py-2',
         sm: 'h-9 rounded-md px-3',
-        lg: 'h-11 rounded-md px-8',
-        icon: 'h-10 w-10'
+        lg: 'h-11 rounded-lg px-8',
+        xl: 'h-12 rounded-xl px-8',
+        xxxl: 'h-12 rounded-3xl px-8',
+        
+        icon: 'h-10 w-10' 
+      },
+      radius: {
+        default: 'rounded-md',
+        sm: 'rounded-md',
+        lg: 'rounded-3xl',
+        icon: 'rounded-full'
       }
     },
     defaultVariants: {

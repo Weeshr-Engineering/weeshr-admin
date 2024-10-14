@@ -8,13 +8,33 @@ import {
   TableCell,
   TableHead
 } from '@/components/ui/table'
-
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuCheckboxItem,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
+
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  // SheetHeader,
+  SheetTitle,
+  // SheetTrigger,
+  sheetVariants
+} from '@/components/ui/sheet'
+import EmailTemplate from '@/views/protected/AdminModule/EmailTemplate.vue'
 
 import { onMounted, ref } from 'vue'
 import getUsers from '@/composables/getUsers'
@@ -22,13 +42,22 @@ import { computed, watch } from 'vue'
 import { Icon } from '@iconify/vue'
 import { Button } from '@/components/ui/button'
 import PagePagination from './PagePagination.vue'
+import axios from "@/services/ApiService";
+import { toast } from '@/components/ui/toast'
+import { catchErr } from '@/composables/catchError'
+import { ability, defineAbilities } from '@/lib/ability'
 
 //logic
-
+defineAbilities()
+const update = ability.can('update', 'users')
 const { users, error, totalPages, currentPage, load } = getUsers()
 
 const appUsers = ref(users)
 const errors = error
+
+const sheetClass = sheetVariants({ length: 'template' })
+// const isSheetOpen = ref(true) // Set to true to open by default
+
 
 onMounted(() => {
   load('', 1)
@@ -107,13 +136,142 @@ const sortUsers = computed(() => {
 //pagination
 const pageTotal = ref(totalPages)
 const pageCurrent = ref(currentPage)
+const alert = ref(false)
+const confirmSheet = ref(false)
+const stage = ref('')
+
+const selectedUsers = ref<string[]>([])
+const selectAll = ref(false)
+
+const clearIds = ()=>{
+  selectedUsers.value = []
+}
+const extractIds = () => {
+  selectedUsers.value = []
+  selectedUsers.value = sortUsers.value.map(obj => obj._id);
+}
+
+const emailTemplateProps = ref<{ name: string; ids: string[] }>({
+  name: 'John Doe',
+  ids: selectedUsers.value // Example IDs
+})
+
+const toggleSelectAll = ()=>{
+  if(selectAll.value === false){
+    extractIds()
+  }else{
+    clearIds()
+  }
+  selectAll.value = !selectAll.value
+}
+
+const toggleValue = (value: string) => {
+  const index = selectedUsers.value.indexOf(value);
+  if (index !== -1) {
+    // If the value exists, remove it
+    selectedUsers.value.splice(index, 1);
+  } else {
+    // If the value does not exist, add it
+    selectedUsers.value.push(value);
+  }
+}
+
+function checkValue(value: string) {
+  const index = selectedUsers.value.indexOf(value);
+  if (index !== -1) {
+    // If the value exists, remove it
+    return true
+  } else {
+    // If the value does not exist, add it
+    return false
+  }
+}
+
+const handleConfirmation = (val: string)=>{
+  alert.value = true;
+  stage.value = val
+}
+
 
 const handlePageChange = (page: number) => {
   load('', page)
 }
+
+const sendReset = async ()=>{
+  toast({
+      description: 'Loading...',
+      variant: 'loading',
+      duration: 0 // Set duration to 0 to make it indefinite until manually closed
+    })
+    try {
+      const response = await axios.post(
+        `/api/v1/admin/accounts/users/reset/pin`,
+        {
+          ids: selectedUsers.value
+        }
+      )
+
+      if (response.status === 200 || response.status === 201) {
+        toast({
+          description: response.data.message,
+          variant: 'success'
+        })
+      }
+    } catch (error: any) {
+      catchErr(error)
+    }
+}
+
+const sendVerification = async ()=>{
+  toast({
+      description: 'Loading...',
+      variant: 'loading',
+      duration: 0 // Set duration to 0 to make it indefinite until manually closed
+    })
+    try {
+      const response = await axios.post(
+        `/api/v1/admin/accounts/users/send/email-verification`,
+        {
+          ids: selectedUsers.value
+        }
+      )
+
+      if (response.status === 200 || response.status === 201) {
+        toast({
+          description: response.data.message,
+          variant: 'success'
+        })
+      }
+    } catch (error: any) {
+      catchErr(error)
+    }
+}
 </script>
 
 <template>
+  <AlertDialog v-model:open='alert'>
+    <div>
+    <AlertDialogContent>
+      <AlertDialogHeader>
+        <AlertDialogTitle>Are you absolutely sure you want to send a mail to <span v-if='stage ==="reset"'>RESET PINS</span> <span v-if='stage ==="verify"'>VERIFY EMAIILS</span> to all selected users ?</AlertDialogTitle>
+        <AlertDialogDescription>
+          This action cannot be undone.
+        </AlertDialogDescription>
+      </AlertDialogHeader>
+      <AlertDialogFooter>
+        <AlertDialogCancel>Cancel</AlertDialogCancel>
+        <AlertDialogAction v-if='stage === "reset"' @click='sendReset'>Send reset mail</AlertDialogAction>
+        <AlertDialogAction v-if='stage === "verify"' @click="sendVerification">Send verification mail</AlertDialogAction>
+      </AlertDialogFooter>
+    </AlertDialogContent>
+    </div>
+  </AlertDialog>
+  <Sheet v-model:open='confirmSheet'>
+    <SheetContent :class="sheetClass" length='full'>
+      <SheetTitle class="py-10 text-3xl"> Email template</SheetTitle>
+      <SheetDescription> <EmailTemplate v-bind="emailTemplateProps" /></SheetDescription>
+    </SheetContent>
+  </Sheet>
   <div
     class="flex flex-col gap-4 md:flex-row items-center justify-between px-2 sm:px-6 py-4 w-full bg-[#FFFFFF] h-full"
   >
@@ -121,7 +279,47 @@ const handlePageChange = (page: number) => {
       App Users
       <p class="text-xs sm:text-sm text-[#02072199]">List of Weeshr App Users</p>
     </div>
+
     <div class="items-center grid grid-cols-3 md:grid-cols-4 gap-2 flex-row">
+      <DropdownMenu v-if='update'>
+        <DropdownMenuTrigger as-child class="">
+          <Button class='text-white' :disabled='selectedUsers.length == 0'>
+            <div class="flex items-center text-[10px] md:text-xs">
+              Mail format
+              <Icon icon="ion:chevron-down-outline" class="ml-1" />
+            </div>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent class="item-center justify-between">
+          <DropdownMenuCheckboxItem @click='() => handleConfirmation("verify")'>
+            Verify emails
+          </DropdownMenuCheckboxItem>
+          <DropdownMenuCheckboxItem @click='() => handleConfirmation("reset")'>
+            Reset pin
+          </DropdownMenuCheckboxItem>
+          <DropdownMenuCheckboxItem @click='()=> confirmSheet = true'>
+            Custom mail
+          </DropdownMenuCheckboxItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+    <!-- <div class="grid flex-row items-center grid-cols-3 gap-2 md:grid-cols-4">
+      <Sheet v-model="isSheetOpen" length="template">
+        <SheetTrigger>
+          <Button variant="" radius="lg">
+            <div class="flex items-center text-[10px] md:text-xs">Email Template</div>
+          </Button>
+        </SheetTrigger> -->
+        <!-- <SheetContent v-model="isSheetOpen"> -->
+        <!-- <EmailTemplate v-bind="emailTemplateProps"/> -->
+        <!-- </SheetContent> -->
+
+        <!-- <SheetContent :class="sheetClass">
+          <SheetTitle class="py-10 text-3xl"> Email template</SheetTitle>
+          <SheetDescription> <EmailTemplate v-bind="emailTemplateProps" /></SheetDescription>
+        </SheetContent>
+      </Sheet> -->
+
       <DropdownMenu>
         <DropdownMenuTrigger as-child class="rounded-2xl bg-[#EEEFF5]">
           <Button variant="outline">
@@ -131,7 +329,7 @@ const handlePageChange = (page: number) => {
             </div>
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent class="item-center justify-between">
+        <DropdownMenuContent class="justify-between item-center">
           <DropdownMenuCheckboxItem @click="() => handleClick('male')">
             Male
           </DropdownMenuCheckboxItem>
@@ -152,7 +350,7 @@ const handlePageChange = (page: number) => {
             </div>
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent class="item-center justify-between">
+        <DropdownMenuContent class="justify-between item-center">
           <DropdownMenuCheckboxItem @click="() => handleClick('verified')">
             Verified
           </DropdownMenuCheckboxItem>
@@ -185,6 +383,12 @@ const handlePageChange = (page: number) => {
           <TableRow
             class="text-xs sm:text-sm md:text-base text-[#02072199] font-semibold bg-gray-200"
           >
+            <TableHead v-if='update'>
+              <div class='flex items-center justify-center w-full h-full gap-2'>
+                  <input @click='toggleSelectAll' type='checkbox' class='p-2 accent-[#020721] border-2'/>
+                  <p>Select all</p>
+              </div>
+            </TableHead>
             <TableHead> Weeshr name </TableHead>
             <TableHead>Full Name</TableHead>
             <TableHead>Birthday</TableHead>
@@ -195,6 +399,11 @@ const handlePageChange = (page: number) => {
         </TableHeader>
         <TableBody>
           <TableRow v-for="user in sortUsers" :key="user._id">
+            <TableCell v-if='update'>
+              <div class='flex items-center justify-center w-full h-full'>
+                  <input :checked="checkValue(user._id)" @click='toggleValue(user._id)' type='checkbox' class='p-2 accent-[#7b7d87] border-2'/>
+              </div>
+            </TableCell>
             <TableCell class="text-xs md:text-sm lg:text-sm">{{ user.userName }} </TableCell>
             <TableCell class="text-xs md:text-sm lg:text-sm"
               >{{ user.firstName }} {{ user.middleName }} {{ user.lastName }}</TableCell

@@ -25,15 +25,15 @@ interface User {
         secure_url: string
       }
     }
-  ],
+  ]
   settings: {
-    isProfilePublic: boolean,
+    isProfilePublic: boolean
     allowBiometricAccess: boolean
-  },
+  }
   statusBadge: {
-    featured: boolean,
-    influencer: boolean,
-    public_figure: boolean,
+    featured: boolean
+    influencer: boolean
+    public_figure: boolean
     verified: boolean
   }
 }
@@ -160,34 +160,34 @@ export const getUser = () => {
       })
     }
   }
-  const toggleUserStatus = async (val: string, _id: string | string[]) =>{
+  const toggleUserStatus = async (val: string, _id: string | string[]) => {
     let data = {}
-    if(val === 'featured'){
+    if (val === 'featured') {
       data = {
         featured: !appUser.value?.statusBadge.featured
       }
-    } else if(val === 'influencer'){
+    } else if (val === 'influencer') {
       data = {
         influencer: !appUser.value?.statusBadge.influencer
       }
-    }else if(val === 'public_figure'){
+    } else if (val === 'public_figure') {
       data = {
         public_figure: !appUser.value?.statusBadge.public_figure
       }
-    } else if(val === 'verified'){
+    } else if (val === 'verified') {
       data = {
         verified: !appUser.value?.statusBadge.verified
       }
-    }else {
+    } else {
       toast({
         description: 'Status badge does not exist',
         variant: 'destructive'
       })
     }
     console.log(data)
-    try{
+    try {
       const response = await axios.patch(`/api/v1/admin/accounts/users/${_id}/status-badge`, data)
-      if(response.data.code === 200){
+      if (response.data.code === 200) {
         toast({
           description: response.data.message,
           variant: 'success',
@@ -195,14 +195,13 @@ export const getUser = () => {
         })
         load(_id)
       }
-    }catch(error){
+    } catch (error) {
       console.log(error)
       catchErr(error)
     }
   }
   return { appUser, error, load, toggleUserStatus }
 }
-
 
 export const getUserLog = () => {
   const userLog = ref<Log[]>([])

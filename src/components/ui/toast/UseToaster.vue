@@ -11,9 +11,7 @@ const { toasts } = useToast()
   <ToastProvider>
     <Toast v-for="toast in toasts" :key="toast.id" v-bind="toast">
       <div class="flex flex-row items-center justify-center">
-        <ToastTitle v-if="toast.title">
-         
-        </ToastTitle>
+        <ToastTitle v-if="toast.title"> </ToastTitle>
         <template v-if="toast.description">
           <ToastDescription v-if="isVNode(toast.description)">
             <component :is="toast.description" />
@@ -21,20 +19,20 @@ const { toasts } = useToast()
           <ToastDescription v-else :class="{ 'text-center': toast.variant !== 'loading' }">
             <template v-if="toast.variant === 'success'">
               <Icon
-              icon="mdi:success-circle-outline"
-              width="20"
-              height="16"
-              class="inline-block w-8 h-6 mr-2 text-[#FFFFFF] animate-pulse"
-            />
+                icon="mdi:success-circle-outline"
+                width="20"
+                height="16"
+                class="inline-block w-8 h-6 mr-2 text-[#FFFFFF] animate-pulse"
+              />
             </template>
             <template v-else-if="toast.variant === 'loading'">
               <!-- Loading Icon -->
               <Icon
-              icon="tabler:chart-arcs-3"
-              width="16"
-              height="16"
-              class="inline-block w-4 h-4 mr-2 text-[#FFFFFF] animate-spin"
-            />
+                icon="tabler:chart-arcs-3"
+                width="16"
+                height="16"
+                class="inline-block w-4 h-4 mr-2 text-[#FFFFFF] animate-spin"
+              />
             </template>
             <template v-else-if="toast.variant === 'info'">
               <Icon
@@ -63,12 +61,18 @@ const { toasts } = useToast()
             {{ toast.description }}
           </ToastDescription>
         </template>
-        <ToastClose :class="{ 'toast-close-loading': toast.variant === 'loading',
-       'toast-close-success': toast.variant === 'success','toast-close-destructive': toast.variant === 'destructive',
-       'toast-close-info': toast.variant === 'info', 'toast-close-warning': toast.variant === 'warning'}" />
-     
-      <component :is="toast.action" />
-    </div>
+        <ToastClose
+          :class="{
+            'toast-close-loading': toast.variant === 'loading',
+            'toast-close-success': toast.variant === 'success',
+            'toast-close-destructive': toast.variant === 'destructive',
+            'toast-close-info': toast.variant === 'info',
+            'toast-close-warning': toast.variant === 'warning'
+          }"
+        />
+
+        <component :is="toast.action" />
+      </div>
     </Toast>
     <ToastViewport />
   </ToastProvider>
@@ -76,7 +80,7 @@ const { toasts } = useToast()
 
 <style scoped>
 .toast-close-loading {
-  background-color: #F8F9FFB2; /* Set background color to white */
+  background-color: #f8f9ffb2; /* Set background color to white */
 }
 .toast-close-success {
   background-color: #02072199; /* Set background color to white */
@@ -84,15 +88,16 @@ const { toasts } = useToast()
 .toast-close-info {
   background-color: #02072199; /* Set background color to white */
 }
-.toast-close-destructive{
+.toast-close-destructive {
   background-color: #02072199;
 }
-.toast-close-warning{
+.toast-close-warning {
   background-color: #02072199;
 }
 /* Add these styles to your main CSS file or component-specific style block */
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
   }
   50% {
@@ -106,7 +111,8 @@ const { toasts } = useToast()
 
 /* Other animations (bounce, shake, flash) remain the same */
 @keyframes shake {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateX(0);
   }
   25% {
@@ -121,7 +127,8 @@ const { toasts } = useToast()
 }
 
 @keyframes flash {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {
