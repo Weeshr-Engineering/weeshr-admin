@@ -14,7 +14,6 @@ import {
   DropdownMenuCheckboxItem,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
-
 import {
   AlertDialog,
   AlertDialogAction,
@@ -59,10 +58,6 @@ const errors = error
 const sheetClass = sheetVariants({ length: 'template' })
 // const isSheetOpen = ref(true) // Set to true to open by default
 
-const emailTemplateProps = ref<{ name: string; ids: string[] }>({
-  name: 'John Doe',
-  ids: ['34343', '422424'] // Example IDs
-})
 
 onMounted(() => {
   load('', 1)
@@ -155,6 +150,11 @@ const extractIds = () => {
   selectedUsers.value = []
   selectedUsers.value = sortUsers.value.map(obj => obj._id);
 }
+
+const emailTemplateProps = ref<{ name: string; ids: string[] }>({
+  name: 'John Doe',
+  ids: selectedUsers.value // Example IDs
+})
 
 const toggleSelectAll = ()=>{
   if(selectAll.value === false){

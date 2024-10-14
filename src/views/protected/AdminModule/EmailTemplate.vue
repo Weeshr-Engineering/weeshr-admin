@@ -15,6 +15,9 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Icon } from '@iconify/vue'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
+import axios from "@/services/ApiService";
+import { toast } from '@/components/ui/toast'
+import { catchErr } from '@/composables/catchError'
 
 // Define props
 const props = defineProps<{
@@ -61,8 +64,30 @@ const showConfirmation = ref(false)
 const emailMessage = ref('')
 
 // Function to handle email sending
-const sendEmail = () => {
+const sendEmail = async () => {
   // Your email sending logic here
+  toast({
+      description: 'Loading...',
+      variant: 'loading',
+      duration: 0 // Set duration to 0 to make it indefinite until manually closed
+    })
+    try {
+      const response = await axios.post(
+        `/api/v1/admin/accounts/users/mail`,
+        {
+          // ids: ids
+        }
+      )
+
+      if (response.status === 200 || response.status === 201) {
+        toast({
+          description: response.data.message,
+          variant: 'success'
+        })
+      }
+    } catch (error: any) {
+      catchErr(error)
+    }
   console.log('Email sent with message:', emailMessage.value)
   // Close the confirmation popover after sending email
   showConfirmation.value = false
