@@ -66,6 +66,11 @@ const emailMessage = ref('')
 // Function to handle email sending
 const sendEmail = async () => {
   // Your email sending logic here
+  const data = {
+    ids: props.ids,
+    message: emailMessage.value,
+    variables: tempSelectedVariables.value
+  }
   toast({
       description: 'Loading...',
       variant: 'loading',
@@ -73,12 +78,7 @@ const sendEmail = async () => {
     })
     try {
       const response = await axios.post(
-        `/api/v1/admin/accounts/users/mail`,
-        {
-          ids: props.ids,
-					message: emailMessage.value,
-					variables: tempSelectedVariables.value
-        }
+        `/api/v1/admin/accounts/users/mail`, data
       )
 
       if (response.status === 200 || response.status === 201) {
@@ -90,7 +90,7 @@ const sendEmail = async () => {
     } catch (error: any) {
       catchErr(error)
     }
-  console.log('Email sent with message:', emailMessage.value)
+  // console.log('Email sent with message:', data)
   // Close the confirmation popover after sending email
   showConfirmation.value = false
 }
