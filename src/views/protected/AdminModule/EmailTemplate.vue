@@ -14,7 +14,6 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Icon } from '@iconify/vue'
 import { Checkbox } from '@/components/ui/checkbox'
-import { Label } from '@/components/ui/label'
 import axios from "@/services/ApiService";
 import { toast } from '@/components/ui/toast'
 import { catchErr } from '@/composables/catchError'
@@ -90,7 +89,6 @@ const sendEmail = async () => {
     } catch (error: any) {
       catchErr(error)
     }
-  // console.log('Email sent with message:', data)
   // Close the confirmation popover after sending email
   showConfirmation.value = false
 }
@@ -134,6 +132,7 @@ const sendEmail = async () => {
                         <CommandGroup>
                           <CommandItem
                             v-for="detail in filteredUserDetails"
+                            :value="detail"
                             :key="detail"
                             class="flex flex-row items-center justify-start w-full gap-2 px-4 py-2"
                           >
@@ -197,7 +196,7 @@ const sendEmail = async () => {
             <PopoverTrigger as-child>
               <Button
                 class="p-4 m-2 mr-1 lg:w-40 lg:ml-auto md:px-4"
-                size="xxxl"
+                size="lg"
                 aria-label="Send your email"
               >
                 Send Email
