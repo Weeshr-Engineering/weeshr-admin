@@ -733,7 +733,7 @@ const items = [
                   </p>
                 </div>
                 <div class="flex justify-end">
-                  <Button @click="openApprovalModal = true" class="rounded-full bg-[#00c37f]"
+                  <Button @click="openApprovalModal = true" :disabled='!update' class="rounded-full bg-[#00c37f]"
                     >Approve</Button
                   >
                 </div>
