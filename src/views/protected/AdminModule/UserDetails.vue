@@ -76,6 +76,10 @@ onMounted(() => {
   getFilter()
 })
 const togglePrivacy =async (val: boolean)=>{
+  if(!update){
+    verifyAbilities('update', 'users')
+    return
+  }
   toast({
       title: 'Loading Data',
       description: 'Fetching data...',
