@@ -722,12 +722,15 @@ const items = [
                     icon="heroicons-outline:external-link"
                     width="24px"
                     height="24px"
-                    @click="openApprovalModal = true"
+                    :class="!update ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'"
+                     @click="update ? (openApprovalModal = true) : null"
+                    
                   />
                   <PaymentApproval
                     :openApprovalModal="openApprovalModal"
                     :items="items"
                     @update:openApprovalModal="(value) => (openApprovalModal = value)"
+                    
                   />
                 </div>
                 <div class="md:flex items-center justify-between -mt-6">
