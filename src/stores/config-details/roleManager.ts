@@ -13,7 +13,8 @@ export const useRoleStore = defineStore({
             "featured": 0,
             "currencies": 0,
             "weesh_gist": 0,
-            "weesh_categories": 0
+            "weesh_categories": 0,
+            'countries': 0
         }
   }),
   actions: {
@@ -87,7 +88,7 @@ export const useRoleStore = defineStore({
       };
 
       axios.request(config)
-        .then((response) => {
+        .then(() => {
           this.getRoles('Role Updated Successfully')
         })
         .catch((error) => {
@@ -110,7 +111,7 @@ export const useRoleStore = defineStore({
       };
 
       axios.request(config)
-        .then((response) => {
+        .then(() => {
 
           this.getRoles('Role Deleted Successfully')
         })
@@ -280,7 +281,8 @@ interface Count {
   "featured": number,
   "currencies": number,
   "weesh_gist": number,
-  "weesh_categories": number
+  "weesh_categories": number,
+  'countries': number
 }
 interface ConfigStore {
   permissions: any[],

@@ -71,7 +71,8 @@
         <p>Cash Request</p>
       </div>
       <div class="flex items-center gap-2 text-nowrap">
-        <p class="text-lg md:text-2xl">₦ 5,190,500.00</p>
+        <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" />
+        <p v-else class="text-lg md:text-2xl">₦ {{payout.toLocaleString()}}</p>
         <RouterLink to="/bank/cash-request"><svg width="35" height="35" class="h-6 w-6 md:w-auto md:h-auto"
             viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path
@@ -163,13 +164,12 @@
                   ? '--'
                   : transaction.customer.email
               }}</TableCell>
-              <TableCell class="text-xs md:text-sm lg:text-sm text-nowrap">{{ transaction.paid_at ?
+              <TableCell class="text-xs md:text-sm lg:text-sm text-nowrap min-w-fit">{{ transaction.paid_at ?
                 dateFormat(transaction.paid_at) : '--' }}
               </TableCell>
-              <TableCell class="text-xs md:text-sm lg:text-sm text-nowrap"
+              <TableCell class="text-xs md:text-sm lg:text-sm text-nowrap min-w-fit"
                 >{{ currencySymbol(transaction.currency) }}
-                {{ (transaction.amount / 100).toLocaleString() || transaction.amount }}
-           
+                {{ transaction.amount.toLocaleString() }}
               </TableCell>
               <TableCell class="text-xs md:text-sm lg:text-sm">
                 {{ transaction.channel }}
@@ -285,6 +285,10 @@ const currency = computed(() => {
   return store.currency
 })
 
+const payout = computed(()=>{
+  return store.payout
+})
+
 const bank = computed(() => {
   return store.bank;
 })
@@ -355,6 +359,7 @@ const resetFilters = () => {
 }
 
 onMounted(async () => {
+  store.getPayoutBalance()
   await store.getBalance()
   await store.getTotals()
   await store.getTransactions(filter)
