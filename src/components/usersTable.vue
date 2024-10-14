@@ -29,9 +29,13 @@ import {
 import {
   Sheet,
   SheetContent,
-  SheetHeader,
   SheetDescription,
+  // SheetHeader,
+  SheetTitle,
+  // SheetTrigger,
+  sheetVariants
 } from '@/components/ui/sheet'
+import EmailTemplate from '@/views/protected/AdminModule/EmailTemplate.vue'
 
 import { onMounted, ref } from 'vue'
 import getUsers from '@/composables/getUsers'
@@ -51,6 +55,14 @@ const { users, error, totalPages, currentPage, load } = getUsers()
 
 const appUsers = ref(users)
 const errors = error
+
+const sheetClass = sheetVariants({ length: 'template' })
+// const isSheetOpen = ref(true) // Set to true to open by default
+
+const emailTemplateProps = ref<{ name: string; ids: string[] }>({
+  name: 'John Doe',
+  ids: ['34343', '422424'] // Example IDs
+})
 
 onMounted(() => {
   load('', 1)
@@ -255,13 +267,9 @@ const sendVerification = async ()=>{
     </div>
   </AlertDialog>
   <Sheet v-model:open='confirmSheet'>
-    <SheetContent length='full'>
-      <SheetHeader>
-        <SheetTitle>Create a custom mail</SheetTitle>
-        <SheetDescription>
-          Once sent this action cannot be undone
-        </SheetDescription>
-      </SheetHeader>
+    <SheetContent :class="sheetClass" length='full'>
+      <SheetTitle class="py-10 text-3xl"> Email template</SheetTitle>
+      <SheetDescription> <EmailTemplate v-bind="emailTemplateProps" /></SheetDescription>
     </SheetContent>
   </Sheet>
   <div
@@ -271,6 +279,7 @@ const sendVerification = async ()=>{
       App Users
       <p class="text-xs sm:text-sm text-[#02072199]">List of Weeshr App Users</p>
     </div>
+
     <div class="items-center grid grid-cols-3 md:grid-cols-4 gap-2 flex-row">
       <DropdownMenu v-if='update'>
         <DropdownMenuTrigger as-child class="">
@@ -293,6 +302,24 @@ const sendVerification = async ()=>{
           </DropdownMenuCheckboxItem>
         </DropdownMenuContent>
       </DropdownMenu>
+
+    <!-- <div class="grid flex-row items-center grid-cols-3 gap-2 md:grid-cols-4">
+      <Sheet v-model="isSheetOpen" length="template">
+        <SheetTrigger>
+          <Button variant="" radius="lg">
+            <div class="flex items-center text-[10px] md:text-xs">Email Template</div>
+          </Button>
+        </SheetTrigger> -->
+        <!-- <SheetContent v-model="isSheetOpen"> -->
+        <!-- <EmailTemplate v-bind="emailTemplateProps"/> -->
+        <!-- </SheetContent> -->
+
+        <!-- <SheetContent :class="sheetClass">
+          <SheetTitle class="py-10 text-3xl"> Email template</SheetTitle>
+          <SheetDescription> <EmailTemplate v-bind="emailTemplateProps" /></SheetDescription>
+        </SheetContent>
+      </Sheet> -->
+
       <DropdownMenu>
         <DropdownMenuTrigger as-child class="rounded-2xl bg-[#EEEFF5]">
           <Button variant="outline">
@@ -302,7 +329,7 @@ const sendVerification = async ()=>{
             </div>
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent class="item-center justify-between">
+        <DropdownMenuContent class="justify-between item-center">
           <DropdownMenuCheckboxItem @click="() => handleClick('male')">
             Male
           </DropdownMenuCheckboxItem>
@@ -323,7 +350,7 @@ const sendVerification = async ()=>{
             </div>
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent class="item-center justify-between">
+        <DropdownMenuContent class="justify-between item-center">
           <DropdownMenuCheckboxItem @click="() => handleClick('verified')">
             Verified
           </DropdownMenuCheckboxItem>
