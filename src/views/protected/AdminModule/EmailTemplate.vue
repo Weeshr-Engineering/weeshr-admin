@@ -75,7 +75,9 @@ const sendEmail = async () => {
       const response = await axios.post(
         `/api/v1/admin/accounts/users/mail`,
         {
-          // ids: ids
+          ids: props.ids,
+					message: emailMessage.value,
+					variables: tempSelectedVariables.value
         }
       )
 
