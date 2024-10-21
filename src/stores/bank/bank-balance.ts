@@ -7,7 +7,8 @@ interface Transaction {
   _id: string
   status: string
   gateway_response: string
-  paid_at: string | null
+  paid_at: string | null,
+  created_at: string | null,
   amount: number
   currency: string
   channel: string
