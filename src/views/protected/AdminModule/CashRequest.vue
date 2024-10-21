@@ -45,12 +45,12 @@
                         <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
                       </div>
                     </TableHead>
-                    <TableHead>
+                    <!-- <TableHead>
                       <div class="flex items-center">
                         TAT
                         <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
                       </div>
-                    </TableHead>
+                    </TableHead> -->
       
                     <TableHead>
                       <div class="flex items-center">
@@ -72,10 +72,10 @@
                     <TableCell class="text-xs md:text-sm lg:text-sm">{{ item.user?.userName }}</TableCell>
                     <TableCell class="text-xs md:text-sm lg:text-sm"> {{item.wallet.currency}} {{ item.wallet?.balance.toLocaleString() }} </TableCell>
                     <TableCell class="text-xs md:text-sm lg:text-sm">{{item.wallet.currency}} {{ item.amount.toLocaleString() }} </TableCell>
-                    <TableCell class="text-xs md:text-sm lg:text-sm"> 01 Nov 1978</TableCell>
-                    <TableCell class="text-xs md:text-sm lg:text-sm"> 02<span class='font-bold'>D</span>03:<span class='font-bold'>H</span>55:<span class='font-bold'>M</span> </TableCell>
+                    <TableCell class="text-xs md:text-sm lg:text-sm"> {{item.createdAt.split('T')[0]}} </TableCell>
+                    <!-- <TableCell class="text-xs md:text-sm lg:text-sm"> 02<span class='font-bold'>D</span>03:<span class='font-bold'>H</span>55:<span class='font-bold'>M</span> </TableCell> -->
                     <!-- <TableCell class="text-xs md:text-sm lg:text-sm"> {{ item.tat[0].toString().padStart(2, '0') }}<span class='font-bold'>D</span>{{ item.tat[1].toString().padStart(2, '0') }}:<span class='font-bold'>H</span>{{ item.tat[2].toString().padStart(2, '0') }}:<span class='font-bold'>M</span> </TableCell> -->
-                    <TableCell><Badge class='text-white bg-[#00C37F] rounded-full'>Approve</Badge></TableCell>
+                    <TableCell><Badge class='text-white rounded-full' :class="item.status === 'APPROVED' ? 'bg-[#00C37F]' : 'bg-[#020721]'"> {{item.status}} </Badge></TableCell>
                     <TableCell v-if='createRole'>
                         <svg
                           @click='singleRequest(item._id, payout, stage, key)'
@@ -135,6 +135,9 @@ import Search from '@/components/UseSearch.vue'
 import { Badge } from '@/components/ui/badge';
 import { ability, defineAbilities, verifyAbilities } from '@/lib/ability';
 import PaymentApproval from '@/components/PaymentApproval.vue';
+import axios from "@/services/ApiService";
+import { toast } from '@/components/ui/toast'
+import { catchErr } from '@/composables/catchError'
 import { usePayoutStore } from '@/stores/bank/payout-store';
 
 defineAbilities()
@@ -167,16 +170,22 @@ import {
 const store = usePayoutStore()
 store.getPayout()
 const modal = ref(false)
+const selectedRequests = ref<string[]>([])
 const payout = computed(()=>{
   return store.payout
 })
 const groupModal = ref(false)
 const handleModal = ()=>{
+  verifyAbilities('create', 'wallet-payouts')
+  if(createRole){
+    sendRequest()
     modal.value = (!modal.value)
+  }
 }
 const handleGroupModal = ()=>{
   verifyAbilities('create', 'wallet-payouts')
   if(createRole){
+    sendRequest()
     groupModal.value = (!groupModal.value)
   }
 }
@@ -234,18 +243,46 @@ interface Stage {
             amount: parseInt(item.amount)
         }
         stageArray.push(tempObj);
-        // stage.value = stageArray
+        selectedRequests.value.push(id);
     } else {
         // If the checkbox is unchecked, remove the item from the stage array
         const index = stageArray.findIndex((obj) => obj._id === id);
         if (index !== -1) {
             stageArray.splice(index, 1);
+            selectedRequests.value.splice(index, 1);
         }
     }
   }
 
+  const sendRequest = async()=>{
+      toast({
+        description: 'Loading...',
+        variant: 'loading',
+        duration: 0 // Set duration to 0 to make it indefinite until manually closed
+      })
+      try {
+        const response = await axios.post(
+          `/api/v1/admin/payouts/users/approve`,
+          {
+            ids: selectedRequests.value
+          }
+        )
+
+        if (response.status === 200 || response.status === 201) {
+          toast({
+            description: response.data.message,
+            variant: 'success'
+          })
+        }
+      } catch (error: any) {
+        catchErr(error)
+      }
+  }
   const approveGroup = ()=>{
-    handleGroupModal()
+    verifyAbilities('create', 'wallet-payouts')
+    if(createRole){
+      groupModal.value = (!groupModal.value)
+    }
   }
 
 
@@ -256,9 +293,13 @@ interface Stage {
     key: number
   )=>{
     const item = sourceArray.find((obj) => obj._id === id);
+    selectedRequests.value = []
     
     if (!item) {
-      console.error(`Item with id ${id} not found in sourceArray.`);
+      toast({
+          description: `Item with id ${id} not found in sourceArray.`,
+          variant: 'destructive'
+        })
       return;
     }
     const tempObj: Stage = {
@@ -268,7 +309,10 @@ interface Stage {
         id: key
     }
     stageArray.splice(0, stageArray.length, tempObj)
-    handleModal()
+    selectedRequests.value.push(id);
+    if(createRole){
+      modal.value = (!modal.value)
+    }
   }
   
 </script>

@@ -22,7 +22,8 @@ interface Item {
     user: User,
     wallet: Wallet,
     wallet_id: string,
-    _id: string
+    _id: string,
+    createdAt: string
 }
 
 interface PayoutStore {
