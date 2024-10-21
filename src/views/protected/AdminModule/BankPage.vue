@@ -164,8 +164,8 @@
                   ? '--'
                   : transaction.customer.email
               }}</TableCell>
-              <TableCell class="text-xs md:text-sm lg:text-sm text-nowrap min-w-fit">{{ transaction.paid_at ?
-                dateFormat(transaction.paid_at) : '--' }}
+              <TableCell class="text-xs md:text-sm lg:text-sm text-nowrap min-w-fit">{{ transaction.created_at ?
+                dateFormat(transaction.created_at) : '--' }}
               </TableCell>
               <TableCell class="text-xs md:text-sm lg:text-sm text-nowrap min-w-fit"
                 >{{ currencySymbol(transaction.currency) }}
