@@ -61,6 +61,7 @@ const update = ability.can('update', 'users')
 const route = useRoute()
 const _id = route.params.id
 const store = useUserhubStore()
+const request = [_id]
 
 const { appUser, error, load, toggleUserStatus } = getUser()
 const { userLog, count, logPagination, logError, log, logActions, logStatus, getFilter } =
@@ -101,7 +102,7 @@ const togglePrivacy =async (val: boolean)=>{
       }
     } catch (err: any) {
         store.catchErr(error)
-        console.log(error);
+        // console.log(error);
     }
 }
 
@@ -730,7 +731,7 @@ const items = [
                     :openApprovalModal="openApprovalModal"
                     :items="items"
                     @update:openApprovalModal="(value) => (openApprovalModal = value)"
-                    
+                    :requests='_id'
                   />
                 </div>
                 <div class="md:flex items-center justify-between -mt-6">

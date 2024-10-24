@@ -73,10 +73,29 @@
                     <TableCell class="text-xs md:text-sm lg:text-sm"> {{item.wallet.currency}} {{ item.wallet?.balance.toLocaleString() }} </TableCell>
                     <TableCell class="text-xs md:text-sm lg:text-sm">{{item.wallet.currency}} {{ item.amount.toLocaleString() }} </TableCell>
                     <TableCell class="text-xs md:text-sm lg:text-sm"> {{item.createdAt.split('T')[0]}} </TableCell>
-                    <TableCell :class='stageGroup.length > 1 && "bg-gray-400 cursor-not-allowed"'>
-                      <Button class='text-white bg-[#00C37F] rounded-full' @click='()=> disburse(item._id)' v-if="item.status === 'APPROVED'"> Disburse </Button>
-                      <div v-else>Unavailable</div>
-                      <div v-if="item.status === 'REQUESTED'" >Pending</div>
+                    <TableCell>
+                      <Dialog v-if="item.status === 'APPROVED'">
+                        <DialogTrigger>
+                          <Button :disabled="stageGroup.length > 1"  :class='stageGroup.length > 1 ? "bg-gray-400 cursor-not-allowed" : "bg-[#00C37F]"' class='text-white rounded-full'> Disburse </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogDescription>
+                            Do you want to reject all selected cash requests?
+                          </DialogDescription>
+                          <div>
+                            <DialogClose>
+                              <Button v-if="item.status === 'APPROVED'"  :class='stageGroup.length > 1 ? "bg-gray-400 cursor-not-allowed" : "bg-[#00C37F]"' class='text-white rounded-full' @click='()=> disburse(item._id)'> Disburse </Button>
+                            </DialogClose>
+                            <DialogClose variant="">
+                              <Button variant="outline" class="rounded-md">
+                                Cancel
+                              </Button>
+                            </DialogClose>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                      <!-- <div v-if="item.status === 'PENDING'" >Pending</div> -->
+                      <div v-if="item.status !== 'APPROVED'">Unavailable</div>
                     </TableCell>
                     <!-- <TableCell class="text-xs md:text-sm lg:text-sm"> 02<span class='font-bold'>D</span>03:<span class='font-bold'>H</span>55:<span class='font-bold'>M</span> </TableCell> -->
                     <!-- <TableCell class="text-xs md:text-sm lg:text-sm"> {{ item.tat[0].toString().padStart(2, '0') }}<span class='font-bold'>D</span>{{ item.tat[1].toString().padStart(2, '0') }}:<span class='font-bold'>H</span>{{ item.tat[2].toString().padStart(2, '0') }}:<span class='font-bold'>M</span> </TableCell> -->
@@ -85,7 +104,7 @@
                       <Badge class='text-white rounded-full bg-yellow-400' v-if="item.status === 'PENDING'" >{{item.status}}</Badge>
                       <Badge class='text-white rounded-full bg-[#00C37F]' v-if="item.status === 'DISBURSED'" >{{item.status}}</Badge>
                       <Badge class='text-white rounded-full bg-red-500' v-if="item.status === 'REJECTED'" >{{item.status}}</Badge>
-                      <Badge class='text-white rounded-full bg-[#020721]' :class="item.status === 'APPROVED' ? 'bg-[#00C37F]' : 'bg-[#020721]'"> {{item.status}} </Badge></TableCell>
+                      <Badge class='text-white rounded-full bg-[#020721]' v-if="item.status === 'APPROVED'"> {{item.status}} </Badge></TableCell>
                     <TableCell v-if='createRole'>
                         <svg
                           @click='singleRequest(item._id, payout, stage, key)'
@@ -149,6 +168,7 @@ import axios from "@/services/ApiService";
 import { toast } from '@/components/ui/toast'
 import { catchErr } from '@/composables/catchError'
 import { usePayoutStore } from '@/stores/bank/payout-store';
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTrigger } from '@/components/ui/dialog';
 
 defineAbilities()
 const createRole = ability.can('create', 'wallet-payouts');
@@ -182,6 +202,7 @@ store.getPayout()
 const modal = ref(false)
 const selectedRequests = ref<string[]>([])
 const payout = computed(()=>{
+  // console.log(store.payout)
   return store.payout
 })
 const groupModal = ref(false)
@@ -290,6 +311,8 @@ interface Stage {
   }
 
   const disburse = async(id:string)=>{
+      const data = [id]
+      // console.log(data)
       toast({
         description: 'Loading...',
         variant: 'loading',
@@ -297,9 +320,9 @@ interface Stage {
       })
       try {
         const response = await axios.post(
-          `/api/v1/admin/payouts/users/approve`,
+          `/api/v1/admin/payouts/users/disburse`,
           {
-            ids: [id],
+            ids: data,
           }
         )
 

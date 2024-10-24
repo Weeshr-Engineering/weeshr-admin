@@ -83,7 +83,7 @@ import { catchErr } from '@/composables/catchError'
 interface Props {
   openApprovalModal: boolean
   items: Array<{ id: number; name: string; amount: number }>
-  requests: string[]
+  requests: string | string[]
 }
 
 const props = defineProps<Props>()
