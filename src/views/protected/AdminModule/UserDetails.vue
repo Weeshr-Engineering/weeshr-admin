@@ -61,7 +61,6 @@ const update = ability.can('update', 'users')
 const route = useRoute()
 const _id = route.params.id
 const store = useUserhubStore()
-const request = [_id]
 
 const { appUser, error, load, toggleUserStatus } = getUser()
 const { userLog, count, logPagination, logError, log, logActions, logStatus, getFilter } =
