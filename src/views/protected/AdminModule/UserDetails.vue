@@ -101,7 +101,7 @@ const togglePrivacy =async (val: boolean)=>{
       }
     } catch (err: any) {
         store.catchErr(error)
-        console.log(error);
+        // console.log(error);
     }
 }
 
@@ -730,7 +730,7 @@ const items = [
                     :openApprovalModal="openApprovalModal"
                     :items="items"
                     @update:openApprovalModal="(value) => (openApprovalModal = value)"
-                    
+                    :requests='_id'
                   />
                 </div>
                 <div class="md:flex items-center justify-between -mt-6">
