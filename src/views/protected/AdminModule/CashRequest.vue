@@ -2,8 +2,8 @@
     <div class='bg-[#f0f8ff] h-full px-4 sm:px-10 pb-10'>
         <MainNav headingText="Bank / Cash request" class=''/>
         <div>
-            <PaymentApproval :items="stage" :openApprovalModal="modal"  @update:openApprovalModal="handleModal"/>
-            <PaymentApproval :items="stageGroup" :openApprovalModal="groupModal"  @update:openApprovalModal="handleGroupModal"/>
+            <PaymentApproval :items="stage" :openApprovalModal="modal"  @update:openApprovalModal="handleModal" :requests="selectedRequests"/>
+            <PaymentApproval :items="stageGroup" :openApprovalModal="groupModal"  @update:openApprovalModal="handleGroupModal" :requests="selectedRequests"/>
             <!-- <LienComponent :items="items" :openApprovalModal="modal"  @update:openApprovalModal="handleModal"/> -->
             <Card
             class="container px-4 pt-6 pb-10 mx-auto sm:px-6 lg:px-8 bg-[#FFFFFF] rounded-2xl mt-14 mb-4"
@@ -45,12 +45,12 @@
                         <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
                       </div>
                     </TableHead>
-                    <!-- <TableHead>
+                    <TableHead>
                       <div class="flex items-center">
-                        TAT
+                        Disbursals
                         <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
                       </div>
-                    </TableHead> -->
+                    </TableHead>
       
                     <TableHead>
                       <div class="flex items-center">
@@ -73,9 +73,19 @@
                     <TableCell class="text-xs md:text-sm lg:text-sm"> {{item.wallet.currency}} {{ item.wallet?.balance.toLocaleString() }} </TableCell>
                     <TableCell class="text-xs md:text-sm lg:text-sm">{{item.wallet.currency}} {{ item.amount.toLocaleString() }} </TableCell>
                     <TableCell class="text-xs md:text-sm lg:text-sm"> {{item.createdAt.split('T')[0]}} </TableCell>
+                    <TableCell :class='stageGroup.length > 1 && "bg-gray-400 cursor-not-allowed"'>
+                      <Button class='text-white bg-[#00C37F] rounded-full' @click='()=> disburse(item._id)' v-if="item.status === 'APPROVED'"> Disburse </Button>
+                      <div v-else>Unavailable</div>
+                      <div v-if="item.status === 'REQUESTED'" >Pending</div>
+                    </TableCell>
                     <!-- <TableCell class="text-xs md:text-sm lg:text-sm"> 02<span class='font-bold'>D</span>03:<span class='font-bold'>H</span>55:<span class='font-bold'>M</span> </TableCell> -->
                     <!-- <TableCell class="text-xs md:text-sm lg:text-sm"> {{ item.tat[0].toString().padStart(2, '0') }}<span class='font-bold'>D</span>{{ item.tat[1].toString().padStart(2, '0') }}:<span class='font-bold'>H</span>{{ item.tat[2].toString().padStart(2, '0') }}:<span class='font-bold'>M</span> </TableCell> -->
-                    <TableCell><Badge class='text-white rounded-full' :class="item.status === 'APPROVED' ? 'bg-[#00C37F]' : 'bg-[#020721]'"> {{item.status}} </Badge></TableCell>
+                    <TableCell>
+                      <Badge class='text-white rounded-full bg-gray-500' v-if="item.status === 'REQUESTED'" >{{item.status}}</Badge>
+                      <Badge class='text-white rounded-full bg-yellow-400' v-if="item.status === 'PENDING'" >{{item.status}}</Badge>
+                      <Badge class='text-white rounded-full bg-[#00C37F]' v-if="item.status === 'DISBURSED'" >{{item.status}}</Badge>
+                      <Badge class='text-white rounded-full bg-red-500' v-if="item.status === 'REJECTED'" >{{item.status}}</Badge>
+                      <Badge class='text-white rounded-full bg-[#020721]' :class="item.status === 'APPROVED' ? 'bg-[#00C37F]' : 'bg-[#020721]'"> {{item.status}} </Badge></TableCell>
                     <TableCell v-if='createRole'>
                         <svg
                           @click='singleRequest(item._id, payout, stage, key)'
@@ -278,6 +288,32 @@ interface Stage {
         catchErr(error)
       }
   }
+
+  const disburse = async(id:string)=>{
+      toast({
+        description: 'Loading...',
+        variant: 'loading',
+        duration: 0 // Set duration to 0 to make it indefinite until manually closed
+      })
+      try {
+        const response = await axios.post(
+          `/api/v1/admin/payouts/users/approve`,
+          {
+            ids: [id],
+          }
+        )
+
+        if (response.status === 200 || response.status === 201) {
+          toast({
+            description: response.data.message,
+            variant: 'success'
+          })
+        }
+      } catch (error: any) {
+        catchErr(error)
+      }
+  }
+
   const approveGroup = ()=>{
     verifyAbilities('create', 'wallet-payouts')
     if(createRole){
