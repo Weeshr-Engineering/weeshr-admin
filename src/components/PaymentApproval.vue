@@ -31,6 +31,30 @@
               <p class="font-bold text-2xl">NGN {{ total.toLocaleString()  }}</p>
             </div>
             <div>
+              <Dialog>
+                <DialogTrigger>
+                  <Button variant='destructive' class="rounded-md">
+                    Reject
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogDescription>
+                    Do you want to reject all selected cash requests?
+                  </DialogDescription>
+                  <div>
+                    <DialogClose>
+                      <Button variant="destructive" class="rounded-md" @click='sendRequest'>
+                        Reject
+                      </Button>
+                    </DialogClose>
+                    <DialogClose variant="">
+                      <Button variant="outline" class="rounded-md">
+                        Cancel
+                      </Button>
+                    </DialogClose>
+                  </div>
+                </DialogContent>
+              </Dialog>
               <Button @click="approveTransactions" class="rounded-md bg-[#00c37f]">
                 Approve
               </Button>
@@ -51,10 +75,15 @@ import { Card, CardDescription, CardHeader } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Icon } from '@iconify/vue'
 import { defineProps, defineEmits, computed } from 'vue'
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTrigger } from './ui/dialog'
+import axios from "@/services/ApiService";
+import { toast } from '@/components/ui/toast'
+import { catchErr } from '@/composables/catchError'
 
 interface Props {
   openApprovalModal: boolean
   items: Array<{ id: number; name: string; amount: number }>
+  requests: string | string[]
 }
 
 const props = defineProps<Props>()
@@ -70,6 +99,32 @@ function approveTransactions() {
   // Logic for approving transactions
   emit('update:openApprovalModal', false)
 }
+
+const sendRequest = async()=>{
+      toast({
+        description: 'Loading...',
+        variant: 'loading',
+        duration: 0 // Set duration to 0 to make it indefinite until manually closed
+      })
+      try {
+        const response = await axios.post(
+          `/api/v1/admin/payouts/users/reject`,
+          {
+            ids: props.requests
+          }
+        )
+
+        if (response.status === 200 || response.status === 201) {
+          toast({
+            description: response.data.message,
+            variant: 'success'
+          })
+          closeModal()
+        }
+      } catch (error: any) {
+        catchErr(error)
+      }
+  }
 
 interface Item {
     id: number;
