@@ -18,7 +18,7 @@
                 <Button :class='createStyle' @click='approveGroup' :disabled="stageGroup.length === 0 || canApprove === false" >Approve Selection</Button>
                 <Dialog>
                   <DialogTrigger>
-                    <Button :class='createStyle' :disabled="stageGroup.length === 0 || canDisburse !== false" >Disburse Selection</Button>
+                    <Button class='bg-primary' :class='createStyle' :disabled="stageGroup.length === 0 || canDisburse !== false" >Disburse Selection</Button>
                   </DialogTrigger>
                   <DialogContent>
                     <DialogDescription>
