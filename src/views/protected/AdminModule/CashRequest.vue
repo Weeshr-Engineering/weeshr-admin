@@ -15,7 +15,29 @@
               </div>
               <div class='flex flex-col sm:flex-row sm:gap-4 gap-3 items-centerh-full'>
                 <Search class="mt-3 sm:mt-0" />
-                <Button :class='createStyle' @click='approveGroup' :disabled="stageGroup.length === 0" >Approve Selection</Button>
+                <Button :class='createStyle' @click='approveGroup' :disabled="stageGroup.length === 0 || canApprove === false" >Approve Selection</Button>
+                <Dialog>
+                  <DialogTrigger>
+                    <Button :class='createStyle' :disabled="stageGroup.length === 0 || canDisburse !== false" >Disburse Selection</Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogDescription>
+                      Do you want to disburse all selected cash requests?
+                    </DialogDescription>
+                    <p class='text-xs'>This action is irreversable</p>
+                    <div class='flex gap-4'>
+                      <DialogClose>
+                        <Button :class='createStyle' @click='disburse' :disabled="stageGroup.length === 0 || canDisburse === false" >Disburse Selection</Button>
+                        <!-- <Button v-if="item.status === 'APPROVED'"  :class='stageGroup.length > 1 ? "bg-gray-400 cursor-not-allowed" : "bg-[#00C37F]"' class='text-white' @click='()=> disburse(item._id)'> Disburse </Button> -->
+                      </DialogClose>
+                      <DialogClose variant="">
+                        <Button variant="outline" class="rounded-md">
+                          Cancel
+                        </Button>
+                      </DialogClose>
+                    </div>
+                  </DialogContent>
+                </Dialog>
               </div>
             </div>
             <div class="overflow-auto bg-white rounded-lg shadow">
@@ -45,12 +67,12 @@
                         <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
                       </div>
                     </TableHead>
-                    <TableHead>
+                    <!-- <TableHead>
                       <div class="flex items-center">
                         Disbursals
                         <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
                       </div>
-                    </TableHead>
+                    </TableHead> -->
       
                     <TableHead>
                       <div class="flex items-center">
@@ -73,18 +95,18 @@
                     <TableCell class="text-xs md:text-sm lg:text-sm"> {{item.wallet.currency}} {{ item.wallet?.balance.toLocaleString() }} </TableCell>
                     <TableCell class="text-xs md:text-sm lg:text-sm">{{item.wallet.currency}} {{ item.amount.toLocaleString() }} </TableCell>
                     <TableCell class="text-xs md:text-sm lg:text-sm"> {{item.createdAt.split('T')[0]}} </TableCell>
-                    <TableCell>
-                      <Dialog v-if="item.status === 'APPROVED'">
+                    <!-- <TableCell> -->
+                      <!-- <Dialog v-if="item.status === 'APPROVED'">
                         <DialogTrigger>
-                          <Button :disabled="stageGroup.length > 1"  :class='stageGroup.length > 1 ? "bg-gray-400 cursor-not-allowed" : "bg-[#00C37F]"' class='text-white rounded-full'> Disburse </Button>
+                          <Button :disabled="stageGroup.length > 1"  :class='stageGroup.length > 1 ? "bg-gray-400 cursor-not-allowed" : "bg-[#00C37F]"' class='text-white'> Disburse </Button>
                         </DialogTrigger>
                         <DialogContent>
                           <DialogDescription>
                             Do you want to reject all selected cash requests?
                           </DialogDescription>
-                          <div>
+                          <div class='flex gap-4'>
                             <DialogClose>
-                              <Button v-if="item.status === 'APPROVED'"  :class='stageGroup.length > 1 ? "bg-gray-400 cursor-not-allowed" : "bg-[#00C37F]"' class='text-white rounded-full' @click='()=> disburse(item._id)'> Disburse </Button>
+                              <Button v-if="item.status === 'APPROVED'"  :class='stageGroup.length > 1 ? "bg-gray-400 cursor-not-allowed" : "bg-[#00C37F]"' class='text-white' @click='()=> disburse(item._id)'> Disburse </Button>
                             </DialogClose>
                             <DialogClose variant="">
                               <Button variant="outline" class="rounded-md">
@@ -93,10 +115,10 @@
                             </DialogClose>
                           </div>
                         </DialogContent>
-                      </Dialog>
+                      </Dialog> -->
                       <!-- <div v-if="item.status === 'PENDING'" >Pending</div> -->
-                      <div v-if="item.status !== 'APPROVED'">Unavailable</div>
-                    </TableCell>
+                      <!-- <div v-if="item.status !== 'APPROVED'">Unavailable</div>
+                    </TableCell> -->
                     <!-- <TableCell class="text-xs md:text-sm lg:text-sm"> 02<span class='font-bold'>D</span>03:<span class='font-bold'>H</span>55:<span class='font-bold'>M</span> </TableCell> -->
                     <!-- <TableCell class="text-xs md:text-sm lg:text-sm"> {{ item.tat[0].toString().padStart(2, '0') }}<span class='font-bold'>D</span>{{ item.tat[1].toString().padStart(2, '0') }}:<span class='font-bold'>H</span>{{ item.tat[2].toString().padStart(2, '0') }}:<span class='font-bold'>M</span> </TableCell> -->
                     <TableCell>
@@ -200,25 +222,18 @@ import {
 const store = usePayoutStore()
 store.getPayout()
 const modal = ref(false)
+const canDisburse = ref<boolean>(false)
+const canApprove = ref<boolean>(false)
 const selectedRequests = ref<string[]>([])
 const payout = computed(()=>{
-  // console.log(store.payout)
   return store.payout
 })
 const groupModal = ref(false)
 const handleModal = ()=>{
-  verifyAbilities('create', 'wallet-payouts')
-  if(createRole){
-    sendRequest()
-    modal.value = (!modal.value)
-  }
+  modal.value = (!modal.value)
 }
 const handleGroupModal = ()=>{
-  verifyAbilities('create', 'wallet-payouts')
-  if(createRole){
-    sendRequest()
-    groupModal.value = (!groupModal.value)
-  }
+  groupModal.value = (!groupModal.value)
 }
 
   const stage = ref<Stage[]>([])
@@ -242,6 +257,7 @@ const handleGroupModal = ()=>{
 
 interface Item {
     _id: string;
+    status: 'REQUESTED' | 'PENDING' | 'APPROVED' | 'DISBURSED' | 'REJECTED';
     [key: string]: any; // Other properties of the item
   }
 interface Stage {
@@ -283,35 +299,19 @@ interface Stage {
             selectedRequests.value.splice(index, 1);
         }
     }
+    const allApproved = stageArray.every((stagedId) => {
+      const stagedItem = sourceArray.find((item) => item.id === stagedId);
+      return stagedItem?.status === "APPROVED";
+    });
+    const allPending = stageArray.every((stagedId) => {
+      const stagedItem = sourceArray.find((item) => item.id === stagedId);
+      return stagedItem?.status === "REQUESTED";
+    });
+    canApprove.value = allPending
+    canDisburse.value = allApproved
   }
 
-  const sendRequest = async()=>{
-      toast({
-        description: 'Loading...',
-        variant: 'loading',
-        duration: 0 // Set duration to 0 to make it indefinite until manually closed
-      })
-      try {
-        const response = await axios.post(
-          `/api/v1/admin/payouts/users/approve`,
-          {
-            ids: selectedRequests.value
-          }
-        )
-
-        if (response.status === 200 || response.status === 201) {
-          toast({
-            description: response.data.message,
-            variant: 'success'
-          })
-        }
-      } catch (error: any) {
-        catchErr(error)
-      }
-  }
-
-  const disburse = async(id:string)=>{
-      const data = [id]
+  const disburse = async()=>{
       // console.log(data)
       toast({
         description: 'Loading...',
@@ -322,7 +322,7 @@ interface Stage {
         const response = await axios.post(
           `/api/v1/admin/payouts/users/disburse`,
           {
-            ids: data,
+            ids: selectedRequests.value,
           }
         )
 

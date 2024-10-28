@@ -18,7 +18,7 @@ interface Wallet {
 }
 interface Item {
     amount: number,
-    status: string,
+    status: 'REQUESTED' | 'PENDING' | 'APPROVED' | 'DISBURSED' | 'REJECTED',
     user: User,
     wallet: Wallet,
     wallet_id: string,
