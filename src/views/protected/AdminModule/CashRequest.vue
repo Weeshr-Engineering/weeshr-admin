@@ -127,7 +127,7 @@
                       <Badge class='text-white rounded-full bg-[#00C37F]' v-if="item.status === 'DISBURSED'" >{{item.status}}</Badge>
                       <Badge class='text-white rounded-full bg-red-500' v-if="item.status === 'REJECTED'" >{{item.status}}</Badge>
                       <Badge class='text-white rounded-full bg-[#020721]' v-if="item.status === 'APPROVED'"> {{item.status}} </Badge></TableCell>
-                    <TableCell v-if='createRole'>
+                    <TableCell v-if='createRole && (item.status === "REQUESTED" || item.status === "PENDING")'>
                         <svg
                           @click='singleRequest(item._id, payout, stage, key)'
                           width="20"
