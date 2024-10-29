@@ -30,7 +30,7 @@
               <p>Total amount approved</p>
               <p class="font-bold text-2xl">NGN {{ total.toLocaleString()  }}</p>
             </div>
-            <div>
+            <div class='flex items-center gap-4'>
               <Dialog>
                 <DialogTrigger>
                   <Button variant='destructive' class="rounded-md">
@@ -41,9 +41,9 @@
                   <DialogDescription>
                     Do you want to reject all selected cash requests?
                   </DialogDescription>
-                  <div>
+                  <div class='flex gap-4'>
                     <DialogClose>
-                      <Button variant="destructive" class="rounded-md" @click='sendRequest'>
+                      <Button variant="destructive" class="rounded-md" @click='rejectRequest'>
                         Reject
                       </Button>
                     </DialogClose>
@@ -55,7 +55,7 @@
                   </div>
                 </DialogContent>
               </Dialog>
-              <Button @click="approveTransactions" class="rounded-md bg-[#00c37f]">
+              <Button @click="approveRequest" class="rounded-md bg-[#00c37f]">
                 Approve
               </Button>
             </div>
@@ -95,12 +95,7 @@ function closeModal() {
   emit('update:openApprovalModal', false)
 }
 
-function approveTransactions() {
-  // Logic for approving transactions
-  emit('update:openApprovalModal', false)
-}
-
-const sendRequest = async()=>{
+const rejectRequest = async()=>{
       toast({
         description: 'Loading...',
         variant: 'loading',
@@ -109,6 +104,32 @@ const sendRequest = async()=>{
       try {
         const response = await axios.post(
           `/api/v1/admin/payouts/users/reject`,
+          {
+            ids: props.requests
+          }
+        )
+
+        if (response.status === 200 || response.status === 201) {
+          toast({
+            description: response.data.message,
+            variant: 'success'
+          })
+          closeModal()
+        }
+      } catch (error: any) {
+        catchErr(error)
+      }
+  }
+
+  const approveRequest = async()=>{
+      toast({
+        description: 'Loading...',
+        variant: 'loading',
+        duration: 0 // Set duration to 0 to make it indefinite until manually closed
+      })
+      try {
+        const response = await axios.post(
+          `/api/v1/admin/payouts/users/approve`,
           {
             ids: props.requests
           }
