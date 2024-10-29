@@ -15,7 +15,7 @@
               </div>
               <div class='flex flex-col sm:flex-row sm:gap-4 gap-3 items-centerh-full'>
                 <Search class="mt-3 sm:mt-0" />
-                <Button :class='createStyle' @click='approveGroup' :disabled="stageGroup.length === 0 || canApprove === false" >Approve Selection</Button>
+                <Button class='bg-[#00C37F]' :class='createStyle' @click='approveGroup' :disabled="stageGroup.length === 0 || canApprove === false" >Approve Selection</Button>
                 <Dialog>
                   <DialogTrigger>
                     <Button class='bg-primary' :class='createStyle' :disabled="stageGroup.length === 0 || canDisburse !== false" >Disburse Selection</Button>
@@ -24,10 +24,10 @@
                     <DialogDescription>
                       Do you want to disburse all selected cash requests?
                     </DialogDescription>
-                    <p class='text-xs'>This action is irreversable</p>
+                    <p class='text-xs text-destructive'>This action is irreversable</p>
                     <div class='flex gap-4'>
                       <DialogClose>
-                        <Button :class='createStyle' @click='disburse' :disabled="stageGroup.length === 0 || canDisburse === false" >Disburse Selection</Button>
+                        <Button @click='disburse' :disabled="stageGroup.length === 0 || canDisburse !== false" >Disburse Selection</Button>
                         <!-- <Button v-if="item.status === 'APPROVED'"  :class='stageGroup.length > 1 ? "bg-gray-400 cursor-not-allowed" : "bg-[#00C37F]"' class='text-white' @click='()=> disburse(item._id)'> Disburse </Button> -->
                       </DialogClose>
                       <DialogClose variant="">
@@ -196,7 +196,7 @@ defineAbilities()
 const createRole = ability.can('create', 'wallet-payouts');
 const createStyle = computed(()=>{
   return(
-    createRole ? `text-white bg-[#00C37F] rounded-full my-2 sm:my-0 ${stageGroup.value.length !== 0 ? '' : 'cursor-not-allowed'}` : 'cursor-not-allowed opacity-20 text-white bg-[#00C37F] rounded-full my-2 sm:my-0'
+    createRole ? `text-white my-2 sm:my-0 ${stageGroup.value.length !== 0 ? '' : 'cursor-not-allowed'}` : 'cursor-not-allowed opacity-20 text-white my-2 sm:my-0'
   )
 })
 import {

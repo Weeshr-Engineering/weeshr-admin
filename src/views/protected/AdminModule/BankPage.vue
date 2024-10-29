@@ -169,7 +169,7 @@
               </TableCell>
               <TableCell class="text-xs md:text-sm lg:text-sm text-nowrap min-w-fit"
                 >{{ currencySymbol(transaction.currency) }}
-                {{ transaction.amount.toLocaleString() }}
+                {{ (transaction.amount / 100).toLocaleString() }}
               </TableCell>
               <TableCell class="text-xs md:text-sm lg:text-sm">
                 {{ transaction.channel }}
