@@ -4,31 +4,27 @@ import { Switch } from '@/components/ui/switch'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { toast } from '@/components/ui/toast'
-import axios from "@/services/ApiService";
-import { useRoute } from 'vue-router';
+import axios from '@/services/ApiService'
+import { useRoute } from 'vue-router'
 import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
 import { useAdminListStore } from '@/stores/admin-list/admin-list'
 import { Loader2 } from 'lucide-vue-next'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
-import { Button } from "@/components/ui/button"
+import { Button } from '@/components/ui/button'
 import * as z from 'zod'
 import router from '@/router'
 import { Badge } from '@/components/ui/badge'
 import CountryCodes from '@/lib/CountryCodes'
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import {
   Table,
   TableRow,
   TableBody,
   TableHeader,
   TableCell,
-  TableHead,
-} from '@/components/ui/table';
+  TableHead
+} from '@/components/ui/table'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 
@@ -37,8 +33,8 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+  SelectValue
+} from '@/components/ui/select'
 // import {
 //   Pagination,
 //   PaginationEllipsis,
@@ -51,6 +47,8 @@ import {
 // } from '@/components/ui/pagination';
 
 import { ability, defineAbilities, verifyAbilities } from '@/lib/ability'
+import { DotLottieVue } from '@lottiefiles/dotlottie-vue'
+import { Icon } from '@iconify/vue'
 
 defineAbilities()
 
@@ -65,14 +63,14 @@ const deleteStyle = computed(() => {
   return deleteAdmin ? 'flex' : 'cursor-not-allowed opacity-20 flex'
 })
 
-const route = useRoute();
-const id = route.params.Id;
+const route = useRoute()
+const id = route.params.Id
 const superAdminStore = useSuperAdminStore()
 const user = ref<any>({})
 const dobFormat = ref('')
 const loading = ref(false)
 const adminListStore = useAdminListStore()
-const activityLog = computed(()=>{
+const activityLog = computed(() => {
   return adminListStore.activityLog
 })
 // const currentPage = computed(()=>{
@@ -102,13 +100,10 @@ const fetchUsersData = async (msg: string) => {
     duration: 0 // Set duration to 0 to make it indefinite until manually closed
   })
 
-
   try {
     // Set loading to true
     // useGeneralStore().setLoading(true)
-    const response = await axios.get(
-      `/api/v1/admin/administrator/${id}`
-    )
+    const response = await axios.get(`/api/v1/admin/administrator/${id}`)
 
     if (response.status === 200 || response.status === 201) {
       // Update the users data with the response
@@ -157,56 +152,63 @@ const fetchUsersData = async (msg: string) => {
 
 // Function to get all _id values
 const getAllIds = async (roles: any[]) => {
-  return roles.map(role => role._id);
+  return roles.map((role) => role._id)
 }
 
 function formatDate(inputDate: string) {
   const months = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"
-  ];
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December'
+  ]
 
-  const dateObj = new Date(inputDate);
-  const month = months[dateObj.getMonth()];
-  const day = dateObj.getDate();
+  const dateObj = new Date(inputDate)
+  const month = months[dateObj.getMonth()]
+  const day = dateObj.getDate()
 
-  return `${month} ${day}`;
+  return `${month} ${day}`
 }
 
 const editProfile = async (values: any) => {
   const adminProfile = JSON.stringify({
-    'firstName': values.firstName || user.value.firstName,
-    'lastName': values.lastName || user.value.lastName,
-    'gender': values.gender || user.value.gender,
-    'email': values.email || user.value.email,
-    'dob': values.dob && values.dob.substring(0, 10) || user.value.dob.substring(0, 10),
-    'phone': {
+    firstName: values.firstName || user.value.firstName,
+    lastName: values.lastName || user.value.lastName,
+    gender: values.gender || user.value.gender,
+    email: values.email || user.value.email,
+    dob: (values.dob && values.dob.substring(0, 10)) || user.value.dob.substring(0, 10),
+    phone: {
       countryCode: values.countrycode || user.value.phoneNumber.countryCode,
-      'phoneNumber': values.phone || user.value.phoneNumber.phoneNumber
+      phoneNumber: values.phone || user.value.phoneNumber.phoneNumber
     },
-    "disabled": adminListStore.adminStatus
+    disabled: adminListStore.adminStatus
   })
   let config = {
     method: 'patch',
     maxBodyLength: Infinity,
     url: `/api/v1/admin/administrator/${id}`,
     data: adminProfile
-  };
+  }
 
-  axios.request(config)
+  axios
+    .request(config)
     .then((response) => {
       fetchUsersData('data updated')
     })
-    .catch((error) => {
-    });
-
+    .catch((error) => {})
 }
 
 const getRoles = async () => {
   try {
-    const response = await axios.get(
-      '/api/v1/admin/roles'
-    )
+    const response = await axios.get('/api/v1/admin/roles')
 
     // Check if response status is 200 or 201
     if (response.status === 200 || response.status === 201) {
@@ -242,18 +244,18 @@ const updateRole = async (roleId: string) => {
   roleLoading.value = true
   const adminRole = await modifyArrayValue(defaultRole.value, roleId)
   let data = JSON.stringify({
-    "roles": adminRole
-  });
-
+    roles: adminRole
+  })
 
   let config = {
     method: 'patch',
     maxBodyLength: Infinity,
     url: `/api/v1/admin/administrator/${id}/roles`,
     data: data
-  };
+  }
 
-  axios.request(config)
+  axios
+    .request(config)
     .then((response) => {
       toast({
         title: 'Success',
@@ -267,22 +269,21 @@ const updateRole = async (roleId: string) => {
         variant: 'destructive'
       })
       fetchUsersData('')
-    });
+    })
   roleLoading.value = false
 }
 
 const modifyArrayValue = async (arr: any[], value: string) => {
-  const index = arr.indexOf(value);
+  const index = arr.indexOf(value)
   if (index !== -1) {
     // Value is present, remove it
-    arr.splice(index, 1);
+    arr.splice(index, 1)
   } else {
     // Value is not present, add it
-    arr.push(value);
+    arr.push(value)
   }
-  return arr;
+  return arr
 }
-
 
 // fetch data on mount
 onMounted(() => {
@@ -291,29 +292,37 @@ onMounted(() => {
   getRoles()
 })
 
-const contactFormSchema = toTypedSchema(z.object({
-  firstName: z
-    .string()
-    .min(2, {
-      message: 'Username must be at least 2 characters.',
-    })
-    .max(30, {
-      message: 'Username must not be longer than 30 characters.',
-    }).optional(),
-  lastName: z
-    .string()
-    .min(2, {
-      message: 'Username must be at least 2 characters.',
-    })
-    .max(30, {
-      message: 'Username must not be longer than 30 characters.',
-    }).optional(),
-  dob: z.string().optional(),
-  gender: z.string().optional(),
-  phone: z.string().min(10, { message: 'Phone number must be 10 characters' }).max(10, { message: 'Phone number must be 10 characters' }).optional(),
-  countrycode: z.string().optional(),
-  email: z.string().email({ message: 'Invalid email address' }).optional(),
-}))
+const contactFormSchema = toTypedSchema(
+  z.object({
+    firstName: z
+      .string()
+      .min(2, {
+        message: 'Username must be at least 2 characters.'
+      })
+      .max(30, {
+        message: 'Username must not be longer than 30 characters.'
+      })
+      .optional(),
+    lastName: z
+      .string()
+      .min(2, {
+        message: 'Username must be at least 2 characters.'
+      })
+      .max(30, {
+        message: 'Username must not be longer than 30 characters.'
+      })
+      .optional(),
+    dob: z.string().optional(),
+    gender: z.string().optional(),
+    phone: z
+      .string()
+      .min(10, { message: 'Phone number must be 10 characters' })
+      .max(10, { message: 'Phone number must be 10 characters' })
+      .optional(),
+    countrycode: z.string().optional(),
+    email: z.string().email({ message: 'Invalid email address' }).optional()
+  })
+)
 
 const { handleSubmit: contactForm } = useForm({
   validationSchema: contactFormSchema
@@ -321,7 +330,7 @@ const { handleSubmit: contactForm } = useForm({
 
 const onSubmit = contactForm((values) => {
   function valueChecker<T extends Record<string, any>>(obj: T): boolean {
-    return Object.values(obj).some(value => value !== undefined);
+    return Object.values(obj).some((value) => value !== undefined)
   }
   if (valueChecker(values)) {
     editProfile(values)
@@ -334,28 +343,51 @@ const onSubmit = contactForm((values) => {
   }
 })
 
-
 // function getAllIds(roles: any): any[] | PromiseLike<any[]> {
 //   throw new Error('Function not implemented.')
-// } 
+// }
 </script>
 <template>
-  <div class="container lg:px-0 mx-auto">
-    <div class="flex-col lg:flex lg:flex-row gap-1">
-      <Card class="sm:col-span-3 md:col-span-3 bg-[#F8F9FF] sm:items-center shadow-xl lg:min-w-[398px]">
+  <div class="md:container lg:px-0 mx-auto">
+    <div class="lg:flex">
+      <Card
+        class="md:col-span-3 bg-[#F8F9FF] sm:items-center shadow-xl lg:min-w-[398px] min-h-full"
+      >
         <CardHeader>
-          <CardTitle class="text-2xl font-bold text-[#000000] my-4">{{ user.firstName }} Profile</CardTitle>
+          <div class="flex items-center">
+            <Icon icon="tabler:chevron-left" width="22px" height="22px" class="ml-1 pt-1" />
+            <RouterLink :to="{ name: 'admin' }">Admin List</RouterLink>
+          </div>
+          <CardTitle class="text-2xl font-bold text-[#000000] my-4">Genie On Duty:</CardTitle>
+          <p class="-mt-3 font-semibold italic">{{ user.firstName }}</p>
           <CardDescription>
-            <img v-if="user.avatar" class="" :src="user.avatar" alt="User Profile Image" />
-            <div class="flex justify-between px-2 pr-6 my-2">
+            <div v-if="user.avatar" class="w-7/12 flex justify-center">
+              <img
+                :src="user.avatar"
+                alt="display"
+                class="w-full rounded-full border-double border-4 border-[#baef23]"
+              />
+            </div>
+            <div v-else class="flex justify-center">
+              <DotLottieVue
+                style="width: 250px; height: 250px"
+                class="rounded-full border-double border-4 border-[#baef23]"
+                autoplay
+                loop
+                src="https://lottie.host/6cfb5601-78b7-4518-b9b8-5fefd5a0bd8e/YrEesabE44.json"
+              />
+            </div>
+            <div class="flex justify-between px-2 pr-6 mt-5">
               <span class="font-semibold text-base text-[#020721]">Identity</span>
 
               <Popover>
                 <PopoverTrigger>
                   <div :class="editStyle" @click="verifyAbilities('update', 'admins')">
-                    <img class="max-w-[18.05px] max-h-[24px]"
+                    <img
+                      class="max-w-[18.05px] max-h-[24px]"
                       src="https://res.cloudinary.com/dufimctfc/image/upload/v1714310908/edit-4-svgrepo-com_1_iy2nwu.svg"
-                      alt="gradient" />
+                      alt="gradient"
+                    />
                     <span class="text-sm font-medium text-[#02072199]">
                       <p>Edit</p>
                     </span>
@@ -367,8 +399,13 @@ const onSubmit = contactForm((values) => {
                       <FormItem v-auto-animate>
                         <FormLabel class="text-blue-900">First Name</FormLabel>
                         <FormControl>
-                          <Input id="text" type="text" placeholder="First Name" class="focus-visible:ring-blue-600"
-                            v-bind="componentField" />
+                          <Input
+                            id="text"
+                            type="text"
+                            placeholder="First Name"
+                            class="focus-visible:ring-blue-600"
+                            v-bind="componentField"
+                          />
                         </FormControl>
                         <FormMessage for="firstName" />
                       </FormItem>
@@ -377,8 +414,13 @@ const onSubmit = contactForm((values) => {
                       <FormItem v-auto-animate>
                         <FormLabel class="text-blue-900">Last Name</FormLabel>
                         <FormControl>
-                          <Input id="text" type="text" placeholder="Last Name" class="focus-visible:ring-blue-600"
-                            v-bind="componentField" />
+                          <Input
+                            id="text"
+                            type="text"
+                            placeholder="Last Name"
+                            class="focus-visible:ring-blue-600"
+                            v-bind="componentField"
+                          />
                         </FormControl>
                         <FormMessage for="lastName" />
                       </FormItem>
@@ -389,8 +431,11 @@ const onSubmit = contactForm((values) => {
                           <FormItem>
                             <FormLabel>Gender</FormLabel>
 
-                            <Select v-bind="componentField" id="gender"
-                              class='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block min-w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'>
+                            <Select
+                              v-bind="componentField"
+                              id="gender"
+                              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block min-w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                            >
                               <FormControl>
                                 <SelectTrigger class="">
                                   <SelectValue placeholder="Gender" />
@@ -412,8 +457,13 @@ const onSubmit = contactForm((values) => {
                           <FormItem v-auto-animate>
                             <FormLabel class="text-blue-900">Date of Birth</FormLabel>
                             <FormControl>
-                              <Input id="dob" type="date" placeholder="Date of Birth"
-                                class="focus-visible:ring-blue-600" v-bind="componentField" />
+                              <Input
+                                id="dob"
+                                type="date"
+                                placeholder="Date of Birth"
+                                class="focus-visible:ring-blue-600"
+                                v-bind="componentField"
+                              />
                             </FormControl>
 
                             <FormMessage for="dob" />
@@ -422,7 +472,11 @@ const onSubmit = contactForm((values) => {
                       </div>
                     </div>
                     <Button type="submit">
-                      <Loader2 color="#ffffff" v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" />
+                      <Loader2
+                        color="#ffffff"
+                        v-if="loading"
+                        class="w-4 h-4 mr-2 text-black animate-spin"
+                      />
                       Update
                       <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" />
                     </Button>
@@ -432,49 +486,45 @@ const onSubmit = contactForm((values) => {
             </div>
 
             <Card class="rounded-md">
-              <div class="flex min-w-62 justify-between px-6 md:px-6 py-2 border-b">
+              <div class="flex justify-between px-2 py-2 border-b">
                 <p class="text-[#02072199] text-xs md:text-sm lg:text-sm">First Name</p>
-                <p class="text-xs text-left md:text-sm lg:text-sm text-[#020721]">{{ user.firstName }}</p>
+                <p class="text-xs text-left md:text-sm lg:text-sm text-[#020721]">
+                  {{ user.firstName }}
+                </p>
               </div>
-              <div class="flex justify-between px-6 md:px-6 py-2 border-b">
+              <div class="flex justify-between px-2 py-2 border-b">
                 <p class="text-[#02072199] text-xs md:text-sm lg:text-sm">Last Name</p>
                 <p class="text-xs md:text-sm lg:text-sm text-[#020721]">{{ user.lastName }}</p>
               </div>
-              <div class="flex justify-between px-6 md:px-6 py-2 border-b">
-                <p class="text-[#02072199] text-xs md:text-sm lg:text-sm">Handle</p>
-                <p class="text-xs md:text-sm lg:text-sm text-[#020721]">{{ user.handle }}</p>
-              </div>
-              <div class="flex justify-between px-6 md:px-6 py-2 border-b">
-                <p class="text-[#02072199] text-xs md:text-sm lg:text-sm">Role</p>
-                <p class="text-xs md:text-sm lg:text-sm text-[#020721]">{{ user.role }}</p>
-              </div>
-              <div class="flex justify-between px-6 md:px-6 py-2 border-b">
+              <div class="flex justify-between px-2 py-2 border-b">
                 <p class="text-[#02072199] text-xs md:text-sm lg:text-sm">Birthday</p>
                 <p class="text-xs md:text-sm lg:text-sm text-[#020721]">{{ dobFormat }}</p>
               </div>
-              <div class="flex justify-between px-6 md:px-6 py-2 border-b" v-if="user.middleName">
+              <div class="flex justify-between px-2 py-2 border-b" v-if="user.middleName">
                 <p class="text-[#02072199] text-xs md:text-sm lg:text-sm">Handle</p>
                 <p class="text-xs md:text-sm lg:text-sm text-[#020721]">{{ user.middleName }}</p>
               </div>
-              <div class="flex justify-between px-6 md:px-6 py-2 border-b">
+              <div class="flex justify-between px-2 py-2 border-b">
                 <p class="text-[#02072199] text-xs md:text-sm lg:text-sm">Gender</p>
                 <p class="text-xs md:text-sm lg:text-sm text-[#020721]">{{ user.gender }}</p>
               </div>
-              <div class="flex justify-between px-6 md:px-6 py-2 border-b">
+              <div class="flex justify-between px-2 py-2 border-b">
                 <p class="text-[#02072199] text-xs md:text-sm lg:text-sm">Joined</p>
                 <p class="text-xs md:text-sm text-left lg:text-sm text-[#020721]">3 Aug 2023</p>
               </div>
             </Card>
 
-            <div class="flex justify-between px-2 pr-6 my-2">
+            <div class="flex justify-between px-2 pr-6 mt-5">
               <span class="font-semibold text-base text-[#020721]">Contact</span>
 
               <Popover>
                 <PopoverTrigger>
                   <div :class="deleteStyle" @click="verifyAbilities('update', 'admins')">
-                    <img class="max-w-[18.05px] max-h-[24px]"
+                    <img
+                      class="max-w-[18.05px] max-h-[24px]"
                       src="https://res.cloudinary.com/dufimctfc/image/upload/v1714310908/edit-4-svgrepo-com_1_iy2nwu.svg"
-                      alt="gradient" />
+                      alt="gradient"
+                    />
                     <span class="text-sm font-medium text-[#02072199]">
                       <p>Edit</p>
                     </span>
@@ -483,26 +533,46 @@ const onSubmit = contactForm((values) => {
                 <PopoverContent v-if="deleteAdmin">
                   <form class="space-y-4" @submit.prevent="onSubmit">
                     <div class="">
-                      <h5 class='text-blue-900 text-sm font-medium mb-5'>Phone Number</h5>
-                      <div class='flex items-start flex-row md:justify-between md:items-start gap-2 relative'>
-                        <FormField v-slot="{ componentField }" name="countrycode" class="bg-[teal] mt-6 w-[50%]">
+                      <h5 class="text-blue-900 text-sm font-medium mb-5">Phone Number</h5>
+                      <div
+                        class="flex items-start flex-row md:justify-between md:items-start gap-2 relative"
+                      >
+                        <FormField
+                          v-slot="{ componentField }"
+                          name="countrycode"
+                          class="bg-[teal] mt-6 w-[50%]"
+                        >
                           <FormItem>
                             <!-- <FormLabel>
                                 <span class="hidden md:inline-block">Country Code</span><span class="md:hidden inline-block">CC</span>
                               </FormLabel> -->
-                            <Select v-bind="componentField" id="gender"
-                              class='bg-gray-50 w-auto mt-3 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white'>
+                            <Select
+                              v-bind="componentField"
+                              id="gender"
+                              class="bg-gray-50 w-auto mt-3 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+                            >
                               <FormControl>
                                 <SelectTrigger class="">
                                   <SelectValue placeholder="+234" />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                <SelectItem v-for="(code, key ) in CountryCodes" :value="code.dial_code" :key="key"
-                                  class='flex justify-center items-center gap-2'>
+                                <SelectItem
+                                  v-for="(code, key) in CountryCodes"
+                                  :value="code.dial_code"
+                                  :key="key"
+                                  class="flex justify-center items-center gap-2"
+                                >
                                   {{ code.dial_code }}
-                                  <img class="w-[18px] h-[18px] hidden md:inline-block"
-                                    :src="'https://flagcdn.com/16x12/' + code.code.toLowerCase() + '.png'" alt="gradient" />
+                                  <img
+                                    class="w-[18px] h-[18px] hidden md:inline-block"
+                                    :src="
+                                      'https://flagcdn.com/16x12/' +
+                                      code.code.toLowerCase() +
+                                      '.png'
+                                    "
+                                    alt="gradient"
+                                  />
                                 </SelectItem>
                                 <!-- <SelectItem value="Male">+44</SelectItem> -->
                               </SelectContent>
@@ -511,14 +581,19 @@ const onSubmit = contactForm((values) => {
                             <FormMessage for="countrycode" />
                           </FormItem>
                         </FormField>
-                        <div class='lg:w-[70%]'>
-                          <FormField v-slot="{ componentField }" name="phone" class='lg:w-[70%]'>
+                        <div class="lg:w-[70%]">
+                          <FormField v-slot="{ componentField }" name="phone" class="lg:w-[70%]">
                             <FormItem v-auto-animate>
                               <!-- <FormLabel class="text-blue-900">Phone Number</FormLabel> -->
                               <FormControl>
                                 <div>
-                                  <Input id="phone" type="tel" placeholder="Phone Number"
-                                    class="focus-visible:ring-blue-600" v-bind="componentField" />
+                                  <Input
+                                    id="phone"
+                                    type="tel"
+                                    placeholder="Phone Number"
+                                    class="focus-visible:ring-blue-600"
+                                    v-bind="componentField"
+                                  />
                                 </div>
                               </FormControl>
 
@@ -533,15 +608,24 @@ const onSubmit = contactForm((values) => {
                       <FormItem v-auto-animate>
                         <FormLabel class="text-blue-900">Email</FormLabel>
                         <FormControl>
-                          <Input id="email" type="email" placeholder="weeshr@admin.com"
-                            class="focus-visible:ring-blue-600" v-bind="componentField" />
+                          <Input
+                            id="email"
+                            type="email"
+                            placeholder="weeshr@admin.com"
+                            class="focus-visible:ring-blue-600"
+                            v-bind="componentField"
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     </FormField>
 
                     <Button type="submit">
-                      <Loader2 color="#ffffff" v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" />
+                      <Loader2
+                        color="#ffffff"
+                        v-if="loading"
+                        class="w-4 h-4 mr-2 text-black animate-spin"
+                      />
                       Update
                       <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" />
                     </Button>
@@ -551,36 +635,44 @@ const onSubmit = contactForm((values) => {
             </div>
 
             <Card class="rounded-md">
-              <div class="flex justify-between px-6 py-2 border-b">
+              <div class="flex justify-between px-2 py-2 border-b">
                 <p class="text-[#02072199] text-xs md:text-sm lg:text-sm">Email</p>
                 <p class="text-xs md:text-sm lg:text-sm text-[#020721]">{{ user.email }}</p>
               </div>
-              <div class="flex justify-between px-6 lg:px-6 py-2 border-b">
+              <div class="flex justify-between px-2 py-2 border-b">
                 <p class="text-[#02072199] text-xs md:text-sm lg:text-sm">Phone no.</p>
                 <p class="text-xs md:text-sm lg:text-sm text-[#020721]">{{ user.phone }}</p>
               </div>
-              <div class="flex justify-between px-6 lg:px-6 py-2 border-b">
-                <p class="flex grow text-[#02072199] text-xs md:text-sm lg:text-sm">Address:</p>
-                <p class="text-xs md:text-sm lg:text-sm text-[#020721]">
-                  {{ user.address }}
-                </p>
-              </div>
             </Card>
 
-            <div class="w-full px-2 pr-6 my-2">
+            <div class="w-full px-2 pr-6 mt-5">
               <span class="font-semibold text-base text-[#020721]">Status</span>
             </div>
 
             <Card class="bg-[#F8F9FF] flex justify-between">
-              <CardHeader><span v-if="!adminListStore.detailLoading">{{ adminListStore.adminStatus ? 'Disabled' :
-                  'Active' }}</span>
+              <CardHeader
+                ><span v-if="!adminListStore.detailLoading">{{
+                  adminListStore.adminStatus ? 'Disabled' : 'Active'
+                }}</span>
                 <Loader2 v-else class="w-4 h-4 mr-2 text-black animate-spin" />
               </CardHeader>
 
-              <CardContent class="flex flex-col sm:flex-row items-center justify-between px-2 sm:px-6 py-4">
-                <Switch v-if="!adminListStore.detailLoading" v-bind:checked="!adminListStore.adminStatus"
-                  :onclick="() => adminListStore.toggleStatus(user._id, adminListStore.adminStatus, user.firstName)"
-                  :disabled="!edit" />
+              <CardContent
+                class="flex flex-col sm:flex-row items-center justify-between px-2 sm:px-6 py-4"
+              >
+                <Switch
+                  v-if="!adminListStore.detailLoading"
+                  v-bind:checked="!adminListStore.adminStatus"
+                  :onclick="
+                    () =>
+                      adminListStore.toggleStatus(
+                        user._id,
+                        adminListStore.adminStatus,
+                        user.firstName
+                      )
+                  "
+                  :disabled="!edit"
+                />
                 <Loader2 v-else class="w-4 h-4 mr-2 text-black animate-spin" />
               </CardContent>
             </Card>
@@ -588,12 +680,19 @@ const onSubmit = contactForm((values) => {
         </CardHeader>
       </Card>
 
-      <div class="my-9 lg:px-6 lg:w-4/5">
+      <div class="mt-9 px-4 lg:px-6 lg:w-4/5 min-h-full">
         <Tabs default-value="role" class="space-y-1">
-          <TabsList
-            class="border-[#DEDFE8] bg-transparent lg:w-[560px] lg:flex lg:justify-between px-0 lg:px-6 md:px-6 py-2">
-            <TabsTrigger value="role"> Role Permissions </TabsTrigger>
-            <TabsTrigger value="activity" :disabled='!activity'> Activity log </TabsTrigger>
+          <TabsList class="border-[#DEDFE8] bg-transparent w-full">
+            <TabsTrigger value="role" class="data-[state=active]:border-[#baef23]">
+              Role Permissions
+            </TabsTrigger>
+            <TabsTrigger
+              value="activity"
+              :disabled="!activity"
+              class="data-[state=active]:border-[#baef23]"
+            >
+              Activity log
+            </TabsTrigger>
           </TabsList>
           <TabsContent value="role">
             <Card>
@@ -605,11 +704,16 @@ const onSubmit = contactForm((values) => {
                 </CardDescription>
               </CardHeader>
               <!-- <span v-if="ability.can('update', 'admins')"> -->
-              <CardContent class="flex items-center justify-between px-2 sm:px-6 py-4 max-h-16"
-                v-for="(role, id) in roles" :key=id>
+              <CardContent
+                class="flex items-center justify-between px-2 sm:px-6 py-4 max-h-16"
+                v-for="(role, id) in roles"
+                :key="id"
+              >
                 <div class="flex items-center gap-4">
-                  <div class="inline-block bg-[#373B4D] text-[#F8F9FF] rounded-full px-3 py-2 text-sm">
-                    {{ role.name[0] }}{{ (role.name)[role.name.length - 1].toUpperCase() }}
+                  <div
+                    class="inline-block bg-[#373B4D] text-[#F8F9FF] rounded-full px-3 py-2 text-sm"
+                  >
+                    {{ role.name[0] }}{{ role.name[role.name.length - 1].toUpperCase() }}
                   </div>
                   <p class="text-sm text-muted-foreground text-center text-[#000000]">
                     {{ role.name }}
@@ -619,49 +723,59 @@ const onSubmit = contactForm((values) => {
                   {{ role.description }}
                 </div>
                 <div class="flex items-center gap-4">
-                  <Switch @click="() => updateRole(role._id)" :checked="defaultRole.includes(role._id) ? true : false"
-                    :disabled="!ability.can('update', 'admins')" />
+                  <Switch
+                    @click="() => updateRole(role._id)"
+                    :checked="defaultRole.includes(role._id) ? true : false"
+                    :disabled="!ability.can('update', 'admins')"
+                  />
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
 
-          <TabsContent value='activity'>
-                <div class=" bg-white rounded-lg shadow max-h-[85svh] overflow-y-scroll">
-                  <Table class="w-full">
-                    <TableHeader>
-                      <TableRow class="text-[#02072199] font-semibold bg-gray-200">
-                        <TableHead class="text-sm">
-                          <div class="flex items-center cursor-pointer">
-                            Timestamp
-                          </div>
-                        </TableHead>
-                        <TableHead class="text-left">User</TableHead>
-                        <TableHead class="text-left">Action</TableHead>
-                        <TableHead class="text-left">Status</TableHead>
-                        <TableHead class="text-left">Description</TableHead>
-                      </TableRow>
-                    </TableHeader>
-          
-                    <TableBody class='overflow-y-scroll'>
-                      <TableRow v-for="log in activityLog" :key="log.id">
-                        <TableCell class="text-xs md:text-sm lg:text-xs">{{ new Date(log.timestamp).toLocaleString() }}
-                        </TableCell>
-                        <TableCell class="text-xs md:text-sm lg:text-xs">{{ log?.user.extras.lastName + ' ' +
-                          log.user.extras.firstName }}</TableCell>
-                        <TableCell class="text-xs md:text-sm lg:text-xs">{{ log.action }}</TableCell>
-                        <TableCell>
-                          <Badge
-                              :class="{ 'bg-[#00C37F]': log.status === 'SUCCESS', 'bg-[#020721]': !(log.status === 'SUCCESS')}" class='px-1.5 py-0.5 text-xs capitalize'>
-                              {{ log.status }}
-                          </Badge>
-                        </TableCell>
-                        <TableCell class="text-xs md:text-sm lg:text-xs">{{ log.description }}</TableCell>
-                      </TableRow>
-                    </TableBody>
-                  </Table>
-                </div>
-                <!-- <div class="flex gap-2 max-w-full flex-wrap justify-end mt-8 mr-4 items-center text-[15px]">
+          <TabsContent value="activity">
+            <div class="bg-white rounded-lg shadow max-h-[85svh] overflow-y-scroll">
+              <Table class="w-full">
+                <TableHeader>
+                  <TableRow class="text-[#02072199] font-semibold bg-gray-200">
+                    <TableHead class="text-sm">
+                      <div class="flex items-center cursor-pointer">Timestamp</div>
+                    </TableHead>
+                    <TableHead class="text-left">User</TableHead>
+                    <TableHead class="text-left">Action</TableHead>
+                    <TableHead class="text-left">Status</TableHead>
+                    <TableHead class="text-left">Description</TableHead>
+                  </TableRow>
+                </TableHeader>
+
+                <TableBody class="overflow-y-scroll">
+                  <TableRow v-for="log in activityLog" :key="log.id">
+                    <TableCell class="text-xs md:text-sm lg:text-xs"
+                      >{{ new Date(log.timestamp).toLocaleString() }}
+                    </TableCell>
+                    <TableCell class="text-xs md:text-sm lg:text-xs">{{
+                      log?.user.extras.lastName + ' ' + log.user.extras.firstName
+                    }}</TableCell>
+                    <TableCell class="text-xs md:text-sm lg:text-xs">{{ log.action }}</TableCell>
+                    <TableCell>
+                      <Badge
+                        :class="{
+                          'bg-[#00C37F]': log.status === 'SUCCESS',
+                          'bg-[#020721]': !(log.status === 'SUCCESS')
+                        }"
+                        class="px-1.5 py-0.5 text-xs capitalize"
+                      >
+                        {{ log.status }}
+                      </Badge>
+                    </TableCell>
+                    <TableCell class="text-xs md:text-sm lg:text-xs">{{
+                      log.description
+                    }}</TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </div>
+            <!-- <div class="flex gap-2 max-w-full flex-wrap justify-end mt-8 mr-4 items-center text-[15px]">
                   <Pagination :total="totalPages" :sibling-count="1" show-edges :default-page="1" @change="adminListStore.handlePageChange">
                     <PaginationList class="flex items-center gap-1">
                       <PaginationFirst @click="adminListStore.handlePageChange(1)" />
@@ -679,7 +793,7 @@ const onSubmit = contactForm((values) => {
                     </PaginationList>
                   </Pagination>
                 </div> -->
-              <!-- </CardContent> -->
+            <!-- </CardContent> -->
             <!-- </Card> -->
           </TabsContent>
         </Tabs>
