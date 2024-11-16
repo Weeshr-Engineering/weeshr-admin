@@ -9,10 +9,10 @@ const superAdminStore = useGeneralStore()
 </script>
 
 <template>
-  <div>
+  <div class>
     <LoadingSpinner v-if="superAdminStore.loading" />
 
-    <div v-else>
+    <div class="bg-[#f0f8ff]" v-else>
       <SideBar v-if="!$route.meta.hideSidebar" />
 
       <div :class="{ 'ml-[4rem]': !$route.meta.hideSidebar }">
