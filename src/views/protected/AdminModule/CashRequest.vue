@@ -15,10 +15,10 @@
               </div>
               <div class='flex flex-col sm:flex-row sm:gap-4 gap-3 items-centerh-full'>
                 <Search class="mt-3 sm:mt-0" />
-                <Button class='bg-[#00C37F]' :class='createStyle' @click='approveGroup' :disabled="stageGroup.length === 0 || canApprove === false" >Approve Selection</Button>
-                <Dialog>
-                  <DialogTrigger>
-                    <Button class='bg-primary' :class='createStyle' :disabled="stageGroup.length === 0 || canDisburse !== false" >Disburse Selection</Button>
+                <Button class='bg-[#00C37F]' :class='createStyle' @click='approveGroup' :disabled="!ability.can('create', 'wallet-payouts') || stageGroup.length === 0 || !canApprove" >Approve Selection</Button>
+                <Dialog >
+                  <DialogTrigger :disabled="stageGroup.length === 0 || canDisburse ">
+                    <Button class='bg-primary' :class='createStyle' v-if="ability.can('create', 'wallet-payouts')" :disabled="stageGroup.length === 0 "  >Disburse Selection</Button>
                   </DialogTrigger>
                   <DialogContent>
                     <DialogDescription>
