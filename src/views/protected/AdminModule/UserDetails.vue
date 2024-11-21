@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, reactive, onMounted } from 'vue'
+import { ref, watch, reactive, onMounted, computed } from 'vue'
 import { Icon } from '@iconify/vue'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Card, CardDescription, CardHeader } from '@/components/ui/card'
@@ -52,10 +52,18 @@ import axios from "@/services/ApiService";
 import { toast } from "@/components/ui/toast";
 import { useUserhubStore } from '@/stores/userhub-details/userhub-details'
 import { ability, defineAbilities, verifyAbilities } from '@/lib/ability'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { useForm } from 'vee-validate'
+import { toTypedSchema } from '@vee-validate/zod'
+import * as z from 'zod'
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import CountryCodes from '@/lib/CountryCodes'
 
 defineAbilities()
 const update = ability.can('update', 'users')
-
+const editStyle = computed(() => {
+  return update ? 'flex' : 'flex cursor-not-allowed opacity-20'
+})
 
 //get User
 const route = useRoute()
@@ -246,6 +254,86 @@ const items = [
   { name: 'DancingQueen', amount: 750000, id: 4 },
   { name: 'FastFuriousGuy', amount: 500000, id: 5 }
 ]
+
+const editProfile = async (values: any) => {
+  const adminProfile = JSON.stringify({
+    // firstName: values.fullName || appUser?.value?.firstName,
+    // lastName: values.username || user.value.lastName,
+    // gender: values.gender || user.value.gender,
+    // email: values.email || user.value.email,
+    // dob: (values.dob && values.dob.substring(0, 10)) || user.value.dob.substring(0, 10),
+    // phone: {
+    //   countryCode: values.countrycode || user.value.phoneNumber.countryCode,
+    //   phoneNumber: values.phone || user.value.phoneNumber.phoneNumber
+    // },
+    // disabled: adminListStore.adminStatus
+  })
+  let config = {
+    method: 'patch',
+    maxBodyLength: Infinity,
+    url: `/api/v1/admin/administrator/${_id}`,
+    data: adminProfile
+  }
+
+  axios
+    .request(config)
+    .then((response) => {
+      // fetchUsersData('data updated')
+      load(_id)
+    })
+    .catch((error) => {})
+}
+
+const contactFormSchema = toTypedSchema(
+  z.object({
+    firstName: z
+      .string()
+      .min(2, {
+        message: 'Username must be at least 2 characters.'
+      })
+      .max(30, {
+        message: 'Username must not be longer than 30 characters.'
+      })
+      .optional(),
+    lastName: z
+      .string()
+      .min(2, {
+        message: 'Username must be at least 2 characters.'
+      })
+      .max(30, {
+        message: 'Username must not be longer than 30 characters.'
+      })
+      .optional(),
+    dob: z.string().optional(),
+    gender: z.string().optional(),
+    phone: z
+      .string()
+      .min(10, { message: 'Phone number must be 10 characters' })
+      .max(10, { message: 'Phone number must be 10 characters' })
+      .optional(),
+    countrycode: z.string().optional(),
+    email: z.string().email({ message: 'Invalid email address' }).optional()
+  })
+)
+
+const { handleSubmit: contactForm } = useForm({
+  validationSchema: contactFormSchema
+})
+
+const onSubmit = contactForm((values) => {
+  function valueChecker<T extends Record<string, any>>(obj: T): boolean {
+    return Object.values(obj).some((value) => value !== undefined)
+  }
+  if (valueChecker(values)) {
+    editProfile(values)
+  } else {
+    toast({
+      title: 'Form Input Is Empty',
+      description: `Make a change: There is nothing to update`,
+      variant: 'destructive'
+    })
+  }
+})
 </script>
 
 <template>
@@ -293,8 +381,111 @@ const items = [
             <p>{{ error }}</p>
           </div>
           <div v-else-if="appUser">
-            <div class="px-6 py-4 mt-4">
+            <div class="flex justify-between px-6 py-4 mt-4">
               <span class="text-base font-bold lg:text-base text-[#020721]">Identity</span>
+              <Popover>
+                <PopoverTrigger>
+                  <div v-if="update" :class="editStyle" @click="verifyAbilities('update', 'users')">
+                    <img
+                      class="max-w-[18.05px] max-h-[24px]"
+                      src="https://res.cloudinary.com/dufimctfc/image/upload/v1714310908/edit-4-svgrepo-com_1_iy2nwu.svg"
+                      alt="gradient"
+                    />
+                    <span class="text-sm font-medium text-[#02072199]">
+                      <p>Edit</p>
+                    </span>
+                  </div>
+                </PopoverTrigger>
+                <PopoverContent v-if="update">
+                  <form class="space-y-8" @submit="onSubmit">
+                    <FormField v-slot="{ componentField }" name="fullName">
+                      <FormItem v-auto-animate>
+                        <FormLabel class="text-blue-900">Full Name</FormLabel>
+                        <FormControl>
+                          <Input
+                            id="text"
+                            type="text"
+                            placeholder="First Name"
+                            class="focus-visible:ring-blue-600"
+                            v-bind="componentField"
+                          />
+                        </FormControl>
+                        <FormMessage for="FullName" />
+                      </FormItem>
+                    </FormField>
+                    <FormField v-slot="{ componentField }" name="username">
+                      <FormItem v-auto-animate>
+                        <FormLabel class="text-blue-900">Preferred / Username</FormLabel>
+                        <FormControl>
+                          <Input
+                            id="text"
+                            type="text"
+                            placeholder="Preferred Name"
+                            class="focus-visible:ring-blue-600"
+                            v-bind="componentField"
+                          />
+                        </FormControl>
+                        <FormMessage for="lastName" />
+                      </FormItem>
+                    </FormField>
+                    <div class="flex flex-row justify-between gap-2">
+                      <div class="min-w-[35%]">
+                        <FormField v-slot="{ componentField }" name="gender">
+                          <FormItem>
+                            <FormLabel>Gender</FormLabel>
+
+                            <Select
+                              v-bind="componentField"
+                              id="gender"
+                              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block min-w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                            >
+                              <FormControl>
+                                <SelectTrigger class="">
+                                  <SelectValue placeholder="Gender" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="Female">Female</SelectItem>
+                                <SelectItem value="Male">Male</SelectItem>
+                              </SelectContent>
+                            </Select>
+
+                            <FormMessage for="gender" />
+                          </FormItem>
+                        </FormField>
+                      </div>
+
+                      <div class="">
+                        <FormField v-slot="{ componentField }" name="dob">
+                          <FormItem v-auto-animate>
+                            <FormLabel class="text-blue-900">Birthday</FormLabel>
+                            <FormControl>
+                              <Input
+                                id="dob"
+                                type="date"
+                                placeholder="Date of Birth"
+                                class="focus-visible:ring-blue-600"
+                                v-bind="componentField"
+                              />
+                            </FormControl>
+
+                            <FormMessage for="dob" />
+                          </FormItem>
+                        </FormField>
+                      </div>
+                    </div>
+                    <Button type="submit">
+                      <!-- <Loader2
+                        color="#ffffff"
+                        v-if="loading"
+                        class="w-4 h-4 mr-2 text-black animate-spin"
+                      /> -->
+                      Update
+                      <!-- <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" /> -->
+                    </Button>
+                  </form>
+                </PopoverContent>
+              </Popover>
             </div>
             <div
               class="flex justify-between lg:mx-4 px-4 shadow-md md:px-6 py-2 my-2 rounded-lg border"
@@ -324,8 +515,113 @@ const items = [
               <p class="flex grow text-[#02072199] text-xs md:text-sm lg:text-sm">Gender</p>
               <p class="text-xs md:text-sm lg:text-sm text-[#020721]">{{ appUser.gender }}</p>
             </div>
-            <div class="px-6 py-4">
+            <div class="flex justify-between items-center px-6 py-4">
               <span class="text-base font-bold lg:text-base text-[#020721]">Contact</span>
+              <Popover>
+                <PopoverTrigger>
+                  <div v-if="update" :class="editStyle" @click="verifyAbilities('update', 'users')">
+                    <img
+                      class="max-w-[18.05px] max-h-[24px]"
+                      src="https://res.cloudinary.com/dufimctfc/image/upload/v1714310908/edit-4-svgrepo-com_1_iy2nwu.svg"
+                      alt="gradient"
+                    />
+                    <span class="text-sm font-medium text-[#02072199]">
+                      <p>Edit</p>
+                    </span>
+                  </div>
+                </PopoverTrigger>
+                <PopoverContent v-if="update">
+                  <form class="space-y-4" @submit.prevent="onSubmit">
+                    <div class="">
+                      <h5 class="text-blue-900 text-sm font-medium mb-5">Phone Number</h5>
+                      <div
+                        class="flex items-start flex-row md:justify-between md:items-start gap-2 relative"
+                      >
+                        <FormField
+                          v-slot="{ componentField }"
+                          name="countrycode"
+                          class="bg-[teal] mt-6 w-[50%]"
+                        >
+                          <FormItem>
+                            <Select
+                              v-bind="componentField"
+                              id="gender"
+                              class="bg-gray-50 w-auto mt-3 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+                            >
+                              <FormControl>
+                                <SelectTrigger class="">
+                                  <SelectValue placeholder="+234" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem
+                                  v-for="(code, key) in CountryCodes"
+                                  :value="code.dial_code"
+                                  :key="key"
+                                  class="flex justify-center items-center gap-2"
+                                >
+                                  {{ code.dial_code }}
+                                  <img
+                                    class="w-[18px] h-[18px] hidden md:inline-block"
+                                    :src="
+                                      'https://flagcdn.com/16x12/' +
+                                      code.code.toLowerCase() +
+                                      '.png'
+                                    "
+                                    alt="gradient"
+                                  />
+                                </SelectItem>
+                              </SelectContent>
+                            </Select>
+
+                            <FormMessage for="countrycode" />
+                          </FormItem>
+                        </FormField>
+                        <div class="lg:w-[70%]">
+                          <FormField v-slot="{ componentField }" name="phone" class="lg:w-[70%]">
+                            <FormItem v-auto-animate>
+                              <!-- <FormLabel class="text-blue-900">Phone Number</FormLabel> -->
+                              <FormControl>
+                                <div>
+                                  <Input
+                                    id="phone"
+                                    type="tel"
+                                    placeholder="Phone Number"
+                                    class="focus-visible:ring-blue-600"
+                                    v-bind="componentField"
+                                  />
+                                </div>
+                              </FormControl>
+
+                              <FormMessage for="phone" />
+                            </FormItem>
+                          </FormField>
+                        </div>
+                      </div>
+                    </div>
+
+                    <FormField v-slot="{ componentField }" name="email">
+                      <FormItem v-auto-animate>
+                        <FormLabel class="text-blue-900">Email</FormLabel>
+                        <FormControl>
+                          <Input
+                            id="email"
+                            type="email"
+                            placeholder="weeshr@admin.com"
+                            class="focus-visible:ring-blue-600"
+                            v-bind="componentField"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    </FormField>
+
+                    <Button type="submit">
+                      Update
+                    </Button>
+                  </form>
+                </PopoverContent>
+              </Popover>
             </div>
             <div
               class="flex justify-between lg:mx-4 px-4 shadow-md md:px-6 py-2 my-2 rounded-lg border"
