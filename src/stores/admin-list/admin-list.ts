@@ -229,7 +229,7 @@ export const useAdminListStore = defineStore({
           // Set loading to true
 
           const response = await axios.get(
-            `/api/v1/admin/logs/activity-logs?user_id=${id}`,
+            `/api/v1/admin/logs/activity-logs?log_user_type=ADMIN&user_id=${id}`,
           )
 
           if (response.status === 200 || response.status === 201) {
