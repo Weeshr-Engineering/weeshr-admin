@@ -4,7 +4,7 @@
     <MainNav headingText="Bank / Outflow" class="" />
 
     <div class="w-full grid gap-4 md:grid-cols-2 md:gap-6 lg:grid-cols-3 pt-6 text-nowrap">
-      <Card class="h-[150px] rounded-[24px] bg-[#FFFFFF] cardShadow1 border-transparent transition-transform transform hover:scale-105">
+      <Card class="h-[150px] rounded-[24px] bg-[#FFFFFF] cardShadow1 border-transparent">
         <div class="h-[130px] pt-4 relative rounded-tr-[24px] rounded-tl-[24px]">
           <CardContent class="flex items-center justify-between space-y-0">
             <p class="text-l font-medium text-[#020721]">Balance</p>
@@ -55,7 +55,7 @@
 
       
         <Card
-          class="h-[150px] rounded-[24px] bg-[#EE9F39] cardShadow3 border-transparent transition-transform transform hover:scale-105"
+          class="h-[150px] rounded-[24px] bg-[#EE9F39] cardShadow3 border-transparent "
         >
           <div class="h-[130px] pt-4 relative rounded-tr-[24px] rounded-tl-[24px]">
             <CardContent class="flex items-center justify-between space-y-0">
