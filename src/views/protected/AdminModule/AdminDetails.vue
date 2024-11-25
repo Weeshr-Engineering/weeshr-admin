@@ -735,7 +735,7 @@ const onSubmit = contactForm((values) => {
 
           <TabsContent value="activity">
             <div class="bg-white rounded-lg shadow max-h-[85svh] overflow-y-scroll">
-              <Table class="w-full">
+              <Table v-if='activityLog.length !== 0' class="w-full">
                 <TableHeader>
                   <TableRow class="text-[#02072199] font-semibold bg-gray-200">
                     <TableHead class="text-sm">
@@ -748,7 +748,7 @@ const onSubmit = contactForm((values) => {
                   </TableRow>
                 </TableHeader>
 
-                <TableBody class="overflow-y-scroll">
+                <TableBody class="overflow-y-scroll" >
                   <TableRow v-for="log in activityLog" :key="log.id">
                     <TableCell class="text-xs md:text-sm lg:text-xs"
                       >{{ new Date(log.timestamp).toLocaleString() }}
@@ -774,6 +774,9 @@ const onSubmit = contactForm((values) => {
                   </TableRow>
                 </TableBody>
               </Table>
+              <div v-else class='text-lg w-full text-center my-8'>
+                No activity here
+              </div>
             </div>
             <!-- <div class="flex gap-2 max-w-full flex-wrap justify-end mt-8 mr-4 items-center text-[15px]">
                   <Pagination :total="totalPages" :sibling-count="1" show-edges :default-page="1" @change="adminListStore.handlePageChange">
