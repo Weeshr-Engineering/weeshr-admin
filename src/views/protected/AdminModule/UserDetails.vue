@@ -58,6 +58,15 @@ import { toTypedSchema } from '@vee-validate/zod'
 import * as z from 'zod'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import CountryCodes from '@/lib/CountryCodes'
+import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
+import { catchErr } from '@/composables/catchError'
 
 defineAbilities()
 const update = ability.can('update', 'users')
@@ -255,33 +264,58 @@ const items = [
   { name: 'FastFuriousGuy', amount: 500000, id: 5 }
 ]
 
+function removeUndefinedKeys<T extends Record<string, any>>(obj: T): Partial<T> {
+  // Create a new object to store the filtered keys
+  const filteredObject: Partial<T> = {};
+
+  // Iterate through the keys of the input object
+  for (const key in obj) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
+      // Copy the key-value pair if the value is not undefined
+      if (obj[key] !== undefined) {
+        filteredObject[key] = obj[key];
+      }
+    }
+  }
+
+  return filteredObject;
+}
+
 const editProfile = async (values: any) => {
-  const adminProfile = JSON.stringify({
-    // firstName: values.fullName || appUser?.value?.firstName,
-    // lastName: values.username || user.value.lastName,
-    // gender: values.gender || user.value.gender,
-    // email: values.email || user.value.email,
-    // dob: (values.dob && values.dob.substring(0, 10)) || user.value.dob.substring(0, 10),
-    // phone: {
-    //   countryCode: values.countrycode || user.value.phoneNumber.countryCode,
-    //   phoneNumber: values.phone || user.value.phoneNumber.phoneNumber
-    // },
-    // disabled: adminListStore.adminStatus
-  })
-  let config = {
-    method: 'patch',
-    maxBodyLength: Infinity,
-    url: `/api/v1/admin/administrator/${_id}`,
-    data: adminProfile
+  const adminData = removeUndefinedKeys(values)
+  let config;
+  if(values.email){
+    config = {
+      method: 'patch',
+      maxBodyLength: Infinity,
+      url: `/api/v1/admin/accounts/users/${_id}/contacts`,
+      data: {
+        email: values.email
+      }
+    }
+  }else{
+    config = {
+      method: 'patch',
+      maxBodyLength: Infinity,
+      url: `/api/v1/admin/accounts/users/${_id}/identity`,
+      data: adminData
+    }
   }
 
   axios
     .request(config)
-    .then((response) => {
+    .then(() => {
+      toast({
+        description: 'User updated successfully!',
+        variant: 'success',
+        duration: 0 // Set duration to 0 to make it indefinite until manually closed
+      })
       // fetchUsersData('data updated')
       load(_id)
     })
-    .catch((error) => {})
+    .catch((error) => {
+      catchErr(error)
+    })
 }
 
 const contactFormSchema = toTypedSchema(
@@ -304,14 +338,23 @@ const contactFormSchema = toTypedSchema(
         message: 'Username must not be longer than 30 characters.'
       })
       .optional(),
+    userName: z
+      .string()
+      .min(2, {
+        message: 'Username must be at least 2 characters.'
+      })
+      .max(30, {
+        message: 'Username must not be longer than 30 characters.'
+      })
+      .optional(),
     dob: z.string().optional(),
     gender: z.string().optional(),
-    phone: z
-      .string()
-      .min(10, { message: 'Phone number must be 10 characters' })
-      .max(10, { message: 'Phone number must be 10 characters' })
-      .optional(),
-    countrycode: z.string().optional(),
+    // phone: z
+    //   .string()
+    //   .min(10, { message: 'Phone number must be 10 characters' })
+    //   .max(10, { message: 'Phone number must be 10 characters' })
+    //   .optional(),
+    // countrycode: z.string().optional(),
     email: z.string().email({ message: 'Invalid email address' }).optional()
   })
 )
@@ -398,9 +441,9 @@ const onSubmit = contactForm((values) => {
                 </PopoverTrigger>
                 <PopoverContent v-if="update">
                   <form class="space-y-8" @submit="onSubmit">
-                    <FormField v-slot="{ componentField }" name="fullName">
+                    <FormField v-slot="{ componentField }" name="firstName">
                       <FormItem v-auto-animate>
-                        <FormLabel class="text-blue-900">Full Name</FormLabel>
+                        <FormLabel class="text-blue-900">First Name</FormLabel>
                         <FormControl>
                           <Input
                             id="text"
@@ -410,10 +453,25 @@ const onSubmit = contactForm((values) => {
                             v-bind="componentField"
                           />
                         </FormControl>
-                        <FormMessage for="FullName" />
+                        <FormMessage for="FirstName" />
                       </FormItem>
                     </FormField>
-                    <FormField v-slot="{ componentField }" name="username">
+                    <FormField v-slot="{ componentField }" name="lastName">
+                      <FormItem v-auto-animate>
+                        <FormLabel class="text-blue-900">Last Name</FormLabel>
+                        <FormControl>
+                          <Input
+                            id="text"
+                            type="text"
+                            placeholder="First Name"
+                            class="focus-visible:ring-blue-600"
+                            v-bind="componentField"
+                          />
+                        </FormControl>
+                        <FormMessage for="Last Name" />
+                      </FormItem>
+                    </FormField>
+                    <FormField v-slot="{ componentField }" name="userName">
                       <FormItem v-auto-animate>
                         <FormLabel class="text-blue-900">Preferred / Username</FormLabel>
                         <FormControl>
@@ -425,7 +483,7 @@ const onSubmit = contactForm((values) => {
                             v-bind="componentField"
                           />
                         </FormControl>
-                        <FormMessage for="lastName" />
+                        <FormMessage for="userName" />
                       </FormItem>
                     </FormField>
                     <div class="flex flex-row justify-between gap-2">
@@ -537,7 +595,7 @@ const onSubmit = contactForm((values) => {
                       <div
                         class="flex items-start flex-row md:justify-between md:items-start gap-2 relative"
                       >
-                        <FormField
+                        <!-- <FormField
                           v-slot="{ componentField }"
                           name="countrycode"
                           class="bg-[teal] mt-6 w-[50%]"
@@ -576,7 +634,7 @@ const onSubmit = contactForm((values) => {
 
                             <FormMessage for="countrycode" />
                           </FormItem>
-                        </FormField>
+                        </FormField> -->
                         <div class="lg:w-[70%]">
                           <FormField v-slot="{ componentField }" name="phone" class="lg:w-[70%]">
                             <FormItem v-auto-animate>
