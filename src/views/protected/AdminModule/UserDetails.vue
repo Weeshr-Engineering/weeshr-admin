@@ -503,8 +503,9 @@ const onSubmit = contactForm((values) => {
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                <SelectItem value="Female">Female</SelectItem>
-                                <SelectItem value="Male">Male</SelectItem>
+                                <SelectItem value="female">Female</SelectItem>
+                                <SelectItem value="male">Male</SelectItem>
+                                <SelectItem value="other">other</SelectItem>
                               </SelectContent>
                             </Select>
 
@@ -590,12 +591,12 @@ const onSubmit = contactForm((values) => {
                 </PopoverTrigger>
                 <PopoverContent v-if="update">
                   <form class="space-y-4" @submit.prevent="onSubmit">
-                    <div class="">
+                    <!--<div class="">
                       <h5 class="text-blue-900 text-sm font-medium mb-5">Phone Number</h5>
                       <div
                         class="flex items-start flex-row md:justify-between md:items-start gap-2 relative"
                       >
-                        <!-- <FormField
+                        <FormField
                           v-slot="{ componentField }"
                           name="countrycode"
                           class="bg-[teal] mt-6 w-[50%]"
@@ -634,11 +635,10 @@ const onSubmit = contactForm((values) => {
 
                             <FormMessage for="countrycode" />
                           </FormItem>
-                        </FormField> -->
+                        </FormField>
                         <div class="lg:w-[70%]">
                           <FormField v-slot="{ componentField }" name="phone" class="lg:w-[70%]">
                             <FormItem v-auto-animate>
-                              <!-- <FormLabel class="text-blue-900">Phone Number</FormLabel> -->
                               <FormControl>
                                 <div>
                                   <Input
@@ -656,7 +656,7 @@ const onSubmit = contactForm((values) => {
                           </FormField>
                         </div>
                       </div>
-                    </div>
+                    </div>-->
 
                     <FormField v-slot="{ componentField }" name="email">
                       <FormItem v-auto-animate>
