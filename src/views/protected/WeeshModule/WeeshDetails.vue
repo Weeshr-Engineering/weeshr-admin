@@ -3,7 +3,12 @@
         <LoadingSpinner />
     </div>
     <div class="flex-col flex bg-[#f0f8ff] h-full px-4 sm:px-10 pb-10">
-        <MainNav class="mx-6" headingText="Weeshes" />
+        <MainNav class="md:mx-6" headingText="" /> 
+        <div class="flex items-center text-xl mx-4 md:mx-10 md:text-3xl mb-4 -mt-8">
+          <RouterLink :to="{name: 'weeshes'}" class="text-gray-500">Weeshes</RouterLink>
+          <Icon icon="tabler:chevron-right" width="22px" height="22px" class="ml-1 pt-1"/>
+          <RouterLink :to="{name: 'weeshedetails'}">Weesh Details</RouterLink>
+        </div>
         <div class="flex flex-col gap-4">
             <Card class='flex flex-col items-center justify-center'>
                 <div class="w-full px-8 my-4 flex items-center justify-between">

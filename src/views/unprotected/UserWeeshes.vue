@@ -306,6 +306,7 @@
 <script setup lang="ts">
 import Search from '@/components/UseSearch.vue'
 import { computed, ref, watch } from 'vue'
+import { useRouter } from 'vue-router';
 import MainNav from '@/components/MainNav.vue'
 import DashboardFooter from '@/components/DashboardFooter.vue'
 import { Card, CardContent } from '@/components/ui/card'
@@ -373,7 +374,9 @@ const { addedCount, initiatedCount, fufilledCount, deliveredCount, loading } =
 
 const { weeshes, error, totalPages, currentPage, loadWeeshes } = getWeeshes()
 
-loadWeeshes()
+
+// set router
+const router = useRouter();
 
 //search
 const search = ref('')
@@ -393,7 +396,13 @@ const handleFulfilment = (stats: string) => {
 
 //pagination
 const pageTotal = ref(totalPages)
-const pageCurrent = ref(currentPage)
+// const pageCurrent = ref(currentPage)
+const pageCurrent = computed(()=>{
+  return weeshStore.currentPage
+})
+
+loadWeeshes(pageCurrent.value)
+
 
 const paginationItems = computed(() => {
   const pages = []
@@ -427,6 +436,10 @@ const formatPrice = (val: string)=>{
   const price = parseInt(val)
   const formattedPrice = new Intl.NumberFormat('en-US').format(price);
   return formattedPrice;
+}
+
+const goTo = (path: string)=> {
+  router.push(path);
 }
 </script>
 

@@ -1,6 +1,7 @@
-import { ref, type Ref } from 'vue'
+import { ref, type Ref, computed } from 'vue'
 import axios from "@/services/ApiService";
 import { useToast } from '@/components/ui/toast'
+import { useWeeshStore } from '@/stores/weeshes/weeshes-count';
 
 interface Weeshes {
   _id: string
@@ -27,7 +28,10 @@ const getWeeshes = () => {
   const weeshes: Ref<Weeshes[]> = ref([])
   const error: Ref<string> = ref('')
   const totalPages = ref(0)
-  const currentPage = ref(0)
+  const store = useWeeshStore()
+  const currentPage = computed(() => {
+    return store.currentPage
+  });
 
   const { toast } = useToast()
   const base = `/api/v1/admin/weeshes?per_page=20&`
@@ -52,16 +56,28 @@ const getWeeshes = () => {
       ])
 
       if (typeof option === 'string') {
-        if (statusOptions.has(option)) {
-          return base + `status=${option}`
-        } else if (fulfillmentStatusOptions.has(option)) {
-          return base + `fulfillment_status=${option}`
+        const numericValue = Number(option);
+
+        if (!isNaN(numericValue) && option.trim() === numericValue.toString()) {
+          // It's a number
+          if (numericValue > totalPages.value) {
+            return base + `page=${totalPages.value}`
+          } else if (numericValue <= 0) {
+            return base + `page=${1}`
+          } else {
+            return base + `page=${option}`
+          }
         } else {
-          return base + `search=${option}`
+          // It's a string
+          if (statusOptions.has(option)) {
+            return base + `status=${option}`
+          } else if (fulfillmentStatusOptions.has(option)) {
+            return base + `fulfillment_status=${option}`
+          } else {
+            return base + `search=${option}`
+          }
         }
-      } else if (typeof option === 'number') {
-        return base + `page=${option}`
-      }
+      } 
       return base
     }
     try {
@@ -75,7 +91,7 @@ const getWeeshes = () => {
       if (response.data.code === 200) {
         weeshes.value = response.data.data.data
         totalPages.value = response.data.data.totalPages
-        currentPage.value = response.data.data.currentPage
+        store.currentPage = response.data.data.currentPage
 
         toast({
           description: response.data.message,
