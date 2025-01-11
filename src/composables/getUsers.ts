@@ -1,8 +1,8 @@
 import { ref, type Ref } from 'vue'
-import axios from "@/services/ApiService";
+import axios from '@/services/ApiService'
 import { useToast } from '@/components/ui/toast'
 
-interface User {
+export interface User {
   _id: string
   firstName: string
   middleName: string | null
@@ -38,7 +38,7 @@ const getUsers = () => {
         variant: 'loading'
       })
       const response = await axios.get(
-        `/api/v1/admin/accounts/users?search=${search}&page=${page}&per_page=20`,
+        `/api/v1/admin/accounts/users?search=${search}&page=${page}&per_page=20`
       )
 
       if (response.data.code === 200) {
