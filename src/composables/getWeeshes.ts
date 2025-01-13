@@ -32,11 +32,15 @@ const getWeeshes = () => {
   const currentPage = computed(() => {
     return store.currentPage
   });
+  const perPage = computed(() => {
+    return store.perPage
+  });
 
   const { toast } = useToast()
-  const base = `/api/v1/admin/weeshes?per_page=20&`
+  let base = `/api/v1/admin/weeshes?`
 
   const loadWeeshes = async (option?: string | number) => {
+    base = base + `per_page=${perPage.value}&`
     const url = () => {
       const statusOptions = new Set([
         'INITIATED',
@@ -56,28 +60,17 @@ const getWeeshes = () => {
       ])
 
       if (typeof option === 'string') {
-        const numericValue = Number(option);
-
-        if (!isNaN(numericValue) && option.trim() === numericValue.toString()) {
-          // It's a number
-          if (numericValue > totalPages.value) {
-            return base + `page=${totalPages.value}`
-          } else if (numericValue <= 0) {
-            return base + `page=${1}`
-          } else {
-            return base + `page=${option}`
-          }
+        if (statusOptions.has(option)) {
+          return base + `status=${option}`
+        } else if (fulfillmentStatusOptions.has(option)) {
+          return base + `fulfillment_status=${option}`
         } else {
-          // It's a string
-          if (statusOptions.has(option)) {
-            return base + `status=${option}`
-          } else if (fulfillmentStatusOptions.has(option)) {
-            return base + `fulfillment_status=${option}`
-          } else {
-            return base + `search=${option}`
-          }
+          return base + `search=${option}`
         }
-      } 
+      } else if (typeof option === 'number') {
+        return base + `page=${option}`
+      }
+      console.log(base)
       return base
     }
     try {
@@ -114,8 +107,77 @@ const getWeeshes = () => {
       })
     }
   }
+  const searchWeeshPage = async (pageNum: number) => {
+    try {
+      toast({
+        description: 'Loading....',
+        variant: 'loading'
+      })
+      const response = await axios.get(`/api/v1/admin/weeshes?per_page=${perPage.value}&page=${pageNum}`)
 
-  return { weeshes, error, totalPages, currentPage, loadWeeshes }
+      if (response.data.code === 200) {
+        weeshes.value = response.data.data.data
+        totalPages.value = response.data.data.totalPages
+        store.currentPage = response.data.data.currentPage
+
+        toast({
+          description: response.data.message,
+
+          variant: 'success',
+
+        })
+      } else {
+        error.value = 'Error getting Weeshes list. Kindly try again'
+        toast({
+          description: response.data.message,
+          variant: 'destructive'
+        })
+      }
+    } catch (err: any) {
+      error.value = 'Error getting Weeshes list. Kindly try again'
+      toast({
+        description: err.message,
+        variant: 'destructive'
+      })
+    }
+  }
+
+  const weeshPerPage = async (perPage: number) => {
+    try {
+      toast({
+        description: 'Loading....',
+        variant: 'loading'
+      })
+      const response = await axios.get(`/api/v1/admin/weeshes?per_page=${perPage}&page=1`)
+
+      if (response.data.code === 200) {
+        weeshes.value = response.data.data.data
+        totalPages.value = response.data.data.totalPages
+        store.currentPage = response.data.data.currentPage
+
+        toast({
+          description: response.data.message,
+
+          variant: 'success',
+
+        })
+      } else {
+        error.value = 'Error getting Weeshes list. Kindly try again'
+        toast({
+          description: response.data.message,
+          variant: 'destructive'
+        })
+      }
+    } catch (err: any) {
+      error.value = 'Error getting Weeshes list. Kindly try again'
+      toast({
+        description: err.message,
+        variant: 'destructive'
+      })
+    }
+  }
+
+  return { weeshes, error, totalPages, currentPage, loadWeeshes, searchWeeshPage, weeshPerPage }
 }
 
 export default getWeeshes

@@ -13,7 +13,8 @@ export const useWeeshStore = defineStore('weeshStore', {
         pendingCount: 0,
         outboundCount: 0,
         loading: false,
-        currentPage: 1
+        currentPage: 1,
+        perPage: 10,
     }),
     actions: {
         async getWeeshesCount() {
@@ -50,6 +51,9 @@ export const useWeeshStore = defineStore('weeshStore', {
                     })      
                 }
             }
+        },
+        setPerPage(pageNum: number) {
+            this.perPage = pageNum
         }
     }
 })
