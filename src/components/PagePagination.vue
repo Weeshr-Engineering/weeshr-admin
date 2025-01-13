@@ -100,10 +100,11 @@ const handlePageChange = (page: number) => {
   emits('pagination', pageNum)
 }
 
-const handlePageInput = (e) => {
+const handlePageInput = (e: KeyboardEvent) => {
   e.preventDefault()
+  const target = e.target as HTMLInputElement
   if (e.key === 'Enter') {
-    const page = parseInt(e.target.value)
+    const page = parseInt(target.value)
     const pageNum = page > props.pageTotal ? props.pageTotal : page
 
     store.setCurrentPage(pageNum)
