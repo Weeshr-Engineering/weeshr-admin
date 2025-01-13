@@ -152,9 +152,9 @@
               Clear Filter
             </div>
           </Button>
-          <Button :disabled='selectedWeeshes.length === 0' variant="outline" @click='exportToExcel'>
-            <div class="flex items-center text-[10px] md:text-xs bg-[#EEEFF5]">
-              Export to Excel
+          <Button class='bg-[#EEEFF5]' :disabled='selectedWeeshes.length === 0' variant="outline" @click='exportToExcel'>
+            <div class="flex items-center text-[10px] md:text-xs">
+              Export as Excel
               <Icon icon="mdi:microsoft-excel" class="ml-2 text-xl" />
             </div>
           </Button>
@@ -335,7 +335,7 @@
             class="border-2 appearance-none rounded-md w-8 h-6 text-center placeholder:text-center active:border-none focus:border-none focus:outline-none text-black ms-2"
             ref="pageInput"
             type="number"
-            :placeholder="currentPage"
+            :placeholder="currentPage.toString()"
             @keyup="(e) => handlePageInput(e)"
             :value="pageCurrent"
             min="1"
@@ -351,8 +351,7 @@
 
 <script setup lang="ts">
 import Search from '@/components/UseSearch.vue'
-import { computed, ref, watch } from 'vue'
-import { useRouter } from 'vue-router';
+import { computed, ref, type Ref, watch } from 'vue'
 import MainNav from '@/components/MainNav.vue'
 import DashboardFooter from '@/components/DashboardFooter.vue'
 import { Card, CardContent } from '@/components/ui/card'
@@ -427,7 +426,6 @@ const { weeshes, error, totalPages, currentPage, loadWeeshes, searchWeeshPage, w
 
 
 // set router
-const router = useRouter();
 
 //search
 const search = ref('')
@@ -490,7 +488,7 @@ const handlePageChange = (page: number) => {
   loadWeeshes(page)
 }
 
-const handlePageInput = (e) => {
+const handlePageInput = (e: any) => {
   e.preventDefault()
   if (e.key === 'Enter') {
     const page = parseInt(e.target.value)
@@ -505,13 +503,10 @@ const formatPrice = (val: string)=>{
   return formattedPrice;
 }
 
-const goTo = (path: string)=> {
-  router.push(path);
-}
 
 const dropDown = [10, 20, 50, 100, 200, 500, 1000, 2000, 4000, 5000, 7000, 10000, 20000];
 
-interface Weeshes {
+type Weeshes = {
   _id: string
   name: string
   user: {
@@ -532,13 +527,6 @@ interface Weeshes {
   fulfilledStatus: string
 }
 
-const selectedWeeshes = ref<Weeshes[]>([])
-const selectAll = ref(false)
-
-const clearIds = ()=>{
-  selectedWeeshes.value = []
-}
-
 type ExtractedData = {
   'Weesh id': string;
   'Weeshr name': string;
@@ -549,13 +537,20 @@ type ExtractedData = {
   status: string;
 };
 
+const selectedWeeshes = ref<ExtractedData[]>([])
+const selectAll = ref(false)
+
+const clearIds = ()=>{
+  selectedWeeshes.value = []
+}
+
 const extractIds = () => {
   selectedWeeshes.value = []
   selectedWeeshes.value = extractData(weeshes)
 }
 
-const extractData = (data: Weesh[]): ExtractedData[] => {
-  return data.map((value) => ({
+const extractData = (data: Ref<Weeshes[]>): ExtractedData[] => {
+  return data.value.map((value) => ({
     'Weesh id': value._id,
     'Weeshr name': value.user.userName,
     'Name of Weesh': value.name,
@@ -575,8 +570,9 @@ const toggleSelectAll = ()=>{
   selectAll.value = !selectAll.value
 }
 
-const toggleValue = (value: string) => {
-  const extract = {
+const extractWeeshData = (value: Weeshes)=>{
+  return(
+    {
       'Weesh id': value._id,
       'Weeshr name': value.user.userName,
       'Name of Weesh': value.name,
@@ -585,6 +581,11 @@ const toggleValue = (value: string) => {
       charges: `${value.currency.code} ${formatPrice(value.price.genieGratuity)}`,
       status: value.status
     }
+  )
+}
+
+const toggleValue = (value: Weeshes) => {
+  const extract = extractWeeshData(value)
   const index = selectedWeeshes.value.findIndex((item) => item['Weesh id'] === extract['Weesh id']);
   if (index !== -1) {
     // If the value exists, remove it
@@ -595,8 +596,10 @@ const toggleValue = (value: string) => {
   }
 }
 
-function checkValue(value: string) {
-  const index = selectedWeeshes.value.indexOf(value);
+function checkValue(value: Weeshes) {
+  // const index = selectedWeeshes.value.indexOf(value);
+  const extract = extractWeeshData(value)
+  const index = selectedWeeshes.value.findIndex((item) => item['Weesh id'] === extract['Weesh id']);
   if (index !== -1) {
     // If the value exists, remove it
     return true

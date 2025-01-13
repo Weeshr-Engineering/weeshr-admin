@@ -70,7 +70,7 @@ const getWeeshes = () => {
       } else if (typeof option === 'number') {
         return base + `page=${option}`
       }
-      console.log(base)
+      // console.log(base)
       return base
     }
     try {
