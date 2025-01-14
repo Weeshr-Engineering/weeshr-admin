@@ -152,10 +152,10 @@
               Clear Filter
             </div>
           </Button>
-          <Button class='bg-[#EEEFF5]' :disabled='selectedWeeshes.length === 0' variant="outline" @click='exportToExcel'>
+          <Button class='bg-[#EEEFF5] rounded-2xl' :disabled='selectedWeeshes.length === 0' variant="outline" @click='()=>exportToExcel(selectedWeeshes)'>
             <div class="flex items-center text-[10px] md:text-xs">
               Export as Excel
-              <Icon icon="mdi:microsoft-excel" class="ml-2 text-xl" />
+              <Icon icon="vscode-icons:file-type-excel" class="ml-2 text-xl text-green-700" />
             </div>
           </Button>
         </div>
@@ -258,7 +258,7 @@
           <p>No user data available</p>
         </div>
       </div>
-      <div v-if="weeshes.length != 0" class="flex flex-col md:flex-row gap-2 w-full flex-wrap justify-end mt-8 mr-4 items-center text-[15px]">
+      <div v-if="weeshes.length != 0" class="flex flex-col md:flex-row gap-2 w-full flex-wrap justify-between mt-8 mr-4 items-center text-[15px]">
         <div class="flex gap-4 space-x-2 w-15 h-10 border-2 rounded-md p-2 items-center">
           Per Page
           <DropdownMenu>
@@ -275,74 +275,76 @@
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-        <Pagination
-          :total="pageTotal"
-          :sibling-count="1"
-          show-edges
-          :default-page="1"
-          @change="handlePageChange"
-        >
-          <PaginationList class="flex items-center gap-1">
-            <Button
-              class="w-10 h-10 p-0"
-              variant="outline"
-              @click="handlePageChange(1)"
-              :disabled="pageCurrent == 1"
-            >
-              <Icon icon="heroicons:chevron-double-left-20-solid" />
-            </Button>
-            <Button
-              class="w-10 h-10 p-0"
-              variant="outline"
-              @click="() => handlePageChange(pageCurrent - 1)"
-              :disabled="pageCurrent == 1"
-            >
-              <Icon icon="heroicons:chevron-left-20-solid" />
-            </Button>
-            <template v-for="(item, index) in visiblePaginationItems" :key="index">
-              <PaginationListItem :value="index" as-child>
-                <Button
-                  class="w-10 h-10 p-0"
-                  :variant="item === currentPage ? 'default' : 'outline'"
-                  @click="handlePageChange(item)"
-                >
-                  {{ item }}
-                </Button>
-              </PaginationListItem>
-            </template>
+        <div class="flex flex-col md:flex-row gap-2 w-full md:w-fit flex-wrap">
+            <Pagination
+            :total="pageTotal"
+            :sibling-count="1"
+            show-edges
+            :default-page="1"
+            @change="handlePageChange"
+          >
+            <PaginationList class="flex items-center gap-1">
+              <Button
+                class="w-10 h-10 p-0"
+                variant="outline"
+                @click="handlePageChange(1)"
+                :disabled="pageCurrent == 1"
+              >
+                <Icon icon="heroicons:chevron-double-left-20-solid" />
+              </Button>
+              <Button
+                class="w-10 h-10 p-0"
+                variant="outline"
+                @click="() => handlePageChange(pageCurrent - 1)"
+                :disabled="pageCurrent == 1"
+              >
+                <Icon icon="heroicons:chevron-left-20-solid" />
+              </Button>
+              <template v-for="(item, index) in visiblePaginationItems" :key="index">
+                <PaginationListItem :value="index" as-child>
+                  <Button
+                    class="w-10 h-10 p-0"
+                    :variant="item === currentPage ? 'default' : 'outline'"
+                    @click="handlePageChange(item)"
+                  >
+                    {{ item }}
+                  </Button>
+                </PaginationListItem>
+              </template>
 
-            <Button
-              class="w-10 h-10 p-0"
-              variant="outline"
-              @click="() => handlePageChange(pageCurrent + 1)"
-              :disabled="pageCurrent === pageTotal"
-            >
-              <Icon icon="heroicons:chevron-right-20-solid" />
-            </Button>
-            <Button
-              class="w-10 h-10 p-0"
-              variant="outline"
-              @click="() => handlePageChange(pageTotal)"
-              :disabled="pageCurrent === pageTotal"
-            >
-              <Icon icon="heroicons:chevron-double-right-20-solid" />
-            </Button>
-          </PaginationList>
-        </Pagination>
-        <p class="flex gap-2">Showing
-          <input
-            id='pageInput'
-            class="border-2 appearance-none rounded-md w-8 h-6 text-center placeholder:text-center active:border-none focus:border-none focus:outline-none text-black ms-2"
-            ref="pageInput"
-            type="number"
-            :placeholder="currentPage.toString()"
-            @keyup="(e) => handlePageInput(e)"
-            :value="pageCurrent"
-            min="1"
-            :max="pageTotal"
-            step="1"
-          />
-         of {{ pageTotal }} page(s)</p>
+              <Button
+                class="w-10 h-10 p-0"
+                variant="outline"
+                @click="() => handlePageChange(pageCurrent + 1)"
+                :disabled="pageCurrent === pageTotal"
+              >
+                <Icon icon="heroicons:chevron-right-20-solid" />
+              </Button>
+              <Button
+                class="w-10 h-10 p-0"
+                variant="outline"
+                @click="() => handlePageChange(pageTotal)"
+                :disabled="pageCurrent === pageTotal"
+              >
+                <Icon icon="heroicons:chevron-double-right-20-solid" />
+              </Button>
+            </PaginationList>
+          </Pagination>
+          <p class="flex items-center gap-2">Showing
+            <input
+              id='pageInput'
+              class="border-2 appearance-none rounded-md w-10 h-10 text-center placeholder:text-center active:border-none focus:border-none focus:outline-none text-black ms-2"
+              ref="pageInput"
+              type="number"
+              :placeholder="currentPage.toString()"
+              @keyup="(e) => handlePageInput(e)"
+              :value="pageCurrent"
+              min="1"
+              :max="pageTotal"
+              step="1"
+            />
+          of {{ pageTotal }} page(s)</p>
+        </div>
       </div>
     </Card>
     <DashboardFooter />
@@ -358,6 +360,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Icon } from '@iconify/vue'
 import { useWeeshStore } from '@/stores/weeshes/weeshes-count'
+import exportToExcel from '@/composables/excelExport'
 
 import {
   Table,
@@ -380,8 +383,6 @@ import { Pagination, PaginationList, PaginationListItem } from '@/components/ui/
 import { storeToRefs } from 'pinia'
 import { Loader2 } from 'lucide-vue-next'
 import getWeeshes from '@/composables/getWeeshes'
-import * as XLSX from "xlsx";
-import { useToast } from '@/components/ui/toast'
 
 const statusBg = (status: string) => {
   switch (status) {
@@ -415,7 +416,6 @@ const fulfillmentStatusBg = (status: string) => {
 }
 
 const weeshStore = useWeeshStore()
-const { toast } = useToast()
 const {setPerPage, getWeeshesCount} = useWeeshStore()
 getWeeshesCount()
 
@@ -608,27 +608,6 @@ function checkValue(value: Weeshes) {
     return false
   }
 }
-
-// Export to Excel function
-    const exportToExcel = () => {
-      toast({
-        description: 'Extracting excel from table....',
-        variant: 'loading'
-      })
-      // Convert JSON data to a worksheet
-      const worksheet = XLSX.utils.json_to_sheet(selectedWeeshes.value);
-
-      // Create a workbook and append the worksheet
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "WeeshTableData");
-
-      // Export the workbook to a file
-      XLSX.writeFile(workbook, "WeeshData.xlsx");
-      toast({
-          description: 'Excel file is ready',
-          variant: 'success',
-        })
-    };
 
 </script>
 
