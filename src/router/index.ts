@@ -125,7 +125,7 @@ const routes = [
   {
     path: '/weeshes',
     name: 'weeshes',
-    component: WeeshesPage
+    component: WeeshesPage,
   },
   {
     path: '/weeshes/details/:Id',

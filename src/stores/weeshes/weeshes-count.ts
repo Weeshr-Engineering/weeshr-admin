@@ -12,7 +12,9 @@ export const useWeeshStore = defineStore('weeshStore', {
         deliveredCount: 0,
         pendingCount: 0,
         outboundCount: 0,
-        loading: false
+        loading: false,
+        currentPage: 1,
+        perPage: 10,
     }),
     actions: {
         async getWeeshesCount() {
@@ -32,7 +34,7 @@ export const useWeeshStore = defineStore('weeshStore', {
                     this.outboundCount = response.data.data.status.OUTBOUND;
 
                     this.loading = false
-                }else {
+                } else {
                     toast({
                         description: response.data.message || 'Network Error',
                         variant: 'destructive'
@@ -40,15 +42,18 @@ export const useWeeshStore = defineStore('weeshStore', {
                 }
             }
             catch (err: any) {
-                if(err.response){
+                if (err.response) {
                     useGeneralStore().catchErr(err)
-                }else{
+                } else {
                     toast({
-                        description:  err.message || 'Poor network',
+                        description: err.message || 'Poor network',
                         variant: 'destructive'
-                      })      
+                    })      
                 }
             }
+        },
+        setPerPage(pageNum: number) {
+            this.perPage = pageNum
         }
     }
 })

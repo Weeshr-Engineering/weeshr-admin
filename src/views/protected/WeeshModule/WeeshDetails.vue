@@ -3,7 +3,12 @@
         <LoadingSpinner />
     </div>
     <div class="flex-col flex bg-[#f0f8ff] h-full px-4 sm:px-10 pb-10">
-        <MainNav class="mx-6" headingText="Weeshes" />
+        <MainNav class="md:mx-6" headingText="" /> 
+        <div class="flex items-center text-xl mx-4 md:mx-10 md:text-3xl mb-4 -mt-8">
+          <RouterLink :to="{name: 'weeshes', query: route.query}" @click="goBack" class="text-gray-500">Weeshes</RouterLink>
+          <Icon icon="tabler:chevron-right" width="22px" height="22px" class="ml-1 pt-1"/>
+          <p>Weesh Details</p>
+        </div>
         <div class="flex flex-col gap-4">
             <Card class='flex flex-col items-center justify-center'>
                 <div class="w-full px-8 my-4 flex items-center justify-between">
@@ -208,6 +213,7 @@ import { Icon } from '@iconify/vue'
 import { Badge } from '@/components/ui/badge';
 import { useWeeshDetailStore } from '@/stores/weeshes/weesh-details';
 import { computed, ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import {
   Sheet,
   SheetContent,
@@ -224,6 +230,7 @@ import { useRoute } from 'vue-router';
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
 import { toast } from "@/components/ui/toast";
 
+const router = useRouter()
 const success = ref(false)
 const store = useWeeshDetailStore()
 const done = ()=>{
@@ -244,6 +251,14 @@ const stage = computed(()=>{
 const loading = computed(()=>{
     return store.loading
 })
+
+const goBack = () => {
+  router.push({
+    path: '/weeshes',
+    query: route.query // Keeps the page number when going back
+  })
+}
+
 const copyText = (text: string)=> {
     //   const textToCopy = 'Your text to copy';
       navigator.clipboard.writeText(text).then(() => {
