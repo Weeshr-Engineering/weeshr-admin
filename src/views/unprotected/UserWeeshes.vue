@@ -140,7 +140,7 @@
           </DropdownMenu>
           <Button
             variant="outline"
-            class="rounded-2xl bg-[#EEEFF5] col-span-3 md:col-span-1"
+            class="rounded-2xl bg-[#EEEFF5] col-span-3 md:col-span-1 sticky top-0"
             @click="
               () => {
                 loadWeeshes()
@@ -166,16 +166,16 @@
         <div v-if="error" class="text-[#02072199] p-10">
           {{ error }}
         </div>
-        <div v-else-if="weeshes.length">
+        <div v-else-if="weeshes.length" class='max-h-screen overflow-y-scroll relative'>
           <Table class="lg:w-full w-[800px]">
-            <TableHeader>
+            <TableHeader class='sticky top-0 z-30'>
               <TableRow
-                class="text-xs sm:text-sm md:text-base text-[#02072199] font-semibold bg-gray-200"
+                class="text-xs sticky top-0 sm:text-sm md:text-base text-[#02072199] font-semibold bg-gray-200"
               >
                 <TableHead>
-                  <div class='flex items-center justify-center w-full h-full gap-2'>
+                  <div class='flex items-center flex-nowrap sticky top-0 justify-center w-full h-full gap-2'>
                       <input @click='toggleSelectAll' type='checkbox' class='p-2 accent-[#020721] border-2'/>
-                      <p>Select all</p>
+                      <p class='text-nowrap' >Select all</p>
                   </div>
                 </TableHead>
                 <TableHead> Weeshrname </TableHead>
@@ -230,8 +230,9 @@
                   </div>
                 </TableCell>
                 <TableCell>
-                  <router-link :to="`/weeshes/details/${weesh._id}`">
+                  <RouterLink :to="{path:`/weeshes/details/${weesh._id}`, query: route.query}">
                     <svg
+                      @click='goToDetails(weesh._id)'
                       width="20"
                       height="50"
                       viewBox="0 0 20 50"
@@ -248,7 +249,7 @@
                         stroke-linejoin="round"
                       />
                     </svg>
-                  </router-link>
+                  </RouterLink>
                 </TableCell>
               </TableRow>
             </TableBody>
@@ -353,7 +354,8 @@
 
 <script setup lang="ts">
 import Search from '@/components/UseSearch.vue'
-import { computed, ref, type Ref, watch } from 'vue'
+import { computed, ref, type Ref, watch, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import MainNav from '@/components/MainNav.vue'
 import DashboardFooter from '@/components/DashboardFooter.vue'
 import { Card, CardContent } from '@/components/ui/card'
@@ -415,6 +417,8 @@ const fulfillmentStatusBg = (status: string) => {
   }
 }
 
+const route = useRoute()
+const router = useRouter()
 const weeshStore = useWeeshStore()
 const {setPerPage, getWeeshesCount} = useWeeshStore()
 getWeeshesCount()
@@ -429,6 +433,7 @@ const { weeshes, error, totalPages, currentPage, loadWeeshes, searchWeeshPage, w
 
 //search
 const search = ref('')
+const routeQueryKey = 'page'
 
 watch(search, () => {
   loadWeeshes(search.value)
@@ -456,7 +461,27 @@ watch(perPage, () => {
   weeshPerPage(perPage.value)
 })
 
-loadWeeshes(pageCurrent.value)
+watch(currentPage, (newPage) => {
+    // Only update if the page param is different
+    if (Number(route.query[routeQueryKey]) !== newPage) {
+      router.push({
+        query: {
+          ...route.query,
+          [routeQueryKey]: newPage.toString()
+        }
+      })
+    }
+  })
+
+onMounted(() => {
+  const pageFromQuery = Number(route.query[routeQueryKey])
+  if (pageFromQuery && !isNaN(pageFromQuery) && pageFromQuery > 0) {
+    // currentPage.value = pageFromQuery
+    loadWeeshes(pageFromQuery)
+  }else{
+    loadWeeshes(pageCurrent.value)
+  }
+})
 
 
 const paginationItems = computed(() => {
@@ -483,6 +508,21 @@ const visiblePaginationItems = computed(() => {
     return paginationItems.value.slice(start - 1, end)
   }
 })
+
+const goToDetails =async (id: string) => {
+  try {
+    await router.push({
+      // name: 'weeshedetails', // If you've defined a route name
+      // OR
+      path: `/weeshes/details/${id}`,
+      query: {
+        ...route.query, // Preserve existing query params
+      }
+    })
+  } catch (navigationError) {
+    console.error('Navigation failed:', navigationError)
+  }
+}
 
 const handlePageChange = (page: number) => {
   loadWeeshes(page)
