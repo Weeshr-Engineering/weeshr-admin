@@ -302,6 +302,7 @@ const onSubmit = form.handleSubmit(async () => {
                   <Button
                     @click="onSubmit()"
                     type="submit"
+                    :disabled="loading"                    
                     class="w-full bg-[#BAEF23] hover:bg-[#BAEF23] hover:scale-105 text-black font-normal"
                   >
                     <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" />
@@ -325,5 +326,9 @@ const onSubmit = form.handleSubmit(async () => {
 .absoluteImg {
   width: -webkit-fill-available;
   width: -moz-available;
+}
+.button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 </style>

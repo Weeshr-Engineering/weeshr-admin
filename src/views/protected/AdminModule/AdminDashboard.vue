@@ -29,6 +29,12 @@ onMounted(() => {
 function formatNumberWithCommas(number: number): string {
   return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
+
+function formatTotalBalance(number: number): string {
+  const [integerPart, decimalPart] = number.toFixed(2).split('.');
+  const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return `${formattedInteger}.${decimalPart}`;
+}
 </script>
 
 <template>
@@ -72,7 +78,7 @@ function formatNumberWithCommas(number: number): string {
                     />
                     <div class="text-2xl lg:text-2xl font-medium text-[#020721] absolute bottom-2 left-5">
                     <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" />
-                    <p class='whitespace-nowrap text-adaptive' v-else >₦ {{formatNumberWithCommas (wallet.total_current_balance.balance) }}</p>
+                    <p class='whitespace-nowrap text-adaptive' v-else >₦ {{formatTotalBalance (wallet.total_current_balance.balance) }}</p>
                     </div>
                 </CardContent>
             </div>
@@ -81,7 +87,7 @@ function formatNumberWithCommas(number: number): string {
                      <p class="text-l font-normal text-[#F8F9FFB2]">Invested</p>
                     <div class="text-2xl font-normal text-white">
                     <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-white animate-spin" />
-                    <p v-else >₦ {{formatNumberWithCommas (wallet.invested.balance) }}</p>
+                    <p v-else >₦ {{formatTotalBalance (wallet.invested.balance) }}</p>
                     </div>
                 </CardContent>
             </div>
