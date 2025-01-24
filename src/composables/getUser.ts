@@ -184,7 +184,6 @@ export const getUser = () => {
         variant: 'destructive'
       })
     }
-    console.log(data)
     try {
       const response = await axios.patch(`/api/v1/admin/accounts/users/${_id}/status-badge`, data)
       if (response.data.code === 200) {
@@ -196,7 +195,6 @@ export const getUser = () => {
         load(_id)
       }
     } catch (error) {
-      console.log(error)
       catchErr(error)
     }
   }
@@ -338,7 +336,6 @@ export const getUserWallet = () => {
       const response = await axios.get(`api/v1/admin/user/${_id}/wallet`)
       if (response.data.code === 200) {
         userWallet.value = response.data.data
-        console.log(userWallet)
         toast({
           description: response.data.message,
           variant: 'success'
@@ -445,14 +442,12 @@ export const getUserPayout = () => {
 
       if (response.data.code === 200) {
         // userWalletList.value = response.data.data.data
-        console.log(response)
         toast({
           description: response.data.message,
           variant: 'success'
         })
       }
     } catch (err: any) {
-      console.log(err)
       payoutError.value = `${err.response.data.message}, ${err.response.data.error}.`
       toast({
         description: err.response.data.message,
