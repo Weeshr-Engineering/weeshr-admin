@@ -24,6 +24,15 @@ export interface User {
   avatar: string | null
 }
 
+export type UserFilter = {
+  page: number
+  per_page: number
+  gender?: string
+  startDate?: string
+  endDate?: string
+  search?: string
+}
+
 const getUsers = () => {
   const users: Ref<User[]> = ref([])
   const error: Ref<string> = ref('')
@@ -31,15 +40,31 @@ const getUsers = () => {
   const currentPage = ref(0)
   const { toast } = useToast()
 
-  const load = async (search: string, page: number) => {
+  const load = async (filter?: UserFilter) => {
+    const base = `/api/v1/admin/accounts/users?`
+
+    let queryString = ''
+
+    for (const key in filter) {
+      if (Object.prototype.hasOwnProperty.call(filter, key)) {
+        const value = filter[key as keyof UserFilter]
+        if (value !== undefined && value !== '') {
+          if (queryString !== '') {
+            queryString += '&'
+          }
+          queryString += `${key}=${value}`
+        }
+      }
+    }
+
+    const url = base + queryString
+
     try {
       toast({
         description: 'Loading....',
         variant: 'loading'
       })
-      const response = await axios.get(
-        `/api/v1/admin/accounts/users?search=${search}&page=${page}&per_page=20`
-      )
+      const response = await axios.get(url)
 
       if (response.data.code === 200) {
         users.value = response.data.data.data

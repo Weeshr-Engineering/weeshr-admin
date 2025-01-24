@@ -3,7 +3,7 @@
     <Pagination :total="pageTotal" :sibling-count="1" show-edges :default-page="1">
       <PaginationList class="flex items-center gap-2 w-8/12 md:w-full justify-center flex-wrap">
         <Button
-          class="w-5 h-5 p-0"
+          class="w-10 h-10 p-0"
           variant="outline"
           @click="handlePageChange(1)"
           :disabled="pageCurrent == 1"
@@ -11,7 +11,7 @@
           <Icon icon="heroicons:chevron-double-left-20-solid" />
         </Button>
         <Button
-          class="w-5 h-5 p-0"
+          class="w-10 h-10 p-0"
           variant="outline"
           @click="() => handlePageChange(pageCurrent - 1)"
           :disabled="pageCurrent == 1"
@@ -19,33 +19,19 @@
           <Icon icon="heroicons:chevron-left-20-solid" />
         </Button>
 
-        <div class="flex space-x-2 w-15 h-7 border-2 rounded-xl p-1 items-center">
-          <input
-            class="w-6 h-3 border-none active:border-none focus:border-none focus:outline-none text-black ms-2"
-            ref="pageInput"
-            type="number"
-            @keyup="(e) => handlePageInput(e)"
-            :value="props.pageCurrent"
-            min="1"
-            :max="props.pageTotal"
-            step="1"
-          />
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              ><Icon icon="oui:arrow-down" width="16" height="16"
-            /></DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem
-                v-for="(item, index) in dropDown"
-                v-bind:key="index"
-                @click="() => handlePageChange(item)"
-                >{{ item.toLocaleString() }}</DropdownMenuItem
-              >
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+        <template v-for="(item, index) in visiblePaginationItems" :key="index">
+          <PaginationListItem :value="index" as-child>
+            <Button
+              class="w-10 h-10 p-0"
+              :variant="item === props.pageCurrent ? 'default' : 'outline'"
+              @click="() => handlePageChange(item)"
+            >
+              {{ item }}
+            </Button>
+          </PaginationListItem>
+        </template>
         <Button
-          class="w-5 h-5 p-0"
+          class="w-10 h-10 p-0"
           variant="outline"
           @click="() => handlePageChange(pageCurrent + 1)"
           :disabled="pageCurrent === pageTotal"
@@ -53,7 +39,7 @@
           <Icon icon="heroicons:chevron-right-20-solid" />
         </Button>
         <Button
-          class="w-5 h-5 p-0"
+          class="w-10 h-10 p-0"
           variant="outline"
           @click="() => handlePageChange(pageTotal)"
           :disabled="pageCurrent === pageTotal"
@@ -62,7 +48,20 @@
         </Button>
       </PaginationList>
     </Pagination>
-    <p>Showing {{ props.pageCurrent }} of {{ props.pageTotal }} page(s)</p>
+    <p>
+      Showing
+      <input
+        class="w-10 h-10 ps-2 border-2 rounded-lg text-black mx-1"
+        ref="pageInput"
+        type="number"
+        @keyup="(e) => handlePageInput(e)"
+        :value="props.pageCurrent"
+        min="1"
+        :max="props.pageTotal"
+        step="1"
+      />
+      of {{ props.pageTotal }} page(s)
+    </p>
   </div>
 </template>
 
@@ -70,13 +69,33 @@
 import { Pagination, PaginationList } from '@/components/ui/pagination'
 import { Button } from '@/components/ui/button'
 import { Icon } from '@iconify/vue'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu'
 import { useUserTablePageStore } from '@/stores/userTableStore'
+import { computed } from 'vue'
+
+const paginationItems = computed(() => {
+  const pages = []
+  for (let i = 1; i <= props.pageTotal; i++) {
+    pages.push(i)
+  }
+  return pages
+})
+
+const visiblePaginationItems = computed(() => {
+  const totalItems = paginationItems.value.length
+  const currentPage = props.pageCurrent
+  if (totalItems <= 3) {
+    return paginationItems.value
+  } else {
+    let start = Math.max(1, currentPage - 1)
+    let end = Math.min(totalItems, currentPage + 1)
+
+    if (currentPage === 1 && totalItems > 3) {
+      end = Math.min(totalItems, 3)
+    }
+
+    return paginationItems.value.slice(start - 1, end)
+  }
+})
 
 const props = defineProps({
   pageTotal: {
@@ -111,6 +130,4 @@ const handlePageInput = (e: KeyboardEvent) => {
     emits('pagination', pageNum)
   }
 }
-
-const dropDown = [10, 50, 100, 200, 500, 1000, 2000, 4000, 5000, 7000, 10000, 20000]
 </script>

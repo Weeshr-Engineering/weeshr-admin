@@ -12,7 +12,8 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuCheckboxItem,
-  DropdownMenuTrigger
+  DropdownMenuTrigger,
+  DropdownMenuItem
 } from '@/components/ui/dropdown-menu'
 import {
   AlertDialog,
@@ -34,14 +35,13 @@ import {
   // SheetTrigger,
   sheetVariants
 } from '@/components/ui/sheet'
-import { Calendar } from '@/components/ui/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 
 import EmailTemplate from '@/views/protected/AdminModule/EmailTemplate.vue'
 
-import { onMounted, ref } from 'vue'
-import getUsers, { type User } from '@/composables/getUsers'
-import { computed, watch } from 'vue'
+import { onMounted, reactive, ref, watch } from 'vue'
+import getUsers, { type User, type UserFilter } from '@/composables/getUsers'
+import { computed } from 'vue'
 import { Icon } from '@iconify/vue'
 import { Button } from '@/components/ui/button'
 import PagePagination from './PagePagination.vue'
@@ -51,7 +51,7 @@ import { catchErr } from '@/composables/catchError'
 import { ability, defineAbilities } from '@/lib/ability'
 import { useUserTablePageStore } from '@/stores/userTableStore'
 import * as XLSX from 'xlsx'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { Calendar } from './ui/calendar'
 
 //logic
 defineAbilities()
@@ -64,8 +64,21 @@ const errors = error
 const sheetClass = sheetVariants({ length: 'template' })
 // const isSheetOpen = ref(true) // Set to true to open by default
 
+const filter = reactive<UserFilter>({
+  page: 1,
+  per_page: 20,
+  gender: '',
+  startDate: '',
+  endDate: '',
+  search: ''
+})
+
 onMounted(() => {
-  load('', 1)
+  load(filter)
+})
+
+watch(filter, () => {
+  load(filter)
 })
 
 //birthday
@@ -103,13 +116,17 @@ const handleStartDateChange = (start: any) => {
 }
 const handleEndDateChange = (end: any) => {
   endDate.value = end
+  if (startDate.value !== undefined && endDate.value !== undefined) {
+    filter.startDate = startDate.value.toString()
+    filter.endDate = endDate.value.toString()
+  }
 }
 
 //search
 const search = ref('')
 
 watch(search, () => {
-  load(search.value, 1)
+  filter.search = search.value
 })
 
 const store = useUserTablePageStore()
@@ -119,7 +136,7 @@ const lastPage = computed(() => {
 })
 
 //filter
-type SortItem = 'male' | 'female' | 'verified' | 'unverified' | 'all'
+type SortItem = 'verified' | 'unverified' | 'all'
 
 const order = ref<SortItem>('all')
 
@@ -127,19 +144,19 @@ const handleClick = (term: SortItem) => {
   order.value = term
 }
 const handleReset = () => {
-  order.value = 'all'
-  search.value = ''
-  load(search.value, lastPage.value)
+  ;(filter.page = lastPage.value),
+    (filter.per_page = 20),
+    (filter.gender = ''),
+    (filter.startDate = undefined),
+    (filter.endDate = undefined),
+    (filter.search = ''),
+    (startDate.value = undefined),
+    (endDate.value = undefined)
+  load(filter)
 }
 
 const sortUsers = computed(() => {
   let users = [...appUsers.value]
-
-  if (order.value === 'female') {
-    users = users.filter((user) => user.gender === 'female')
-  } else if (order.value === 'male') {
-    users = users.filter((user) => user.gender === 'male')
-  }
   if (order.value === 'verified') {
     users = users.filter((user) => user.emailVerified)
   } else if (order.value === 'unverified') {
@@ -153,7 +170,8 @@ const pageTotal = ref(totalPages)
 const pageCurrent = ref(currentPage)
 
 const handlePageChange = (page: number) => {
-  load(search.value, page)
+  filter.page = page
+  load(filter)
 }
 
 const alert = ref(false)
@@ -268,6 +286,13 @@ const sendVerification = async () => {
   }
 }
 
+//per page input
+const dropDown = [10, 20, 50, 100, 200, 500, 1000, 2000, 4000, 5000, 7000, 10000, 20000]
+
+const setPerPage = (item: number) => {
+  filter.per_page = item
+}
+
 //download excel file
 
 const exportToExcel = () => {
@@ -363,23 +388,6 @@ const exportToExcel = () => {
           <SheetDescription> <EmailTemplate v-bind="emailTemplateProps" /></SheetDescription>
         </SheetContent>
       </Sheet> -->
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="outline"
-              class="rounded-2xl bg-[#EEEFF5]"
-              @click="() => exportToExcel()"
-              size="sm"
-            >
-              <Icon icon="vscode-icons:file-type-excel" width="35" height="35" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Download user(s) file</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
 
       <div class="flex items-center">
         <Popover>
@@ -402,7 +410,7 @@ const exportToExcel = () => {
             </Button>
           </PopoverTrigger>
           <PopoverContent class="w-auto p-0" align="start">
-            <Calendar :v-model="endDate" @update:modelValue="handleEndDateChange" initialFocus />
+            <Calendar :v-model="endDate" @update:modelValue="handleEndDateChange" />
           </PopoverContent>
         </Popover>
       </div>
@@ -417,10 +425,10 @@ const exportToExcel = () => {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent class="justify-between item-center">
-          <DropdownMenuCheckboxItem @click="() => handleClick('male')">
+          <DropdownMenuCheckboxItem @click="() => (filter.gender = 'male')">
             Male
           </DropdownMenuCheckboxItem>
-          <DropdownMenuCheckboxItem @click="() => handleClick('female')">
+          <DropdownMenuCheckboxItem @click="() => (filter.gender = 'female')">
             Female
           </DropdownMenuCheckboxItem>
         </DropdownMenuContent>
@@ -454,7 +462,18 @@ const exportToExcel = () => {
           Clear Filter
         </div>
       </Button>
-      <Search v-model="search" class="flex-1" />
+      <Button
+        class="bg-[#EEEFF5] rounded-2xl"
+        :disabled="selectedUsersData.length === 0"
+        variant="outline"
+        @click="() => exportToExcel()"
+      >
+        <div class="flex items-center text-[10px] md:text-xs">
+          Export as Excel
+          <Icon icon="vscode-icons:file-type-excel" class="ml-2 text-xl text-green-700" />
+        </div>
+      </Button>
+      <Search v-model="search" class="flex-1 max-w-[600px]" />
     </div>
   </div>
 
@@ -563,9 +582,27 @@ const exportToExcel = () => {
       <p>No user data available</p>
     </div>
   </div>
-  <PagePagination
-    :page-total="pageTotal"
-    :page-current="pageCurrent"
-    @pagination="handlePageChange"
-  />
+  <div class="flex justify-between items-end">
+    <div class="flex gap-4 space-x-2 w-15 h-10 border-2 rounded-md p-2 items-center">
+      Per Page
+      <DropdownMenu>
+        <DropdownMenuTrigger class="flex items-center gap-2"
+          >{{ filter.per_page }}<Icon icon="oui:arrow-down" width="16" height="16"
+        /></DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuItem
+            v-for="(item, index) in dropDown"
+            v-bind:key="index"
+            @click="() => setPerPage(item)"
+            >{{ item.toLocaleString() }}</DropdownMenuItem
+          >
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+    <PagePagination
+      :page-total="pageTotal"
+      :page-current="pageCurrent"
+      @pagination="handlePageChange"
+    />
+  </div>
 </template>
