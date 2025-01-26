@@ -1,13 +1,7 @@
 <template>
-  <div class="flex gap-2 max-w-full flex-wrap justify-end mt-8 mr-4 items-center text-[15px]">
-    <Pagination
-      :total="pageTotal"
-      :sibling-count="1"
-      show-edges
-      :default-page="1"
-      @change="handlePageChange"
-    >
-      <PaginationList class="flex items-center gap-1">
+  <div class="flex gap-2 flex-wrap justify-center lg:justify-end mt-8 items-center text-[15px]">
+    <Pagination :total="pageTotal" :sibling-count="1" show-edges :default-page="1">
+      <PaginationList class="flex items-center gap-2 w-8/12 md:w-full justify-center flex-wrap">
         <Button
           class="w-10 h-10 p-0"
           variant="outline"
@@ -36,7 +30,6 @@
             </Button>
           </PaginationListItem>
         </template>
-
         <Button
           class="w-10 h-10 p-0"
           variant="outline"
@@ -55,15 +48,29 @@
         </Button>
       </PaginationList>
     </Pagination>
-    <p>Showing {{ props.pageCurrent }} of {{ props.pageTotal }} page(s)</p>
+    <p>
+      Showing
+      <input
+        class="w-10 h-10 ps-2 border-2 rounded-lg text-black mx-1"
+        ref="pageInput"
+        type="number"
+        @keyup="(e) => handlePageInput(e)"
+        :value="props.pageCurrent"
+        min="1"
+        :max="props.pageTotal"
+        step="1"
+      />
+      of {{ props.pageTotal }} page(s)
+    </p>
   </div>
 </template>
 
 <script setup lang="ts">
-import { Pagination, PaginationList, PaginationListItem } from '@/components/ui/pagination'
-import { computed } from 'vue'
+import { Pagination, PaginationList } from '@/components/ui/pagination'
 import { Button } from '@/components/ui/button'
 import { Icon } from '@iconify/vue'
+import { useUserTablePageStore } from '@/stores/userTableStore'
+import { computed } from 'vue'
 
 const paginationItems = computed(() => {
   const pages = []
@@ -103,7 +110,24 @@ const props = defineProps({
 
 const emits = defineEmits(['pagination'])
 
+const store = useUserTablePageStore()
+
 const handlePageChange = (page: number) => {
-  emits('pagination', page)
+  const pageNum = page > props.pageTotal ? props.pageTotal : page
+
+  store.setCurrentPage(pageNum)
+  emits('pagination', pageNum)
+}
+
+const handlePageInput = (e: KeyboardEvent) => {
+  e.preventDefault()
+  const target = e.target as HTMLInputElement
+  if (e.key === 'Enter') {
+    const page = parseInt(target.value)
+    const pageNum = page > props.pageTotal ? props.pageTotal : page
+
+    store.setCurrentPage(pageNum)
+    emits('pagination', pageNum)
+  }
 }
 </script>
