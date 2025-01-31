@@ -129,15 +129,17 @@ const openNotificationsBoard = () => {
         </a>
       </li>
 
-      <li>
-        <a>
+      <li :class="{ 'dashboard-active': isActive('/analytics') }">
+        <a @click="$router.push({ name: 'analytics' })">
           <div class="icon-grid">
-            <Icon icon="carbon:text-link-analysis" width="16" height="16" class="icons-sidebar" />
+            <Icon icon="carbon:text-link-analysis" width="17" height="17" class="icons-sidebar" />
           </div>
 
           <span class="nav-text"> Analytics </span>
         </a>
       </li>
+
+     
 
       <li v-if="activityLogs" :class="{ 'dashboard-active': isActive('/activity') }">
         <a @click="$router.push({ name: 'activity' })">
