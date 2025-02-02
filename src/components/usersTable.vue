@@ -13,7 +13,9 @@ import {
   DropdownMenuContent,
   DropdownMenuCheckboxItem,
   DropdownMenuTrigger,
-  DropdownMenuItem
+  DropdownMenuItem,
+  DropdownMenuGroup,
+  DropdownMenuSeparator
 } from '@/components/ui/dropdown-menu'
 import {
   AlertDialog,
@@ -26,6 +28,16 @@ import {
   AlertDialogTitle
 } from '@/components/ui/alert-dialog'
 
+import { Dialog, DialogContent, DialogFooter, DialogClose } from '@/components/ui/dialog'
+
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
+
 import {
   Sheet,
   SheetContent,
@@ -35,7 +47,6 @@ import {
   // SheetTrigger,
   sheetVariants
 } from '@/components/ui/sheet'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 
 import EmailTemplate from '@/views/protected/AdminModule/EmailTemplate.vue'
 
@@ -51,7 +62,8 @@ import { catchErr } from '@/composables/catchError'
 import { ability, defineAbilities } from '@/lib/ability'
 import { useUserTablePageStore } from '@/stores/userTableStore'
 import * as XLSX from 'xlsx'
-import { Calendar } from './ui/calendar'
+import DialogTitle from './ui/dialog/DialogTitle.vue'
+import DialogDescription from './ui/dialog/DialogDescription.vue'
 
 //logic
 defineAbilities()
@@ -68,9 +80,10 @@ const filter = reactive<UserFilter>({
   page: 1,
   per_page: 20,
   gender: '',
-  startDate: '',
-  endDate: '',
-  search: ''
+  startDateMonth: '',
+  endDateMonth: '',
+  search: '',
+  birthdayFilterConstants: ''
 })
 
 onMounted(() => {
@@ -82,24 +95,28 @@ watch(filter, () => {
 })
 
 //birthday
+const months = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December'
+]
+
+const dates = Array.from({ length: 31 }, (_, i) => i + 1)
+
 const dateOfBirth = (dob: string) => {
   const date = new Date(dob)
 
   const day = String(date.getUTCDate()).padStart(2, '0')
-  const monthNames = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December'
-  ]
+  const monthNames = months
   const month = monthNames[date.getUTCMonth()]
   const year = date.getUTCFullYear()
 
@@ -108,17 +125,35 @@ const dateOfBirth = (dob: string) => {
   return formattedDate
 }
 
-const startDate = ref<Date | undefined>(undefined)
-const endDate = ref<Date | undefined>(undefined)
+const startMonth = ref<string>('')
+const startDay = ref<string>('')
+const endMonth = ref<string>('')
+const endDay = ref<string>('')
+const openDateDialog = ref(false)
 
-const handleStartDateChange = (start: any) => {
-  startDate.value = start
-}
-const handleEndDateChange = (end: any) => {
-  endDate.value = end
-  if (startDate.value !== undefined && endDate.value !== undefined) {
-    filter.startDate = startDate.value.toString()
-    filter.endDate = endDate.value.toString()
+const handleBirthdayFilter = () => {
+  if (startDay.value && startMonth.value && endMonth.value && endDay.value) {
+    const startMonthIndex = months.indexOf(startMonth.value)
+    const endMonthIndex = months.indexOf(endMonth.value)
+
+    if (startMonthIndex === -1 || endMonthIndex === -1) {
+      toast({
+        description: 'Please select a valid month',
+        variant: 'warning'
+      })
+      return
+    }
+
+    const formattedStartMonthIndex = (startMonthIndex + 1).toString().padStart(2, '0')
+    const formattedEndMonthIndex = (endMonthIndex + 1).toString().padStart(2, '0')
+
+    filter.startDateMonth = `${startDay.value} - ${formattedStartMonthIndex}`
+    filter.endDateMonth = `${endDay.value} - ${formattedEndMonthIndex}`
+
+    startDay.value = ''
+    startMonth.value = ''
+    endMonth.value = ''
+    endDay.value = ''
   }
 }
 
@@ -147,12 +182,11 @@ const handleReset = () => {
   ;(filter.page = lastPage.value),
     (filter.per_page = 20),
     (filter.gender = ''),
-    (filter.startDate = undefined),
-    (filter.endDate = undefined),
+    (filter.startDateMonth = ''),
+    (filter.endDateMonth = ''),
     (filter.search = ''),
-    (startDate.value = undefined),
-    (endDate.value = undefined)
-  load(filter)
+    (filter.birthdayFilterConstants = ''),
+    load(filter)
 }
 
 const sortUsers = computed(() => {
@@ -389,31 +423,111 @@ const exportToExcel = () => {
         </SheetContent>
       </Sheet> -->
 
-      <div class="flex items-center">
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button variant="outline" class="rounded-2xl bg-[#EEEFF5]" size="sm">
-              <span v-if="startDate">{{ startDate }}</span
-              ><span v-else>🥳 From</span>
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent class="w-auto p-0" align="start">
-            <Calendar :v-model="startDate" @update:modelValue="handleStartDateChange" />
-          </PopoverContent>
-        </Popover>
-        <p class="font-semibold text-2xl">-</p>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button variant="outline" class="rounded-2xl bg-[#EEEFF5]" size="sm">
-              <span v-if="endDate">{{ endDate }}</span
-              ><span v-else>🥳 To</span>
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent class="w-auto p-0" align="start">
-            <Calendar :v-model="endDate" @update:modelValue="handleEndDateChange" />
-          </PopoverContent>
-        </Popover>
-      </div>
+      <DropdownMenu>
+        <DropdownMenuTrigger as-child class="rounded-2xl bg-[#EEEFF5]">
+          <Button variant="outline" size="sm">
+            <div class="flex items-center text-[10px] md:text-xs">
+              {{
+                filter.birthdayFilterConstants
+                  ? filter.birthdayFilterConstants.toUpperCase()
+                  : 'Filter by Birthdays'
+              }}
+              <span v-if="filter.birthdayFilterConstants">🥳</span>
+              <Icon icon="ion:chevron-down-outline" class="ml-1" />
+            </div>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent class="justify-between item-center">
+          <DropdownMenuGroup>
+            <DropdownMenuCheckboxItem @click="() => (filter.birthdayFilterConstants = 'tommorrow')">
+              Birthdays tommorrow
+            </DropdownMenuCheckboxItem>
+            <DropdownMenuCheckboxItem
+              @click="() => (filter.birthdayFilterConstants = 'in-three-days')"
+            >
+              Birthdays in 3 days
+            </DropdownMenuCheckboxItem>
+            <DropdownMenuCheckboxItem @click="() => (filter.birthdayFilterConstants = 'in-a-week')">
+              Birthdays in a week
+            </DropdownMenuCheckboxItem>
+            <DropdownMenuCheckboxItem
+              @click="() => (filter.birthdayFilterConstants = 'in-a-month')"
+            >
+              Birthdays in a month
+            </DropdownMenuCheckboxItem>
+          </DropdownMenuGroup>
+          <DropdownMenuSeparator />
+          <DropdownMenuCheckboxItem
+            class="bg-gray-200"
+            @click="() => (openDateDialog = !openDateDialog)"
+            >Pick a date range</DropdownMenuCheckboxItem
+          >
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <Dialog v-model:open="openDateDialog">
+        <DialogContent class="sm:max-w-[425px]">
+          <DialogTitle>Select Date Range</DialogTitle>
+          <DialogDescription>
+            Select the start and end dates to filter users by their birthdays within this range.
+          </DialogDescription>
+          <div>
+            <p>Start Date:</p>
+            <div class="flex justify-center items-center">
+              <Select v-model="startMonth">
+                <SelectTrigger class="w-fit"> <SelectValue placeholder="Month" /></SelectTrigger>
+                <SelectContent class="overflow-y-auto pb-10">
+                  <SelectItem v-for="month in months" :key="month" :value="month" class="text-sm">{{
+                    month
+                  }}</SelectItem>
+                </SelectContent>
+              </Select>
+              <p class="font-semibold text-xl mx-2">-</p>
+              <Select v-model="startDay">
+                <SelectTrigger class="w-fit">
+                  <SelectValue placeholder="Day" />
+                </SelectTrigger>
+                <SelectContent class="overflow-y-auto pb-10">
+                  <SelectItem v-for="date in dates" :key="date" :value="date.toLocaleString()">{{
+                    date
+                  }}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div>
+            <p>End Date:</p>
+            <div class="flex justify-center items-center">
+              <Select v-model="endMonth">
+                <SelectTrigger class="w-fit"> <SelectValue placeholder="Month" /></SelectTrigger>
+                <SelectContent class="overflow-y-auto pb-10">
+                  <SelectItem v-for="month in months" :key="month" :value="month" class="text-sm">{{
+                    month
+                  }}</SelectItem>
+                </SelectContent>
+              </Select>
+              <p class="font-semibold text-xl mx-2">-</p>
+              <Select v-model="endDay">
+                <SelectTrigger class="w-fit">
+                  <SelectValue placeholder="Day" />
+                </SelectTrigger>
+                <SelectContent class="overflow-y-auto pb-10">
+                  <SelectItem v-for="date in dates" :key="date" :value="date.toLocaleString()">{{
+                    date
+                  }}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button type="button" variant="secondary" @click="() => handleBirthdayFilter()">
+                Go
+              </Button>
+            </DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <DropdownMenu>
         <DropdownMenuTrigger as-child class="rounded-2xl bg-[#EEEFF5]">

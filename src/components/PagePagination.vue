@@ -66,7 +66,7 @@
 </template>
 
 <script setup lang="ts">
-import { Pagination, PaginationList } from '@/components/ui/pagination'
+import { Pagination, PaginationList, PaginationListItem } from '@/components/ui/pagination'
 import { Button } from '@/components/ui/button'
 import { Icon } from '@iconify/vue'
 import { useUserTablePageStore } from '@/stores/userTableStore'
