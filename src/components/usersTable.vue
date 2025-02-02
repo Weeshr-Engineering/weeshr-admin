@@ -149,6 +149,7 @@ const handleBirthdayFilter = () => {
 
     filter.startDateMonth = `${startDay.value} - ${formattedStartMonthIndex}`
     filter.endDateMonth = `${endDay.value} - ${formattedEndMonthIndex}`
+    filter.birthdayFilterConstants = ''
 
     startDay.value = ''
     startMonth.value = ''
