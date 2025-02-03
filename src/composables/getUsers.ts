@@ -28,9 +28,10 @@ export type UserFilter = {
   page: number
   per_page: number
   gender?: string
-  startDate?: string
-  endDate?: string
+  startDateMonth?: string
+  endDateMonth?: string
   search?: string
+  birthdayFilterConstants?: string
 }
 
 const getUsers = () => {
