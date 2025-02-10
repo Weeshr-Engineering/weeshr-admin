@@ -8,7 +8,7 @@ import Vendors from '@/views/protected/AdminModule/VendorsList.vue'
 import AdminDetails from '@/views/protected/AdminModule/AdminDetails.vue'
 import UserDetails from '@/views/protected/AdminModule/UserDetails.vue'
 import AdminDashboard from '@/views/protected/AdminModule/AdminDashboard.vue'
-import Analytics from '@/views/protected/AdminModule/Analytics.vue'
+import Analytics from '@/views/protected/AdminModule/AnalyticsView.vue'
 
 import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
 import ErrorPage from '@/views/unprotected/ErrorPageView.vue'
