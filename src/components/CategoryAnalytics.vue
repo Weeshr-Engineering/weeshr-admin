@@ -1,12 +1,11 @@
-<!-- CategoryAnalytics.vue -->
 <script setup lang="ts">
-import { useCategoryAnalyticsStore } from '@/stores/analytics-store/analytics-category';
-import { storeToRefs } from 'pinia';
-import { ref } from 'vue';
+import { useCategoryAnalyticsStore } from '@/stores/analytics-store/analytics-category'
+import { storeToRefs } from 'pinia'
+import { ref } from 'vue'
 
-const categoryStore = useCategoryAnalyticsStore();
-const { allCategories, topCategory, loading, error } = storeToRefs(categoryStore);
-const showAll = ref(false);
+const categoryStore = useCategoryAnalyticsStore()
+const { allCategories, topCategory, loading, error } = storeToRefs(categoryStore)
+const showAll = ref(false)
 </script>
 
 <template>
@@ -28,7 +27,9 @@ const showAll = ref(false);
       <!-- Top Category View -->
       <div v-if="!showAll" class="flex justify-between items-center mt-2">
         <span class="text-lg font-medium truncate">{{ topCategory.name }}</span>
-        <span class="text-gray-600 whitespace-nowrap">{{ topCategory.users.toLocaleString() }} Users</span>
+        <span class="text-gray-600 whitespace-nowrap"
+          >{{ topCategory.users.toLocaleString() }} Users</span
+        >
       </div>
 
       <!-- All Categories View -->
@@ -39,7 +40,9 @@ const showAll = ref(false);
           class="flex justify-between items-center p-2 rounded-md hover:bg-gray-50 transition-colors"
         >
           <span class="text-gray-700 truncate pr-2">{{ category.category }}</span>
-          <span class="text-gray-600 whitespace-nowrap">{{ category.count.toLocaleString() }} Users</span>
+          <span class="text-gray-600 whitespace-nowrap"
+            >{{ category.count.toLocaleString() }} Users</span
+          >
         </div>
       </div>
     </div>

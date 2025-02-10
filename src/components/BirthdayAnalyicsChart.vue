@@ -27,9 +27,9 @@ const chartData = computed<ChartData<'bar'>>(() => ({
     {
       label: 'Birthdays',
       data: birthdayStore.data.map(entry => entry.count),
-      backgroundColor: '#6366F1',
-      borderRadius: 10,
-      barThickness: 15,
+      backgroundColor: '#6A70FF',
+      borderRadius: 5,
+      barThickness: 20,
     }
   ]
 }));
@@ -46,7 +46,7 @@ const chartOptions: ChartOptions<'bar'> = {
     x: {
       grid: { display: false },
       ticks: {
-        color: '#666',
+        color: '#60646C',
         font: { size: 12 }
       }
     },
@@ -58,6 +58,7 @@ const chartOptions: ChartOptions<'bar'> = {
           size: 14,
           weight: 'bold'
         },
+
         // Ensure months appear in correct order
         callback: (_, index) => birthdayStore.data[index]?.month
       }
@@ -69,8 +70,8 @@ const chartOptions: ChartOptions<'bar'> = {
 <template>
   <div class="bg-white rounded-xl shadow-sm p-6 w-full max-w-2xl mx-auto">
     <div class="mb-5">
-      <h3 class="text-gray-900 font-semibold text-lg">Birthday Distribution</h3>
-      <p class="text-gray-500 text-sm">January - December 2024</p>
+      <h3 class="text-gray-900 font-semibold text-lg">Birthday Chart</h3>
+      <p class="text-[#60646C] text-sm">January - December 2024</p>
     </div>
 
     <div class="relative h-64 md:h-96">
@@ -81,17 +82,17 @@ const chartOptions: ChartOptions<'bar'> = {
       />
       <div 
         v-else
-        class="absolute inset-0 flex items-center justify-center text-gray-400"
+        class="absolute inset-0 flex items-center justify-center text-[#60646C]"
       >
         Loading birthday data...
       </div>
     </div>
 
     <div class="mt-4 space-y-2">
-      <p class="text-sm text-emerald-600 font-medium">
+      <p class="text-sm text-[#1C2024]font-medium">
         🎉 Birthday occurrence trending up by <strong>1%</strong> this month 📈
       </p>
-      <p class="text-xs text-gray-400">
+      <p class="text-xs text-[#60646C]">
         Showing total birthdays per month (full calendar year)
       </p>
     </div>

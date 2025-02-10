@@ -17,7 +17,7 @@ onMounted(() => {
 
 const ageOptions = computed(() => {
   if (!genderStore.ageData || !Array.isArray(genderStore.ageData)) return []
-  return genderStore.ageData.map(entry => entry.age).sort((a, b) => a - b)
+  return genderStore.ageData.map((entry) => entry.age).sort((a, b) => a - b)
 })
 
 const chartData = computed(() => {
@@ -42,7 +42,7 @@ const chartData = computed(() => {
     }
   }
 
-  const selectedEntry = genderStore.ageData.find(entry => entry.age === selectedAge.value)
+  const selectedEntry = genderStore.ageData.find((entry) => entry.age === selectedAge.value)
   if (!selectedEntry) {
     return { labels: [], datasets: [] }
   }
@@ -89,5 +89,4 @@ const chartOptions: ChartOptions<'pie'> = {
       <p v-else class="text-[#60646C]">No data available</p>
     </div>
   </div>
-  
 </template>
