@@ -148,7 +148,7 @@ const routes = [
   },
   {
     path: '/analytics',
-    name: 'analytics',
+    name: 'AdminAnalytics',
     component: Analytics,
     meta: { requiresAuth: true }
   },

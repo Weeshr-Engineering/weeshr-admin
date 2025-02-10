@@ -130,7 +130,7 @@ const openNotificationsBoard = () => {
       </li>
 
       <li :class="{ 'dashboard-active': isActive('/analytics') }">
-        <a @click="$router.push({ name: 'analytics' })">
+        <a @click="$router.push({ name: 'AdminAnalytics' })">
           <div class="icon-grid">
             <Icon icon="carbon:text-link-analysis" width="17" height="17" class="icons-sidebar" />
           </div>
