@@ -5,7 +5,7 @@ import { useAnalytics } from '@/stores/analytics-store/analytics-store';
 import { Line } from 'vue-chartjs';
 import { Chart as ChartJS, Title, Tooltip, Legend, PointElement, LineElement, CategoryScale, LinearScale } from 'chart.js';
 import type { ChartOptions, ChartData } from 'chart.js';
-
+import DeviceAnalytics from '@/components/DeviceAnalytics.vue'
 // Register necessary Chart.js components
 ChartJS.register(Title, Tooltip, PointElement, LineElement, CategoryScale, LinearScale);
 
@@ -34,10 +34,10 @@ const chartData = computed<LineChartData>(() => ({
   datasets: [
     {
       data: analyticsStore.data.map(entry => entry.value),
-      borderColor: '#6366F1',
-      backgroundColor: 'rgba(99, 102, 241, 0.2)',
-      pointBackgroundColor: '#6366F1',
-      tension: 0.4,
+      borderColor: '#6A70FF',
+      backgroundColor: '#FFFFFF',
+      pointBackgroundColor: '#F4F4F5',
+      tension: 0.7,
       fill: true,
     }
   ]
@@ -54,7 +54,7 @@ const chartOptions: ChartOptions<'line'> = {
   },
   scales: {
     x: {
-      ticks: { color: '#6b7280' }
+      ticks: { color: '#60646C' }
     },
     y: {
       ticks: { color: '#6b7280' }
@@ -64,24 +64,32 @@ const chartOptions: ChartOptions<'line'> = {
 </script>
 
 <template>
-  <div class="w-full max-w-[800px] h-[410px] mx-auto p-5 bg-[#FFFFFF] rounded-lg shadow-sm">
-    <div>
-    <div class="flex gap-4 mb-2.5">
-      <p class="text-lg font-semibold">User Analytics</p>
-      <select 
-        v-model="selectedInterval" 
-        @change="updateAnalytics"
-        class="ml-2 p-1 border border-gray-300 rounded-md cursor-pointer"
-      >
-        <option value="daily">Daily</option>
-        <option value="monthly">Monthly</option>
-        <option value="yearly">Yearly</option>
-      </select>
+  <div class="w-full max-w-[800px] min-h-[510px] p-7 bg-[#FFFFFF] rounded-lg">
+    <div class="flex flex-col sm:flex-row justify-between items-start mb-6 gap-4">
+      <div class="w-full sm:w-auto">
+        <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+          <p class="text-lg font-semibold">User Analytics</p>
+          <select 
+            v-model="selectedInterval" 
+            @change="updateAnalytics"
+            class="p-1 bg-[#FCFCFC] border  rounded-md cursor-pointer text-sm sm:text-base"
+          >
+            <option value="daily">Daily</option>
+            <option value="monthly">Monthly</option>
+            <option value="yearly">Yearly</option>
+          </select>
+        </div>
+        <p class="mt-2 text-xs sm:text-sm">Showing total number of users that joined weeshr</p>
+      </div>
 
+      <!-- DeviceAnalytics Component -->
+      <DeviceAnalytics class="w-full sm:w-auto" />
     </div>
-    <p>Showing total number of users that joined weeshr</p>
-  </div>
-    <Line v-if="chartData.labels.length > 0" :data="chartData" :options="chartOptions" />
-    <p v-else class="text-gray-600">No data available</p>
+
+    <!-- Chart Section -->
+    <div class="mt-4 h-[350px]">
+      <Line v-if="chartData.labels.length > 0" :data="chartData" :options="chartOptions" />
+      <p v-else class="text-gray-600">No data available</p>
+    </div>
   </div>
 </template>

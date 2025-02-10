@@ -8,7 +8,6 @@ import UserAnalyticsChart from '@/components/AnalyticsChart.vue'
 import { useAnalytics } from '@/stores/analytics-store/analytics-store'
 import GenderAnalyticsChart from '@/components/GenderAnalyticsChart.vue'
 import { storeToRefs } from 'pinia'
-import DeviceAnalytics from '@/components/DeviceAnalytics.vue'
 
 const dashboardAnalyticsStore = useDashboardAnalyticsStore()
 const { weeshes, wallet, users, tickets, loading } = storeToRefs(dashboardAnalyticsStore)
@@ -17,21 +16,7 @@ const { weeshes, wallet, users, tickets, loading } = storeToRefs(dashboardAnalyt
 onMounted(async () => {
   await dashboardAnalyticsStore.fetchDashboardAnalytics()
 })
-// Sample user analytics data
-// Initialize the store
-const analyticsStore = useAnalytics()
 
-// Create a reactive variable to hold the selected interval.
-// The default is 'monthly', but the user can choose 'daily' or 'yearly'
-const selectedInterval = ref<'daily' | 'monthly' | 'yearly'>('monthly')
-
-// Watch for changes to the selected interval and fetch new data accordingly
-watch(selectedInterval, (newInterval) => {
-  analyticsStore.fetchUserAnalytics(newInterval)
-})
-
-// Fetch the default data when the component mounts
-analyticsStore.fetchUserAnalytics(selectedInterval.value)
 </script>
 
 <template>
@@ -59,27 +44,14 @@ analyticsStore.fetchUserAnalytics(selectedInterval.value)
       />
     </div>
     <div class="p-6">
-      <h2 class="text-xl font-semibold mb-4">User Analytics</h2>
-
-      <!-- Dropdown to select the interval view -->
-      <div class="mb-4">
-        <label for="interval" class="mr-2 font-medium">View: </label>
-        <select id="interval" v-model="selectedInterval" class="p-2 border rounded">
-          <option value="daily">Daily</option>
-          <option value="monthly">Monthly</option>
-          <option value="yearly">Yearly</option>
-        </select>
-      </div>
+    
 
       <!-- Chart component receiving data from the store -->
-      <UserAnalyticsChart :data="analyticsStore.data" />
+      <UserAnalyticsChart  />
     </div>
     <div class="p-6 grid gap-6">
       <GenderAnalyticsChart />
     </div>
-    <div class="p-6">
-      <h2 class="text-xl font-semibold mb-4">Device Analytics</h2>
-      <DeviceAnalytics />
-    </div>
+    
   </div>
 </template>
