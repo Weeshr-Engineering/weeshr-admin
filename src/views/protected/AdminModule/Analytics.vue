@@ -7,6 +7,9 @@ import { onMounted } from 'vue'
 import UserAnalyticsChart from '@/components/AnalyticsChart.vue'
 import { useAnalytics } from '@/stores/analytics-store/analytics-store'
 import GenderAnalyticsChart from '@/components/GenderAnalyticsChart.vue'
+import BirthdayAnalyicsChart from '@/components/BirthdayAnalyicsChart.vue'
+import CategoryAnalytics from '@/components/CategoryAnalytics.vue'
+
 import { storeToRefs } from 'pinia'
 
 const dashboardAnalyticsStore = useDashboardAnalyticsStore()
@@ -16,7 +19,6 @@ const { weeshes, wallet, users, tickets, loading } = storeToRefs(dashboardAnalyt
 onMounted(async () => {
   await dashboardAnalyticsStore.fetchDashboardAnalytics()
 })
-
 </script>
 
 <template>
@@ -43,15 +45,28 @@ onMounted(async () => {
         :subvalue="tickets.pending"
       />
     </div>
-    <div class="p-6">
-    
 
-      <!-- Chart component receiving data from the store -->
-      <UserAnalyticsChart  />
+    <div class="mt-6 flex flex-col lg:flex-row justify-between items-start gap-2">
+      <!-- User Analytics Chart -->
+      <div class="w-full lg:w-2/3">
+        <UserAnalyticsChart />
+      </div>
+
+      <!-- Gender Analytics Chart -->
+      <div class="w-full lg:w-1/3">
+        <GenderAnalyticsChart />
+      </div>
     </div>
-    <div class="p-6 grid gap-6">
-      <GenderAnalyticsChart />
+    <div class="mt-6 flex flex-col lg:flex-row justify-between items-start gap-2">
+      <div class="w-full lg:w-2/3">
+        <BirthdayAnalyicsChart />
+
+      </div>
+      <div class="w-full lg:w-1/3">
+        <CategoryAnalytics />
+      </div>
+
+
     </div>
-    
   </div>
 </template>

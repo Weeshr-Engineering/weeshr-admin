@@ -84,47 +84,18 @@ const chartOptions: ChartOptions<'pie'> = {
 </script>
 
 <template>
-  <div class="chart-wrapper">
-    <div class="header">
-      <h3 class="title">User Distribution</h3>
-      <select v-model="selectedAge" class="dropdown">
+  <div class="w-full bg-[#FFFFFF] max-w-[450px] p-7 text-center min-h-[510px] rounded-lg">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-lg font-semibold">Gender</h3>
+      <select v-model="selectedAge" class="px-2 py-1 rounded border border-gray-300">
         <option :value="null">All Ages</option>
         <option v-for="age in ageOptions" :key="age" :value="age">Age {{ age }}</option>
       </select>
     </div>
-    <div class="chart-container">
+    <div class="flex justify-center items-center h-[300px] w-full">
       <Pie v-if="chartData.datasets.length > 0" :data="chartData" :options="chartOptions" />
-      <p v-else>No data available</p>
+      <p v-else class="text-gray-500">No data available</p>
     </div>
   </div>
+  
 </template>
-
-<style scoped>
-.chart-wrapper {
-  width: 100%;
-  max-width: 450px;
-  margin: auto;
-  text-align: center;
-}
-
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-
-.chart-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 300px; /* Keeps chart from moving down */
-  width: 100%;
-}
-
-.dropdown {
-  padding: 5px;
-  border-radius: 5px;
-  border: 1px solid #ddd;
-}
-</style>

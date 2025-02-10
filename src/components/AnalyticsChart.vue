@@ -57,7 +57,7 @@ const chartOptions: ChartOptions<'line'> = {
       ticks: { color: '#60646C' }
     },
     y: {
-      ticks: { color: '#6b7280' }
+      ticks: { color: '#60646C' }
     }
   }
 };
