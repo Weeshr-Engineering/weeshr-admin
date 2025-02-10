@@ -4,7 +4,7 @@ import { storeToRefs } from 'pinia';
 import { onMounted } from 'vue';
 
 const store = useDeviceAnalyticsStore();
-const { iosUsers, androidUsers, loading, error } = storeToRefs(store); // ✅ Ensures reactivity
+const { iosUsers, androidUsers, loading, error } = storeToRefs(store); 
 
 onMounted(() => {
   store.fetchDeviceMetrics();
@@ -21,11 +21,11 @@ onMounted(() => {
     <div v-else class="flex flex-row gap-6 p-1 px-4  ">
       <div class=" text-center w-full sm:w-1/2">
         <span class="text-sm text-[#60646C]">iOS</span>
-        <p class="text-2xl">{{ iosUsers }}</p> <!-- ✅ Ensures reactivity -->
+        <p class="text-2xl">{{ iosUsers }}</p> 
       </div>
       <div class="  text-center w-full sm:w-1/2">
         <span class=" text-sm text-[#60646C]"> Android </span>
-        <p class="text-2xl">{{ androidUsers }}</p> <!-- ✅ Ensures reactivity -->
+        <p class="text-2xl">{{ androidUsers }}</p> 
       </div>
     </div>
   </div>

@@ -38,7 +38,7 @@ const chartData = computed<LineChartData>(() => ({
       borderColor: '#6A70FF',
       backgroundColor: '#FFFFFF',
       pointBackgroundColor: '#F4F4F5',
-      tension: 0.7,
+      tension: 0.5,
       fill: true
     }
   ]
