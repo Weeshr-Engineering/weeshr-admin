@@ -13,10 +13,8 @@ export const useDeviceAnalyticsStore = defineStore('deviceAnalytics', () => {
     error.value = null;
     try {
       const response = await axios.get(`/api/v1/admin/analytics/users/device-metric`);
-      console.log('API Response:', response.data); // Debugging
 
       if (response.data && response.data.data && response.data.data.data) {
-        console.log('Extracting Data:', response.data.data.data); // Debugging
         iosUsers.value = response.data.data.data.iOS ?? 0;
         androidUsers.value = response.data.data.data.Android ?? 0;
       } else {
