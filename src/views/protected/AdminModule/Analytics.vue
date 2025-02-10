@@ -15,7 +15,6 @@ import { storeToRefs } from 'pinia'
 const dashboardAnalyticsStore = useDashboardAnalyticsStore()
 const { weeshes, wallet, users, tickets, loading } = storeToRefs(dashboardAnalyticsStore)
 
-// Fetch data once when the dashboard mounts
 onMounted(async () => {
   await dashboardAnalyticsStore.fetchDashboardAnalytics()
 })
@@ -58,10 +57,11 @@ onMounted(async () => {
       </div>
     </div>
     <div class="mt-6 flex flex-col lg:flex-row justify-between items-start gap-2">
+      <!-- Birthday Analytics Chart -->
       <div class="w-full lg:w-2/3">
         <BirthdayAnalyicsChart />
-
       </div>
+      <!-- Category Analytics  -->
       <div class="w-full lg:w-1/3">
         <CategoryAnalytics />
       </div>
