@@ -31,15 +31,15 @@ export const useAnalyticsGender = defineStore('analytics-gender', () => {
         const apiData = response.data.data.data // Array of age entries
         const aggregatedGenderData = { male: 0, female: 0, other: 0 }
 
-        // Aggregate gender data and store raw age entries
+        
         apiData.forEach((entry: AgeDataEntry) => {
           aggregatedGenderData.male += entry.genders.male || 0
           aggregatedGenderData.female += entry.genders.female || 0
-          aggregatedGenderData.other += entry.genders.others || 0 // Note 'others' key from API
+          aggregatedGenderData.other += entry.genders.others || 0 
         })
 
         genderData.value = aggregatedGenderData
-        ageData.value = apiData // Store raw age data for chart
+        ageData.value = apiData
       }
     } catch (error) {
       console.error('API error:', error)

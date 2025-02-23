@@ -20,7 +20,7 @@ type LineChartData = ChartData<'line'> & {
 }
 
 const analyticsStore = useAnalytics()
-const selectedInterval = ref<'daily' | 'monthly' | 'yearly'>('monthly')
+const selectedInterval = ref<'daily' | 'monthly' | 'yearly'>('daily')
 
 onMounted(() => {
   analyticsStore.fetchUserAnalytics(selectedInterval.value)

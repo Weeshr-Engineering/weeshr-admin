@@ -11,7 +11,7 @@ export const useAnalytics = defineStore('analytics', {
     data: [] as UserAnalytics[],
   }),
   actions: {
-    async fetchUserAnalytics(interval: 'daily' | 'monthly' | 'yearly' = 'monthly') {
+    async fetchUserAnalytics(interval: 'daily' | 'monthly' | 'yearly' = 'daily') {
       try {
         const url = `/api/v1/admin/analytics/users/growth-over-time?date_from=2023-05-01&date_to=2024-10-04&interval=${interval}`;
         const response = await axios.get(url);
