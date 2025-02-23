@@ -20,8 +20,10 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="flex-col flex bg-[#f0f8ff] h-full p-8 pt-6 pb-10 w-full">
+  <div class="bg-[#f0f8ff] h-full p-8 pt-6 pb-10 w-full flex flex-col space-y-6">
     <MainNav class="mx-6" headingText="Analytics" />
+    
+    <!-- Admin Cards Grid -->
     <div class="w-full grid gap-4 md:grid-cols-2 md:gap-6 lg:grid-cols-4">
       <AdminCard
         type="weeshes"
@@ -44,28 +46,33 @@ onMounted(async () => {
       />
     </div>
 
-    <div class="mt-6 flex flex-col lg:flex-row justify-between items-start gap-2">
-      <!-- User Analytics Chart -->
-      <div class="w-full lg:w-2/3">
-        <UserAnalyticsChart />
+    <!-- Charts Container -->
+    <div class="w-full flex flex-col space-y-6">
+      <!-- First Row of Charts -->
+      <div class="w-full grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- User Analytics Chart -->
+        <div class="lg:col-span-2 bg-white p-4 rounded-xl shadow-sm">
+          <UserAnalyticsChart />
+        </div>
+        
+        <!-- Gender Analytics Chart -->
+        <div class="bg-white p-4 rounded-xl shadow-sm">
+          <GenderAnalyticsChart />
+        </div>
       </div>
 
-      <!-- Gender Analytics Chart -->
-      <div class="w-full lg:w-1/3">
-        <GenderAnalyticsChart />
+      <!-- Second Row of Charts -->
+      <div class="w-full grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Birthday Analytics Chart -->
+        <div class="lg:col-span-2 bg-white p-4 rounded-xl shadow-sm">
+          <BirthdayAnalyicsChart />
+        </div>
+        
+        <!-- Category Analytics -->
+        <div class="bg-white p-4 rounded-xl shadow-sm">
+          <CategoryAnalytics />
+        </div>
       </div>
-    </div>
-    <div class="mt-6 flex flex-col lg:flex-row justify-between items-start gap-2">
-      <!-- Birthday Analytics Chart -->
-      <div class="w-full lg:w-2/3">
-        <BirthdayAnalyicsChart />
-      </div>
-      <!-- Category Analytics  -->
-      <div class="w-full lg:w-1/3">
-        <CategoryAnalytics />
-      </div>
-
-
     </div>
   </div>
 </template>
