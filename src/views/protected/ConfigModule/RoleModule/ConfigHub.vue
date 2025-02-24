@@ -38,6 +38,11 @@ const eventStyle= computed(()=>{
   return readEvents ? 'rounded-xl bg-[#C6EDF6] h-[450px] shadow-md transition-transform transform hover:scale-105 mb-5' : 'cursor-not-allowed opacity-20 rounded-xl bg-[#C6EDF6] h-[450px] shadow-md mb-5'
 })
 
+const setFallbackImage = (event: Event): void => {
+  const target = event.target as HTMLImageElement;
+  target.src = 'https://res.cloudinary.com/drykej1am/image/upload/v1697377875/weehser%20pay/Weeshr_Light_lrreyo.svg'
+};
+
 </script>
 
 <template>
@@ -54,7 +59,8 @@ const eventStyle= computed(()=>{
                 <CardHeader class="flex flex-col items-center justify-center flex-grow">
                   <img
                     class="mb-2"
-                    :src="'https://res.cloudinary.com/dufimctfc/image/upload/v1712066751/users1_yng7it.svg' | 'https://res.cloudinary.com/drykej1am/image/upload/v1697377875/weehser%20pay/Weeshr_Light_lrreyo.svg'"
+                    src='https://res.cloudinary.com/dufimctfc/image/upload/v1712066751/users1_yng7it.svg'
+                    @error="setFallbackImage"
                     alt="gradient"
                   />
                   <p class="text-2xl font-bold text-gray-800">Role Manager</p>
@@ -83,6 +89,7 @@ const eventStyle= computed(()=>{
                   <img
                     class="mb-2"
                     src="https://res.cloudinary.com/dufimctfc/image/upload/v1712066752/user2_gygznz.svg"
+                    @error="setFallbackImage"
                     alt="gradient"
                   />
     
@@ -110,6 +117,7 @@ const eventStyle= computed(()=>{
                   <img
                     class="mb-2"
                     src="https://res.cloudinary.com/dufimctfc/image/upload/v1712066752/user3_hpnxmx.svg"
+                    @error="setFallbackImage"
                     alt="gradient"
                   />
     
@@ -136,6 +144,7 @@ const eventStyle= computed(()=>{
                 <CardHeader class="flex flex-col items-center justify-center flex-grow">
                   <img
                     class="mb-2 h-44 w-44"
+                    @error="setFallbackImage"
                     src="https://res.cloudinary.com/drykej1am/image/upload/v1724789573/269257040_11240815_mdzeid.svg"
                     alt="gradient"
                   />
@@ -163,6 +172,7 @@ const eventStyle= computed(()=>{
                 <CardHeader class="flex flex-col items-center justify-center flex-grow">
                   <img
                     class="mb-2 h-44 w-44"
+                    @error="setFallbackImage"
                     src="https://res.cloudinary.com/drykej1am/image/upload/v1727730386/money-exchange_m9sbfd.png"
                     alt="gradient"
                   />
@@ -190,6 +200,7 @@ const eventStyle= computed(()=>{
                 <CardHeader class="flex flex-col items-center justify-center flex-grow">
                   <img
                     class="mb-2 h-44 w-44"
+                    @error="setFallbackImage"
                     src="https://res.cloudinary.com/drykej1am/image/upload/v1728318022/weeshr_admin/flags_lexpn1.png"
                     alt="gradient"
                   />
@@ -216,6 +227,7 @@ const eventStyle= computed(()=>{
                 <CardHeader class="flex flex-col items-center justify-center flex-grow">
                   <img
                     class="mb-2 h-44 w-44"
+                    @error="setFallbackImage"
                     src="https://res.cloudinary.com/drykej1am/image/upload/v1739804004/events/anniversary/weesh/n1iHK2HKUFuE9kbU8p_9JABQ.png"
                     alt="gradient"
                   />
