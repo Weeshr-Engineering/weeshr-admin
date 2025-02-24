@@ -74,15 +74,15 @@ const active = computed(()=>{
   return store.active
 })
 
-const currentEvent = ref('')
+const currentEvent = ref<string>('')
 const setCurrentEvent = (id: string)=>{
   verifyAbilities('update', 'weesh-events')
   currentEvent.value= id
 }
 
 const updateImg = ref<any[]>([])
-const updateName = ref('')
-const updateColor = ref('')
+const updateName = ref<string>('')
+const updateColor = ref<string>('')
 
 
 const handleFileUpdate = (event: any) => {
@@ -100,7 +100,7 @@ const onUpdate = async() => {
     .max(50, { message: 'First name cannot be longer than 50 characters' })
   
   const name = stringSchema.safeParse(updateName.value)
-  if (!name.success && updateImg.value.length == 0 && (updateColor.value === '' || updateColor.value === currentEvent.color)) {
+  if (!name.success && updateImg.value.length == 0 && updateColor.value === '') {
         toast({
           title: 'No edit found',
           description: 'You have to make a change first',
@@ -108,7 +108,12 @@ const onUpdate = async() => {
         })
         return;
   }else{
-      const data = {}
+      interface UpdateData {
+        color? : string;
+        name? : string;
+        image? : File
+      }
+      const data : UpdateData = {}
 
       if(updateColor.value){
         data.color = updateColor.value

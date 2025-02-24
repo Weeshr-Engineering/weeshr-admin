@@ -13,7 +13,7 @@ interface Image {
 interface Item {
   color: string;
   identifier: string;
-  is_active: string;
+  is_active: boolean;
   images: Image[];
   name: string;
   _id: string;
