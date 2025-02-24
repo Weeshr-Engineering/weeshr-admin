@@ -251,19 +251,21 @@
       </Card>
 
       <Sheet v-model:open="openRequestSheet">
-        <SheetContent class="flex flex-col justify-center items-center w-full">
-          <SheetHeader>
+        <SheetContent class="">
+          <SheetHeader
+            class="flex flex-col items-center w-full h-full py-5 border rounded-2xl overflow-y-auto mt-5"
+          >
             <SheetTitle>Disburse Status</SheetTitle>
             <SheetDescription>
               <div
                 v-for="(item, index) in selectedPayout"
                 :key="index"
-                class="border border-black rounded-2xl w-fit p-2 text-center flex gap-2 items-center mb-2"
+                class="border border-black rounded-2xl w-fit p-2 text-center shadow-md flex gap-2 items-center mb-2"
               >
                 <Icon
                   :icon="item.error ? 'line-md:cancel' : 'line-md:check-all'"
-                  width="150"
-                  height="150"
+                  width="35"
+                  height="35"
                   style="color: #fd1414"
                 />
                 <div>
