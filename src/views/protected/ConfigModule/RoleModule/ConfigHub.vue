@@ -238,7 +238,7 @@ const setFallbackImage = (event: Event): void => {
                 <CardContent class="bg-[#020721] pt-2 h-[80px] rounded-bl-[12px] rounded-br-[12px] px-1 text-xs pb-4">
                   <div class="pt-2 px-4 text-xs">
                     <p class="font-semibold tracking-tight text-gray-400">Events</p>
-                    <p class="text-2xl font-semibold text-white"> {{store.config.weesh_events}} </p>
+                    <p class="text-2xl font-semibold text-white"> {{store.config.weesh_events || 0}} </p>
                   </div>
                 </CardContent>
               </RouterLink>

@@ -69,6 +69,7 @@ export const useEventConfigStore = defineStore('weeshConfig', {
             description: `Successful: ${msg}`,
             variant: 'success'
           })
+          console.log(this.events)
           return response.data.data
         })
         .catch((error) => {
@@ -96,9 +97,9 @@ export const useEventConfigStore = defineStore('weeshConfig', {
         duration: 0, // Set duration to 0 to make it indefinite until manually closed
         variant: 'loading'
       })
-      const data = JSON.stringify({
+      const data = {
         "is_active": !status
-      });
+      };
          
       console.log(data) 
       const config = {

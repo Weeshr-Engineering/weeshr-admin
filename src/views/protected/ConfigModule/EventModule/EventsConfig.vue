@@ -93,7 +93,7 @@ const handleFileUpdate = (event: any) => {
 const onUpdate = async() => {  
   toast({
     description: `Updating Weeshe Category`,
-    variant: 'default'
+    variant: 'loading'
   })
   const stringSchema = z.string()      
     .min(2, { message: 'First name must be at least 2 characters long' })
@@ -111,9 +111,10 @@ const onUpdate = async() => {
       interface UpdateData {
         color? : string;
         name? : string;
-        image? : File
+        image? : File;
+        is_active: boolean
       }
-      const data : UpdateData = {}
+      const data : UpdateData = {is_active: false}
 
       if(updateColor.value){
         data.color = updateColor.value

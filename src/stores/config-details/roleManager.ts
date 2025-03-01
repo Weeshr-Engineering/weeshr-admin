@@ -227,6 +227,7 @@ export const useRoleStore = defineStore({
           })
         }
         this.config = (response.data.data.count);
+        // console.log(response.data.data.count)
         // this.roles = response.data.data.data.reverse()
         // set Loading to false
 
