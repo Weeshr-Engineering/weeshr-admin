@@ -228,7 +228,7 @@ const setFallbackImage = (event: Event): void => {
                   <img
                     class="mb-2 h-44 w-44"
                     @error="setFallbackImage"
-                    src="https://res.cloudinary.com/drykej1am/image/upload/v1739804004/events/anniversary/weesh/n1iHK2HKUFuE9kbU8p_9JABQ.png"
+                    src="https://res.cloudinary.com/drykej1am/image/upload/v1740853606/weeshr_admin/calendar_ti7cce.png"
                     alt="gradient"
                   />
     
