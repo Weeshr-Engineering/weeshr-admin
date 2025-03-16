@@ -69,7 +69,7 @@ const chartOptions: ChartOptions<'pie'> = {
   maintainAspectRatio: false,
   plugins: {
     legend: {
-      position: 'bottom'
+      display: false // Correct way to disable the legend
     }
   }
 }

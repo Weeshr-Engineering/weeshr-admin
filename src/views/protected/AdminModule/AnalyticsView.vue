@@ -8,7 +8,8 @@ import UserAnalyticsChart from '@/components/AnalyticsChart.vue'
 import GenderAnalyticsChart from '@/components/GenderAnalyticsChart.vue'
 import BirthdayAnalyicsChart from '@/components/BirthdayAnalyicsChart.vue'
 import CategoryAnalytics from '@/components/CategoryAnalytics.vue'
-
+import VerificationAnalyticsChart from '@/components/VerificationAnalyticsChart.vue'
+import WeeshStatusAnalyticsChart from '@/components/WeeshStatusAnalyticsChart.vue'
 import { storeToRefs } from 'pinia'
 
 const dashboardAnalyticsStore = useDashboardAnalyticsStore()
@@ -22,7 +23,7 @@ onMounted(async () => {
 <template>
   <div class="bg-[#f0f8ff] h-full p-8 pt-6 pb-10 w-full flex flex-col space-y-6">
     <MainNav class="mx-6" headingText="Analytics" />
-    
+
     <!-- Admin Cards Grid -->
     <div class="w-full grid gap-4 md:grid-cols-2 md:gap-6 lg:grid-cols-4">
       <AdminCard
@@ -50,29 +51,33 @@ onMounted(async () => {
     <div class="w-full flex flex-col space-y-6">
       <!-- First Row of Charts -->
       <div class="w-full grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- User Analytics Chart -->
         <div class="lg:col-span-2 bg-white p-4 rounded-xl shadow-sm">
           <UserAnalyticsChart />
         </div>
-        
-        <!-- Gender Analytics Chart -->
         <div class="bg-white p-4 rounded-xl shadow-sm">
           <GenderAnalyticsChart />
         </div>
       </div>
 
       <!-- Second Row of Charts -->
-      <div class="w-full grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Birthday Analytics Chart -->
-        <div class="lg:col-span-2 bg-white p-4 rounded-xl shadow-sm">
+      <div class="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="bg-white p-4 rounded-xl shadow-sm">
           <BirthdayAnalyicsChart />
         </div>
-        
-        <!-- Category Analytics -->
+        <div class="bg-white p-4 rounded-xl shadow-sm">
+          <VerificationAnalyticsChart />
+        </div>
         <div class="bg-white p-4 rounded-xl shadow-sm">
           <CategoryAnalytics />
         </div>
       </div>
+
+      <!-- Third Row of Charts -->
+<div class="w-full grid grid-cols-1 gap-6">
+  <div class="bg-white p-4 rounded-xl shadow-sm">
+    <WeeshStatusAnalyticsChart />
+  </div>
+</div>
     </div>
   </div>
 </template>
