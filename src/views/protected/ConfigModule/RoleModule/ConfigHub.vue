@@ -33,6 +33,15 @@ const readCountry = ability.can('read', 'country');
 const countryStyle= computed(()=>{
   return readCountry ? 'rounded-xl bg-[#DCDEFF] h-[450px] shadow-md transition-transform transform hover:scale-105 mb-5' : 'cursor-not-allowed opacity-20 rounded-xl bg-[#C6EDF6] h-[450px] shadow-md mb-5'
 })
+const readEvents = ability.can('read', 'weesh-events');
+const eventStyle= computed(()=>{
+  return readEvents ? 'rounded-xl bg-[#C6EDF6] h-[450px] shadow-md transition-transform transform hover:scale-105 mb-5' : 'cursor-not-allowed opacity-20 rounded-xl bg-[#C6EDF6] h-[450px] shadow-md mb-5'
+})
+
+const setFallbackImage = (event: Event): void => {
+  const target = event.target as HTMLImageElement;
+  target.src = 'https://res.cloudinary.com/drykej1am/image/upload/v1697377875/weehser%20pay/Weeshr_Light_lrreyo.svg'
+};
 
 </script>
 
@@ -50,7 +59,8 @@ const countryStyle= computed(()=>{
                 <CardHeader class="flex flex-col items-center justify-center flex-grow">
                   <img
                     class="mb-2"
-                    src="https://res.cloudinary.com/dufimctfc/image/upload/v1712066751/users1_yng7it.svg"
+                    src='https://res.cloudinary.com/dufimctfc/image/upload/v1712066751/users1_yng7it.svg'
+                    @error="setFallbackImage"
                     alt="gradient"
                   />
                   <p class="text-2xl font-bold text-gray-800">Role Manager</p>
@@ -79,6 +89,7 @@ const countryStyle= computed(()=>{
                   <img
                     class="mb-2"
                     src="https://res.cloudinary.com/dufimctfc/image/upload/v1712066752/user2_gygznz.svg"
+                    @error="setFallbackImage"
                     alt="gradient"
                   />
     
@@ -106,6 +117,7 @@ const countryStyle= computed(()=>{
                   <img
                     class="mb-2"
                     src="https://res.cloudinary.com/dufimctfc/image/upload/v1712066752/user3_hpnxmx.svg"
+                    @error="setFallbackImage"
                     alt="gradient"
                   />
     
@@ -132,6 +144,7 @@ const countryStyle= computed(()=>{
                 <CardHeader class="flex flex-col items-center justify-center flex-grow">
                   <img
                     class="mb-2 h-44 w-44"
+                    @error="setFallbackImage"
                     src="https://res.cloudinary.com/drykej1am/image/upload/v1724789573/269257040_11240815_mdzeid.svg"
                     alt="gradient"
                   />
@@ -159,6 +172,7 @@ const countryStyle= computed(()=>{
                 <CardHeader class="flex flex-col items-center justify-center flex-grow">
                   <img
                     class="mb-2 h-44 w-44"
+                    @error="setFallbackImage"
                     src="https://res.cloudinary.com/drykej1am/image/upload/v1727730386/money-exchange_m9sbfd.png"
                     alt="gradient"
                   />
@@ -186,6 +200,7 @@ const countryStyle= computed(()=>{
                 <CardHeader class="flex flex-col items-center justify-center flex-grow">
                   <img
                     class="mb-2 h-44 w-44"
+                    @error="setFallbackImage"
                     src="https://res.cloudinary.com/drykej1am/image/upload/v1728318022/weeshr_admin/flags_lexpn1.png"
                     alt="gradient"
                   />
@@ -197,6 +212,33 @@ const countryStyle= computed(()=>{
                   <div class="pt-2 px-4 text-xs">
                     <p class="font-semibold tracking-tight text-gray-400">Country</p>
                     <p class="text-2xl font-semibold text-white"> {{store.config.countries}} </p>
+                  </div>
+                </CardContent>
+              </RouterLink>
+            </span>
+            <!-- <UserhubSkeleton /> -->
+          </Card>
+          <Card
+            :class="countryStyle"
+            @click="verifyAbilities('read', 'weesh-events')"
+          >
+            <span class="flex flex-col justify-between h-full">
+              <RouterLink :to="ability.can('read', 'weesh-events') ? '/config/event' : ''" class="flex flex-col h-full">
+                <CardHeader class="flex flex-col items-center justify-center flex-grow">
+                  <img
+                    class="mb-2 h-44 w-44"
+                    @error="setFallbackImage"
+                    src="https://res.cloudinary.com/drykej1am/image/upload/v1740853606/weeshr_admin/calendar_ti7cce.png"
+                    alt="gradient"
+                  />
+    
+                  <p class="text-2xl font-bold text-gray-800">Events</p>
+                </CardHeader>
+    
+                <CardContent class="bg-[#020721] pt-2 h-[80px] rounded-bl-[12px] rounded-br-[12px] px-1 text-xs pb-4">
+                  <div class="pt-2 px-4 text-xs">
+                    <p class="font-semibold tracking-tight text-gray-400">Events</p>
+                    <p class="text-2xl font-semibold text-white"> {{store.config.weesh_events || 0}} </p>
                   </div>
                 </CardContent>
               </RouterLink>
