@@ -9,13 +9,14 @@ export const useRoleStore = defineStore({
     permissions: [],
     roles: [],
     config: {
-            "roles": 0,
-            "featured": 0,
-            "currencies": 0,
-            "weesh_gist": 0,
-            "weesh_categories": 0,
-            'countries': 0
-        }
+      "roles": 0,
+      "featured": 0,
+      "currencies": 0,
+      "weesh_gist": 0,
+      "weesh_categories": 0,
+      'countries': 0,
+      'weesh_events': 0
+    }
   }),
   actions: {
     async createRole(data: any) {
@@ -226,6 +227,7 @@ export const useRoleStore = defineStore({
           })
         }
         this.config = (response.data.data.count);
+        // console.log(response.data.data.count)
         // this.roles = response.data.data.data.reverse()
         // set Loading to false
 
@@ -233,42 +235,42 @@ export const useRoleStore = defineStore({
         this.catchErr(error)
       }
     },
-    catchErr (error: any){
-      if(error.response.status === 400){
+    catchErr(error: any) {
+      if (error.response.status === 400) {
         toast({
-          description:  error.response.data.message || 'Bad Request',
+          description: error.response.data.message || 'Bad Request',
           variant: 'destructive'
         })
-      }else if(error.response.status === 401){
+      } else if (error.response.status === 401) {
         setTimeout(() => {
           router.push({ name: 'superAdmin-login' })
         }, 1000)
         toast({
-          description:  error.response.data.message || 'Unauthenticated',
+          description: error.response.data.message || 'Unauthenticated',
           variant: 'destructive'
         })
         sessionStorage.removeItem('token')
-      }else if(error.response.status === 403){
+      } else if (error.response.status === 403) {
         toast({
-          description:  error.response.data.message || 'Unauthorized',
+          description: error.response.data.message || 'Unauthorized',
           variant: 'destructive'
         })
         setTimeout(() => {
           router.push({ name: 'home' })
         }, 3000)
-      }else if(error.response.status === 422 ){
+      } else if (error.response.status === 422) {
         toast({
-          description:  error.response.data.message || 'Validation Error',
+          description: error.response.data.message || 'Validation Error',
           variant: 'destructive'
         })
-      }else if(error.response.status === 500 ){
+      } else if (error.response.status === 500) {
         toast({
-          description:  error.response.data.message || 'Server Error',
+          description: error.response.data.message || 'Server Error',
           variant: 'destructive'
         })
-      }else if(error.response.status === 404 ){
+      } else if (error.response.status === 404) {
         toast({
-          description:  error.response.data.message || 'Not found',
+          description: error.response.data.message || 'Not found',
           variant: 'destructive'
         })
       }
@@ -282,7 +284,8 @@ interface Count {
   "currencies": number,
   "weesh_gist": number,
   "weesh_categories": number,
-  'countries': number
+  'countries': number,
+  'weesh_events': number
 }
 interface ConfigStore {
   permissions: any[],
