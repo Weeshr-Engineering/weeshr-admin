@@ -35,7 +35,7 @@ interface WeeshConfig {
 }
 export const useEventConfigStore = defineStore('weeshConfig', {
   state: (): WeeshConfig => ({
-    perPage: 0,
+    perPage: 50,
     currentPage: 0,
     totalPages: 0,
     events: [],
@@ -55,7 +55,7 @@ export const useEventConfigStore = defineStore('weeshConfig', {
       const config = {
         method: 'get',
         maxBodyLength: Infinity,
-        url: `/api/v1/admin/weesh/event/all?per_page=5&page=${page}`,
+        url: `/api/v1/admin/weesh/event/all?per_page=50&page=${page}`,
       };
             
       axios.request(config)
@@ -63,13 +63,13 @@ export const useEventConfigStore = defineStore('weeshConfig', {
           this.perPage = response.data.data.perPage
           this.currentPage = response.data.data.currentPage
           this.totalPages = response.data.data.totalPages
-          this.events = response.data.data.data
+          this.events = response.data.data.data.reverse();
           toast({
             title: 'Success',
             description: `Successful: ${msg}`,
             variant: 'success'
           })
-          console.log(this.events)
+          // console.log(this.events)
           return response.data.data
         })
         .catch((error) => {
@@ -100,8 +100,6 @@ export const useEventConfigStore = defineStore('weeshConfig', {
       const data = {
         "is_active": !status
       };
-         
-      console.log(data) 
       const config = {
         method: 'patch',
         maxBodyLength: Infinity,

@@ -19,13 +19,13 @@ import axios from "@/services/ApiService";
 import { toast } from '@/components/ui/toast'
 import { Input } from '@/components/ui/input'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+// import {
+//   Select,
+//   SelectContent,
+//   SelectItem,
+//   SelectTrigger,
+//   SelectValue,
+// } from "@/components/ui/select"
 import { Icon } from '@iconify/vue'
 import {
   AlertDialog,
@@ -311,7 +311,7 @@ onMounted(async()=>{
               </SheetContent>
             </Sheet>
         </div>
-        <div class="w-full flex justify-center">
+        <div class="w-full my-4 flex justify-center">
             <div class="w-3/4">
                 <div class="flex justify-end w-full text-sm text-[#6A70FF]" disabled>
                     <!-- <p>Only show active</p> -->
@@ -411,7 +411,7 @@ onMounted(async()=>{
                     </div>
                     </CardContent>
                   </Card>
-                  <div class="flex gap-2 max-w-full flex-wrap justify-end mt-8 mr-4 items-center text-[15px]" v-if="events.length !== 0">
+                  <!-- <div class="flex gap-2 max-w-full flex-wrap justify-end mt-8 mr-4 items-center text-[15px]" v-if="events.length !== 0">
                     <Pagination :total="totalPages" :sibling-count="1" show-edges :default-page="1" @change="store.handlePageChange">
                       <PaginationList class="flex items-center gap-1">
                         <PaginationFirst @click="store.handlePageChange(1)" />
@@ -428,7 +428,7 @@ onMounted(async()=>{
                         <PaginationLast @click="store.handlePageChange(totalPages)" />
                       </PaginationList>
                     </Pagination>
-                  </div>
+                  </div> -->
 
                 </div>
               </div>
