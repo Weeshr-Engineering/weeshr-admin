@@ -23,28 +23,28 @@
 </template>
 
 <script setup lang="ts">
-import { Card, CardContent } from '@/components/ui/card';
-import { Loader2 } from 'lucide-vue-next';
-import { computed } from 'vue';
+import { Card, CardContent } from '@/components/ui/card'
+import { Loader2 } from 'lucide-vue-next'
+import { computed } from 'vue'
 
 const props = defineProps({
   type: {
     type: String as () => 'weeshes' | 'wallet' | 'users' | 'tickets',
-    required: true,
+    required: true
   },
   loading: {
     type: Boolean,
-    required: true,
+    required: true
   },
   value: {
     type: Number,
-    required: true,
+    required: true
   },
   subvalue: {
     type: Number,
-    required: true,
-  },
-});
+    required: true
+  }
+})
 
 // Card configuration based on type
 const cardConfig = computed(() => {
@@ -54,49 +54,53 @@ const cardConfig = computed(() => {
         title: 'Weeshes',
         iconSrc: 'https://res.cloudinary.com/dotojp6xu/image/upload/v1715162947/menu_mvjoy6.svg',
         subtitle: 'Delivered',
-        topBgColor: 'bg-[#00e19d] bg-opacity-20',
-      };
+        topBgColor: 'bg-[#00e19d] bg-opacity-20'
+      }
     case 'wallet':
       return {
         title: 'Total wallet balance',
-        iconSrc: 'https://res.cloudinary.com/dotojp6xu/image/upload/v1715162926/wallet-3_fbkk9u.svg',
+        iconSrc:
+          'https://res.cloudinary.com/dotojp6xu/image/upload/v1715162926/wallet-3_fbkk9u.svg',
         subtitle: 'Invested',
-        topBgColor: 'bg-[#6A70FF] bg-opacity-20',
-      };
+        topBgColor: 'bg-[#6A70FF] bg-opacity-20'
+      }
     case 'users':
       return {
         title: 'Users',
-        iconSrc: 'https://res.cloudinary.com/dotojp6xu/image/upload/v1715162907/profile-2user_stezwz.svg',
+        iconSrc:
+          'https://res.cloudinary.com/dotojp6xu/image/upload/v1715162907/profile-2user_stezwz.svg',
         subtitle: 'Active',
-        topBgColor: 'bg-[#00BBD4] bg-opacity-20',
-      };
+        topBgColor: 'bg-[#00BBD4] bg-opacity-20'
+      }
     case 'tickets':
       return {
         title: 'Tickets',
         iconSrc: 'https://res.cloudinary.com/dotojp6xu/image/upload/v1715162881/ticket_etur0t.svg',
         subtitle: 'Pending',
-        topBgColor: 'bg-[#AEE219] bg-opacity-20',
-      };
+        topBgColor: 'bg-[#AEE219] bg-opacity-20'
+      }
     default:
-      throw new Error(`Invalid card type: ${props.type}`);
+      throw new Error(`Invalid card type: ${props.type}`)
   }
-});
+})
 
-const { title, iconSrc, subtitle, topBgColor } = cardConfig.value;
+const { title, iconSrc, subtitle, topBgColor } = cardConfig.value
 
 // Formatting functions
-const formatNumberWithCommas = (number: number) => 
-  number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+const formatNumberWithCommas = (number: number) =>
+  number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
 
 const formatCurrency = (number: number) => {
-  const [integerPart, decimalPart] = number.toFixed(2).split('.');
-  return `₦${integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}.${decimalPart}`;
-};
+  const [integerPart, decimalPart] = number.toFixed(2).split('.')
+  return `₦${integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}.${decimalPart}`
+}
 
 // Conditionally format values
-const formattedValue = computed(() => 
-  props.type === 'wallet' ? formatCurrency(props.value) : formatNumberWithCommas(props.value));
+const formattedValue = computed(() =>
+  props.type === 'wallet' ? formatCurrency(props.value) : formatNumberWithCommas(props.value)
+)
 
-const formattedSubvalue = computed(() => 
-  props.type === 'wallet' ? formatCurrency(props.subvalue) : formatNumberWithCommas(props.subvalue));
+const formattedSubvalue = computed(() =>
+  props.type === 'wallet' ? formatCurrency(props.subvalue) : formatNumberWithCommas(props.subvalue)
+)
 </script>
