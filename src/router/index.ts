@@ -8,6 +8,7 @@ import Vendors from '@/views/protected/AdminModule/VendorsList.vue'
 import AdminDetails from '@/views/protected/AdminModule/AdminDetails.vue'
 import UserDetails from '@/views/protected/AdminModule/UserDetails.vue'
 import AdminDashboard from '@/views/protected/AdminModule/AdminDashboard.vue'
+import Analytics from '@/views/protected/AdminModule/AnalyticsView.vue'
 
 import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
 import ErrorPage from '@/views/unprotected/ErrorPageView.vue'
@@ -147,6 +148,12 @@ const routes = [
     meta: { requiresAuth: true }
   },
   {
+    path: '/analytics',
+    name: 'AdminAnalytics',
+    component: Analytics,
+    meta: { requiresAuth: true }
+  },
+  {
     path: '/bank/cash-request',
     name: 'cash-request',
     component: CashRequest,
@@ -206,6 +213,7 @@ const routes = [
     component: CountryConfig,
     meta: { requiresAuth: true }
   },
+
   {
     path: '/:pathMatch(.*)*', // Wildcard route to catch all unmatched paths
     redirect: { name: 'error' } // Redirect to error page
