@@ -11,6 +11,7 @@ const notificationBoard = ref();
 const superAdminStore = useSuperAdminStore()
 defineAbilities()
 const route = useRoute()
+
 const isActive = (path: string) => {
   return route.path.startsWith(path);
 };
@@ -30,9 +31,9 @@ const users = computed(() => {
   }
   return false
 })
-const weeshes = computed(()=>{
-  const weesh = ability.can('read', 'weeshes')
-  if(weesh){
+const analytics = computed(()=>{
+  const analyt = ability.can('read', 'analytics')
+  if(analyt){
     return true
   }
   return false
@@ -51,6 +52,15 @@ const activityLogs = computed(()=>{
   }
   return false
 })
+
+const weeshes = computed(()=>{
+  const weesh = ability.can('read', 'weeshes')
+  if(weesh){
+    return true
+  }
+  return false
+})
+
 const logout = async () => {
   await superAdminStore.logout()
 }
@@ -129,7 +139,19 @@ const openNotificationsBoard = () => {
         </a>
       </li>
 
-      <li :class="{ 'dashboard-active': isActive('/analytics') }">
+      <!-- <li :class="{ 'dashboard-active': isActive('/analytics') }">
+        <a @click="$router.push({ name: 'AdminAnalytics' })">
+          <div class="icon-grid">
+            <Icon icon="carbon:text-link-analysis" width="17" height="17" class="icons-sidebar" />
+          </div>
+
+          <span class="nav-text"> Analytics </span>
+        </a>
+      </li> -->
+ 
+     
+
+      <li v-if="analytics" :class="{ 'dashboard-active': isActive('/analytics') }">
         <a @click="$router.push({ name: 'AdminAnalytics' })">
           <div class="icon-grid">
             <Icon icon="carbon:text-link-analysis" width="17" height="17" class="icons-sidebar" />
@@ -138,19 +160,7 @@ const openNotificationsBoard = () => {
           <span class="nav-text"> Analytics </span>
         </a>
       </li>
-
-     
-
-      <li v-if="activityLogs" :class="{ 'dashboard-active': isActive('/activity') }">
-        <a @click="$router.push({ name: 'activity' })">
-          <div class="icon-grid">
-            <Icon icon="octicon:log-24" width="16" height="16" class="icons-sidebar" />
-
-          </div>
-
-          <span class="nav-text"> Activity Log </span>
-        </a>
-      </li>
+      
       <li v-if="ability.can('read', 'admin-board-notifications')">
         <a @click.prevent="openNotificationsBoard">
           <div class="icon-grid">
