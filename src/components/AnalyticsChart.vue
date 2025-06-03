@@ -12,8 +12,19 @@ import {
   LinearScale
 } from 'chart.js'
 import type { ChartOptions, ChartData } from 'chart.js'
+import DataLabelsPlugin from 'chartjs-plugin-datalabels' 
 import DeviceAnalytics from '@/components/DeviceAnalytics.vue'
-ChartJS.register(Title, Tooltip, PointElement, LineElement, CategoryScale, LinearScale)
+
+
+ChartJS.register(
+  Title,
+  Tooltip,
+  PointElement,
+  LineElement,
+  CategoryScale,
+  LinearScale,
+  DataLabelsPlugin 
+)
 
 type LineChartData = ChartData<'line'> & {
   labels: string[]
@@ -30,14 +41,23 @@ const updateAnalytics = () => {
   analyticsStore.fetchUserAnalytics(selectedInterval.value)
 }
 
+
+const chartColors = {
+  line: '#6A70FF',
+  point: '#F4F4F5',
+  background: '#FFFFFF',
+  text: '#60646C',
+  dataLabel: '#6A70FF' // NEW: Color for data labels
+}
+
 const chartData = computed<LineChartData>(() => ({
   labels: analyticsStore.data.map((entry) => entry.date),
   datasets: [
     {
       data: analyticsStore.data.map((entry) => entry.value),
-      borderColor: '#6A70FF',
-      backgroundColor: '#FFFFFF',
-      pointBackgroundColor: '#F4F4F5',
+      borderColor: chartColors.line,
+      backgroundColor: chartColors.background,
+      pointBackgroundColor: chartColors.point,
       tension: 0.5,
       fill: true
     }
@@ -50,14 +70,38 @@ const chartOptions: ChartOptions<'line'> = {
   plugins: {
     legend: {
       display: false
+    },
+ 
+    datalabels: {
+      align: 'top',
+      anchor: 'end',
+      color: chartColors.dataLabel,
+      font: {
+        weight: 'bold',
+        size: 10
+      },
+      formatter: (value: number) => value.toLocaleString(),
+      padding: {
+        top: 6
+      }
+    },
+    // Optional: Tooltip remains for additional context
+    tooltip: {
+      callbacks: {
+        label: (context) => {
+          const date = context.label || ''
+          const value = context.raw as number
+          return `${date}: ${value.toLocaleString()} users`
+        }
+      }
     }
   },
   scales: {
     x: {
-      ticks: { color: '#60646C' }
+      ticks: { color: chartColors.text }
     },
     y: {
-      ticks: { color: '#60646C' }
+      ticks: { color: chartColors.text }
     }
   }
 }

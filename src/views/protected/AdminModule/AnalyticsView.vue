@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import MainNav from '@/components/MainNav.vue'
-import { ref, watch } from 'vue'
 import AdminCard from '@/components/AdminCards.vue'
 import { useDashboardAnalyticsStore } from '@/stores/dashboard-analytics/dashboard-analytics'
-import { onMounted } from 'vue'
+import { onMounted, onBeforeMount } from 'vue'
 import UserAnalyticsChart from '@/components/AnalyticsChart.vue'
 import GenderAnalyticsChart from '@/components/GenderAnalyticsChart.vue'
 import BirthdayAnalyicsChart from '@/components/BirthdayAnalyicsChart.vue'
@@ -11,6 +10,10 @@ import CategoryAnalytics from '@/components/CategoryAnalytics.vue'
 import VerificationAnalyticsChart from '@/components/VerificationAnalyticsChart.vue'
 import WeeshStatusAnalyticsChart from '@/components/WeeshStatusAnalyticsChart.vue'
 import { storeToRefs } from 'pinia'
+import { ability, defineAbilities } from '@/lib/ability';
+import router from '@/router'
+
+defineAbilities()
 
 const dashboardAnalyticsStore = useDashboardAnalyticsStore()
 const { weeshes, wallet, users, tickets, loading } = storeToRefs(dashboardAnalyticsStore)
@@ -18,14 +21,25 @@ const { weeshes, wallet, users, tickets, loading } = storeToRefs(dashboardAnalyt
 onMounted(async () => {
   await dashboardAnalyticsStore.fetchDashboardAnalytics()
 })
+onBeforeMount(async () => {
+  if(ability.cannot("read", "analytics")){
+    router.push({ name: 'home' })
+  }
+})
+
+
 </script>
 
 <template>
-  <div class="bg-[#f0f8ff] h-full p-8 pt-6 pb-10 w-full flex flex-col space-y-6">
-    <MainNav class="mx-6" headingText="Analytics" />
+ 
+  <div
+    class="bg-[#f0f8ff] min-h-screen w-full flex flex-col space-y-6 px-4 sm:px-6 lg:px-8 pt-6 pb-10"
+  >
+ 
+    <MainNav headingText="Analytics" />
 
     <!-- Admin Cards Grid -->
-    <div class="w-full grid gap-4 md:grid-cols-2 md:gap-6 lg:grid-cols-4">
+    <div class="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
       <AdminCard
         type="weeshes"
         :loading="loading"
@@ -47,23 +61,28 @@ onMounted(async () => {
       />
     </div>
 
-    <!-- Charts Container -->
     <div class="w-full flex flex-col space-y-6">
       <!-- First Row of Charts -->
       <div class="w-full grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="lg:col-span-2 bg-white p-4 rounded-xl shadow-sm">
-          <UserAnalyticsChart />
+        <!-- Scrollable wrapper for UserAnalyticsChart -->
+        <div class="lg:col-span-2 bg-white p-4 rounded-xl shadow-sm overflow-x-auto">
+          <!-- Inner container ensures chart width exceeds small screens -->
+          <div class="min-w-[640px] w-full">
+            <UserAnalyticsChart />
+          </div>
         </div>
         <div class="bg-white p-4 rounded-xl shadow-sm">
           <GenderAnalyticsChart />
         </div>
       </div>
-
       <!-- Second Row of Charts -->
-      <div class="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div class="bg-white p-4 rounded-xl shadow-sm">
-          <BirthdayAnalyicsChart />
+      <div class="w-full grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="bg-white p-4 rounded-xl shadow-sm overflow-x-auto">
+          <div class="min-w-[640px] w-full h-[400px] sm:h-[300px]">
+            <BirthdayAnalyicsChart />
+          </div>
         </div>
+
         <div class="bg-white p-4 rounded-xl shadow-sm">
           <VerificationAnalyticsChart />
         </div>
@@ -73,11 +92,11 @@ onMounted(async () => {
       </div>
 
       <!-- Third Row of Charts -->
-<div class="w-full grid grid-cols-1 gap-6">
-  <div class="bg-white p-4 rounded-xl shadow-sm">
-    <WeeshStatusAnalyticsChart />
-  </div>
-</div>
+      <div class="w-full grid grid-cols-1 gap-6">
+        <div class="bg-white p-4 rounded-xl shadow-sm">
+          <WeeshStatusAnalyticsChart />
+        </div>
+      </div>
     </div>
   </div>
 </template>
