@@ -58,8 +58,8 @@ const setFallbackImage = (event: Event): void => {
               <RouterLink :to="readRole ? '/config/role' : ''" class="flex flex-col h-full">
                 <CardHeader class="flex flex-col items-center justify-center flex-grow">
                   <img
-                    class="mb-2"
-                    src='https://res.cloudinary.com/dufimctfc/image/upload/v1712066751/users1_yng7it.svg'
+                    class="mb-2 max-h-44"
+                    src='https://res.cloudinary.com/drykej1am/image/upload/v1746565772/Group_crlmbp.png'
                     @error="setFallbackImage"
                     alt="gradient"
                   />
@@ -87,8 +87,8 @@ const setFallbackImage = (event: Event): void => {
               <RouterLink :to="ability.can('read', 'weesh-categories') ? '/config/weesh' : ''" class="flex flex-col h-full">
                 <CardHeader class="flex flex-col items-center justify-center flex-grow">
                   <img
-                    class="mb-2"
-                    src="https://res.cloudinary.com/dufimctfc/image/upload/v1712066752/user2_gygznz.svg"
+                    class="mb-2 max-h-44"
+                    src="https://res.cloudinary.com/drykej1am/image/upload/v1746565762/Illustration_k3wgb1.png"
                     @error="setFallbackImage"
                     alt="gradient"
                   />
@@ -115,8 +115,8 @@ const setFallbackImage = (event: Event): void => {
               <RouterLink :to="ability.can('read', 'weesh-gist') ? '/config/wish' : ''" class="flex flex-col h-full">
                 <CardHeader class="flex flex-col items-center justify-center flex-grow">
                   <img
-                    class="mb-2"
-                    src="https://res.cloudinary.com/dufimctfc/image/upload/v1712066752/user3_hpnxmx.svg"
+                    class="mb-2 max-h-44"
+                    src="https://res.cloudinary.com/drykej1am/image/upload/v1746565757/Group_1_fowdlv.png"
                     @error="setFallbackImage"
                     alt="gradient"
                   />

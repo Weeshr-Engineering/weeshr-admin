@@ -18,6 +18,13 @@ const userStyle= computed(()=>{
   return readUser ? 'rounded-xl bg-[#C6F4EB] shadow-md transition-transform transform hover:scale-105 mb-5 h-[450px] flex flex-col justify-between' : 'cursor-not-allowed opacity-20 rounded-xl bg-[#C6F4EB] shadow-md mb-5 h-[450px] flex flex-col justify-between'
 })
 
+// Fall back image
+const setFallbackImage = (event: Event): void => {
+  const target = event.target as HTMLImageElement;
+  target.src = 'https://res.cloudinary.com/drykej1am/image/upload/v1697377875/weehser%20pay/Weeshr_Light_lrreyo.svg'
+};
+
+
 onMounted(() => {
   const userHubStore = useUserhubStore()
   userHubStore.getUsersNumber()
@@ -37,8 +44,9 @@ onMounted(() => {
           <RouterLink :to="ability.can('read', 'users') ? '/user/appuser' : ''" class="flex flex-col h-full">
             <CardHeader class="flex flex-col items-center justify-center flex-grow">
               <img
-                class="mb-2"
-                src="https://res.cloudinary.com/dufimctfc/image/upload/v1712066751/users1_yng7it.svg"
+                class="mb-2 max-h-44"
+                src="https://res.cloudinary.com/drykej1am/image/upload/v1746565541/12083629_Wavy_Bus-27_Single-10_ztucru.png"
+                @error="setFallbackImage"
                 alt="gradient"
               />
               <p class="text-2xl font-bold text-gray-800">App Users</p>
@@ -64,8 +72,9 @@ onMounted(() => {
           <RouterLink to="/user/vendors" class="flex flex-col h-full">
             <CardHeader class="flex flex-col items-center justify-center flex-grow">
               <img
-                class="mb-2"
-                src="https://res.cloudinary.com/dufimctfc/image/upload/v1712066752/user2_gygznz.svg"
+                class="mb-2 max-h-44"
+                src="https://res.cloudinary.com/drykej1am/image/upload/v1746565672/12291250_Wavy_Tech-30_Single-03_laonpi.png"
+                @error="setFallbackImage"
                 alt="gradient"
               />
 
@@ -91,8 +100,9 @@ onMounted(() => {
           <RouterLink :to="ability.can('read', 'admins') ? '/user/admin' : ''" class="flex flex-col h-full">
             <CardHeader class="flex flex-col items-center justify-center flex-grow">
               <img
-                class="mb-2"
-                src="https://res.cloudinary.com/dufimctfc/image/upload/v1712066752/user3_hpnxmx.svg"
+                class="mb-2 max-h-44"
+                src="https://res.cloudinary.com/drykej1am/image/upload/v1746565691/12146011_Wavy_Gen-01_Single-07_1_vxirb9.png"
+                @error="setFallbackImage"
                 alt="gradient"
               />
 
@@ -116,8 +126,9 @@ onMounted(() => {
         <span v-if="userHubStore.loading" class="flex flex-col justify-between h-full">
           <CardHeader class="flex flex-col items-center justify-center flex-grow">
             <img
-              class="mb-2"
-              src="https://res.cloudinary.com/dufimctfc/image/upload/v1712066752/user4_a9k8bm.svg"
+              class="mb-2 max-h-44"
+              src="https://res.cloudinary.com/drykej1am/image/upload/v1746565726/12083159_Wavy_Bus-08_Single-07_nkwksw.png"
+              @error="setFallbackImage"
               alt="gradient"
             />
 
@@ -139,4 +150,3 @@ onMounted(() => {
           
   </div>
 </template>
-..userhub

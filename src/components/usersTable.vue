@@ -328,23 +328,41 @@ const setPerPage = (item: number) => {
   filter.per_page = item
 }
 
-//download excel file
-
 const exportToExcel = () => {
   if (selectedUsers.value.length === 0) {
     toast({
       description: 'Please select a user to export',
-      variant: 'warning'
-    })
-    return
+      variant: 'warning',
+    });
+    return;
   }
-  const wb = XLSX.utils.book_new()
-  const ws = XLSX.utils.json_to_sheet(selectedUsersData.value)
 
-  XLSX.utils.book_append_sheet(wb, ws, 'Users')
+  // Flatten user data for Excel
+  const flattenedUsers = selectedUsersData.value.map(user => ({
+    ID: user._id,
+    'First Name': user.firstName,
+    'Middle Name': user.middleName ?? '',
+    'Last Name': user.lastName,
+    'Username': user.userName,
+    'Phone': `${user.phoneNumber.countryCode}${user.phoneNumber.phoneNumber}`,
+    // 'Normalized Phone': user.phoneNumber.normalizedNumber,
+    'Date of Birth': user.dob,
+    Gender: user.gender,
+    Email: user.email,
+    'Email Verified': user.emailVerified ? 'Yes' : 'No',
+    Address: user.address ?? '',
+    'Verification Badge': user.verificationBadge,
+    Disabled: user.isDisabled ? 'Yes' : 'No',
+    Avatar: user.avatar ?? '',
+  }));
 
-  XLSX.writeFile(wb, 'users.xlsx')
-}
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.json_to_sheet(flattenedUsers);
+
+  XLSX.utils.book_append_sheet(wb, ws, 'Users');
+  XLSX.writeFile(wb, 'users.xlsx');
+};
+
 </script>
 
 <template>
