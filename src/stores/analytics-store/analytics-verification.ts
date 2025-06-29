@@ -15,15 +15,13 @@ export const useAnalyticsVerification = defineStore('analytics-verification', ()
     total: 0
   })
 
-  const dateFilter = ref<{ dateFrom?: string; dateTo?: string }>({})
-
-  async function fetchVerificationAnalytics() {
+  async function fetchVerificationAnalytics(dateFrom?: string, dateTo?: string) {
     try {
       const params = new URLSearchParams()
       
-      if (dateFilter.value.dateFrom && dateFilter.value.dateTo) {
-        params.append('date_from', dateFilter.value.dateFrom)
-        params.append('date_to', dateFilter.value.dateTo)
+      if (dateFrom && dateTo) {
+        params.append('date_from', dateFrom)
+        params.append('date_to', dateTo)
       }
 
       const response = await axios.get('/api/v1/admin/analytics/users/verification-status', { params })
@@ -35,12 +33,11 @@ export const useAnalyticsVerification = defineStore('analytics-verification', ()
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.status === 422) {
         console.error('Validation error:', error.response.data.errors)
-        dateFilter.value = {}
       } else {
         console.error('API error:', error)
       }
     }
   }
 
-  return { verificationData, dateFilter, fetchVerificationAnalytics }
+  return { verificationData, fetchVerificationAnalytics }
 })
