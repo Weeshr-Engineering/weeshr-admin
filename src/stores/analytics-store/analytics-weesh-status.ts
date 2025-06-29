@@ -15,16 +15,14 @@ export const useAnalyticsWeeshStatus = defineStore('analytics-weesh-status', () 
     percentageFulfilled: 0
   })
 
-  const dateFilter = ref<{ dateFrom?: string; dateTo?: string }>({})
-
-  async function fetchWeeshData() {
+  async function fetchWeeshData(dateFrom?: string, dateTo?: string) {
     try {
       const params = new URLSearchParams()
       
       // Add dates only when both are present
-      if (dateFilter.value.dateFrom && dateFilter.value.dateTo) {
-        params.append('date_from', dateFilter.value.dateFrom)
-        params.append('date_to', dateFilter.value.dateTo)
+      if (dateFrom && dateTo) {
+        params.append('date_from', dateFrom)
+        params.append('date_to', dateTo)
       }
 
       const response = await axios.get('/api/v1/admin/analytics/users/weesh-by-status', { params })
@@ -37,7 +35,11 @@ export const useAnalyticsWeeshStatus = defineStore('analytics-weesh-status', () 
         if (error.response?.status === 422) {
           console.error('Validation error:', error.response.data.errors)
           // Reset to default data on validation error
-          await fetchWeeshData() // Refetch without dates
+          weeshStatusData.value = {
+            created: 0,
+            fulfilled: 0,
+            percentageFulfilled: 0
+          }
         } else {
           console.error('API error:', error)
         }
@@ -47,7 +49,6 @@ export const useAnalyticsWeeshStatus = defineStore('analytics-weesh-status', () 
 
   return { 
     weeshStatusData, 
-    dateFilter, 
     fetchWeeshData
   }
 })

@@ -1,17 +1,59 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useAnalyticsWeeshStatus } from '@/stores/analytics-store/analytics-weesh-status'
 import { Chart as ChartJS, Title, Tooltip, Legend, ArcElement } from 'chart.js'
 import { Doughnut } from 'vue-chartjs'
 import type { ChartOptions } from 'chart.js'
+import { useToast } from '@/components/ui/toast'
 
 ChartJS.register(ArcElement, Title, Tooltip, Legend)
 
 const weeshStore = useAnalyticsWeeshStatus()
+const loading = ref(true)
+const { toast } = useToast()
 
-// Initial load
-onMounted(async () => {
-  await weeshStore.fetchWeeshData()
+// Define props and emits
+const props = defineProps({
+  dateRange: {
+    type: Object,
+    required: true,
+    default: () => ({
+      start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      end: new Date().toISOString().split('T')[0]
+    })
+  }
+})
+
+const emit = defineEmits(['error'])
+
+// Watch for date range changes
+watch(() => props.dateRange, () => {
+  fetchData()
+}, { deep: true })
+
+async function fetchData() {
+  loading.value = true
+  try {
+    await weeshStore.fetchWeeshData(
+      props.dateRange.start,
+      props.dateRange.end
+    )
+  } catch (error) {
+    const errorMsg = 'Failed to load weesh status data'
+    console.error(errorMsg, error)
+    toast({
+      title: 'Error',
+      description: errorMsg,
+      variant: 'destructive'
+    })
+    emit('error', errorMsg)
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(() => {
+  fetchData()
 })
 
 // Chart configuration
@@ -38,11 +80,6 @@ const chartData = computed(() => ({
     borderWidth: 0
   }]
 }))
-
-// Handle filter application
-async function handleFilter() {
-  await weeshStore.fetchWeeshData()
-}
 </script>
 
 <template>
@@ -54,35 +91,15 @@ async function handleFilter() {
           Fulfillment Rate: {{ weeshStore.weeshStatusData.percentageFulfilled }}%
         </p>
       </div>
-      
-      <!-- Date Filter -->
-      <div class="w-full sm:w-auto flex flex-col sm:flex-row gap-2 items-start sm:items-center">
-        <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-          <input
-            type="date"
-            v-model="weeshStore.dateFilter.dateFrom"
-            class="w-full sm:w-36 px-3 py-2 bg-[#FCFCFC] border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#6A70FF]/50"
-          >
-          <span class="text-gray-400 hidden sm:inline-block self-center">to</span>
-          <input
-            type="date"
-            v-model="weeshStore.dateFilter.dateTo"
-            class="w-full sm:w-36 px-3 py-2 bg-[#FCFCFC] border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#6A70FF]/50"
-          >
-        </div>
-        <button
-          @click="handleFilter"
-          class="w-full sm:w-auto px-3 py-2 bg-[#6A70FF] text-white rounded-lg text-sm hover:bg-[#575bc7] transition-colors whitespace-nowrap"
-          :disabled="!weeshStore.dateFilter.dateFrom || !weeshStore.dateFilter.dateTo"
-          :class="{ 'opacity-50 cursor-not-allowed': !weeshStore.dateFilter.dateFrom || !weeshStore.dateFilter.dateTo }"
-        >
-          Apply Filter
-        </button>
-      </div>
+    </div>
+
+    <!-- Loading state -->
+    <div v-if="loading" class="flex-1 min-h-[300px] flex items-center justify-center">
+      <div class="w-12 h-12 border-4 border-[#6A70FF] border-t-transparent rounded-full animate-spin"></div>
     </div>
 
     <!-- Chart Display -->
-    <div class="relative flex-1 min-h-[300px] flex items-center justify-center">
+    <div v-else class="relative flex-1 min-h-[300px] flex items-center justify-center">
       <div class="relative w-full max-w-[280px] mx-auto">
         <Doughnut 
           :data="chartData" 
