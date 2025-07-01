@@ -4,7 +4,7 @@ import { storeToRefs } from 'pinia'
 import { ref } from 'vue'
 
 const categoryStore = useCategoryAnalyticsStore()
-const { allCategories, topCategory, loading, error } = storeToRefs(categoryStore)
+const { allCategories, loading, error } = storeToRefs(categoryStore)
 const showAll = ref(false)
 </script>
 

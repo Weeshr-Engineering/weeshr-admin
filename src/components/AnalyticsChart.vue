@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useAnalytics } from '@/stores/analytics-store/analytics-store'
 import { Line } from 'vue-chartjs'
 import {
@@ -14,7 +14,7 @@ import {
 import type { ChartOptions, ChartData } from 'chart.js'
 import DataLabelsPlugin from 'chartjs-plugin-datalabels' 
 import DeviceAnalytics from '@/components/DeviceAnalytics.vue'
-
+import { useToast } from '@/components/ui/toast'
 
 ChartJS.register(
   Title,
@@ -32,22 +32,62 @@ type LineChartData = ChartData<'line'> & {
 
 const analyticsStore = useAnalytics()
 const selectedInterval = ref<'daily' | 'monthly' | 'yearly'>('daily')
+const loading = ref(true)
+const { toast } = useToast()
 
-onMounted(() => {
-  analyticsStore.fetchUserAnalytics(selectedInterval.value)
+// Define props and emits
+const props = defineProps({
+  dateRange: {
+    type: Object,
+    required: true,
+    default: () => ({
+      start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      end: new Date().toISOString().split('T')[0]
+    })
+  }
 })
 
-const updateAnalytics = () => {
-  analyticsStore.fetchUserAnalytics(selectedInterval.value)
+const emit = defineEmits(['error'])
+
+// Update fetch call to use dateRange
+const updateAnalytics = async () => {
+  loading.value = true
+  try {
+    await analyticsStore.fetchUserAnalytics(
+      selectedInterval.value, 
+      props.dateRange.start, 
+      props.dateRange.end
+    )
+  } catch (error) {
+    const errorMsg = 'Failed to load user analytics data'
+    console.error(errorMsg, error)
+    toast({
+      title: 'Error',
+      description: errorMsg,
+      variant: 'destructive'
+    })
+    emit('error', errorMsg)
+  } finally {
+    loading.value = false
+  }
 }
 
+// Watch for date range and interval changes
+watch(() => [props.dateRange, selectedInterval.value], () => {
+  updateAnalytics()
+}, { deep: true })
+
+// Initial fetch
+onMounted(() => {
+  updateAnalytics()
+})
 
 const chartColors = {
   line: '#6A70FF',
   point: '#F4F4F5',
   background: '#FFFFFF',
   text: '#60646C',
-  dataLabel: '#6A70FF' // NEW: Color for data labels
+  dataLabel: '#6A70FF'
 }
 
 const chartData = computed<LineChartData>(() => ({
@@ -71,7 +111,6 @@ const chartOptions: ChartOptions<'line'> = {
     legend: {
       display: false
     },
- 
     datalabels: {
       align: 'top',
       anchor: 'end',
@@ -85,7 +124,6 @@ const chartOptions: ChartOptions<'line'> = {
         top: 6
       }
     },
-    // Optional: Tooltip remains for additional context
     tooltip: {
       callbacks: {
         label: (context) => {
@@ -108,7 +146,7 @@ const chartOptions: ChartOptions<'line'> = {
 </script>
 
 <template>
-  <div class="w-full max-w-[800px] min-h-[510px] p-7 bg-[#FFFFFF] rounded-lg">
+  <div class="w-full min-h-[510px] p-7 bg-[#FFFFFF] rounded-lg">
     <div class="flex flex-col sm:flex-row justify-between items-start mb-6 gap-4">
       <div class="w-full sm:w-auto">
         <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
@@ -117,6 +155,7 @@ const chartOptions: ChartOptions<'line'> = {
             v-model="selectedInterval"
             @change="updateAnalytics"
             class="p-1 bg-[#FCFCFC] border rounded-md cursor-pointer text-sm sm:text-base"
+            :disabled="loading"
           >
             <option value="daily">Daily</option>
             <option value="monthly">Monthly</option>
@@ -126,14 +165,18 @@ const chartOptions: ChartOptions<'line'> = {
         <p class="mt-2 text-xs sm:text-sm">Showing total number of users that joined weeshr</p>
       </div>
 
-      <!-- DeviceAnalytics Component -->
-      <DeviceAnalytics class="w-full sm:w-auto" />
+      <DeviceAnalytics class="w-full sm:w-auto" :disabled="loading" />
+    </div>
+
+    <!-- Loading state -->
+    <div v-if="loading" class="h-[350px] flex items-center justify-center">
+      <div class="w-12 h-12 border-4 border-[#6A70FF] border-t-transparent rounded-full animate-spin"></div>
     </div>
 
     <!-- Chart Section -->
-    <div class="mt-4 h-[350px]">
+    <div v-else class="mt-4 h-[350px]">
       <Line v-if="chartData.labels.length > 0" :data="chartData" :options="chartOptions" />
-      <p v-else class="text-[#60646C]">No data available</p>
+      <p v-else class="text-[#60646C] h-full flex items-center justify-center">No data available</p>
     </div>
   </div>
 </template>

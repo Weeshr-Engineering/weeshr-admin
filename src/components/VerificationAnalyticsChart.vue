@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, watch, ref } from 'vue'
 import { useAnalyticsVerification } from '@/stores/analytics-store/analytics-verification'
 import {
   Chart as ChartJS,
@@ -12,9 +12,8 @@ import {
 } from 'chart.js'
 import { Bar } from 'vue-chartjs'
 import type { ChartOptions } from 'chart.js'
-
 import DataLabelsPlugin from 'chartjs-plugin-datalabels'
-
+import { useToast } from '@/components/ui/toast'
 
 ChartJS.register(
   CategoryScale,
@@ -27,7 +26,52 @@ ChartJS.register(
 )
 
 const verificationStore = useAnalyticsVerification()
+const loading = ref(true)
+const { toast } = useToast()
 
+// Define props and emits
+const props = defineProps({
+  dateRange: {
+    type: Object,
+    required: true,
+    default: () => ({
+      start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      end: new Date().toISOString().split('T')[0]
+    })
+  }
+})
+
+const emit = defineEmits(['error'])
+
+// Watch for date range changes
+watch(() => props.dateRange, () => {
+  fetchData()
+}, { deep: true })
+
+async function fetchData() {
+  loading.value = true
+  try {
+    await verificationStore.fetchVerificationAnalytics(
+      props.dateRange.start,
+      props.dateRange.end
+    )
+  } catch (error) {
+    const errorMsg = 'Failed to load verification data'
+    console.error(errorMsg, error)
+    toast({
+      title: 'Error',
+      description: errorMsg,
+      variant: 'destructive'
+    })
+    emit('error', errorMsg)
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(() => {
+  fetchData()
+})
 
 const chartColors = {
   verified: '#00E19D',
@@ -91,10 +135,6 @@ const chartOptions: ChartOptions<'bar'> = {
   }
 }
 
-onMounted(async () => {
-  await verificationStore.fetchVerificationAnalytics()
-})
-
 const chartData = computed(() => ({
   labels: ['Verification Status'],
   datasets: [
@@ -121,40 +161,17 @@ const chartData = computed(() => ({
         <h3 class="text-lg font-semibold text-gray-800">Verification Status</h3>
       </div>
 
-      <div class="flex flex-col sm:flex-row gap-2 w-full">
-        <input
-          type="date"
-          v-model="verificationStore.dateFilter.dateFrom"
-          class="w-full sm:w-36 px-3 py-2 bg-[#FCFCFC] border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#6A70FF]/50"
-          placeholder="Start date"
-        />
-        <span class="text-gray-400 hidden sm:inline-block self-center">to</span>
-        <input
-          type="date"
-          v-model="verificationStore.dateFilter.dateTo"
-          class="w-full sm:w-36 px-3 py-2 bg-[#FCFCFC] border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#6A70FF]/50"
-          placeholder="End date"
-        />
-      </div>
-
       <p class="text-xs text-center text-gray-500">
         Total users: {{ verificationStore.verificationData.total }}
       </p>
-
-      <button
-        @click="verificationStore.fetchVerificationAnalytics()"
-        class="w-full sm:w-auto px-3 py-2 bg-[#6A70FF] text-white rounded-lg text-sm hover:bg-[#575bc7] transition-colors whitespace-nowrap"
-        :disabled="!verificationStore.dateFilter.dateFrom || !verificationStore.dateFilter.dateTo"
-        :class="{
-          'opacity-50 cursor-not-allowed':
-            !verificationStore.dateFilter.dateFrom || !verificationStore.dateFilter.dateTo
-        }"
-      >
-        Apply Filter
-      </button>
     </div>
 
-    <div class="relative flex-1 min-h-[300px]">
+    <!-- Loading state -->
+    <div v-if="loading" class="flex-1 min-h-[300px] flex items-center justify-center">
+      <div class="w-12 h-12 border-4 border-[#6A70FF] border-t-transparent rounded-full animate-spin"></div>
+    </div>
+
+    <div v-else class="relative flex-1 min-h-[300px]">
       <Bar
         v-if="verificationStore.verificationData.total > 0"
         :data="chartData"
