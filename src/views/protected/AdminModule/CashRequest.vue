@@ -215,7 +215,6 @@
             </TableBody>
           </Table>
         </div>
-        <Button @click='store.handlePageChange(2)'>check</Button>
         <div
           class="flex gap-2 max-w-full flex-wrap justify-end mt-8 mr-4 items-center text-[15px]"
           v-if="payout.length !== 0"
