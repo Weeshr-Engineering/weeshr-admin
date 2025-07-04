@@ -47,7 +47,7 @@ export const usePayoutStore = defineStore('payout', {
   actions: {
     async getPayout(page: number, msg: string) {
       try {
-        console.log('fetching')
+        // console.log('fetching')
         toast({
           description: 'Fetching data...',
           variant: 'loading',
@@ -69,7 +69,7 @@ export const usePayoutStore = defineStore('payout', {
           this.totalPages = response.data.data.totalPages    
         }
       } catch (error) {
-        console.log(error)
+        // console.log(error)
         this.catchErr(error)
         this.loading = false;
       }
