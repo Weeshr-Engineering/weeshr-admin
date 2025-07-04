@@ -346,7 +346,7 @@ const exportToExcel = () => {
     'Username': user.userName,
     'Phone': `${user.phoneNumber.countryCode}${user.phoneNumber.phoneNumber}`,
     // 'Normalized Phone': user.phoneNumber.normalizedNumber,
-    'Date of Birth': user.dob,
+    'Date of Birth': user.dob.split('T')[0],
     Gender: user.gender,
     Email: user.email,
     'Email Verified': user.emailVerified ? 'Yes' : 'No',

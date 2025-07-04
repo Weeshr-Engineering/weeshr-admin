@@ -215,6 +215,7 @@
             </TableBody>
           </Table>
         </div>
+        <Button @click='store.handlePageChange(2)'>check</Button>
         <div
           class="flex gap-2 max-w-full flex-wrap justify-end mt-8 mr-4 items-center text-[15px]"
           v-if="payout.length !== 0"
@@ -350,7 +351,7 @@ interface SelectedPayout extends SelectedReq {
 }
 
 const store = usePayoutStore()
-store.getPayout()
+store.getPayout(store.page, 'Page: '+store.page)
 const modal = ref(false)
 const canDisburse = ref<boolean>(false)
 const canApprove = ref<boolean>(false)
