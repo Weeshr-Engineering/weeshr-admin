@@ -28,7 +28,7 @@ const showAll = ref(false)
       <!-- Top 5 Categories View -->
       <div v-if="!showAll" class="mt-4 space-y-3">
         <div
-          v-for="(category, index) in allCategories.slice(0, 5)"
+          v-for="(category, index) in allCategories.slice(0, 7)"
           :key="index"
           class="flex justify-between items-center p-2 rounded-md hover:bg-gray-50 transition-colors"
         >
