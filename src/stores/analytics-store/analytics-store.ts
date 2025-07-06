@@ -17,8 +17,7 @@ export const useAnalytics = defineStore('analytics', {
       dateTo: string = new Date().toISOString().split('T')[0]
     ) {
       try {
-        const url = `/api/v1/admin/analytics/users/growth-over-time?date_from=2023-05-01&date_to=2024-10-04&interval=${interval}`;
-        const response = await axios.get(url);
+        const url = `/api/v1/admin/analytics/users/growth-over-time?date_from=${dateFrom}&date_to=${dateTo}&interval=${interval}`;        const response = await axios.get(url);
         const apiData = response.data.data.data; 
 
         this.data = apiData.map((item: { _id: string; count: number }) => {

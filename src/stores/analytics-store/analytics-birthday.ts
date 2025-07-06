@@ -21,9 +21,15 @@ export interface BirthdayMetric {
   count: number
 }
 
+interface MonthlyTrend {
+  month: string
+  trend: number
+}
+
 export const useBirthdayStore = defineStore('birthday', {
   state: () => ({
-    data: [] as BirthdayMetric[]
+    data: [] as BirthdayMetric[],
+    monthlyTrends: [] as MonthlyTrend[]
   }),
   actions: {
     async fetchBirthdayMetrics() {
@@ -37,9 +43,26 @@ export const useBirthdayStore = defineStore('birthday', {
           month,
           count: apiDataMap.has(month) ? Number(apiDataMap.get(month)) : 0
         }))
+        
+       
+        this.calculateMonthlyTrends()
       } catch (error) {
         console.error('Error fetching birthday metrics:', error)
       }
+    },
+    
+    calculateMonthlyTrends() {
+      this.monthlyTrends = this.data.map((current, index) => {
+        if (index === 0) return { month: current.month, trend: 0 }
+        
+        const prev = this.data[index - 1].count
+      
+        if (prev === 0) return { month: current.month, trend: 0 }
+        
+       
+        const trend = Math.round(((current.count - prev) / prev) * 100)
+        return { month: current.month, trend }
+      })
     }
   }
 })

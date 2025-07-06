@@ -13,6 +13,7 @@ import {
 } from 'chart.js'
 import type { ChartOptions, ChartData } from 'chart.js'
 import DataLabelsPlugin from 'chartjs-plugin-datalabels' 
+import { useNow } from '@vueuse/core'
 
 ChartJS.register(
   Title,
@@ -25,11 +26,43 @@ ChartJS.register(
 )
 
 const birthdayStore = useBirthdayStore()
+const now = useNow()
 
 onMounted(() => {
   birthdayStore.fetchBirthdayMetrics()
 })
 
+// Get current month name
+const currentMonth = computed(() => {
+  return now.value.toLocaleString('default', { month: 'long' })
+})
+
+// Calculate current month's trend
+const currentTrend = computed(() => {
+  if (!birthdayStore.monthlyTrends.length) return null
+  return birthdayStore.monthlyTrends.find(t => t.month === currentMonth.value)
+})
+
+// Format trend message with emoji
+const trendMessage = computed(() => {
+  if (!currentTrend.value || birthdayStore.data.length === 0) {
+    return '🎉 Calculating birthday trends...'
+  }
+  
+  const { trend } = currentTrend.value
+  let emoji = '↔️'
+  let descriptor = 'stable'
+  
+  if (trend > 0) {
+    emoji = '📈'
+    descriptor = `up by ${Math.abs(trend)}%`
+  } else if (trend < 0) {
+    emoji = '📉'
+    descriptor = `down by ${Math.abs(trend)}%`
+  }
+  
+  return `🎉 Birthday occurrence trending ${descriptor} this month ${emoji}`
+})
 
 const chartColors = {
   bar: '#6A70FF',
@@ -54,22 +87,31 @@ const chartData = computed<ChartData<'bar'>>(() => ({
 const chartOptions: ChartOptions<'bar'> = {
   responsive: true,
   maintainAspectRatio: false,
-  indexAxis: 'y' as const,
+  indexAxis: 'x' as const,
   plugins: {
     legend: { display: false },
-    tooltip: { enabled: true },
-    // NEW: Data labels configuration
+    tooltip: { 
+      enabled: true,
+      displayColors: false,
+      callbacks: {
+        title: (items) => items[0].label,
+        label: (ctx) => `${ctx.parsed.y} birthdays`
+      }
+    },
     datalabels: {
+      display: (context) => {
+        return window.innerWidth > 640;
+      },
       anchor: 'end',
-      align: 'right',
+      align: 'top',
       color: chartColors.dataLabel,
       font: {
-        size: 12,
+        size: 10,
         weight: 'bold'
       },
       formatter: (value: number) => value.toLocaleString(),
       padding: {
-        right: 8
+        top: 5
       }
     }
   },
@@ -77,19 +119,37 @@ const chartOptions: ChartOptions<'bar'> = {
     x: {
       grid: { display: false },
       ticks: {
-        color: chartColors.text,
-        font: { size: 12 }
+        color: chartColors.darkText,
+        font: {
+          size: window.innerWidth < 640 ? 8 : 10,
+          weight: 'bold'
+        }
       }
     },
     y: {
-      grid: { display: false },
+      grid: { 
+        display: true,
+        color: '#f0f0f0'
+      },
       ticks: {
-        color: chartColors.darkText,
-        font: {
-          size: 14,
-          weight: 'bold'
+        color: chartColors.text,
+        font: { 
+          size: window.innerWidth < 640 ? 8 : 10 
         },
-        callback: (_, index) => birthdayStore.data[index]?.month
+        callback: (value) => {
+          if (window.innerWidth < 640 && typeof value === 'number') {
+            return value >= 1000 ? `${(value/1000).toFixed(0)}k` : value;
+          }
+          return value;
+        }
+      },
+      title: {
+        display: window.innerWidth > 480,
+        text: 'Number of Birthdays',
+        color: chartColors.text,
+        font: {
+          size: 10
+        }
       }
     }
   }
@@ -97,24 +157,24 @@ const chartOptions: ChartOptions<'bar'> = {
 </script>
 
 <template>
-  <div class="bg-white rounded-xl shadow-sm p-6 w-full max-w-2xl mx-auto">
-    <div class="mb-5">
-      <h3 class="text-gray-900 font-semibold text-lg">Birthday Chart</h3>
-      <p class="text-[#60646C] text-sm">January - December 2024</p>
+  <div class="bg-white rounded-xl shadow-sm p-4 sm:p-6 w-full">
+    <div class="mb-3 sm:mb-5">
+      <h3 class="text-gray-900 font-semibold text-base sm:text-lg">Birthday Chart</h3>
+      <p class="text-[#60646C] text-xs sm:text-sm">January - December 2024</p>
     </div>
 
-    <div class="relative h-80 sm:h-96 md:h-[500px]">
+    <div class="relative h-[300px] sm:h-[350px] md:h-[400px] lg:h-[500px]">
       <Bar v-if="birthdayStore.data.length" :data="chartData" :options="chartOptions" />
-      <div v-else class="absolute inset-0 flex items-center justify-center text-[#60646C]">
+      <div v-else class="absolute inset-0 flex items-center justify-center text-[#60646C] text-sm">
         Loading birthday data...
       </div>
     </div>
 
-    <div class="mt-4 space-y-2">
-      <p class="text-sm text-[#1C2024] font-medium">
-        🎉 Birthday occurrence trending up by <strong>1%</strong> this month 📈
+    <div class="mt-3 sm:mt-4 space-y-1 sm:space-y-2">
+      <p class="text-xs sm:text-sm text-[#1C2024] font-medium">
+        {{ trendMessage }}
       </p>
-      <p class="text-xs text-[#60646C]">Showing total birthdays per month (full calendar year)</p>
+      <p class="text-[10px] sm:text-xs text-[#60646C]">Showing total birthdays per month (full calendar year)</p>
     </div>
   </div>
 </template>

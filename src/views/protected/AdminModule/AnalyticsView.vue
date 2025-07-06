@@ -107,39 +107,39 @@
     </div>
 
     <div v-else class="w-full flex flex-col space-y-6">
-      <!-- First Row of Charts -->
-      <div class="w-full grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="lg:col-span-2 bg-white p-4 rounded-xl shadow-sm overflow-x-auto">
-          <div class="min-w-[640px] w-full">
-            <UserAnalyticsChart :date-range="appliedDateRange" @error="handleChartError" />
-          </div>
-        </div>
-        <div class="bg-white p-4 rounded-xl shadow-sm">
-          <GenderAnalyticsChart :date-range="appliedDateRange" @error="handleChartError" />
+    <!-- First Row of Charts -->
+    <div class="w-full grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div class="lg:col-span-2 bg-white p-4 rounded-xl shadow-sm overflow-x-auto">
+        <div class="min-w-[640px] w-full">
+          <UserAnalyticsChart :date-range="appliedDateRange" @error="handleChartError" />
         </div>
       </div>
-      <!-- Second Row of Charts -->
-      <div class="w-full grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="bg-white p-4 rounded-xl shadow-sm overflow-x-auto">
-          <div class="min-w-[640px] w-full h-[400px] sm:h-[300px]">
-            <BirthdayAnalyicsChart :date-range="appliedDateRange" @error="handleChartError" />
-          </div>
-        </div>
-        <div class="bg-white p-4 rounded-xl shadow-sm">
-          <VerificationAnalyticsChart :date-range="appliedDateRange" @error="handleChartError" />
-        </div>
-        <div class="bg-white p-4 rounded-xl shadow-sm">
-          <CategoryAnalytics :date-range="appliedDateRange" @error="handleChartError" />
-        </div>
-      </div>
-
-      <!-- Third Row of Charts -->
-      <div class="w-full grid grid-cols-1 gap-6">
-        <div class="bg-white p-4 rounded-xl shadow-sm">
-          <WeeshStatusAnalyticsChart :date-range="appliedDateRange" @error="handleChartError" />
-        </div>
+      <div class="bg-white p-4 rounded-xl shadow-sm">
+        <GenderAnalyticsChart :date-range="appliedDateRange" @error="handleChartError" />
       </div>
     </div>
+    
+    <!-- Second Row: WeeshStatusAnalyticsChart in second row -->
+    <div class="w-full grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <WeeshStatusAnalyticsChart 
+        class="col-span-1"
+        :date-range="appliedDateRange" 
+        @error="handleChartError" 
+      />
+      <VerificationAnalyticsChart :date-range="appliedDateRange" @error="handleChartError" />
+      <CategoryAnalytics :date-range="appliedDateRange" @error="handleChartError" />
+    </div>
+
+    <!-- Third Row: BirthdayAnalyicsChart full width -->
+    <div class="w-full">
+      <BirthdayAnalyicsChart 
+        :date-range="appliedDateRange" 
+        @error="handleChartError" 
+      />
+    </div>
+
+   
+  </div>
   </div>
 </template>
 
@@ -167,9 +167,10 @@ const { weeshes, wallet, users, tickets, loading } = storeToRefs(dashboardAnalyt
 
 // Date range state - only for charts
 const tempDateRange = ref({
-  start: new Date(Date.now() - 800 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+  start: new Date('2024-10-10').toISOString().split('T')[0],
   end: new Date().toISOString().split('T')[0]
-})
+});
+
 
 const appliedDateRange = ref({ ...tempDateRange.value })
 
