@@ -79,47 +79,36 @@ const errors = error
 const sheetClass = sheetVariants({ length: 'template' })
 // const isSheetOpen = ref(true) // Set to true to open by default
 
-//const filter = reactive<UserFilter>({
-  //page: 1,
-  //per_page: 20,
-  //gender: '',
-  //startDateMonth: '',
-  //endDateMonth: '',
-  //search: '',
-  //birthdayFilterConstants: ''
-//})
+  const filter = reactive<UserFilter>({
+    page: Number(route.query.page) || 1,
+    per_page: Number(route.query.per_page) || 20,
+    gender: (route.query.gender as string) || '',
+    startDateMonth: (route.query.startDateMonth as string) || '',
+    endDateMonth: (route.query.endDateMonth as string) || '',
+    search: (route.query.search as string) || '',
+    birthdayFilterConstants: (route.query.birthdayFilterConstants as string) || ''
+  })
 
-    // 1. Initialize filter from query params
-    const filter = reactive<UserFilter>({
-      page: Number(route.query.page) || 1,
-      per_page: Number(route.query.per_page) || 20,
-      gender: (route.query.gender as string) || '',
-      startDateMonth: (route.query.startDateMonth as string) || '',
-      endDateMonth: (route.query.endDateMonth as string) || '',
-      search: (route.query.search as string) || '',
-      birthdayFilterConstants: (route.query.birthdayFilterConstants as string) || ''
-    })
+  // Watch filter and update query params on every change
+  watch(
+    () => ({ ...filter }),
+    (newVal) => {
+      const query: Record<string, string> = {}
 
-    // 2. Watch filter and update query params on every change
-    watch(
-      () => ({ ...filter }),
-      (newVal) => {
-        const query: Record<string, string> = {}
+      for (const key in newVal) {
+        // ignore per_page
+        if (key === 'per_page') continue
 
-        for (const key in newVal) {
-          // ignore per_page
-          if (key === 'per_page') continue
-
-          const value = newVal[key as keyof UserFilter]
-          if (value !== '' && value !== null) {
-            query[key] = String(value)
-          }
+        const value = newVal[key as keyof UserFilter]
+        if (value !== '' && value !== null) {
+          query[key] = String(value)
         }
+      }
 
-        router.replace({ query })
-      },
-      { deep: true, immediate: true }
-    )
+      router.replace({ query })
+    },
+    { deep: true, immediate: true }
+  )
 
   //   return { filter }
   // }
