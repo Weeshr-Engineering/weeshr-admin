@@ -28,7 +28,17 @@ export const useAnalyticsWeeshStatus = defineStore('analytics-weesh-status', () 
       const response = await axios.get('/api/v1/admin/analytics/users/weesh-by-status', { params })
 
       if (response.data.code === 200) {
-        weeshStatusData.value = response.data.data
+        const data = response.data.data
+        // Calculate percentage with two decimal places
+        const percentage = data.created > 0 
+          ? Number((data.fulfilled / data.created * 100).toFixed(2))
+          : 0
+        
+        weeshStatusData.value = {
+          created: data.created,
+          fulfilled: data.fulfilled,
+          percentageFulfilled: percentage
+        }
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {

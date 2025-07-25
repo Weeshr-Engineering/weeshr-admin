@@ -80,6 +80,11 @@ const chartData = computed(() => ({
     borderWidth: 0
   }]
 }))
+
+// Format percentage to always show 2 decimal places
+const formattedPercentage = computed(() => {
+  return weeshStore.weeshStatusData.percentageFulfilled.toFixed(2)
+})
 </script>
 
 <template>
@@ -88,7 +93,7 @@ const chartData = computed(() => ({
       <div class="space-y-1">
         <h3 class="text-lg font-semibold text-gray-800">Weesh Status</h3>
         <p class="text-xs text-gray-500">
-          Fulfillment Rate: {{ weeshStore.weeshStatusData.percentageFulfilled }}%
+          Fulfillment Rate: {{ formattedPercentage }}%
         </p>
       </div>
     </div>
@@ -108,7 +113,7 @@ const chartData = computed(() => ({
         />
         <div v-if="weeshStore.weeshStatusData.created > 0" class="absolute inset-0 flex flex-col items-center justify-center pt-8">
           <span class="text-3xl font-bold text-gray-800">
-            {{ weeshStore.weeshStatusData.percentageFulfilled }}%
+            {{ formattedPercentage }}%
           </span>
           <div class="text-center mt-2">
             <p class="text-sm text-gray-600">
