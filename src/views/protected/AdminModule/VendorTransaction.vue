@@ -516,6 +516,7 @@ const sortState: Record<string, "asc" | "desc"> = {
 
 // Sort by created_at
 function sortByDate() {
+  console.log('logging')
   const order = sortState.date === "asc" ? "desc" : "asc";
   sortState.date = order;
 
@@ -531,9 +532,10 @@ function sortByPayout() {
   const order = sortState.payout === "asc" ? "desc" : "asc";
   sortState.payout = order;
 
-  return [...transactions.value].sort((a, b) =>
+  const newArr = [...transactions.value].sort((a, b) =>
     order === "asc" ? a.payout - b.payout : b.payout - a.payout
   );
+  transactions.value = newArr;
 }
 
 // Sort by total units
@@ -541,9 +543,10 @@ function sortByUnit() {
   const order = sortState.unit === "asc" ? "desc" : "asc";
   sortState.unit = order;
 
-  return [...transactions.value].sort((a, b) =>
+  const newArr = [...transactions.value].sort((a, b) =>
     order === "asc" ? a.total_Unit - b.total_Unit : b.total_Unit - a.total_Unit
   );
+  transactions.value = newArr;
 }
 
 // Sort by product count
@@ -551,11 +554,13 @@ function sortByProductCount() {
   const order = sortState.productCount === "asc" ? "desc" : "asc";
   sortState.productCount = order;
 
-  return [...transactions.value].sort((a, b) =>
+  const newArr = [...transactions.value].sort((a, b) =>
     order === "asc"
       ? a.product_count - b.product_count
       : b.product_count - a.product_count
   );
+
+  transactions.value = newArr;
 }
 
 function formatDate(dateStr: string | null): string | null {
