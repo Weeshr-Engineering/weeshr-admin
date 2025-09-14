@@ -3,7 +3,7 @@
     <VendorNav class="mx-6" headingText="Transactions"/>
 
     <div class="container w-full grid gap-4 md:grid-cols-2 md:gap-6 lg:grid-cols-2 pt-6 text-nowrap">
-      <Card class="h-[150px] rounded-[24px] bg-[#00C37F] cardShadow2 border-transparent">
+      <Card class="h-[150px] rounded-[24px] bg-[#00C37F] cardShadow4 border-transparent transition-transform transform hover:scale-105">
         <div class="h-[130px] pt-4 relative rounded-tr-[24px] rounded-tl-[24px]">
           <CardContent class="flex items-center justify-between space-y-0">
             <p class="text-l font-medium text-[#ffffff]">Total Payouts</p>
@@ -22,7 +22,7 @@
 
       <!-- <RouterLink to="/bank/outflow"> -->
         <Card
-          class="h-[150px] rounded-[24px] bg-[#EE9F39] cardShadow3 border-transparent transition-transform transform hover:scale-105">
+          class="h-[150px] rounded-[24px] bg-[#EE9F39] cardShadow2 border-transparent transition-transform transform hover:scale-105">
           <div class="h-[130px] pt-4 relative rounded-tr-[24px] rounded-tl-[24px]">
             <CardContent class="flex items-center justify-between space-y-0">
               <p class="text-l font-medium text-[#ffffff]">Pending Payouts</p>
