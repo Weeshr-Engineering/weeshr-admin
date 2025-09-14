@@ -29,6 +29,7 @@ import CountryConfig from '@/views/protected/ConfigModule/CountryModule/CountryC
 import WeeshDetails from '@/views/protected/WeeshModule/WeeshDetails.vue'
 import FeaturedConfig from '@/views/protected/ConfigModule/FeaturedModule/Featured-config.vue'
 import OutFlow from '@/views/protected/AdminModule/OutFlow.vue'
+import VendorTransaction from '@/views/protected/AdminModule/VendorTransaction.vue'
 
 const routes = [
   {
@@ -88,7 +89,13 @@ const routes = [
     path: '/user/vendors',
     name: 'vendors',
     component: Vendors,
-    meta: { requiresAuth: true }
+    // meta: { requiresAuth: true }
+  },
+  {
+    path: '/vendors/transaction',
+    name: 'vendorTransaction',
+    component: VendorTransaction,
+    // meta: { requiresAuth: true }
   },
   {
     path: '/user/admin',
