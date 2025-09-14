@@ -160,7 +160,7 @@
                       <h3 class="text-2xl font-medium">{{ transaction.id }}</h3>
                     </SheetHeader>
                     <Card Content class="rounded-lg my-4 hover:shadow-xl">
-                      <CardContent class="flex items-center justify-between px-2 sm:px-8 py-4">
+                      <CardContent class="flex items-center justify-between px-2 sm:px-6 py-4">
                         <span class="flex gap-2 items-center">
                           <div class="flex flex-col gap-2">
                             <div class="flex gap-4">
@@ -183,7 +183,7 @@
                     </Card>
                     <Card Content class="rounded-lg px-0">
                       <CardHeader>
-                        <div class="flex items-center justify-between w-full px-2">
+                        <div class="flex items-center justify-between w-full">
                           <div class="flex items-center gap-4">
                             <h2 class="font-bold text-lg">Transaction Summary</h2>
                             <Badge class="bg-[#E9F4D1] text-primary">{{ transaction.product_count }}</Badge>
