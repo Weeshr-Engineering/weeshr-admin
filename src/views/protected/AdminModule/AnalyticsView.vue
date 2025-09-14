@@ -104,6 +104,13 @@
           <div class="h-64 bg-gray-200 rounded"></div>
         </div>
       </div>
+
+      <div class="w-full grid grid-cols-1 gap-6">
+        <div class="bg-white p-4 rounded-xl shadow-sm min-h-[400px] animate-pulse">
+          <div class="h-6 bg-gray-200 rounded w-1/4 mb-4"></div>
+          <div class="h-64 bg-gray-200 rounded"></div>
+        </div>
+      </div>
     </div>
 
     <div v-else class="w-full flex flex-col space-y-6">
@@ -130,9 +137,17 @@
       <CategoryAnalytics :date-range="appliedDateRange" @error="handleChartError" />
     </div>
 
-    <!-- Third Row: BirthdayAnalyicsChart full width -->
+    <!-- Third Row: BirthdayAnalyticsChart full width -->
     <div class="w-full">
       <BirthdayAnalyicsChart 
+        :date-range="appliedDateRange" 
+        @error="handleChartError" 
+      />
+    </div>
+
+    <!-- Fourth Row: WalletTransactionChart full width -->
+    <div class="w-full">
+      <WalletTransactionChart 
         :date-range="appliedDateRange" 
         @error="handleChartError" 
       />
@@ -154,6 +169,7 @@ import BirthdayAnalyicsChart from '@/components/BirthdayAnalyicsChart.vue'
 import CategoryAnalytics from '@/components/CategoryAnalytics.vue'
 import VerificationAnalyticsChart from '@/components/VerificationAnalyticsChart.vue'
 import WeeshStatusAnalyticsChart from '@/components/WeeshStatusAnalyticsChart.vue'
+import WalletTransactionChart from '@/components/WalletTransactionChart.vue'
 import { storeToRefs } from 'pinia'
 import { ability, defineAbilities } from '@/lib/ability';
 import router from '@/router'
