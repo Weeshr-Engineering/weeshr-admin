@@ -251,7 +251,7 @@ const loading = ref(false)
               </div>
               </CardContent>
             </Card>
-            <div class="text-center text-blue-500 absolute bottom-4 w-full">
+            <div class="text-center text-blue-500 absolute bottom-4 w-full place-self-center">
               <a href="#">See all</a>
             </div>
           </div>

@@ -52,7 +52,7 @@
             Details of all transactions
           </p>
         </div>
-        <div class="flex items-center gap-4">
+        <div class="flex items-center flex-col md:flex-row gap-4">
           <Search class="mt-3 lg:mt-0" />
           <button class="bg-[#020721] px-4 py-2 rounded-xl w-50 h-12">
             <div class="text-base text-[#F8F9FF] text-center flex items-center">
@@ -153,26 +153,26 @@
                     </svg>
                   </SheetTrigger>
                   <SheetContent length="mid_low" class="flex flex-col space-y-0 overflow-y-scroll">
-                    <SheetHeader>
+                    <SheetHeader class="flex flex-col items-start px-4">
                       <SheetDescription>
                         Payout ID.
                       </SheetDescription>
                       <h3 class="text-2xl font-medium">{{ transaction.id }}</h3>
                     </SheetHeader>
-                    <Card Content class="rounded-lg my-4 hover:shadow-xl">
-                      <CardContent class="flex items-center justify-between px-2 sm:px-6 py-4">
+                    <Card Content class="rounded-lg my-4 hover:shadow-xl px-2 md:px-0">
+                      <CardContent class="flex flex-col md:flex-row items-start md:items-center justify-between px-2 sm:px-6 py-4">
                         <span class="flex gap-2 items-center">
-                          <div class="flex flex-col gap-2">
-                            <div class="flex gap-4">
-                              <p class="text-sm text-muted-foreground text-center text-[#000000]">
+                          <div class="flex flex-col items-start gap-2">
+                            <div class="flex flex-col items-start md:flex-row gap-4">
+                              <p class="text-sm text-muted-foreground text-nowrap text-center text-[#000000]">
                                 Payout Date
                               </p>
-                              <Badge variant="outline" class="text-muted-foreground">
+                              <Badge variant="outline" class="text-muted-foreground w-full">
                                 {{ formatDate(transaction.created_at) }} - {{ formatDate(transaction.completed_date) }}
                               </Badge>
                             </div>
-                            <p class="text-lg text-primary font-bold text-[#000000]">
-                              {{ formatDate(transaction.completed_date) }}
+                            <p class="text-lg my-2 md:my-0 text-primary font-bold text-[#000000]">
+                              {{ formatDate(transaction.created_at) }}
                             </p>
                           </div>
                         </span>
@@ -183,9 +183,9 @@
                     </Card>
                     <Card Content class="rounded-lg px-0">
                       <CardHeader>
-                        <div class="flex items-center justify-between w-full">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between w-full">
                           <div class="flex items-center gap-4">
-                            <h2 class="font-bold text-lg">Transaction Summary</h2>
+                            <h2 class="font-bold md:text-lg">Transaction Summary</h2>
                             <Badge class="bg-[#E9F4D1] text-primary">{{ transaction.product_count }}</Badge>
                           </div>
                           <h1 class="font-bold text-xl">₦{{ transaction.total_price }}</h1>
@@ -200,7 +200,7 @@
                                 <img :src='item.image' class="w-full h-full rounded-sm"/>
                               </div>
                               <div class="flex flex-col">
-                                <p class="text-lg text-primary font-semibold">
+                                <p class="md:text-lg text-primary font-semibold">
                                   {{ item.name }}
                                 </p>
                                 <p class="text-sm text-muted-foreground text-[#000000]">
@@ -516,7 +516,6 @@ const sortState: Record<string, "asc" | "desc"> = {
 
 // Sort by created_at
 function sortByDate() {
-  console.log('logging')
   const order = sortState.date === "asc" ? "desc" : "asc";
   sortState.date = order;
 
