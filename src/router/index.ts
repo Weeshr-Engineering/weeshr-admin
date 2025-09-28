@@ -30,6 +30,7 @@ import WeeshDetails from '@/views/protected/WeeshModule/WeeshDetails.vue'
 import FeaturedConfig from '@/views/protected/ConfigModule/FeaturedModule/Featured-config.vue'
 import OutFlow from '@/views/protected/AdminModule/OutFlow.vue'
 import VendorTransaction from '@/views/protected/AdminModule/VendorTransaction.vue'
+import VendorDetails from '@/views/protected/AdminModule/VendorDetails.vue'
 
 const routes = [
   {
@@ -95,6 +96,12 @@ const routes = [
     path: '/vendors/transaction',
     name: 'vendorTransaction',
     component: VendorTransaction,
+    // meta: { requiresAuth: true }
+  },
+  {
+    path: '/vendors/details',
+    name: 'vendorDetails',
+    component: VendorDetails,
     // meta: { requiresAuth: true }
   },
   {
