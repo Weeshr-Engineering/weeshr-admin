@@ -272,7 +272,7 @@
                       <CardHeader>
                         <div class="flex flex-col md:flex-row md:items-center justify-between w-full">
                           <div class="flex items-center gap-4">
-                            <h2 class="font-bold md:text-lg">Transaction Summary</h2>
+                            <h2 class="font-bold md:text-lg">Order</h2>
                             <Badge class="bg-[#E9F4D1] text-primary">{{ transaction.product_count }}</Badge>
                           </div>
                           <h1 class="font-bold text-xl">₦{{ transaction.total_price }}</h1>
@@ -332,6 +332,109 @@
                         </div>
                       </CardContent>
                     </Card>
+                    <Card class="px-2 py-4 w-full rounded-xl shadow-md">
+                      <Tabs default-value="receiver" class="space-y-2">
+                        <TabsList class="w-full bg-transparent">
+                          <TabsTrigger
+                            value="receiver"
+                            class="text-[#000000] data-[state=active]:border-[#6A70FF]"
+                          >
+                            Receiver
+                          </TabsTrigger>
+                          <TabsTrigger
+                            value="sender"
+                            class="text-[#000000] data-[state=active]:border-[#6A70FF]"
+                          >
+                            Sender
+                          </TabsTrigger>
+                          <!-- <TabsTrigger value="support" class="text-[#000000] data-[state=active]:border-[#6A70FF]"
+                            >Support
+                          </TabsTrigger> -->
+                          <TabsTrigger
+                            value="vendor"
+                            class="text-[#000000] data-[state=active]:border-[#6A70FF]"
+                          >
+                            Vendor
+                          </TabsTrigger>
+                        </TabsList>
+
+                        <TabsContent value="receiver" class="">
+                          <div class="rounded-lg overflow-hidden flex flex-col mt-6">
+                            <div class="w-full mb-4 px-4">
+                              <h1 class="text-xl font-bold">{{ transaction.receiver.name }}</h1>
+                            </div>
+                            <div class="bg-[#F6F6F6] flex items-center justify-between w-full px-4 py-2">
+                              <div class="flex items-center gap-4">
+                                <h2 class="text-xs font-semibold text-muted-foreground">Address</h2>
+                              </div>
+                              <h1 class="text-xs text-primary font-semibold">₦{{ transaction.receiver.address }}</h1>
+                            </div>
+                            <div class="bg-[#F6F6F6] flex items-center justify-between w-full px-4 py-2 my-1">
+                              <div class="flex items-center gap-4">
+                                <h2 class="text-xs font-semibold text-muted-foreground">Phone Number</h2>
+                              </div>
+                              <h1 class="text-xs text-primary font-semibold">{{ transaction.receiver.phone }}</h1>
+                            </div>
+                            <div class="bg-[#F6F6F6] flex items-center justify-between w-full px-4 py-2">
+                              <div class="flex items-center gap-4">
+                                <h2 class="text-xs font-semibold text-muted-foreground">Email</h2>
+                              </div>
+                              <h1 class="text-xs text-primary font-semibold">{{ transaction.receiver.email }}</h1>
+                            </div>
+                          </div>
+                        </TabsContent>
+                        <TabsContent value="sender">
+                          <div class="rounded-lg overflow-hidden flex flex-col mt-6">
+                            <div class="w-full mb-4 px-4">
+                              <h1 class="text-xl font-bold">{{ transaction.sender.name }}</h1>
+                            </div>
+                            <div class="bg-[#F6F6F6] flex items-center justify-between w-full px-4 py-2">
+                              <div class="flex items-center gap-4">
+                                <h2 class="text-xs font-semibold text-muted-foreground">Address</h2>
+                              </div>
+                              <h1 class="text-xs text-primary font-semibold">₦{{ transaction.sender.address }}</h1>
+                            </div>
+                            <div class="bg-[#F6F6F6] flex items-center justify-between w-full px-4 py-2 my-1">
+                              <div class="flex items-center gap-4">
+                                <h2 class="text-xs font-semibold text-muted-foreground">Phone Number</h2>
+                              </div>
+                              <h1 class="text-xs text-primary font-semibold">{{ transaction.sender.phone }}</h1>
+                            </div>
+                            <div class="bg-[#F6F6F6] flex items-center justify-between w-full px-4 py-2">
+                              <div class="flex items-center gap-4">
+                                <h2 class="text-xs font-semibold text-muted-foreground">Email</h2>
+                              </div>
+                              <h1 class="text-xs text-primary font-semibold">{{ transaction.sender.email }}</h1>
+                            </div>
+                          </div>
+                        </TabsContent>
+                        <TabsContent value="vendor">
+                          <div class="rounded-lg overflow-hidden flex flex-col mt-6">
+                            <div class="w-full mb-4 px-4">
+                              <h1 class="text-xl font-bold">{{ transaction.vendor.name }}</h1>
+                            </div>
+                            <div class="bg-[#F6F6F6] flex items-center justify-between w-full px-4 py-2">
+                              <div class="flex items-center gap-4">
+                                <h2 class="text-xs font-semibold text-muted-foreground">Address</h2>
+                              </div>
+                              <h1 class="text-xs text-primary font-semibold">₦{{ transaction.vendor.address }}</h1>
+                            </div>
+                            <div class="bg-[#F6F6F6] flex items-center justify-between w-full px-4 py-2 my-1">
+                              <div class="flex items-center gap-4">
+                                <h2 class="text-xs font-semibold text-muted-foreground">Phone Number</h2>
+                              </div>
+                              <h1 class="text-xs text-primary font-semibold">{{ transaction.vendor.phone }}</h1>
+                            </div>
+                            <div class="bg-[#F6F6F6] flex items-center justify-between w-full px-4 py-2">
+                              <div class="flex items-center gap-4">
+                                <h2 class="text-xs font-semibold text-muted-foreground">Email</h2>
+                              </div>
+                              <h1 class="text-xs text-primary font-semibold">{{ transaction.vendor.email }}</h1>
+                            </div>
+                          </div>
+                        </TabsContent>
+                      </Tabs>
+                    </Card>
                   </SheetContent>
                 </Sheet>
               </TableCell>
@@ -383,6 +486,7 @@ import {
   SelectItem,
   SelectTrigger,
 } from '@/components/ui/select'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 // const open = ref<boolean>(false)
 // const id = ref<string>('0')
