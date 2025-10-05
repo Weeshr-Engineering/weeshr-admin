@@ -939,7 +939,7 @@ const transactions = ref<Transaction[]>([
   },
 ])
 
-const filteredList = ref<Transaction[]>([])
+const filteredList = ref<Transaction[]>(transactions.value)
 
 // Keep track of sort directions per field
 const sortState: Record<string, "asc" | "desc"> = {
