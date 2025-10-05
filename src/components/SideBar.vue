@@ -170,6 +170,16 @@ const openNotificationsBoard = () => {
           <span class="nav-text"> Analytics </span>
         </a>
       </li>
+
+      <li :class="{ 'dashboard-active': isActive('/analytics') }">
+        <a @click="$router.push({ name: 'AdminAnalytics' })">
+          <div class="icon-grid">
+            <Icon icon="mingcute:send-fill" width="17" height="17" class="icons-sidebar" />
+          </div>
+
+          <span class="nav-text"> Geeftr Ops </span>
+        </a>
+      </li>
       
       <li v-if="ability.can('read', 'admin-board-notifications')">
         <a @click.prevent="openNotificationsBoard">

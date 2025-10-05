@@ -31,6 +31,8 @@ import FeaturedConfig from '@/views/protected/ConfigModule/FeaturedModule/Featur
 import OutFlow from '@/views/protected/AdminModule/OutFlow.vue'
 import VendorTransaction from '@/views/protected/AdminModule/VendorTransaction.vue'
 import VendorDetails from '@/views/protected/AdminModule/VendorDetails.vue'
+import GlobalTransaction from '@/views/protected/VendorModule/GlobalTransaction.vue'
+import GlobalGeeftr from '@/views/protected/VendorModule/GlobalGeeftr.vue'
 
 const routes = [
   {
@@ -102,6 +104,18 @@ const routes = [
     path: '/vendors/details',
     name: 'vendorDetails',
     component: VendorDetails,
+    // meta: { requiresAuth: true }
+  },
+  {
+    path: '/vendors/geeftr',
+    name: 'GlobalGeeftr',
+    component: GlobalGeeftr,
+    // meta: { requiresAuth: true }
+  },
+  {
+    path: '/vendors/geeftr/transaction',
+    name: 'geeftrTransaction',
+    component: GlobalTransaction,
     // meta: { requiresAuth: true }
   },
   {
