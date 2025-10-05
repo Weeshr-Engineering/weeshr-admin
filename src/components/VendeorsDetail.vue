@@ -77,9 +77,70 @@ const editStyle = computed(() => {
   return update ? 'flex' : 'flex cursor-not-allowed opacity-20'
 })
 
+interface Resource {
+  asset_id: string
+  secure_url: string
+}
+
+interface CoverImage {
+  resource: Resource
+}
+
+interface Logo {
+  resource: Resource
+}
+
+interface PhoneNumber {
+  normalizedNumber: string
+}
+
+interface WorkingDay {
+  day: string
+  time: string
+  active: boolean
+}
+
+interface WorkingHours {
+  scheduled: boolean
+  generalTime: string
+  days: WorkingDay[]
+}
+
+interface AppUser {
+  id: string
+  firstName: string
+  middleName: string | null
+  lastName: string
+  userName: string
+  coverImg: CoverImage
+  logo: Logo
+  phoneNumber: PhoneNumber
+  onboarded: string
+  policyLink: string
+  productCategory: string[]
+  deliveryCoverage: string[]
+  deliveryType: string
+  deliveryTime: string
+  maxDeliveryCost: number
+  workingHours: WorkingHours
+  bankName: string
+  accountNumber: string
+  payoutFrequency: string
+  accountVerified: boolean
+  rcNumber: string
+  companyName: string
+  companyType: string
+  comanyEmail: string
+  companyAddress: string
+  companyState: string
+  dob: string
+  gender: string
+  email: string
+  isLive: boolean
+}
 //get User
 
-const appUser = ref({
+const appUser = ref<AppUser>({
   id: '011',
   firstName: "Ruby",
   middleName: null,
@@ -247,39 +308,16 @@ function removeUndefinedKeys<T extends Record<string, any>>(obj: T): Partial<T> 
 
 const editProfile = async (values: any) => {
   const adminData = removeUndefinedKeys(values)
-//   let config
-//   if (values.email) {
-//     config = {
-//       method: 'patch',
-//       maxBodyLength: Infinity,
-//       url: `/api/v1/admin/accounts/users/${_id}/contacts`,
-//       data: {
-//         email: values.email
-//       }
-//     }
-//   } else {
-//     config = {
-//       method: 'patch',
-//       maxBodyLength: Infinity,
-//       url: `/api/v1/admin/accounts/users/${_id}/identity`,
-//       data: adminData
-//     }
-//   }
+}
 
-//   axios
-//     .request(config)
-//     .then(() => {
-//       toast({
-//         description: 'User updated successfully!',
-//         variant: 'success',
-//         duration: 0 // Set duration to 0 to make it indefinite until manually closed
-//       })
-//       // fetchUsersData('data updated')
-//     //   load(_id)
-//     })
-//     .catch((error) => {
-//       catchErr(error)
-//     })
+// const toggleDayActive = (key: string) => {
+//   appUser.value.workingHours.days[key].active = 
+//   !appUser.value.workingHours.days[key].active
+// }
+
+const toggleDayActive = (index: number) => {
+  appUser.value.workingHours.days[index].active =
+    !appUser.value.workingHours.days[index].active
 }
 
 const editDetails = (param: keyof typeof appUser.value, val: string | number | boolean)=>{
@@ -351,7 +389,7 @@ const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
 </script>
 
 <template>
-  <div class="max-h-screen h-screen overflow-y-hidden">
+  <div class="max-h-screen h-screen">
     <VendorNav heading-text="Profile"/>
   <!-- <div v-if="!appUser">
     <LoadingSpinner />
@@ -474,39 +512,39 @@ const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
               <div class="w-full flex items-center justify-between mb-4">
                 <h1 class="text-lg font-medium">Business Information</h1>
               </div>
-              <div class="grid grid-cols-8 gap-8">
-                <div class="col-span-3">
+              <div class="grid md:grid-cols-8 gap-2 md:gap-8">
+                <div class="md:col-span-3">
                   <Label class="px-2">RC Number</Label>
                   <Input class="ghost"/>
                 </div>
-                <div class="col-span-5 ">
+                <div class="md:col-span-5 ">
                   <Label class="px-2">Company Name</Label>
                   <Input class="ghost"/>
                 </div>
               </div>
-              <div class="grid grid-cols-8 gap-8">
-                <div class="col-span-3">
+              <div class="grid md:grid-cols-8 gap-2 md:gap-8">
+                <div class="md:col-span-3">
                   <Label class="px-2">Company Type</Label>
                   <Input class="ghost"/>
                 </div>
-                <div class="col-span-5 ">
+                <div class="md:col-span-5 ">
                   <Label class="px-2">Company Email</Label>
                   <Input class="ghost"/>
                 </div>
               </div>
-              <div class="grid grid-cols-8 gap-8">
-                <div class="col-span-5">
+              <div class="grid md:grid-cols-8 gap-2 md:gap-8">
+                <div class="md:col-span-5">
                   <Label class="px-2">Address</Label>
                   <Input class="ghost"/>
                 </div>
-                <div class="col-span-3 ">
+                <div class="md:col-span-3 ">
                   <Label class="px-2">State</Label>
                   <Input class="ghost"/>
                 </div>
               </div>
               <div class="w-full flex items-center justify-between pt-8">
                 <h1 class="text-lg font-medium">Contact Person</h1>
-                <Button class="border-2 border-[#020721] text-[#020721] rounded-full px-8 py-2 flex items-center gap-2" variant="outline">
+                <Button class="border-2 border-[#020721] text-[#020721] rounded-full px-4 md:px-8 py-2 flex items-center gap-2" variant="outline">
                   Edit                  
                   <Icon
                     icon="mage:edit"
@@ -516,22 +554,22 @@ const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
                   />
                 </Button>
               </div>
-              <div class="grid grid-cols-8 gap-8">
-                <div class="col-span-4">
+              <div class="grid md:grid-cols-8 gap-2 md:gap-8">
+                <div class="md:col-span-4">
                   <Label class="px-2">First Name</Label>
                   <Input class="ghost"/>
                 </div>
-                <div class="col-span-4 ">
+                <div class="md:col-span-4 ">
                   <Label class="px-2">Last Name</Label>
                   <Input class="ghost"/>
                 </div>
               </div>
-              <div class="grid grid-cols-8 gap-8">
-                <div class="col-span-5">
+              <div class="grid md:grid-cols-8 gap-2 md:gap-8">
+                <div class="md:col-span-5">
                   <Label class="px-2">Email</Label>
                   <Input class="ghost"/>
                 </div>
-                <div class="col-span-3 ">
+                <div class="md:col-span-3 ">
                   <Label class="px-2">Phone Number</Label>
                   <Input class="ghost"/>
                 </div>
@@ -544,14 +582,14 @@ const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
               <div class="w-full flex items-center justify-between mb-4">
                 <h1 class="text-lg font-medium">Product & Operation</h1>
               </div>
-              <div class="grid grid-cols-8 gap-8">
-                <div class="col-span-8">
+              <div class="grid md:grid-cols-8 gap-2 md:gap-8">
+                <div class="md:col-span-8">
                   <Label class="px-2">Product Category</Label>
                   <Input class="ghost"/>
                 </div>
               </div>
-              <div class="grid grid-cols-8 gap-8 my-4">
-                <div class="col-span-3">
+              <div class="grid grid-cols-8 gap-2 md:gap-8 my-2 md:my-4 w-full">
+                <div class="col-span-8 md:col-span-3 w-full">
                   <Label class="px-2">Delivery Coverage</Label>
                   <Select
                     id="gender"
@@ -572,7 +610,7 @@ const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
                     </SelectContent>
                   </Select>
                 </div>
-                <div class="col-span-5 ">
+                <div class="col-span-8 md:col-span-5 w-full">
                   <Label class="px-2">Delivery Logistics Type</Label>
                   <Select
                     id="gender"
@@ -594,8 +632,8 @@ const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
                   </Select>
                 </div>
               </div>
-              <div class="grid grid-cols-12 gap-8 my-4">
-                <div class="col-span-4">
+              <div class="grid grid-cols-12 gap-2 md:gap-8 my-2 md:my-4">
+                <div class="col-span-12 md:col-span-4">
                   <Label class="px-2">Average Delivery Timeframe</Label>
                   <Select
                     id="gender"
@@ -616,18 +654,18 @@ const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
                     </SelectContent>
                   </Select>
                 </div>
-                <div class="col-span-4">
+                <div class="col-span-12 md:col-span-4">
                   <Label class="px-2">Max. Delivery Cost</Label>
                   <Input class="ghost" value="0.00" readonly/>
                 </div>
-                <div class="col-span-4">
+                <div class="col-span-12 md:col-span-4">
                   <Label class="px-2">Link to Return Policy</Label>
-                  <Input class="ghost"/>
+                  <Input class="ghost w-full"/>
                 </div>
               </div>
-              <div class="w-full flex items-center justify-between pt-8 pb-4">
+              <div class="w-full flex flex-col md:flex-row md:items-center justify-between pt-8 pb-4">
                 <h1 class="text-lg font-medium">Working Hours</h1>
-                <div class="w-48">
+                <div class="w-48 mt-2 md:mt-0">
                   <label
                     class="relative w-full justify-between inline-flex cursor-pointer items-center"
                     @click="handleScheduled"
@@ -649,10 +687,14 @@ const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
                 </div>
               </div>
               <div class="grid grid-cols-12 gap-4">
-                <div class="col-span-3" v-for="day in days" :key="day">
+                <div class="col-span-6 md:col-span-3" v-for="(day, key) in days" :key="key">
                   <Label class="px-2 my-1 w-full flex items-center justify-between">
                     <p>{{ day }} </p>
-                    <Switch :checked="!scheduled" :disabled="scheduled"/>
+                    <Switch 
+                    :checked="appUser.workingHours.days[key].active" :disabled="scheduled"
+                    @click="toggleDayActive(key)"
+                    />
+                    <!-- <Switch :checked="!scheduled" :disabled="scheduled"/> -->
                   </Label>
                   <Input :id="'input'+day" class="ghost" placeholder="9:00am - 6:00pm" readonly :disabled="day === 'Saturday' || day === 'Sunday'"/>
                 </div>
@@ -664,9 +706,9 @@ const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
 
           <TabsContent value="financial" class="space-y-4">
             <div class="px-4 py-2">
-              <div class="w-full flex items-center justify-between mb-4">
+              <div class="w-full flex flex-col md:flex-row md:items-center justify-between mb-4">
                 <h1 class="text-lg font-medium">Bank Details</h1>
-                <Button class="border-2 border-[#020721] text-[#020721] rounded-full px-8 py-2 flex items-center gap-2" variant="outline">
+                <Button class="border-2 mt-2 md:mt-0 border-[#020721] text-[#020721] rounded-full px-4 md:px-8 py-2 flex items-center gap-2" variant="outline">
                   Verify Account
                   <Icon
                     icon="mdi:minus-box-outline"
@@ -676,18 +718,18 @@ const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
                   />
                 </Button>
               </div>
-              <div class="grid grid-cols-8 gap-8">
-                <div class="col-span-5">
+              <div class="grid md:grid-cols-8 gap-2 md:gap-8">
+                <div class="md:col-span-5">
                   <Label class="px-2">Bank Name</Label>
                   <Input class="ghost"/>
                 </div>
-                <div class="col-span-3 ">
+                <div class="md:col-span-3 ">
                   <Label class="px-2">Account Number</Label>
                   <Input class="ghost"/>
                 </div>
               </div>
-              <div class="grid grid-cols-8 gap-8 my-4">
-                <div class="col-span-3">
+              <div class="grid md:grid-cols-8 gap-2 md:gap-8 my-2 md:my-4">
+                <div class="md:col-span-3">
                   <Label class="px-2">Payout Frequency</Label>
                   <Select
                     id="gender"
@@ -766,3 +808,10 @@ const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
   color: #020721;
 }
 </style>
+
+
+<!-- icon-park-outline:transaction-order  -- order -->
+ <!-- ph:stack-bold  - products -->
+  <!-- jam:ticket   -- Promotions -->
+   <!-- ci:building-04  -- profile -->
+    <!-- streamline-ultimate:like-chat  --  support -->
