@@ -17,6 +17,8 @@ import AdminView from '@/views/protected/AdminModule/AdminList.vue'
 import AdminList from '@/views/protected/SuperAdminModule/AdminList.vue'
 import CreateUser from '@/views/protected/SuperAdminModule/CreateUser.vue'
 import DepotPage from '@/views/protected/AdminModule/DepotPage.vue'
+import ProductPage from '@/views/protected/AdminModule/ProductPage.vue'
+
 import BankPage from '@/views/protected/AdminModule/BankPage.vue'
 import CashRequest from '@/views/protected/AdminModule/CashRequest.vue'
 import ActivityLog from '@/views/protected/AdminModule/ActivityLog.vue'
@@ -167,6 +169,12 @@ const routes = [
     path: '/depot',
     name: 'depot',
     component: DepotPage,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/product',
+    name: 'product',
+    component: ProductPage,
     meta: { requiresAuth: true }
   },
   {
