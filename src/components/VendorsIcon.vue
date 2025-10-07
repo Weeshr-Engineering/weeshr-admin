@@ -29,7 +29,7 @@ const logout = async () => {
         {{ user.firstname[0] }}{{ user.lastname[0] }}
       </Button> -->
       <span class="relative">
-        <img src="https://res.cloudinary.com/drykej1am/image/upload/v1757871530/weershr-vendor/Group_348_izzhlm.png" alt="" class=" max-h-10 max-w-10"></img>
+        <img src="https://res.cloudinary.com/drykej1am/image/upload/v1757871530/weershr-vendor/Group_348_izzhlm.png" alt="" class=" max-h-10 max-w-10"/>
       </span>
     </DropdownMenuTrigger>
     <DropdownMenuContent class="w-56" align="end">
