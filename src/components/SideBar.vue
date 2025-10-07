@@ -139,6 +139,16 @@ const openNotificationsBoard = () => {
         </a>
       </li>
 
+      <li :class="{ 'dashboard-active': isActive('/vendors/transaction') }">
+        <a @click="$router.push({ name: 'vendorTransaction' })">
+          <div class="icon-grid">
+            <Icon icon="gridicons:money" width="17" height="17" class="icons-sidebar" />
+          </div>
+
+          <span class="nav-text"> Transactions</span>
+        </a>
+      </li>
+
       <!-- <li :class="{ 'dashboard-active': isActive('/analytics') }">
         <a @click="$router.push({ name: 'AdminAnalytics' })">
           <div class="icon-grid">
