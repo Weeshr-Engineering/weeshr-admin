@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import VendeorsDetail from '@/components/VendeorsDetail.vue';
+import VendeorsDetail from '@/components/vendors/VendeorsDetail.vue';
 </script>
 <template>
     <VendeorsDetail/>

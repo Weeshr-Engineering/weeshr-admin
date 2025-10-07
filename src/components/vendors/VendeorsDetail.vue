@@ -69,7 +69,7 @@ import {
 import { catchErr } from '@/composables/catchError'
 import VendorNav from '@/components/VendorNav.vue'
 import { Badge } from '@/components/ui/badge'
-import { Label } from './ui/label'
+import { Label } from '../ui/label'
 
 defineAbilities()
 const update = true//ability.can('update', 'users')
@@ -390,7 +390,7 @@ const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
 
 <template>
   <div class="max-h-screen h-screen">
-    <VendorNav heading-text="Profile"/>
+    <VendorNav class="mx-6" heading-text="Profile"/>
   <!-- <div v-if="!appUser">
     <LoadingSpinner />
   </div> -->
