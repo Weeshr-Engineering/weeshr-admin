@@ -10,73 +10,61 @@
           <CardContent class="flex items-center justify-between space-y-0">
             <p class="text-l font-medium text-[#ffffff]">Overdue</p>
             <div >
-  
-  <SquareArrowOutUpRight width="24px" height="24px" color="#ffffff" />
-
+              <SquareArrowOutUpRight width="24px" height="24px" color="#ffffff" />
             </div>
-
-                        <p class="text-2xl lg:text-3xl font-medium text-[#FFFFFF] absolute bottom-2 left-5">
-            2
+            <p class="text-2xl lg:text-3xl font-medium text-[#FFFFFF] absolute bottom-2 left-5">
+              {{ orderStore.analytics.overdue }}
             </p>
           </CardContent>
         </div>
-       
       </Card>
 
-       <Card
+      <Card
         class="h-[150px] rounded-[24px] transition-transform transform hover:scale-105 bg-[#3A8EE5]  border-transparent"
       >
         <div class="h-[130px] pt-4 relative rounded-tr-[24px] rounded-tl-[24px]">
           <CardContent class="flex items-center justify-between space-y-0">
             <p class="text-l font-medium text-[#ffffff]">New</p>
             <div >
-  <RefreshCcw  width="24px" height="24px" color="#3A8EE5"   class="bg-[white] rounded-sm"/>
-
+              <RefreshCcw  width="24px" height="24px" color="#3A8EE5"   class="bg-[white] rounded-sm"/>
             </div>
-
-                        <p class="text-2xl lg:text-3xl font-medium text-[#FFFFFF] absolute bottom-2 left-5">
-            1
+            <p class="text-2xl lg:text-3xl font-medium text-[#FFFFFF] absolute bottom-2 left-5">
+              {{ orderStore.analytics.new }}
             </p>
           </CardContent>
         </div>
-       
       </Card>
 
-       <Card
+      <Card
         class="h-[150px] rounded-[24px] transition-transform transform hover:scale-105 bg-[#6A70FF]  border-transparent"
       >
         <div class="h-[130px] pt-4 relative rounded-tr-[24px] rounded-tl-[24px]">
           <CardContent class="flex items-center justify-between space-y-0">
             <p class="text-l font-medium text-[#ffffff]">Processing</p>
             <div >
-                <SlidersVertical  width="24px" height="24px" color="#3A8EE5"   class="bg-[white] rounded-sm"/>
-
+              <SlidersVertical  width="24px" height="24px" color="#3A8EE5"   class="bg-[white] rounded-sm"/>
             </div>
-
-                        <p class="text-2xl lg:text-3xl font-medium text-[#FFFFFF] absolute bottom-2 left-5">
-            4
+            <p class="text-2xl lg:text-3xl font-medium text-[#FFFFFF] absolute bottom-2 left-5">
+              {{ orderStore.analytics.processing }}
             </p>
           </CardContent>
         </div>
-       
       </Card>
-<Card
+
+      <Card
         class="h-[150px] rounded-[24px] transition-transform transform hover:scale-105 bg-[#EE9F39]  border-transparent"
       >
         <div class="h-[130px] pt-4 relative rounded-tr-[24px] rounded-tl-[24px]">
           <CardContent class="flex items-center justify-between space-y-0">
             <p class="text-l font-medium text-[#ffffff]">Outbound</p>
             <div >
-                <Truck width="24px" height="24px" color="#ffffff" />
-
+              <Truck width="24px" height="24px" color="#ffffff" />
             </div>
-
-                        <p class="text-2xl lg:text-3xl font-medium text-[#FFFFFF] absolute bottom-2 left-5">
-            4
+            <p class="text-2xl lg:text-3xl font-medium text-[#FFFFFF] absolute bottom-2 left-5">
+              {{ orderStore.analytics.outbound }}
             </p>
           </CardContent>
         </div>
-       
       </Card>
 
       <Card
@@ -86,22 +74,16 @@
           <CardContent class="flex items-center justify-between space-y-0">
             <p class="text-l font-medium text-[#FFFFFF]">Delivered</p>
             <div class="weeshr-icon2 rounded-[7px]">
-               <Check width="24px" height="24px" color="#00C37F"  />
+              <Check width="24px" height="24px" color="#00C37F"  />
             </div>
             <p class="text-2xl lg:text-3xl font-medium text-[#FFFFFF] absolute bottom-2 left-5">
-              19
+              {{ orderStore.analytics.delivered }}
             </p>
           </CardContent>
         </div>
-    
       </Card>
-
-      
-
-
-
-     
     </div>
+
     <Card
       class="container px-4 pt-6 pb-10 mx-auto sm:px-6 lg:px-8 bg-[#FFFFFF] rounded-2xl mt-14 mb-4"
     >
@@ -113,8 +95,8 @@
           </p>
         </div>
         <div class="flex items-center flex-col md:flex-row gap-4">
-          <Search class="mt-3 lg:mt-0" />
-          <button class="bg-[#020721] px-4 py-2 rounded-xl w-50 h-12">
+          <Search @search="handleSearch" class="mt-3 lg:mt-0" />
+          <button class="bg-[#020721] px-4 py-2 rounded-xl w-50 h-12" @click="downloadReport">
             <div class="text-base text-[#F8F9FF] text-center flex items-center">
               Download Report
               <svg
@@ -135,7 +117,19 @@
         </div>
       </div>
 
-      <div class="overflow-auto bg-white rounded-lg shadow">
+      <!-- Loading State -->
+      <div v-if="orderStore.loading" class="flex justify-center items-center py-8">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+
+      <!-- Error State -->
+      <div v-else-if="orderStore.error" class="text-red-500 text-center py-4">
+        {{ orderStore.error }}
+        <button @click="clearError" class="ml-2 text-blue-600 underline">Try Again</button>
+      </div>
+
+      <!-- Orders Table -->
+      <div v-else class="overflow-auto bg-white rounded-lg shadow">
         <Table class="lg:w-full w-[800px]">
           <TableHeader>
             <TableRow
@@ -143,12 +137,12 @@
             >
               <TableHead>
                 <div class="flex items-center">
-                  Sender
+                  Order Date
                 </div>
               </TableHead>
               <TableHead>
                 <div class="flex items-center">
-                  Receiver
+                  Total Amount
                 </div>
               </TableHead>
               <TableHead>
@@ -162,7 +156,6 @@
                   <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
                 </div>
               </TableHead>
-
               <TableHead>
                 <div class="flex items-center">
                   Status
@@ -174,20 +167,28 @@
             </TableRow>
           </TableHeader>
           <TableBody>
-            <TableRow v-for="transaction in transactions" :key="transaction.id">
-              <TableCell class="text-xs md:text-sm lg:text-sm">{{ transaction.created_at }} </TableCell>
-              <TableCell class="text-xs md:text-sm lg:text-sm">₦{{ transaction.payout }}</TableCell>
-              <TableCell class="text-xs md:text-sm lg:text-sm">{{ transaction.total_Unit }} </TableCell>
-              <TableCell class="text-xs md:text-sm lg:text-sm">{{ transaction.product_count }} </TableCell>
+            <TableRow v-for="order in orderStore.filteredOrders" :key="order._id">
+              <TableCell class="text-xs md:text-sm lg:text-sm">
+                {{ formatDate(order.createdAt) }}
+              </TableCell>
+              <TableCell class="text-xs md:text-sm lg:text-sm">
+                ₦{{ order.totalAmount?.toLocaleString() || '0' }}
+              </TableCell>
+              <TableCell class="text-xs md:text-sm lg:text-sm">
+                {{ order.items?.length || 0 }}
+              </TableCell>
+              <TableCell class="text-xs md:text-sm lg:text-sm">
+                {{ order.items?.length || 0 }}
+              </TableCell>
               <TableCell>
                 <div
-                  :class="statusBg(transaction.status)"
+                  :class="statusBg(order.status)"
                   class="rounded-[10px] w-fit px-2 py-0.5 text-white text-sm capitalize"
                 >
-                  {{ transaction.status }}
+                  {{ order.status }}
                 </div>
               </TableCell>
-              <TableCell class="text-xs md:text-sm lg:text-sm">{{ transaction.id }} </TableCell>
+              <TableCell class="text-xs md:text-sm lg:text-sm">{{ order._id }}</TableCell>
               <TableCell>
                 <Sheet>
                   <SheetTrigger>
@@ -214,7 +215,7 @@
                       <SheetDescription>
                         Order ID.
                       </SheetDescription>
-                      <h3 class="text-2xl font-medium">{{ transaction.id }}</h3>
+                      <h3 class="text-2xl font-medium">{{ order._id }}</h3>
                     </SheetHeader>
                     <Card Content class="rounded-lg my-4 hover:shadow-xl px-2 md:px-0">
                       <CardContent class="flex flex-col md:flex-row items-start md:items-center justify-between px-2 sm:px-6 py-4">
@@ -224,15 +225,14 @@
                               <p class="text-sm text-muted-foreground text-nowrap text-center text-[#000000]">
                                Initiated Date
                               </p>
-                            
                             </div>
                             <p class="text-lg my-2 md:my-0 text-primary font-bold text-[#000000]">
-                              {{ formatDate(transaction.created_at) }}
+                              {{ formatDate(order.createdAt) }}
                             </p>
                           </div>
                         </span>
                       <div class="flex items-center gap-4 bg-success">
-                        <Badge variant="outline" :class="statusBg(transaction.status)" class="text-xs text-white">{{ transaction.status }}</Badge>
+                        <Badge variant="outline" :class="statusBg(order.status)" class="text-xs text-white">{{ order.status }}</Badge>
                       </div>
                       </CardContent>
                     </Card>
@@ -240,26 +240,29 @@
                       <CardHeader>
                         <div class="flex flex-col md:flex-row md:items-center justify-between w-full">
                           <div class="flex items-center gap-4">
-                            <h2 class="font-bold md:text-lg">orders</h2>
-                            <Badge class="bg-[#E9F4D1] text-primary">{{ transaction.product_count }}</Badge>
+                            <h2 class="font-bold md:text-lg">Orders</h2>
+                            <Badge class="bg-[#E9F4D1] text-primary">{{ order.items?.length || 0 }}</Badge>
                           </div>
-                          <h1 class="font-bold text-xl">₦{{ transaction.total_price }}</h1>
+                          <h1 class="font-bold text-xl">₦{{ order.totalAmount?.toLocaleString() || '0' }}</h1>
                         </div>
                       </CardHeader>
                       <CardContent class="px-4">
-                        <div class="bg-[#F6F6F6] rounded-lg mb-4 flex flex-col items-center hover:shadow-md" v-for="(item, newkey) in transaction.products" :key="newkey">
+                        <div 
+                          class="bg-[#F6F6F6] rounded-lg mb-4 flex flex-col items-center hover:shadow-md" 
+                          v-for="(item, index) in order.items" 
+                          :key="index"
+                        >
                           <div class="bg-white border flex items-center justify-between w-full py-2 px-2 rounded-lg">
-                            <span class="flex gap-2 items-center"><div
-                                class="inline-block text-[#F8F9FF] w-14 h-14"
-                              >
-                                <img :src='item.image' class="w-full h-full rounded-sm"/>
+                            <span class="flex gap-2 items-center">
+                              <div class="inline-block text-[#F8F9FF] w-14 h-14">
+                                <img :src="item.image || 'https://res.cloudinary.com/drykej1am/image/upload/v1721874426/weesh/categories/AWFAGiROM7oxB4ZJWhnaAYkP.jpg'" class="w-full h-full rounded-sm"/>
                               </div>
                               <div class="flex flex-col">
                                 <p class="md:text-lg text-primary font-semibold">
-                                  {{ item.name }}
+                                  {{ item.name || 'Product' }}
                                 </p>
                                 <p class="text-sm text-muted-foreground text-[#000000]">
-                                  ₦{{ item.amount }}
+                                  ₦{{ item.price?.toLocaleString() || '0' }}
                                 </p>
                               </div>
                             </span>
@@ -268,8 +271,10 @@
                             </div>
                           </div>
                           <div class="w-full flex items-center justify-between py-3 px-4">
-                            <h3 class="text-xs font-semibold text-muted-foreground">Unit x{{ item.unit }}</h3>
-                            <h2 class="text-md text-primary font-semibold">₦{{ item.unit_price }}</h2>
+                            <h3 class="text-xs font-semibold text-muted-foreground">Unit x{{ item.quantity || 1 }}</h3>
+                            <h2 class="text-md text-primary font-semibold">
+                              ₦{{ ((item.price || 0) * (item.quantity || 1)).toLocaleString() }}
+                            </h2>
                           </div>
                         </div>
                         <div class="rounded-lg overflow-hidden flex flex-col mt-6">
@@ -277,38 +282,47 @@
                             <div class="flex items-center gap-4">
                               <h2 class="text-xs font-semibold text-muted-foreground">Total Value</h2>
                             </div>
-                            <h1 class="text-md text-primary font-semibold">₦{{ transaction.total_price.toLocaleString() }}</h1>
+                            <h1 class="text-md text-primary font-semibold">
+                              ₦{{ order.totalAmount?.toLocaleString() || '0' }}
+                            </h1>
                           </div>
                           <div class="bg-[#F6F6F6] flex items-center justify-between w-full px-4 py-2 my-1">
                             <div class="flex items-center gap-4">
                               <h2 class="text-xs font-semibold text-muted-foreground">Delivery Charge</h2>
                             </div>
-                            <h1 class="text-md text-primary font-semibold">₦{{ transaction.delivery_charge.toLocaleString() }}</h1>
+                            <h1 class="text-md text-primary font-semibold">
+                              ₦{{ (order.deliveryCharge || 0).toLocaleString() }}
+                            </h1>
                           </div>
                           <div class="bg-[#F6F6F6] flex items-center justify-between w-full px-4 py-2">
                             <div class="flex items-center gap-4">
                               <h2 class="text-xs font-semibold text-muted-foreground">Discount</h2>
                             </div>
-                            <h1 class="text-md text-primary font-semibold">₦{{ transaction.discount.toLocaleString() }}</h1>
+                            <h1 class="text-md text-primary font-semibold">
+                              ₦{{ (order.discount || 0).toLocaleString() }}
+                            </h1>
                           </div>
                           <div class="bg-[#02072199] flex items-center justify-between w-full px-4 py-2">
                             <div class="flex items-center gap-4">
                               <h2 class="text-xs font-semibold text-[#F8F9FFB2]">Payout Value</h2>
                             </div>
-                            <h1 class="text-md font-semibold text-white">₦{{ transaction.payment_price.toLocaleString() }}</h1>
+                            <h1 class="text-md font-semibold text-white">
+                              ₦{{ ((order.totalAmount || 0) - (order.discount || 0)).toLocaleString() }}
+                            </h1>
                           </div>
                         </div>
-           <CardContent class="px-4 flex justify-end mt-6">
-                        <Button class="bg-[#6A70FF] px-4 py-2 rounded-xl w-fit h-12">
-                          <div class="text-base text-[#F8F9FF] text-center flex items-center">
-                            Start Process
-                            <CircleChevronRight class="ml-2"/>
-                          </div>
-                        </Button>
+                        <CardContent class="px-4 flex justify-end mt-6">
+                          <Button 
+                            @click="updateOrderStatus(order._id, 'processing')"
+                            class="bg-[#6A70FF] px-4 py-2 rounded-xl w-fit h-12"
+                          >
+                            <div class="text-base text-[#F8F9FF] text-center flex items-center">
+                              Start Process
+                              <CircleChevronRight class="ml-2"/>
+                            </div>
+                          </Button>
+                        </CardContent>
                       </CardContent>
-                      </CardContent>
-                     
-                  
                     </Card>
                   </SheetContent>
                 </Sheet>
@@ -331,7 +345,11 @@
     <DashboardFooter />
   </div>
 </template>
+
 <script lang="ts" setup>
+import { onMounted } from 'vue';
+import { useOrderStore } from '@/stores/order-store/orderStore';
+
 import {
   Table,
   TableRow,
@@ -339,272 +357,97 @@ import {
   TableHeader,
   TableCell,
   TableHead
-} from '@/components/ui/table'
-import { Card, CardContent, CardHeader } from '@/components/ui/card'
-import { ref } from 'vue'
-import { Button } from '@/components/ui/button'
-import { Icon } from '@iconify/vue'
-import Search from '@/components/UseSearch.vue'
+} from '@/components/ui/table';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Icon } from '@iconify/vue';
+import Search from '@/components/UseSearch.vue';
 import {
   Sheet,
   SheetContent,
   SheetDescription,
   SheetHeader,
   SheetTrigger,
-} from "@/components/ui/sheet"
-import { Badge } from '@/components/ui/badge'
-import VendorNav from '@/components/VendorNav.vue'
-import { Check,SquareArrowOutUpRight ,RefreshCcw,  SlidersVertical, Truck , CircleChevronRight } from 'lucide-vue-next'
+} from "@/components/ui/sheet";
+import { Badge } from '@/components/ui/badge';
+import VendorNav from '@/components/VendorNav.vue';
+import DashboardFooter from '@/components/DashboardFooter.vue';
+import { Check, SquareArrowOutUpRight, RefreshCcw, SlidersVertical, Truck, CircleChevronRight } from 'lucide-vue-next';
 
-// const open = ref<boolean>(false)
-// const id = ref<string>('0')
+// Store
+const orderStore = useOrderStore();
+
+// Mock vendor ID - replace with actual vendor ID from auth store
+const vendorId = 'vendor123';
+
+// Lifecycle
+onMounted(() => {
+  loadOrders();
+});
+
+// Methods
+const loadOrders = async () => {
+  await Promise.all([
+    orderStore.fetchVendorOrders(vendorId),
+    orderStore.fetchVendorAnalytics(vendorId)
+  ]);
+};
+
+const handleSearch = (searchTerm: string) => {
+  orderStore.setFilters({ search: searchTerm });
+};
+
+const updateOrderStatus = async (orderId: string, newStatus: string) => {
+  try {
+    await orderStore.updateOrderStatus(orderId, newStatus);
+    // Refresh analytics to get updated counts
+    await orderStore.fetchVendorAnalytics(vendorId);
+  } catch (error) {
+    console.error('Failed to update order status:', error);
+  }
+};
+
+const downloadReport = () => {
+  // Implement download report functionality
+};
+
+const clearError = () => {
+  orderStore.clearError();
+  loadOrders();
+};
 
 const statusBg = (status: string) => {
   switch (status) {
     case 'failed':
-      return 'bg-[#E45044]'
+      return 'bg-[#E45044]';
     case 'pending':
-      return 'bg-[#EE9F39]'
-    case 'complete':
-      return 'bg-[#00C37F]'
+      return 'bg-[#EE9F39]';
+    case 'processing':
+      return 'bg-[#6A70FF]';
+    case 'outbound':
+      return 'bg-[#EE9F39]';
+    case 'delivered':
+      return 'bg-[#00C37F]';
+    case 'overdue':
+      return 'bg-[#E45044]';
+    case 'cancelled':
+      return 'bg-[#E45044]';
     default:
-      return ''
+      return 'bg-gray-500';
   }
-}
-
-interface Products {
-  name: string;
-  amount: number;
-  unit: number;
-  unit_price: number;
-  image: string;
-}
-
-interface Transaction {
-  id: string;
-  completed_date: string | null;
-  created_at: string;
-  payout: number;
-  total_Unit: number;
-  total_price: number;
-  product_count: number;
-  status: 'complete' | 'pending' | 'failed';
-  delivery_charge: number;
-  payment_price: number;
-  discount: number;
-  products: Products[];
-}
-
-const transactions= ref<Transaction[]>([
-  {
-    id: "tx_001",
-    completed_date: "2025-09-01",
-    created_at: "2025-08-28",
-    payout: 4500,
-    total_Unit: 15,
-    total_price: 5000,
-    product_count: 3,
-    status: "complete",
-    delivery_charge: 500,
-    payment_price: 4700,
-    discount: 300,
-    products: [
-      { name: "Furniture", amount: 2, unit: 5, unit_price: 800 , image: 'https://res.cloudinary.com/drykej1am/image/upload/v1721874426/weesh/categories/AWFAGiROM7oxB4ZJWhnaAYkP.jpg'},
-      { name: "Cooking Oil", amount: 1, unit: 3, unit_price: 1200 , image: 'https://res.cloudinary.com/drykej1am/image/upload/v1721875177/weesh/categories/I9IP1OFoxLzZQpA9Sl12fb_g.jpg'},
-      { name: "Sugar Pack", amount: 2, unit: 7, unit_price: 300, image: 'https://res.cloudinary.com/drykej1am/image/upload/v1721875177/weesh/categories/I9IP1OFoxLzZQpA9Sl12fb_g.jpg' }
-    ]
-  },
-  {
-    id: "tx_002",
-    completed_date: null,
-    created_at: "2025-09-05",
-    payout: 2300,
-    total_Unit: 8,
-    total_price: 2500,
-    product_count: 2,
-    status: "pending",
-    delivery_charge: 200,
-    payment_price: 2300,
-    discount: 0,
-    products: [
-      { name: "Detergent", amount: 1, unit: 3, unit_price: 400 , image: 'https://res.cloudinary.com/drykej1am/image/upload/v1721875177/weesh/categories/I9IP1OFoxLzZQpA9Sl12fb_g.jpg'},
-      { name: "Furniture", amount: 5, unit: 5, unit_price: 300, image: 'https://res.cloudinary.com/drykej1am/image/upload/v1721874426/weesh/categories/AWFAGiROM7oxB4ZJWhnaAYkP.jpg' }
-    ]
-  },
-  {
-    id: "tx_003",
-    completed_date: "2025-09-08",
-    created_at: "2025-09-07",
-    payout: 10000,
-    total_Unit: 20,
-    total_price: 11000,
-    product_count: 4,
-    status: "failed",
-    delivery_charge: 1000,
-    payment_price: 10500,
-    discount: 500,
-    products: [
-      { name: "Laptop Bag", amount: 2, unit: 2, unit_price: 2500 , image: 'https://res.cloudinary.com/drykej1am/image/upload/v1721874850/weesh/categories/WW18ndBhpeKoy2scWXeVqHBv.jpg'},
-      { name: "Furniture", amount: 3, unit: 3, unit_price: 500 , image: 'https://res.cloudinary.com/drykej1am/image/upload/v1721874426/weesh/categories/AWFAGiROM7oxB4ZJWhnaAYkP.jpg'},
-      { name: "Keyboard", amount: 2, unit: 2, unit_price: 1500 , image: 'https://res.cloudinary.com/drykej1am/image/upload/v1721874850/weesh/categories/WW18ndBhpeKoy2scWXeVqHBv.jpg'},
-      { name: "USB Cable", amount: 5, unit: 5, unit_price: 200, image: 'https://res.cloudinary.com/drykej1am/image/upload/v1721874850/weesh/categories/WW18ndBhpeKoy2scWXeVqHBv.jpg' }
-    ]
-  },
-  {
-    id: "tx_004",
-    completed_date: null,
-    created_at: "2025-09-09",
-    payout: 750,
-    total_Unit: 3,
-    total_price: 800,
-    product_count: 1,
-    status: "complete",
-    delivery_charge: 50,
-    payment_price: 750,
-    discount: 0,
-    products: [
-      { name: "Notebook", amount: 3, unit: 3, unit_price: 250, image: 'https://res.cloudinary.com/drykej1am/image/upload/v1721874850/weesh/categories/WW18ndBhpeKoy2scWXeVqHBv.jpg' }
-    ]
-  },
-  {
-    id: "tx_005",
-    completed_date: "2025-09-02",
-    created_at: "2025-09-01",
-    payout: 1600,
-    total_Unit: 6,
-    total_price: 1800,
-    product_count: 2,
-    status: "complete",
-    delivery_charge: 200,
-    payment_price: 1600,
-    discount: 0,
-    products: [
-      { name: "Bread", amount: 2, unit: 2, unit_price: 200 , image: 'https://res.cloudinary.com/drykej1am/image/upload/v1721875177/weesh/categories/I9IP1OFoxLzZQpA9Sl12fb_g.jpg'},
-      { name: "Butter", amount: 2, unit: 4, unit_price: 350, image: 'https://res.cloudinary.com/drykej1am/image/upload/v1721875177/weesh/categories/I9IP1OFoxLzZQpA9Sl12fb_g.jpg' }
-    ]
-  },
-  {
-    id: "tx_006",
-    completed_date: null,
-    created_at: "2025-09-10",
-    payout: 5600,
-    total_Unit: 10,
-    total_price: 6000,
-    product_count: 2,
-    status: "pending",
-    delivery_charge: 400,
-    payment_price: 5600,
-    discount: 0,
-    products: [
-      { name: "Egg Rolls", amount: 2, unit: 2, unit_price: 1500 , image: 'https://res.cloudinary.com/drykej1am/image/upload/v1721875177/weesh/categories/I9IP1OFoxLzZQpA9Sl12fb_g.jpg'},
-      { name: "Cup Cakes", amount: 2, unit: 2, unit_price: 1500, image: 'https://res.cloudinary.com/drykej1am/image/upload/v1721875177/weesh/categories/I9IP1OFoxLzZQpA9Sl12fb_g.jpg' }
-    ]
-  },
-  {
-    id: "tx_007",
-    completed_date: "2025-09-06",
-    created_at: "2025-09-05",
-    payout: 3200,
-    total_Unit: 12,
-    total_price: 3500,
-    product_count: 3,
-    status: "complete",
-    delivery_charge: 300,
-    payment_price: 3200,
-    discount: 0,
-    products: [
-      { name: "Apple", amount: 6, unit: 6, unit_price: 200 , image: 'https://res.cloudinary.com/drykej1am/image/upload/v1721875177/weesh/categories/I9IP1OFoxLzZQpA9Sl12fb_g.jpg'},
-      { name: "Banana", amount: 3, unit: 3, unit_price: 100 , image: 'https://res.cloudinary.com/drykej1am/image/upload/v1721875177/weesh/categories/I9IP1OFoxLzZQpA9Sl12fb_g.jpg'},
-      { name: "Orange", amount: 3, unit: 3, unit_price: 150, image: 'https://res.cloudinary.com/drykej1am/image/upload/v1721875177/weesh/categories/I9IP1OFoxLzZQpA9Sl12fb_g.jpg' }
-    ]
-  },
-  {
-    id: "tx_008",
-    completed_date: null,
-    created_at: "2025-09-11",
-    payout: 900,
-    total_Unit: 5,
-    total_price: 1000,
-    product_count: 2,
-    status: "failed",
-    delivery_charge: 100,
-    payment_price: 900,
-    discount: 0,
-    products: [
-      { name: "Pen", amount: 3, unit: 3, unit_price: 100 , image: 'https://res.cloudinary.com/drykej1am/image/upload/v1721875177/weesh/categories/I9IP1OFoxLzZQpA9Sl12fb_g.jpg'},
-      { name: "Marker", amount: 2, unit: 2, unit_price: 150, image: 'https://res.cloudinary.com/drykej1am/image/upload/v1721875177/weesh/categories/I9IP1OFoxLzZQpA9Sl12fb_g.jpg' }
-    ]
-  },
-  {
-    id: "tx_009",
-    completed_date: "2025-09-04",
-    created_at: "2025-09-03",
-    payout: 7200,
-    total_Unit: 14,
-    total_price: 8000,
-    product_count: 3,
-    status: "failed",
-    delivery_charge: 800,
-    payment_price: 7200,
-    discount: 0,
-    products: [
-      { name: "Phone Case", amount: 4, unit: 4, unit_price: 500 , image: 'https://res.cloudinary.com/drykej1am/image/upload/v1721874850/weesh/categories/WW18ndBhpeKoy2scWXeVqHBv.jpg'},
-      { name: "Charger", amount: 3, unit: 3, unit_price: 1000 , image: 'https://res.cloudinary.com/drykej1am/image/upload/v1721874850/weesh/categories/WW18ndBhpeKoy2scWXeVqHBv.jpg'},
-      { name: "Earphones", amount: 2, unit: 2, unit_price: 1500, image: 'https://res.cloudinary.com/drykej1am/image/upload/v1721874850/weesh/categories/WW18ndBhpeKoy2scWXeVqHBv.jpg' }
-    ]
-  },
-  {
-    id: "tx_010",
-    completed_date: "2025-09-10",
-    created_at: "2025-09-09",
-    payout: 3000,
-    total_Unit: 9,
-    total_price: 3500,
-    product_count: 2,
-    status: "complete",
-    delivery_charge: 500,
-    payment_price: 3200,
-    discount: 300,
-    products: [
-      { name: "Milk", amount: 5, unit: 5, unit_price: 400 , image: 'https://res.cloudinary.com/drykej1am/image/upload/v1721875177/weesh/categories/I9IP1OFoxLzZQpA9Sl12fb_g.jpg'},
-      { name: "Eggs (Dozen)", amount: 4, unit: 4, unit_price: 150, image: 'https://res.cloudinary.com/drykej1am/image/upload/v1721875177/weesh/categories/I9IP1OFoxLzZQpA9Sl12fb_g.jpg' }
-    ]
-  }
-]);
-
-// Keep track of sort directions per field
-const sortState: Record<string, "asc" | "desc"> = {
-  date: "asc",
-  payout: "asc",
-  unit: "asc",
-  productCount: "asc",
 };
 
-
-
-
-// Sort by product count
-function sortByProductCount() {
-  const order = sortState.productCount === "asc" ? "desc" : "asc";
-  sortState.productCount = order;
-
-  const newArr = [...transactions.value].sort((a, b) =>
-    order === "asc"
-      ? a.product_count - b.product_count
-      : b.product_count - a.product_count
-  );
-
-  transactions.value = newArr;
-}
-
-function formatDate(dateStr: string | null): string | null {
-  if (!dateStr) return null;
+const formatDate = (dateStr: string | Date | undefined) => {
+  if (!dateStr) return 'N/A';
   const date = new Date(dateStr);
-  return new Intl.DateTimeFormat("en-GB", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
+  return new Intl.DateTimeFormat('en-GB', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
   }).format(date);
-}
+};
 
+const sortByProductCount = () => {
+  // Implement sorting logic if needed
+};
 </script>
