@@ -5,7 +5,7 @@ import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
 import { ability, defineAbilities } from '@/lib/ability';
 import { useRoute } from 'vue-router';
 import NotificationBoardSheet from '@/components/notifications/notification-board/NotificationBoardSheet.vue'
-import { Layers } from 'lucide-vue-next';
+import { Layers, Menu } from 'lucide-vue-next';
 
 const notificationBoard = ref();
 
@@ -99,7 +99,15 @@ const openNotificationsBoard = () => {
           <span class="nav-text"> Users </span>
         </a>
       </li>
+  <li :class="{ 'dashboard-active': isActive('/promotion') }">
+        <a @click="$router.push({ name: 'promotion' })">
+          <div class="icon-grid">
+             <Menu width="17" height="17" class="icons-sidebar" />
+          </div>
 
+          <span class="nav-text"> Promotions</span>
+        </a>
+      </li>
       <li v-if="weeshes" :class="{ 'dashboard-active': isActive('/weeshes') }">
         <a @click="$router.push({ name: 'weeshes' })">
           <div class="icon-grid">
