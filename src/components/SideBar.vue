@@ -181,8 +181,8 @@ const openNotificationsBoard = () => {
         </a>
       </li>
 
-      <li :class="{ 'dashboard-active': isActive('/analytics') }">
-        <a @click="$router.push({ name: 'AdminAnalytics' })">
+      <li :class="{ 'dashboard-active': isActive('/vendors/geeftr') }">
+        <a @click="$router.push({ name: 'GlobalGeeftr' })">
           <div class="icon-grid">
             <Icon icon="mingcute:send-fill" width="17" height="17" class="icons-sidebar" />
           </div>

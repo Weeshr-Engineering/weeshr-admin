@@ -1,16 +1,19 @@
 <script setup lang="ts">
 import Search from '@/components/UseSearch.vue'
-import { ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import * as z from 'zod'
-import { useDateFormat, useNow } from '@vueuse/core'
+// import { useDateFormat, useNow } from '@vueuse/core'
 import MainNav from '@/components/MainNav.vue'
-import VueTelInput from 'vue-tel-input'
+// import VueTelInput from 'vue-tel-input'
 import 'vue-tel-input/vue-tel-input.css'
 // import axios from "@/services/ApiService";
 import { Loader2 } from 'lucide-vue-next'
+import CountryCodes from '@/lib/CountryCodes'
+// import { CardContent } from '@/components/ui/card'
 // import router from '@/router'
+import { Textarea } from '@/components/ui/textarea'
 import {
   Sheet,
   SheetContent,
@@ -18,6 +21,14 @@ import {
   SheetDescription,
   SheetTrigger
 } from '@/components/ui/sheet'
+
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 import {
   Table,
@@ -33,23 +44,32 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 // import { toast } from '@/components/ui/toast'
 // import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
+import { useVendorListStore } from '@/stores/vendor/vendor-list'
 // import { useGeneralStore } from '@/stores/general-use'
 
 const formSchema = toTypedSchema(
   z.object({
-    vendor: z
-      .string()
-      .min(2, { message: 'Vendor name must be at least 2 characters long' })
-      .max(50, { message: 'Vendor name cannot be longer than 50 characters' })
-      .nonempty('Please enter your first name'),
-
-    userEmail: z.string().email('Please enter a valid email address'),
-    category: z.string().nonempty('Please select Category'),
-    status: z.boolean().optional(),
-    phone: z.string().nonempty('Please enter your phone number')
-  })
+    rcNumber: z.number(),
+    companyName: z.string(),
+    companyType: z.union([z.literal("COMPANY"), z.string()]),
+    companyEmail: z.string().email(),
+    companyAddress: z.string(),
+    companyState: z.string(),
+    status: z.union([
+      z.literal("published"),
+      z.literal("draft"),
+      z.string(),
+    ]),
+    invite: z.object({
+      firstName: z.string(),
+      lastName: z.string(),
+      email: z.string().email(),
+      countryCode: z.string().regex(/^\+\d+$/, "Invalid country code").optional(),
+      phoneNumber: z.string().regex(/^\d+$/, "Invalid phone number"),
+    }),
+})
 )
-const { handleSubmit } = useForm({
+const { handleSubmit, resetForm } = useForm({
   validationSchema: formSchema
 })
 
@@ -60,25 +80,47 @@ const newUser = ref({
 })
 const sheetOpen = ref(false)
 const loading = ref(false)
+const vendorListStore = useVendorListStore()
+const { fetchVendorsData, saveUserData } = useVendorListStore()
+const vendors = computed(()=>{
+  return vendorListStore.vendors;
+})
 // const superAdminStore = useSuperAdminStore()
 
 const onSubmit = handleSubmit(async (values) => {
   loading.value = true
-
-  const user = {
-    vendor: values.vendor,
-    email: values.userEmail,
-    category: values.category,
-    phone: {
-      phoneNumber: values.phone
-    },
-    dateJoined: formattedDate.value,
-    disabled: values.status || false
+  const admin = localStorage.getItem('user')
+  let data;
+  if(admin){
+    data = JSON.parse(admin)
+  }else{
+    return;
   }
 
-  // await saveUserData(user)
+  const user = {
+    "rcNumber": values.rcNumber,
+    "companyName": values.companyName,
+    "companyType": values.companyType,
+    "companyEmail": values.companyEmail,
+    "companyAddress": values.companyAddress,
+    "companyState": values.companyState,
+    "status": values.status,
+    "invite": {
+      "firstName": values.invite.firstName,
+      "lastName": values.invite.lastName,
+      "email": values.invite.email,
+      "invitedBy": data.id,
+      "phoneNumber": {
+        "countryCode": values.invite.countryCode || '+234',
+        "phoneNumber": values.invite.phoneNumber
+      }
+    }
+  }
 
-  users.value.push(user)
+
+  await saveUserData(user)
+
+  // users.value.push(user)
 
   sheetOpen.value = false
 
@@ -90,102 +132,8 @@ const onSubmit = handleSubmit(async (values) => {
     userEmail: '',
     category: ''
   }
+  resetForm()
 })
-
-// Define a ref to hold the users data
-const users = ref<any[]>([
-  { _id: 1, vendor: 'Abiola', category: 'Cash', dateJoined: '03 Jan 2024', deliveryrate: '85%' },
-  {
-    _id: 2,
-    vendor: 'Gitacy',
-    category: 'Gift Cash',
-    dateJoined: '03 Jan 2024',
-    deliveryrate: '90%'
-  },
-  {
-    _id: 3,
-    vendor: 'Ajax Logistics',
-    category: 'All category',
-    dateJoined: '03 Jan 2024',
-    deliveryrate: '99%'
-  },
-  {
-    _id: 4,
-    vendor: 'Middle Man Abuja',
-    category: 'All category',
-    dateJoined: '03 Jan 2024',
-    deliveryrate: '95%'
-  },
-  {
-    _id: 5,
-    vendor: ' Middle Man Lagos',
-    category: 'All category',
-    dateJoined: '03 Jan 2024',
-    deliveryrate: '70%'
-  }
-])
-
-// Define a function to fetch users data
-// const fetchUsersData = async () => {
-//   toast({
-//     title: 'Loading Data',
-//     description: 'Fetching data...',
-//     duration: 0 // Set duration to 0 to make it indefinite until manually closed
-//   })
-
-//   // useGeneralStore().setLoading(true)
-//   try {
-//     // Set loading to true
-
-//     const response = await axios.get(
-//       '/administrators?search=test_admin&disabled_status=disabled',
-//       {
-//         // params: {
-//         //   search: 'test_admin',
-//         //   disabled_status: 'disabled'
-//         // },
-//       }
-//     )
-
-//     if (response.status === 200 || response.status === 201) {
-//       useGeneralStore().setLoadingToFalse()
-//       // Show success toast
-//       toast({
-//         title: 'Success',
-//         description: `data fetched`,
-//         variant: 'success'
-//       })
-
-//       console.log('jiji' + JSON.stringify(response.data))
-//     }
-
-//     // Update the users data with the response
-
-//     users.value = response.data.data.data
-//   } catch (error: any) {
-//     if (error.response.status === 401) {
-//       sessionStorage.removeItem('token')
-//       // Clear token from superAdminStore
-//       superAdminStore.setToken('')
-
-//       setTimeout(() => {
-//         router.push({ name: 'super-admin-login' })
-//       }, 3000)
-
-//       toast({
-//         title: 'Unauthorized',
-//         description: 'You are not authorized to perform this action. Redirecting to home page...',
-//         variant: 'destructive'
-//       })
-//       // Redirect after 3 seconds
-//     } else {
-//       toast({
-//         title: error.response.data.message || 'An error occurred',
-//         variant: 'destructive'
-//       })
-//     }
-//   }
-// } // Call the fetchUsersData function when the component is mounted
 
 // Save user data to the /administrator endpoint
 // const saveUserData = async (user: any) => {
@@ -242,14 +190,14 @@ const users = ref<any[]>([
 // const toggleStatus = (user: { status: boolean }) => {
 //   user.status = !user.status
 // }
-const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
+// const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
 
-// onMounted(fetchUsersData);
+// onMounted(fetchVendorsData);
 
-// onMounted(async () => {
-//   // useGeneralStore().setLoading(true);
-//   fetchUsersData()
-// })
+onMounted(async () => {
+  // useGeneralStore().setLoading(true);
+  fetchVendorsData()
+})
 </script>
 
 <template>
@@ -260,7 +208,7 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
         <SheetTrigger as-child>
           <button @click="sheetOpen = true" class="bg-[#020721] px-4 py-2 rounded-xl w-50 h-12">
             <div class="text-base text-[#F8F9FF] text-center flex items-center">
-              Add New User
+              Add New Vendor
               <svg
                 width="20"
                 height="24"
@@ -285,87 +233,232 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
             </SheetDescription>
           </SheetHeader>
           <CardContent class="grid gap-4 pt-10">
-            <form class="space-y-4" @submit="onSubmit">
-              <FormField v-slot="{ componentField }" name="vendor">
+            <form class="space-y-4" @submit.prevent="onSubmit">
+
+              <!-- RC Number -->
+              <FormField v-slot="{ componentField }" name="rcNumber">
                 <FormItem v-auto-animate>
-                  <FormLabel class="text-blue-900">Vendor</FormLabel>
+                  <FormLabel class="text-blue-900">RC Number</FormLabel>
                   <FormControl>
                     <Input
-                      id="text"
-                      type="text"
-                      placeholder="Vendor Name"
+                      id="rcNumber"
+                      type="number"
+                      placeholder="Enter RC Number"
                       class="focus-visible:ring-blue-600"
                       v-bind="componentField"
                     />
                   </FormControl>
-
-                  <FormMessage for="vendor" />
+                  <FormMessage for="rcNumber" />
                 </FormItem>
               </FormField>
 
-              <FormField v-slot="{ componentField }" name="userEmail">
+              <!-- Company Name -->
+              <FormField v-slot="{ componentField }" name="companyName">
                 <FormItem v-auto-animate>
+                  <FormLabel class="text-blue-900">Company Name</FormLabel>
+                  <FormControl>
+                    <Input
+                      id="companyName"
+                      type="text"
+                      placeholder="e.g. NIG (THE) CHEMICAL INDUSTRIES NIG LTD"
+                      class="focus-visible:ring-blue-600"
+                      v-bind="componentField"
+                    />
+                  </FormControl>
+                  <FormMessage for="companyName" />
+                </FormItem>
+              </FormField>
+
+              <!-- Company Type -->
+              <FormField v-slot="{ componentField }" name="companyType">
+                <FormItem v-auto-animate>
+                  <FormLabel class="text-blue-900">Company Type</FormLabel>
+                  <FormControl>
+                    <Select v-bind="componentField" id="companyType">
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Company Type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="COMPANY">Company</SelectItem>
+                        <SelectItem value="BUSINESS">Business</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage for="companyType" />
+                </FormItem>
+              </FormField>
+
+              <!-- Company Email -->
+              <FormField v-slot="{ componentField }" name="companyEmail">
+                <FormItem v-auto-animate>
+                  <FormLabel class="text-blue-900">Company Email</FormLabel>
+                  <FormControl>
+                    <Input
+                      id="companyEmail"
+                      type="email"
+                      placeholder="company@example.com"
+                      class="focus-visible:ring-blue-600"
+                      v-bind="componentField"
+                    />
+                  </FormControl>
+                  <FormMessage for="companyEmail" />
+                </FormItem>
+              </FormField>
+
+              <!-- Company Address -->
+              <FormField v-slot="{ componentField }" name="companyAddress">
+                <FormItem v-auto-animate>
+                  <FormLabel class="text-blue-900">Company Address</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      id="companyAddress"
+                      placeholder="Enter Company Address"
+                      class="focus-visible:ring-blue-600"
+                      v-bind="componentField"
+                    />
+                  </FormControl>
+                  <FormMessage for="companyAddress" />
+                </FormItem>
+              </FormField>
+
+              <!-- Company State -->
+              <FormField v-slot="{ componentField }" name="companyState">
+                <FormItem v-auto-animate>
+                  <FormLabel class="text-blue-900">Company State</FormLabel>
+                  <FormControl>
+                    <Input
+                      id="companyState"
+                      type="text"
+                      placeholder="e.g. Lagos"
+                      class="focus-visible:ring-blue-600"
+                      v-bind="componentField"
+                    />
+                  </FormControl>
+                  <FormMessage for="companyState" />
+                </FormItem>
+              </FormField>
+
+              <!-- Status -->
+              <FormField v-slot="{ componentField }" name="status">
+                <FormItem v-auto-animate>
+                  <FormLabel class="text-blue-900">Status</FormLabel>
+                  <FormControl>
+                    <Select v-bind="componentField" id="status">
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="published">Published</SelectItem>
+                        <SelectItem value="draft">Draft</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage for="status" />
+                </FormItem>
+              </FormField>
+
+              <!-- Invite Section -->
+              <h5 class="text-blue-900 text-sm font-semibold mt-6 mb-2">Invite Details</h5>
+
+              <!-- First Name -->
+              <FormField v-slot="{ componentField }" name="invite.firstName">
+                <FormItem>
+                  <FormLabel class="text-blue-900">First Name</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="text"
+                      placeholder="First Name"
+                      v-bind="componentField"
+                      class="focus-visible:ring-blue-600"
+                    />
+                  </FormControl>
+                  <FormMessage for="invite.firstName" />
+                </FormItem>
+              </FormField>
+
+              <!-- Last Name -->
+              <FormField v-slot="{ componentField }" name="invite.lastName">
+                <FormItem>
+                  <FormLabel class="text-blue-900">Last Name</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="text"
+                      placeholder="Last Name"
+                      v-bind="componentField"
+                      class="focus-visible:ring-blue-600"
+                    />
+                  </FormControl>
+                  <FormMessage for="invite.lastName" />
+                </FormItem>
+              </FormField>
+
+              <!-- Invite Email -->
+              <FormField v-slot="{ componentField }" name="invite.email">
+                <FormItem>
                   <FormLabel class="text-blue-900">Email</FormLabel>
                   <FormControl>
                     <Input
-                      id="email"
                       type="email"
-                      placeholder="weeshr@admin.com"
-                      class="focus-visible:ring-blue-600"
+                      placeholder="Invitee's Email"
                       v-bind="componentField"
+                      class="focus-visible:ring-blue-600"
                     />
                   </FormControl>
-
-                  <FormMessage />
+                  <FormMessage for="invite.email" />
                 </FormItem>
               </FormField>
 
-              <FormField v-slot="{ componentField }" name="phone">
-                <FormItem v-auto-animate>
-                  <FormLabel class="text-blue-900">Phone Number</FormLabel>
-                  <FormControl>
-                    <vue-tel-input
-                      mode="international"
-                      id="phone"
-                      type="tel"
-                      placeholder="Last Name"
-                      class="focus-visible:ring-blue-600"
-                      v-bind="componentField"
-                    >
-                    </vue-tel-input>
-                  </FormControl>
+              <!-- Phone Number -->
+              <div>
+                <h5 class='text-blue-900 text-sm font-medium mb-3'>Phone Number</h5>
+                <div class="flex gap-2">
+                  <FormField v-slot="{ componentField }" name="invite.countryCode">
+                    <FormItem>
+                      <FormControl>
+                        <Select
+                          v-bind="componentField"
+                          id="gender"
+                          class='bg-gray-50 w-auto mt-3 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white'>
+                            <SelectTrigger class="">
+                                <SelectValue placeholder="+234" />
+                              </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem v-for="(code, key ) in CountryCodes" :value="code.dial_code" :key="key" class='flex justify-center items-center gap-2'>
+                                {{code.dial_code}} 
+                                <img
+                                class="w-[18px] h-[18px] hidden md:inline-block"
+                                :src="'https://flagcdn.com/16x12/'+code.code.toLowerCase()+'.png'"
+                                alt="gradient"/>
+                              </SelectItem>
+                            </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage for="invite.countryCode" />
+                    </FormItem>
+                  </FormField>
 
-                  <FormMessage for="phone" />
-                </FormItem>
-              </FormField>
+                  <FormField v-slot="{ componentField }" name="invite.phoneNumber">
+                    <FormItem class="flex-1">
+                      <FormControl>
+                        <Input
+                          type="tel"
+                          placeholder="Phone Number"
+                          v-bind="componentField"
+                          class="focus-visible:ring-blue-600"
+                        />
+                      </FormControl>
+                      <FormMessage for="invite.phoneNumber" />
+                    </FormItem>
+                  </FormField>
+                </div>
+              </div>
 
-              <FormField v-slot="{ componentField }" name="category">
-                <FormItem>
-                  <FormLabel>Category</FormLabel>
-                  <select
-                    v-bind="componentField"
-                    id="category"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                    placeholder="Category"
-                  >
-                    <option value="" disabled selected hidden>Select Vendor Category</option>
-                    <option value="cash">Cash</option>
-                    <option value="gift">Gift Cards</option>
-                    <option value="all">All Category</option>
-                  </select>
-                  <FormMessage for="category" />
-                </FormItem>
-              </FormField>
-
-              <Button :disabled="loading" type="submit">
+              <Button @click="onSubmit" type="submit" class="w-full mt-4">
                 <Loader2
-                  color="#ffffff"
                   v-if="loading"
-                  class="w-4 h-4 mr-2 text-black animate-spin"
+                  class="w-4 h-4 mr-2 text-white animate-spin"
                 />
                 Submit
-
-                <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" />
               </Button>
             </form>
           </CardContent>
@@ -389,45 +482,49 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
               class="text-xs sm:text-sm md:text-base text-[#02072199] font-semibold bg-gray-200"
             >
               <TableHead> Vendor </TableHead>
-              <TableHead>Category</TableHead>
+              <TableHead> Vendor Type</TableHead>
+              <TableHead>Email</TableHead>
               <TableHead>Onboarded</TableHead>
-              <TableHead> Delivery Rate</TableHead>
+              <TableHead> RC Number </TableHead>
               <TableHead>Status</TableHead>
               <TableHead></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            <TableRow v-for="user in users" :key="user._id">
-              <TableCell class="font-medium">{{ user.vendor }}</TableCell>
-              <TableCell>{{ user.category }}</TableCell>
-              <TableCell>{{ user.dateJoined }}</TableCell>
-              <TableCell>{{ user.deliveryrate }}</TableCell>
+            <TableRow v-for="vendor in vendors" :key="vendor._id">
+              <TableCell class="font-medium">{{ vendor.companyName }}</TableCell>
+              <TableCell class="font-medium">{{ vendor.companyType }}</TableCell>
+              <TableCell>{{ vendor.companyEmail }}</TableCell>
+              <TableCell>{{ vendor.createdAt.split('T')[0] }}</TableCell>
+              <TableCell>{{ vendor.rcNumber }}</TableCell>
               <TableCell>
                 <button
-                  :class="{ 'bg-[#00C37F]': user.status, 'bg-[#020721]': !user.status }"
+                  :class="{ 'bg-[#00C37F]': vendor.status === 'published', 'bg-[#020721]': vendor.status !== 'published' }"
                   class="px-4 py-2 text-sm text-white rounded-md"
                 >
-                  {{ user.disabled ? 'Inactive' : 'Active' }}
+                  {{ vendor.status === 'published' ? 'Active' : 'Inactive' }}
                 </button>
               </TableCell>
               <TableCell>
-                <svg
-                  width="20"
-                  height="50"
-                  viewBox="0 0 20 50"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M7 31L12.5118 26.0606C13.1627 25.4773 13.1627 24.5227 12.5118 23.9394L7 19"
-                    stroke="#54586D"
-                    stroke-opacity="0.8"
-                    stroke-width="2"
-                    stroke-miterlimit="10"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
+                <router-link :to="`/user/vendors/${vendor._id}`">
+                  <svg
+                    width="20"
+                    height="50"
+                    viewBox="0 0 20 50"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M7 31L12.5118 26.0606C13.1627 25.4773 13.1627 24.5227 12.5118 23.9394L7 19"
+                      stroke="#54586D"
+                      stroke-opacity="0.8"
+                      stroke-width="2"
+                      stroke-miterlimit="10"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </router-link>
               </TableCell>
             </TableRow>
           </TableBody>

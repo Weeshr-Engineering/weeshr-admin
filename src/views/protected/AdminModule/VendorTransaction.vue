@@ -276,7 +276,7 @@ import {
   TableHead
 } from '@/components/ui/table'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { Button } from '@/components/ui/button'
 import { Icon } from '@iconify/vue'
 import Search from '@/components/UseSearch.vue'
@@ -289,10 +289,14 @@ import {
 } from "@/components/ui/sheet"
 import { Badge } from '@/components/ui/badge'
 import VendorNav from '@/components/VendorNav.vue'
+import axios from 'axios'
+import { catchErr } from '@/composables/catchError'
+import { toast } from '@/components/ui/toast'
 
 // const open = ref<boolean>(false)
 // const id = ref<string>('0')
 
+const id = "68fe175da98f5d209988f4b7"//'68fe1772a98f5d209988f4c1';
 const statusBg = (status: string) => {
   switch (status) {
     case 'failed':
@@ -506,6 +510,60 @@ const transactions= ref<Transaction[]>([
   }
 ]);
 
+const fetchProducts = async (msg: string) => {
+  toast({
+    title: 'Loading Data',
+    description: 'Fetching data...',
+    duration: 0 // Set duration to 0 to make it indefinite until manually closed
+  })
+
+  try {
+    // Set loading to true
+    // useGeneralStore().setLoading(true)
+    const response = await axios.get(`/api/v1/admin//market/orders/vendor/${id}`)
+
+    if (response.status === 200 || response.status === 201) {
+      // Update the users data with the response
+      // products.value = response.data.data.data;
+      console.log(response.data.data)
+      // const responseData = response.data.data[0]
+      // const phoneData = response.data.data[0].phoneNumber.normalizedNumber
+      // const data = { ...responseData, phone: phoneData }
+      // Show success toast
+      toast({
+        title: 'Success',
+        description: `${msg}`,
+        variant: 'success'
+      })
+    }
+    // set Loading to false
+    // useGeneralStore().setLoading(false)
+  } catch (error: any) {
+    // catchErr(error)
+    if (error.response.status === 401) {
+      // sessionStorage.removeItem('token')
+      // Clear token from superAdminStore
+      // superAdminStore.setToken('')
+
+      setTimeout(() => {
+        // router.push({ name: 'super-admin-login' })
+      }, 3000)
+
+      toast({
+        title: 'Unauthorized',
+        description: 'You are not authorized to perform this action. Redirecting to home page...',
+        variant: 'destructive'
+      })
+      // Redirect after 3 seconds
+    } else {
+      toast({
+        title: error.response.data.message || 'An error occurred',
+        variant: 'destructive'
+      })
+    }
+  }
+}
+
 // Keep track of sort directions per field
 const sortState: Record<string, "asc" | "desc"> = {
   date: "asc",
@@ -571,5 +629,9 @@ function formatDate(dateStr: string | null): string | null {
     year: "numeric",
   }).format(date);
 }
+
+onMounted(() => {
+  fetchProducts('Products are available')
+})
 
 </script>
