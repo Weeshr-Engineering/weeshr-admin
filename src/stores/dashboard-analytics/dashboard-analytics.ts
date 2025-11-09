@@ -1,3 +1,4 @@
+// dashboard-analytics.ts
 import { defineStore } from 'pinia';
 import axios from 'axios';
 import { useToast } from '@/components/ui/toast';

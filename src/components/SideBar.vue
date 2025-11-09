@@ -5,7 +5,7 @@ import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
 import { ability, defineAbilities } from '@/lib/ability';
 import { useRoute } from 'vue-router';
 import NotificationBoardSheet from '@/components/notifications/notification-board/NotificationBoardSheet.vue'
-import { Layers, Menu } from 'lucide-vue-next';
+import { Layers, Menu,  NotepadText } from 'lucide-vue-next';
 
 const notificationBoard = ref();
 
@@ -137,6 +137,16 @@ const openNotificationsBoard = () => {
         </a>
       </li>
 
+          <li :class="{ 'dashboard-active': isActive('/order') }">
+        <a @click="$router.push({ name: 'order' })">
+          <div class="icon-grid">
+             <NotepadText width="17" height="17" class="icons-sidebar" />
+          </div>
+
+          <span class="nav-text"> Orders </span>
+        </a>
+      </li>
+
       <li v-if='bank' :class="{ 'dashboard-active': isActive('/bank') }">
         <a @click="$router.push({ name: 'bank' })">
           <div class="icon-grid">
@@ -189,8 +199,8 @@ const openNotificationsBoard = () => {
         </a>
       </li>
 
-      <li :class="{ 'dashboard-active': isActive('/analytics') }">
-        <a @click="$router.push({ name: 'AdminAnalytics' })">
+      <li :class="{ 'dashboard-active': isActive('/vendors/geeftr') }">
+        <a @click="$router.push({ name: 'GlobalGeeftr' })">
           <div class="icon-grid">
             <Icon icon="mingcute:send-fill" width="17" height="17" class="icons-sidebar" />
           </div>

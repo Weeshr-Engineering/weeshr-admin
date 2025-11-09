@@ -13,7 +13,7 @@
             </div>
 
             <p class="text-2xl md:text-xl xl:text-3xl font-medium text-[#ffffff] absolute bottom-2 left-5">
-              3
+              {{ promotionsStore.activeCount }}
             </p>
           </CardContent>
         </div>
@@ -26,7 +26,7 @@
             <Archive width="24px" height="24px" color="#ffffff" />
 
             <p class="text-2xl md:text-xl xl:text-3xl font-medium text-[#ffffff] absolute bottom-2 left-5">
-              <span>1</span>
+              <span>{{ promotionsStore.scheduledCount }}</span>
             </p>
           </CardContent>
         </div>
@@ -39,7 +39,7 @@
             <Archive width="24px" height="24px" color="#ffffff" />
 
             <p class="text-2xl md:text-xl xl:text-3xl font-medium text-[#ffffff] absolute bottom-2 left-5">
-              <span>5</span>
+              <span>{{ promotionsStore.draftCount }}</span>
             </p>
           </CardContent>
         </div>
@@ -52,7 +52,7 @@
             <CalendarDays width="24px" height="24px" color="#ffffff" />
 
             <p class="text-2xl md:text-xl xl:text-3xl font-medium text-[#ffffff] absolute bottom-2 left-5">
-              <span>9</span>
+              <span>{{ promotionsStore.expiredCount }}</span>
             </p>
           </CardContent>
         </div>
@@ -68,8 +68,8 @@
           </p>
         </div>
         <div class="flex items-center flex-col md:flex-row gap-4">
-          <Search class="mt-3 lg:mt-0" />
-          <Sheet>
+          <Search class="mt-3 lg:mt-0" @search="handleSearch" />
+          <Sheet v-model:open="sheetOpen">
             <SheetTrigger asChild>
               <button class="bg-[#020721] px-4 py-2 rounded-xl w-50 h-12">
                 <div class="text-base text-[#F8F9FF] text-center flex items-center">
@@ -96,7 +96,7 @@
                   {{ currentStep === 1 ? 'Draft' : currentStep === 2 ? 'Draft/Code' : 'Draft/Code' }}
                 </SheetDescription>
                 <h3 class="text-2xl font-medium text-[#020721]">New Promotion</h3>
-                <p class="text-sm text-muted-foreground">7 August 2025</p>
+                <p class="text-sm text-muted-foreground">{{ new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) }}</p>
               </SheetHeader>
 
               <!-- Promotion Creation Tabs -->
@@ -104,22 +104,22 @@
                 <div class="text-sm font-medium text-[#020721] mb-3">Promotion Creation</div>
                 <div class="flex gap-2">
                   <button 
-                    @click="promotionType = 'schedule'"
-                    :class="promotionType === 'schedule' ? 'bg-white text-[#020721]' : 'bg-transparent text-[#02072199]'"
+                    @click="promotionStatus = 'scheduled'"
+                    :class="promotionStatus === 'scheduled' ? 'bg-white text-[#020721]' : 'bg-transparent text-[#02072199]'"
                     class="px-4 py-2 rounded-lg text-sm font-medium border border-gray-200"
                   >
                     Schedule
                   </button>
                   <button 
-                    @click="promotionType = 'draft'"
-                    :class="promotionType === 'draft' ? 'bg-[#020721] text-white' : 'bg-transparent text-[#02072199]'"
+                    @click="promotionStatus = 'draft'"
+                    :class="promotionStatus === 'draft' ? 'bg-[#020721] text-white' : 'bg-transparent text-[#02072199]'"
                     class="px-4 py-2 rounded-lg text-sm font-medium border border-gray-200"
                   >
                     Draft
                   </button>
                   <button 
-                    @click="promotionType = 'active'"
-                    :class="promotionType === 'active' ? 'bg-white text-[#020721]' : 'bg-transparent text-[#02072199]'"
+                    @click="promotionStatus = 'active'"
+                    :class="promotionStatus === 'active' ? 'bg-white text-[#020721]' : 'bg-transparent text-[#02072199]'"
                     class="px-4 py-2 rounded-lg text-sm font-medium border border-gray-200"
                   >
                     Active
@@ -170,12 +170,12 @@
                     Promotion Type <span class="text-red-500">*</span>
                   </label>
                   <select 
-                    v-model="formData.type"
+                    v-model="formData.promotionType"
                     class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#020721] appearance-none bg-white"
                   >
                     <option value="">Select type</option>
-                    <option value="percentage">Percentage Off</option>
-                    <option value="fixed">Fixed Amount Off</option>
+                    <option value="percentage_off">Percentage Off</option>
+                    <option value="fixed_amount_off">Fixed Amount Off</option>
                     <option value="bogo">Buy One Get One</option>
                   </select>
                 </div>
@@ -183,7 +183,7 @@
                 <div>
                   <label class="text-sm font-medium text-[#020721] mb-2 block">Promo Code</label>
                   <input 
-                    v-model="formData.code"
+                    v-model="formData.promoCode"
                     type="text" 
                     class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#020721]"
                   />
@@ -194,8 +194,7 @@
                     <label class="text-sm font-medium text-[#020721] mb-2 block">Start Date & Time</label>
                     <input 
                       v-model="formData.startDate"
-                      type="text" 
-                      placeholder="dd / mm / yyyy, --:--"
+                      type="datetime-local" 
                       class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#020721] text-sm"
                     />
                   </div>
@@ -203,8 +202,7 @@
                     <label class="text-sm font-medium text-[#020721] mb-2 block">End Date & Time</label>
                     <input 
                       v-model="formData.endDate"
-                      type="text" 
-                      placeholder="dd / mm / yyyy, --:--"
+                      type="datetime-local" 
                       class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#020721] text-sm"
                     />
                   </div>
@@ -228,7 +226,7 @@
                 <div>
                   <label class="text-sm font-medium text-[#020721] mb-2 block">Minimum Purchase Amount</label>
                   <input 
-                    v-model="formData.minPurchase"
+                    v-model="formData.minPurchaseAmount"
                     type="number" 
                     placeholder="5000"
                     class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#020721]"
@@ -238,7 +236,7 @@
                 <div>
                   <label class="text-sm font-medium text-[#020721] mb-2 block">Maximum Discount Cap</label>
                   <input 
-                    v-model="formData.maxDiscount"
+                    v-model="formData.maxDiscountCap"
                     type="number" 
                     placeholder="2000"
                     class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#020721]"
@@ -248,7 +246,7 @@
                 <div>
                   <label class="text-sm font-medium text-[#020721] mb-2 block">Limit Total Uses</label>
                   <input 
-                    v-model="formData.totalUses"
+                    v-model="formData.totalUsageLimit"
                     type="number" 
                     placeholder="500"
                     class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#020721]"
@@ -258,7 +256,7 @@
                 <div>
                   <label class="text-sm font-medium text-[#020721] mb-2 block">Limit Per Customer</label>
                   <input 
-                    v-model="formData.perCustomer"
+                    v-model="formData.limitPerCustomer"
                     type="number" 
                     placeholder="3"
                     class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#020721]"
@@ -271,22 +269,22 @@
                 <div class="text-sm font-medium text-[#020721] mb-3">Apply To</div>
                 <div class="flex gap-2 mb-4">
                   <button 
-                    @click="applyTo = 'all'"
-                    :class="applyTo === 'all' ? 'bg-[#020721] text-white' : 'bg-white text-[#020721]'"
+                    @click="formData.appliesTo = 'all_products'"
+                    :class="formData.appliesTo === 'all_products' ? 'bg-[#020721] text-white' : 'bg-white text-[#020721]'"
                     class="px-4 py-2 rounded-lg text-sm font-medium border border-gray-200"
                   >
                     All
                   </button>
                   <button 
-                    @click="applyTo = 'selected'"
-                    :class="applyTo === 'selected' ? 'bg-[#020721] text-white' : 'bg-white text-[#020721]'"
+                    @click="formData.appliesTo = 'selected_products'"
+                    :class="formData.appliesTo === 'selected_products' ? 'bg-[#020721] text-white' : 'bg-white text-[#020721]'"
                     class="px-4 py-2 rounded-lg text-sm font-medium border border-gray-200"
                   >
                     Selected
                   </button>
                 </div>
 
-                <div v-if="applyTo === 'selected'">
+                <div v-if="formData.appliesTo === 'selected_products'">
                   <label class="text-sm font-medium text-[#020721] mb-2 block">Selected Products</label>
                   <select 
                     class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#020721] appearance-none bg-white mb-4"
@@ -304,7 +302,7 @@
                       <input 
                         type="checkbox" 
                         :id="product.id"
-                        v-model="selectedProducts"
+                        v-model="formData.productIds"
                         :value="product.id"
                         class="w-4 h-4"
                       />
@@ -333,10 +331,12 @@
                 
                 <button 
                   @click="handleNext"
-                  class="flex items-center gap-2 px-6 py-2 bg-[#5B68DF] text-white rounded-lg text-sm font-medium hover:bg-[#4a56cc]"
+                  :disabled="promotionsStore.loading"
+                  class="flex items-center gap-2 px-6 py-2 bg-[#5B68DF] text-white rounded-lg text-sm font-medium hover:bg-[#4a56cc] disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {{ currentStep === 3 ? 'Preview' : 'Next' }}
-                  <Icon icon="radix-icons:chevron-right" />
+                  <span v-if="promotionsStore.loading && currentStep === 3">Creating...</span>
+                  <span v-else>{{ currentStep === 3 ? 'Create Promotion' : 'Next' }}</span>
+                  <Icon v-if="!promotionsStore.loading" icon="radix-icons:chevron-right" />
                 </button>
               </div>
             </SheetContent>
@@ -344,11 +344,17 @@
         </div>
       </div>
 
-      <div class="overflow-auto bg-white rounded-lg">
+      <!-- Loading State -->
+      <div v-if="promotionsStore.loading && promotionsStore.promotions.length === 0" class="flex items-center justify-center py-10">
+        <Icon icon="eos-icons:loading" class="w-8 h-8 text-[#020721]" />
+      </div>
+
+      <!-- Table -->
+      <div v-else class="overflow-auto bg-white rounded-lg">
         <Table class="lg:w-full w-[800px]">
           <TableHeader>
             <TableRow class="text-xs sm:text-sm text-[#020721CC] font-normal border-b">
-              <TableHead class="cursor-pointer hover:bg-gray-50">
+              <TableHead class="cursor-pointer hover:bg-gray-50" @click="sortBy('name')">
                 <div class="flex items-center gap-1">
                   Promotion Name
                   <Icon icon="fluent:chevron-up-down-20-regular" class="w-4 h-4" />
@@ -372,7 +378,7 @@
                   <Icon icon="fluent:chevron-up-down-20-regular" class="w-4 h-4" />
                 </div>
               </TableHead>
-              <TableHead class="cursor-pointer hover:bg-gray-50">
+              <TableHead class="cursor-pointer hover:bg-gray-50" @click="sortBy('startDate')">
                 <div class="flex items-center gap-1">
                   Start Date
                   <Icon icon="fluent:chevron-up-down-20-regular" class="w-4 h-4" />
@@ -400,14 +406,14 @@
             </TableRow>
           </TableHeader>
           <TableBody>
-            <TableRow v-for="promo in promotions" :key="promo.id" class="hover:bg-gray-50 border-b">
+            <TableRow v-for="promo in promotionsStore.promotions" :key="promo._id" class="hover:bg-gray-50 border-b">
               <TableCell class="text-sm font-medium text-[#020721]">{{ promo.name }}</TableCell>
-              <TableCell class="text-sm text-[#020721CC]">{{ promo.type }}</TableCell>
-              <TableCell class="text-sm text-[#020721CC]">{{ promo.discountValue }}</TableCell>
-              <TableCell class="text-sm text-[#020721CC]">{{ promo.appliesTo }}</TableCell>
-              <TableCell class="text-sm text-[#020721CC]">{{ promo.startDate }}</TableCell>
-              <TableCell class="text-sm text-[#020721CC]">{{ promo.endDate }}</TableCell>
-              <TableCell class="text-sm text-[#020721CC]">{{ promo.usageCount }}</TableCell>
+              <TableCell class="text-sm text-[#020721CC]">{{ promotionsStore.formatPromotionType(promo.promotionType) }}</TableCell>
+              <TableCell class="text-sm text-[#020721CC]">{{ promotionsStore.formatDiscountValue(promo) }}</TableCell>
+              <TableCell class="text-sm text-[#020721CC]">{{ promotionsStore.formatAppliesTo(promo) }}</TableCell>
+              <TableCell class="text-sm text-[#020721CC]">{{ formatDate(promo.startDate) }}</TableCell>
+              <TableCell class="text-sm text-[#020721CC]">{{ formatDate(promo.endDate) }}</TableCell>
+              <TableCell class="text-sm text-[#020721CC]">{{ promotionsStore.formatUsageCount(promo) }}</TableCell>
               <TableCell>
                 <div
                   :class="statusBg(promo.status)"
@@ -424,6 +430,7 @@
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
                   class="cursor-pointer"
+                  @click="viewPromotionDetails(promo._id)"
                 >
                   <path
                     d="M7 5L12.5118 9.93939C13.1627 10.5227 13.1627 11.4773 12.5118 12.0606L7 17"
@@ -441,14 +448,31 @@
         </Table>
       </div>
 
+      <!-- Pagination -->
       <div class="flex gap-2 max-w-full flex-wrap justify-end mt-8 mr-4 items-center text-[15px]">
-        <Button variant="secondary"> <Icon icon="radix-icons:chevron-left" /> </Button>
-        <Button variant="secondary" class="bg-[#020721] text-gray-400"> 1 </Button>
-        <Button variant="outline"> 2 </Button>
-        <Button variant="outline"> &#8230; </Button>
-        <Button variant="outline"> 4 </Button>
-        <Button variant="outline"> 5 </Button>
-        <Button variant="outline"> <Icon icon="radix-icons:chevron-right" /> </Button>
+        <Button 
+          variant="secondary" 
+          @click="changePage(promotionsStore.pagination.currentPage - 1)"
+          :disabled="promotionsStore.pagination.currentPage === 1"
+        > 
+          <Icon icon="radix-icons:chevron-left" /> 
+        </Button>
+        <Button 
+          v-for="page in visiblePages" 
+          :key="page"
+          :variant="page === promotionsStore.pagination.currentPage ? 'secondary' : 'outline'"
+          :class="page === promotionsStore.pagination.currentPage ? 'bg-[#020721] text-gray-400' : ''"
+          @click="changePage(page)"
+        > 
+          {{ page === '...' ? '&#8230;' : page }}
+        </Button>
+        <Button 
+          variant="outline" 
+          @click="changePage(promotionsStore.pagination.currentPage + 1)"
+          :disabled="promotionsStore.pagination.currentPage === promotionsStore.pagination.totalPages"
+        > 
+          <Icon icon="radix-icons:chevron-right" /> 
+        </Button>
         <a href="#"><p class="text-[blue]">See all</p></a>
       </div>
     </Card>
@@ -466,7 +490,7 @@ import {
   TableHead
 } from '@/components/ui/table'
 import { Card, CardContent } from '@/components/ui/card'
-import { ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { Button } from '@/components/ui/button'
 import { Icon } from '@iconify/vue'
 import Search from '@/components/UseSearch.vue'
@@ -480,6 +504,10 @@ import {
   SheetHeader,
   SheetTrigger,
 } from "@/components/ui/sheet"
+import { usePromotionsStore } from '@/stores/vendor-store/vendor-promotion'
+import { useToast } from '@/components/ui/toast'
+
+const promotionsStore = usePromotionsStore()
 
 const statusBg = (status: string) => {
   switch (status) {
@@ -496,128 +524,26 @@ const statusBg = (status: string) => {
   }
 }
 
-interface Promotion {
-  id: string;
-  name: string;
-  type: string;
-  discountValue: string;
-  appliesTo: string;
-  startDate: string;
-  endDate: string;
-  usageCount: string;
-  status: 'active' | 'scheduled' | 'draft' | 'expired';
-}
-
-const promotions = ref<Promotion[]>([
-  {
-    id: "promo_001",
-    name: "Mega Deal",
-    type: "BOGO",
-    discountValue: "Buy 1 Get 1",
-    appliesTo: "All Products",
-    startDate: "5 Jan 2025",
-    endDate: "5 Jun 2025",
-    usageCount: "57/500",
-    status: "active"
-  },
-  {
-    id: "promo_002",
-    name: "Midnight Flash Sale",
-    type: "% Off",
-    discountValue: "20%",
-    appliesTo: "All Orders ₦5,000+",
-    startDate: "12 Jun 2025",
-    endDate: "12 Jun 2025",
-    usageCount: "90/Unlimited",
-    status: "active"
-  },
-  {
-    id: "promo_003",
-    name: "Flash Friday",
-    type: "₦ Off",
-    discountValue: "₦1,500",
-    appliesTo: "Selected Products",
-    startDate: "17 Jul 2025",
-    endDate: "17 Jul 2025",
-    usageCount: "11/50",
-    status: "active"
-  },
-  {
-    id: "promo_004",
-    name: "Weekend Special",
-    type: "% Off",
-    discountValue: "15%",
-    appliesTo: "Electronics",
-    startDate: "20 Dec 2025",
-    endDate: "22 Dec 2025",
-    usageCount: "0/200",
-    status: "scheduled"
-  },
-  {
-    id: "promo_005",
-    name: "New Year Sale",
-    type: "BOGO",
-    discountValue: "Buy 2 Get 1",
-    appliesTo: "Fashion Items",
-    startDate: "1 Jan 2026",
-    endDate: "7 Jan 2026",
-    usageCount: "0/1000",
-    status: "draft"
-  },
-  {
-    id: "promo_006",
-    name: "Summer Clearance",
-    type: "% Off",
-    discountValue: "30%",
-    appliesTo: "All Products",
-    startDate: "15 Mar 2025",
-    endDate: "31 Mar 2025",
-    usageCount: "450/500",
-    status: "expired"
-  },
-  {
-    id: "promo_007",
-    name: "Black Friday",
-    type: "₦ Off",
-    discountValue: "₦5,000",
-    appliesTo: "Orders ₦20,000+",
-    startDate: "24 Nov 2024",
-    endDate: "25 Nov 2024",
-    usageCount: "1200/1000",
-    status: "expired"
-  },
-  {
-    id: "promo_008",
-    name: "Valentine's Day",
-    type: "% Off",
-    discountValue: "25%",
-    appliesTo: "Gift Items",
-    startDate: "10 Feb 2026",
-    endDate: "14 Feb 2026",
-    usageCount: "0/500",
-    status: "draft"
-  }
-])
-
 // Sheet state
+const sheetOpen = ref(false)
 const currentStep = ref(1)
-const promotionType = ref('draft')
-const applyTo = ref('all')
-const selectedProducts = ref<string[]>([])
+const promotionStatus = ref<'active' | 'scheduled' | 'draft'>('draft')
 
 // Form data
 const formData = ref({
   name: '',
   description: '',
-  type: '',
-  code: '',
+  promotionType: '' as '' | 'percentage_off' | 'fixed_amount_off' | 'bogo',
+  promoCode: '',
   startDate: '',
   endDate: '',
   discountValue: '',
-  minPurchase: '',
-  maxDiscount: '',
-  totalUses: '',
-  perCustomer: ''
+  minPurchaseAmount: '',
+  maxDiscountCap: '',
+  totalUsageLimit: '',
+  limitPerCustomer: '',
+  appliesTo: 'all_products' as 'all_products' | 'selected_products',
+  productIds: [] as string[]
 })
 
 // Eligible products for step 3
@@ -652,12 +578,157 @@ const eligibleProducts = ref([
   }
 ])
 
-const handleNext = () => {
+// Handle next button click
+const handleNext = async () => {
   if (currentStep.value < 3) {
     currentStep.value++
   } else {
-    // Handle preview/submit
-    // console.log('Preview promotion', formData.value)
+    // Create promotion
+    await createPromotion()
   }
 }
+
+// Create promotion
+const createPromotion = async () => {
+  // Validate required fields
+  if (!formData.value.name || !formData.value.promotionType || !formData.value.discountValue) {
+    const { toast } = useToast();
+    toast({
+      description: 'Please fill all required fields',
+      variant: 'destructive'
+    });
+    return;
+  }
+
+  const promotionData: any = {
+    name: formData.value.name,
+    promotionType: formData.value.promotionType,
+    discountValue: Number(formData.value.discountValue),
+    appliesTo: formData.value.appliesTo,
+    startDate: formData.value.startDate,
+    endDate: formData.value.endDate,
+    status: promotionStatus.value
+  };
+
+  // Add optional fields only if they have values
+  if (formData.value.description) {
+    promotionData.description = formData.value.description;
+  }
+  if (formData.value.promoCode) {
+    promotionData.promoCode = formData.value.promoCode;
+  }
+  if (formData.value.minPurchaseAmount) {
+    promotionData.minimumPurchaseAmount = Number(formData.value.minPurchaseAmount);
+  }
+  if (formData.value.maxDiscountCap) {
+    promotionData.maximumDiscountCap = Number(formData.value.maxDiscountCap);
+  }
+  if (formData.value.totalUsageLimit) {
+    promotionData.totalUsageLimit = Number(formData.value.totalUsageLimit);
+  }
+  if (formData.value.limitPerCustomer) {
+    promotionData.limitPerCustomer = Number(formData.value.limitPerCustomer);
+  }
+  if (formData.value.appliesTo === 'selected_products' && formData.value.productIds.length > 0) {
+    promotionData.productIds = formData.value.productIds;
+  }
+
+  const result = await promotionsStore.createPromotion(promotionData);
+  
+  if (result) {
+    resetForm();
+    sheetOpen.value = false;
+  }
+}
+
+// Reset form
+const resetForm = () => {
+  currentStep.value = 1
+  promotionStatus.value = 'draft'
+  formData.value = {
+    name: '',
+    description: '',
+    promotionType: '',
+    promoCode: '',
+    startDate: '',
+    endDate: '',
+    discountValue: '',
+    minPurchaseAmount: '',
+    maxDiscountCap: '',
+    totalUsageLimit: '',
+    limitPerCustomer: '',
+    appliesTo: 'all_products',
+    productIds: []
+  }
+}
+
+// Format date
+const formatDate = (dateStr: string) => {
+  if (!dateStr) return ''
+  const date = new Date(dateStr)
+  return new Intl.DateTimeFormat('en-GB', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric'
+  }).format(date)
+}
+
+// Handle search
+const handleSearch = (query: string) => {
+  promotionsStore.fetchPromotions({ search: query })
+}
+
+// Sort by field
+const sortBy = (field: string) => {
+  promotionsStore.fetchPromotions({ sortBy: field })
+}
+
+// Change page
+const changePage = (page: number | string) => {
+  if (typeof page === 'number' && page >= 1 && page <= promotionsStore.pagination.totalPages) {
+    promotionsStore.fetchPromotions({ page })
+  }
+}
+
+// Computed visible pages for pagination
+const visiblePages = computed(() => {
+  const current = promotionsStore.pagination.currentPage
+  const total = promotionsStore.pagination.totalPages
+  const pages: (number | string)[] = []
+
+  if (total <= 5) {
+    for (let i = 1; i <= total; i++) {
+      pages.push(i)
+    }
+  } else {
+    pages.push(1)
+    
+    if (current > 3) {
+      pages.push('...')
+    }
+    
+    for (let i = Math.max(2, current - 1); i <= Math.min(total - 1, current + 1); i++) {
+      pages.push(i)
+    }
+    
+    if (current < total - 2) {
+      pages.push('...')
+    }
+    
+    pages.push(total)
+  }
+
+  return pages
+})
+
+// View promotion details
+const viewPromotionDetails = async (id: string) => {
+  await promotionsStore.fetchPromotionById(id)
+  // You can add a modal or sheet to show details here
+}
+
+// Fetch promotions on mount
+onMounted(() => {
+  promotionsStore.fetchPromotions()
+})
 </script>

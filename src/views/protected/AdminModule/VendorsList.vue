@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Search from '@/components/UseSearch.vue'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import VendorsCards from '@/components/VendorsCards.vue'
 import VendorNav from '@/components/VendorNav.vue'
 import 'vue-tel-input/vue-tel-input.css'
@@ -8,7 +8,8 @@ import PagePagination from '@/components/PagePagination.vue'
 import VendorAdd from './VendorAdd.vue'
 import DashboardFooter from '@/components/DashboardFooter.vue';
 import { Card, CardContent } from '@/components/ui/card'
-
+import { catchErr } from '@/composables/catchError'
+import { toast } from '@/components/ui/toast'
 import {
   Table,
   TableRow,
@@ -18,103 +19,199 @@ import {
   TableHead
 } from '@/components/ui/table'
 import Badge from '@/components/ui/badge/Badge.vue'
+import axios from 'axios'
 // import { toast } from '@/components/ui/toast'
 // import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
 // import { useGeneralStore } from '@/stores/general-use'
 
-
-
-// Define a ref to hold the users data
-const users = ref<any[]>([
-  { _id: 1, vendor: 'Abiola', category: 'Cash', dateJoined: '03 Jan 2024', deliveryrate: '85%', status: 'Overdue' },
-  {
-    _id: 2,
-    vendor: 'Gitacy',
-    category: 'Gift Cash',
-    dateJoined: '03 Jan 2024',
-    deliveryrate: '90%',
-    status: 'Processing'
-  },
-  {
-    _id: 3,
-    vendor: 'Ajax Logistics',
-    category: 'All category',
-    dateJoined: '03 Jan 2024',
-    deliveryrate: '99%',
-    status: 'Delivered'
-  },
-  {
-    _id: 4,
-    vendor: 'Middle Man Abuja',
-    category: 'All category',
-    dateJoined: '03 Jan 2024',
-    deliveryrate: '95%',
-    status: 'New'
-  },
-  {
-    _id: 5,
-    vendor: ' Middle Man Lagos',
-    category: 'All category',
-    dateJoined: '03 Jan 2024',
-    deliveryrate: '70%',
-    status: 'Outbound'
-  },
-  {
-    _id: 6,
-    vendor: ' Middle Man Lagos',
-    category: 'All category',
-    dateJoined: '03 Jan 2024',
-    deliveryrate: '70%',
-    status: 'New'
-  }
-])
-
-interface Products {
-  name: string,
+// 2: Object { _id: "68fe0e3e6cfdca39099fa39e", rcNumber: 9000, companyName: "Cadbury", … }
+// 3: Object { _id: "68fe175da98f5d209988f4b7", rcNumber: 23935, companyName: "Wakame Restaurant", … }
+// 4: Object { _id: "68fe1772a98f5d209988f4c1", rcNumber: 239350, companyName: "Wakame Restaurant", … }
+// 5: Object { _id: "68fe1791a98f5d209988f4cd", rcNumber: 239353, companyName: "Wakame Restaurant", … }
+// 6: Object { _id: "68fe17b8a98f5d209988f4d5", rcNumber: 2393523, companyName: "Shiro Lagos", … }
+// 7: Object { _id: "68fe1807a98f5d209988f4e0", rcNumber: 23910456, companyName: "Z Kitchen Lagos", … }
+// 8: Object { _id: "68fe1816a98f5d209988f4ea"
+export interface Product {
+  _id: string
+  name: string
+  description: string
+  amount: number
+  qty: number
+  status: 'draft' | 'published' | 'archived' | string
+  tat: string // ISO date string
+  isDeleted: boolean
+  deletedAt: string | null
+  createdAt: string
+  updatedAt: string
+  vendorId: string
+  tag: { name: string; [key: string]: any }[]
   image: {
+    public_id: string
+    version: number
+    signature: string
+    api_key: string
+    asset_id: string
+    bytes: number
+    created_at: string
+    etag: string
+    folder: string
+    format: string
+    height: number
+    original_filename: string
+    placeholder: boolean
+    resource_type: string
     secure_url: string
-  },
-  amount: number,
-  weight: number,
+    tags: string[]
+    type: string
+    url: string
+    version_id: string
+    width: number
+  }
 }
 
-const products = ref<Products[]>([
-  {
-    name: 'furniture',
-    image: {
-      secure_url: 'https://res.cloudinary.com/drykej1am/image/upload/v1721874426/weesh/categories/AWFAGiROM7oxB4ZJWhnaAYkP.jpg'
-    },
-    amount: 30000,
-    weight: 220
-  },
-  {
-    name: 'Money',
-    image: {
-      secure_url: 'https://res.cloudinary.com/drykej1am/image/upload/v1721874693/weesh/categories/0R8A7HYjXsYHickRvdP2eNQ8.jpg'
-    },
-    amount: 20000,
-    weight: 100
-  },
-  {
-    name: 'Game',
-    image: {
-      secure_url: 'https://res.cloudinary.com/drykej1am/image/upload/v1721874850/weesh/categories/WW18ndBhpeKoy2scWXeVqHBv.jpg'
-    },
-    amount: 15000,
-    weight: 20
-  },
-  {
-    name: 'Cake',
-    image: {
-      secure_url: 'https://res.cloudinary.com/drykej1am/image/upload/v1721875177/weesh/categories/I9IP1OFoxLzZQpA9Sl12fb_g.jpg'
-    },
-    amount: 20000,
-    weight: 70
-  }
-])
+interface OrderItem {
+  productId: string,
+  quantity: number,
+  price: number,
+}
+
+interface Order {
+  _id: string;
+  userId: string,
+  vendorId: string,
+  items: OrderItem[],
+  status: string,
+  paymentStatus: string,
+  totalAmount: string,
+  payoutMethod?: string,
+  shippingAddress?: string,
+  isDeleted: boolean,
+  deletedAt?: Date | null,
+  createdAt?: Date | null,
+  updatedAt?: Date | null
+}
+
+const id = "68fe1816a98f5d209988f4ea"//'68fe1772a98f5d209988f4c1';
+// Define a ref to hold the users data
+const orders = ref<Order[]>([])
+
+const products = ref<Product[]>([])
 
 const loading = ref(false)
 
+
+const fetchOrders = async (msg: string) => {
+  toast({
+    title: 'Loading Data',
+    description: 'Fetching data...',
+    duration: 0 // Set duration to 0 to make it indefinite until manually closed
+  })
+
+  try {
+    // Set loading to true
+    // useGeneralStore().setLoading(true)
+    const response = await axios.get(`/api/v1/admin/market/orders/vendor/${id}`)
+
+    if (response.status === 200 || response.status === 201) {
+      // Update the users data with the response
+      // console.log(response.data.data)
+      orders.value = response.data.data;
+      // const responseData = response.data.data[0]
+      // const phoneData = response.data.data[0].phoneNumber.normalizedNumber
+      // const data = { ...responseData, phone: phoneData }
+      // Show success toast
+      toast({
+        title: 'Success',
+        description: `${msg}`,
+        variant: 'success'
+      })
+    }
+    // set Loading to false
+    // useGeneralStore().setLoading(false)
+  } catch (error: any) {
+    catchErr(error)
+    if (error.response.status === 401) {
+      // sessionStorage.removeItem('token')
+      // Clear token from superAdminStore
+      // superAdminStore.setToken('')
+
+      setTimeout(() => {
+        // router.push({ name: 'super-admin-login' })
+      }, 3000)
+
+      toast({
+        title: 'Unauthorized',
+        description: 'You are not authorized to perform this action. Redirecting to home page...',
+        variant: 'destructive'
+      })
+      // Redirect after 3 seconds
+    } else {
+      toast({
+        title: error.response.data.message || 'An error occurred',
+        variant: 'destructive'
+      })
+    }
+  }
+}
+
+const fetchProducts = async (msg: string) => {
+  toast({
+    title: 'Loading Data',
+    description: 'Fetching data...',
+    duration: 0 // Set duration to 0 to make it indefinite until manually closed
+  })
+
+  try {
+    // Set loading to true
+    // useGeneralStore().setLoading(true)
+    const response = await axios.get(`/api/v1/market/products/??status=published&vendorId=${id}`)
+
+    if (response.status === 200 || response.status === 201) {
+      // Update the users data with the response
+      products.value = response.data.data.data;
+      // const responseData = response.data.data[0]
+      // const phoneData = response.data.data[0].phoneNumber.normalizedNumber
+      // const data = { ...responseData, phone: phoneData }
+      // Show success toast
+      toast({
+        title: 'Success',
+        description: `${msg}`,
+        variant: 'success'
+      })
+    }
+    // set Loading to false
+    // useGeneralStore().setLoading(false)
+  } catch (error: any) {
+    catchErr(error)
+    if (error.response.status === 401) {
+      // sessionStorage.removeItem('token')
+      // Clear token from superAdminStore
+      // superAdminStore.setToken('')
+
+      setTimeout(() => {
+        // router.push({ name: 'super-admin-login' })
+      }, 3000)
+
+      toast({
+        title: 'Unauthorized',
+        description: 'You are not authorized to perform this action. Redirecting to home page...',
+        variant: 'destructive'
+      })
+      // Redirect after 3 seconds
+    } else {
+      toast({
+        title: error.response.data.message || 'An error occurred',
+        variant: 'destructive'
+      })
+    }
+  }
+}
+
+
+onMounted(() => {
+  fetchOrders('data fetched')
+  fetchProducts('Products are available')
+})
 </script>
 
 <template>
@@ -159,29 +256,29 @@ const loading = ref(false)
         </div>
 
         <div class="overflow-auto bg-white rounded-lg shadow">
-          <Table class="h-[20dvh] overflow-y-scroll" v-if="users.length !== 0">
+          <Table class="h-[20dvh] overflow-y-scroll" v-if="orders.length !== 0">
             <TableHeader>
               <TableRow
                 class="text-xs sm:text-sm md:text-base text-[#02072199] font-semibold bg-gray-200"
               >
                 <TableHead> Order ID </TableHead>
                 <TableHead>Item Count</TableHead>
-                <TableHead>Receiver</TableHead>
+                <!-- <TableHead>Receiver</TableHead> -->
                 <TableHead>Status</TableHead>
                 <TableHead></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              <TableRow v-for="user in users" :key="user._id">
-                <TableCell class="font-medium">0000{{ user._id }}</TableCell>
-                <TableCell>{{ user._id }}</TableCell>
-                <TableCell>{{ user.vendor }}</TableCell>
+              <TableRow v-for="order in orders" :key="order._id">
+                <TableCell class="font-medium">0000{{ order._id }}</TableCell>
+                <TableCell>{{ order.items.length }}</TableCell>
+                <!-- <TableCell>{{ order.vendorId }}</TableCell> -->
                 <TableCell>
                   <button
-                    :class="{ 'bg-[#DF6C50]': user.status === 'Overdue', 'bg-[#6A70FF]': user.status === 'Processing', 'bg-[#00C37F]': user.status === 'Delivered', 'bg-[#3A8EE5]': user.status === 'New', 'bg-[#EE9F39]': user.status === 'Outbound' }"
+                    :class="{ 'bg-[#DF6C50]': order.status === 'Overdue', 'bg-[#6A70FF]': order.status === 'Processing', 'bg-[#00C37F]': order.status === 'Delivered', 'bg-[#3A8EE5]': order.status === 'New', 'bg-[#EE9F39]': order.status === 'Outbound' }"
                     class="px-4 py-2 text-sm text-white rounded-md"
                   >
-                    {{ user.status }}
+                    {{ order.status }}
                   </button>
                 </TableCell>
                 <TableCell>
@@ -208,10 +305,10 @@ const loading = ref(false)
           </Table>
           <div v-else class="flex h-full flex-col gap-4 items-center justify-center px-2 sm:px-4 py-4">
             <img src="https://res.cloudinary.com/drykej1am/image/upload/v1757871471/weershr-vendor/empty-cart_x2itw9.png" class="w-60 h-60" alt="">
-            <h1 class="text-2xl font-semibold">No Order to Display</h1>
+            <h1 class="text-2xl font-semibold animate-bounce">No Order yet!</h1>
           </div>
         </div>
-        <div class="w-full md:flex flex-col md:flex-row items-end justify-center gap-4" v-if="users.length !== 0">
+        <div class="w-full md:flex flex-col md:flex-row items-end justify-center gap-4" v-if="orders.length !== 0">
           <PagePagination :page-total="1" :page-current="1" @pagination="()=> console.log('trigger page change')" />
           <div class="h-10 w-full md:w-fit flex items-center justify-center text-blue-500">
             <a href="#">See all</a>
@@ -235,9 +332,9 @@ const loading = ref(false)
                 <span class="flex gap-2 items-center"><div
                   class="inline-block text-[#F8F9FF] w-14 h-14"
                 >
-                  <img :src='product.image.secure_url' class="wfull h-full rounded-sm"/>
+                  <img :src='product.image.secure_url' class="w-full h-full rounded-sm"/>
                 </div>
-                <div class="flex flex-col items-center justify-between">
+                <div class="flex flex-col items-start justify-between">
                   <p class="text-sm text-muted-foreground text-center text-[#000000]">
                     {{product.name}}
                   </p>
@@ -247,7 +344,7 @@ const loading = ref(false)
                 </div>
               </span>
               <div class="flex items-center gap-4">
-                <Badge variant="outline">{{ product.weight }} ml</Badge>
+                <Badge variant="outline">QTY - {{ product.qty }}</Badge>
               </div>
               </CardContent>
             </Card>
@@ -261,7 +358,7 @@ const loading = ref(false)
                 <img src="https://res.cloudinary.com/drykej1am/image/upload/v1757871412/weershr-vendor/ecommerce_xrvr9h.png" class="w-48 h-48" alt="">
                 <h1>No products to display</h1>
                 <div class="w-full flex items-center justify-center">
-                  <span class=""><VendorAdd/></span>
+                  <span class="animate-bounce"><VendorAdd/></span>
                 </div>
               </CardContent>
             </Card>

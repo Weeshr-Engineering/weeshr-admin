@@ -5,6 +5,7 @@ import configuration from '@/views/protected/AdminModule/UserConfiguration.vue'
 import user from '@/views/protected/AdminModule/UserHub.vue'
 import AppUsers from '@/views/protected/AdminModule/AppUsers.vue'
 import Vendors from '@/views/protected/AdminModule/VendorsList.vue'
+import VendorListAdmin from '@/views/protected/VendorModule/VendorListAdmin.vue'
 import AdminDetails from '@/views/protected/AdminModule/AdminDetails.vue'
 import UserDetails from '@/views/protected/AdminModule/UserDetails.vue'
 import AdminDashboard from '@/views/protected/AdminModule/AdminDashboard.vue'
@@ -19,6 +20,7 @@ import CreateUser from '@/views/protected/SuperAdminModule/CreateUser.vue'
 import DepotPage from '@/views/protected/AdminModule/DepotPage.vue'
 import ProductPage from '@/views/protected/AdminModule/ProductPage.vue'
 import PromotionPage from '@/views/protected/AdminModule/VendorPromotion.vue'
+import OrderPage from '@/views/protected/AdminModule/VendorOrderPage.vue'
 
 import BankPage from '@/views/protected/AdminModule/BankPage.vue'
 import CashRequest from '@/views/protected/AdminModule/CashRequest.vue'
@@ -37,14 +39,22 @@ import VendorDetails from '@/views/protected/AdminModule/VendorDetails.vue'
 import GlobalTransaction from '@/views/protected/VendorModule/GlobalTransaction.vue'
 import GlobalGeeftr from '@/views/protected/VendorModule/GlobalGeeftr.vue'
 
-const routes = [
-  {
+// "68f45f0fc718bf7e6875d761"
+// "68fe1772a98f5d209988f4c1"
+const vendor = '68fe1772a98f5d209988f4c1';
+const dashboard = vendor.length === 0 ? {
     path: '/',
     name: 'home',
     component: AdminDashboard,
     meta: { requiresAuth: true }
-  },
-
+  } : {
+    path: '/',
+    name: 'home',
+    component: Vendors,
+    meta: { requiresAuth: true }
+  };
+const routes = [
+  dashboard,
   // {
   //   path: '/',
   //   name: 'home',
@@ -94,7 +104,7 @@ const routes = [
   {
     path: '/user/vendors',
     name: 'vendors',
-    component: Vendors,
+    component: VendorListAdmin,
     // meta: { requiresAuth: true }
   },
   {
@@ -103,8 +113,14 @@ const routes = [
     component: VendorTransaction,
     // meta: { requiresAuth: true }
   },
+  // {
+  //   path: '/vendors',
+  //   name: 'vendorDetails',
+  //   component: Vendors,
+  //   // meta: { requiresAuth: true }
+  // },
   {
-    path: '/vendors/details',
+    path: '/user/vendors/:id',
     name: 'vendorDetails',
     component: VendorDetails,
     // meta: { requiresAuth: true }
@@ -182,6 +198,12 @@ const routes = [
     path: '/promotion',
     name: 'promotion',
     component: PromotionPage,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/order',
+    name: 'order',
+    component: OrderPage,
     meta: { requiresAuth: true }
   },
   {
