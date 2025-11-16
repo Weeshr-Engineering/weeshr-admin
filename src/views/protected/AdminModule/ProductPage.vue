@@ -1,13 +1,13 @@
 <!-- ProductPage.vue -->
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import MainNav from '@/components/MainNav.vue'
 import DashboardFooter from '@/components/DashboardFooter.vue'
 import Search from '@/components/UseSearch.vue'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Icon } from '@iconify/vue'
-import { Check, ScrollText, Battery, ListFilter, Archive } from 'lucide-vue-next'
+import { Check, ScrollText, Battery, ListFilter, Archive, X } from 'lucide-vue-next'
 import {
   Table,
   TableRow,
@@ -21,18 +21,20 @@ import {
   SheetContent,
   SheetDescription,
   SheetHeader,
-  SheetTrigger,
+  // SheetTrigger,
 } from "@/components/ui/sheet"
 import { useProductsStore } from '@/stores/vendor/product'
 import { useToast } from '@/components/ui/toast'
 import { menu_food } from '@/lib/menu-food'
+import type { Product } from '@/stores/vendor/product'
+import axios from 'axios'
 
 const productsStore = useProductsStore()
 const { toast } = useToast()
 
-// Get vendorId - you might want to get this from your auth store
-// For now, using the one from your Postman example
-const vendorId = '67001b0cdce3af5c124e5dd9'
+// Categories state
+const categories = ref<{_id: string, name: string}[]>([])
+const loadingCategories = ref(false)
 
 const statusBg = (status: string) => {
   switch (status) {
@@ -49,25 +51,162 @@ const statusBg = (status: string) => {
   }
 }
 
-// Sheet state
-const sheetOpen = ref(false)
+// Sheet states
+const addProductSheetOpen = ref(false)
+const viewProductSheetOpen = ref(false)
+const showAddProductMenu = ref(false)
 const currentStep = ref(1)
 const bulkUploadMode = ref(false)
 const selectedProducts = ref<number[]>([])
+const selectedProduct = ref<Product | null>(null)
+const bulkUploadFile = ref<File | null>(null)
+const bulkProductsList = ref<any[]>([])
 
-// Form data
+// Actions dropdown state
+const showActionsMenu = ref<string | null>(null)
+
+// Form data - tag is array of category IDs
 const formData = ref({
   name: '',
   description: '',
-  price: '',
-  quantity: '',
-  deliveryTat: '',
+  amount: '',
+  qty: '1',
+  tat: '',
   size: '',
-  tags: '',
-  category: '',
+  tag: [] as string[], // Array of category IDs
   image: null as File | null,
   status: 'draft' as 'published' | 'draft' | 'archived' | 'out-of-stock'
 })
+
+// Edit mode
+const isEditMode = ref(false)
+const editingProductId = ref<string | null>(null)
+
+// Fetch categories from API
+const fetchCategories = async () => {
+  loadingCategories.value = true
+  try {
+    const response = await axios.get('/api/v1/admin/market/categories')
+    
+    // Handle different response structures
+    if (response.data.data) {
+      categories.value = response.data.data
+    } else if (response.data.categories) {
+      categories.value = response.data.categories
+    } else {
+      categories.value = response.data
+    }
+    
+  } catch (error) {
+    console.error('Error fetching categories:', error)
+    toast({
+      description: 'Error loading categories',
+      variant: 'destructive'
+    })
+    // Fallback categories if API fails
+    categories.value = [
+      { _id: '68d2bd8683bae446451f7745', name: 'Electronics' },
+      { _id: '68d2bd8683bae446451f7746', name: 'Home & Kitchen' },
+      { _id: '68d2bd8683bae446451f7747', name: 'Fashion' },
+      { _id: '68d2bd8683bae446451f7748', name: 'Sports' },
+      { _id: '68d2bd8683bae446451f7749', name: 'Beauty' }
+    ]
+  } finally {
+    loadingCategories.value = false
+  }
+}
+
+// Open single product mode
+const openSingleProductMode = () => {
+  bulkUploadMode.value = false
+  currentStep.value = 1
+  showAddProductMenu.value = false
+  addProductSheetOpen.value = true
+}
+
+// Open bulk product mode
+const openBulkProductMode = () => {
+  bulkUploadMode.value = true
+  currentStep.value = 1
+  showAddProductMenu.value = false
+  addProductSheetOpen.value = true
+}
+
+// Close dropdown when clicking outside
+const closeDropdownOnClickOutside = (event: MouseEvent) => {
+  const target = event.target as HTMLElement
+  const dropdown = target.closest('.relative')
+  if (!dropdown || !dropdown.querySelector('[data-add-product-menu]')) {
+    showAddProductMenu.value = false
+  }
+}
+
+// Close actions menu when clicking outside
+const closeActionsMenuOnClickOutside = (event: MouseEvent) => {
+  const target = event.target as HTMLElement
+  if (!target.closest('.relative')) {
+    showActionsMenu.value = null
+  }
+}
+
+// Handle bulk file upload
+const handleBulkFileUpload = (e: Event) => {
+  const target = e.target as HTMLInputElement
+  const file = target.files?.[0]
+  if (file) {
+    bulkUploadFile.value = file
+    bulkProductsList.value = menu_food.slice(0, 3)
+  }
+}
+
+// Upload bulk product
+const uploadBulkProduct = async (product: any) => {
+  try {
+    const productData: any = {
+      name: product.name,
+      amount: product.amount || product.price,
+      qty: product.qty || 1,
+      status: 'published'
+    }
+    
+    if (product.description) productData.description = product.description
+    if (product.tat) productData.tat = product.tat
+    
+    // Use first category as default tag for bulk upload
+    if (categories.value.length > 0) {
+      productData.tag = [categories.value[0]._id]
+    } else {
+      productData.tag = ['68d2bd8683bae446451f7745'] // fallback
+    }
+    
+    await productsStore.createProduct(productData)
+    
+    toast({
+      description: `${product.name} uploaded successfully!`,
+    })
+    
+    await productsStore.fetchProducts()
+    await productsStore.fetchProductStatusCounts()
+  } catch (error) {
+    console.error('Bulk upload error:', error)
+    toast({
+      description: `Error uploading ${product.name}`,
+      variant: 'destructive'
+    })
+  }
+}
+
+// Remove bulk product from list
+const removeBulkProduct = (index: number) => {
+  bulkProductsList.value.splice(index, 1)
+}
+
+// Download template
+const downloadTemplate = () => {
+  toast({
+    description: 'Template download started',
+  })
+}
 
 // Handle image upload
 const handleImageUpload = (e: Event) => {
@@ -78,10 +217,67 @@ const handleImageUpload = (e: Event) => {
   }
 }
 
+// Handle tag selection
+const handleTagSelection = (categoryId: string) => {
+  const index = formData.value.tag.indexOf(categoryId)
+  if (index > -1) {
+    // Remove if already selected
+    formData.value.tag.splice(index, 1)
+  } else {
+    // Add if not selected, but limit to 3
+    if (formData.value.tag.length < 3) {
+      formData.value.tag.push(categoryId)
+    } else {
+      toast({
+        description: 'You can select up to 3 categories only',
+        variant: 'destructive'
+      })
+    }
+  }
+}
+
 // Handle next button click
 const handleNext = async () => {
-  if (currentStep.value < 3) {
-    currentStep.value++
+  // Validate required fields
+  if (!formData.value.name || !formData.value.amount) {
+    toast({
+      description: 'Please fill Name and Price fields',
+      variant: 'destructive'
+    })
+    return
+  }
+
+  // Validate tags/categories
+  if (formData.value.tag.length === 0) {
+    toast({
+      description: 'Please select at least one category',
+      variant: 'destructive'
+    })
+    return
+  }
+
+  // Validate numeric fields
+  const amount = Number(formData.value.amount)
+  const qty = Number(formData.value.qty) || 1
+
+  if (isNaN(amount) || amount <= 0) {
+    toast({
+      description: 'Price must be a positive number',
+      variant: 'destructive'
+    })
+    return
+  }
+
+  if (isNaN(qty) || qty < 0) {
+    toast({
+      description: 'Quantity must be a positive integer',
+      variant: 'destructive'
+    })
+    return
+  }
+
+  if (isEditMode.value && editingProductId.value) {
+    await updateProduct()
   } else {
     await createProduct()
   }
@@ -89,8 +285,7 @@ const handleNext = async () => {
 
 // Create product
 const createProduct = async () => {
-  // Validate required fields
-  if (!formData.value.name || !formData.value.price) {
+  if (!formData.value.name || !formData.value.amount) {
     toast({
       description: 'Please fill all required fields',
       variant: 'destructive'
@@ -98,42 +293,179 @@ const createProduct = async () => {
     return
   }
 
-  const productData: any = {
-    name: formData.value.name,
-    price: Number(formData.value.price),
-    status: formData.value.status
+  try {
+    let data = new FormData()
+    data.append('name', formData.value.name)
+    data.append('description', formData.value.description || '')
+    data.append('amount', formData.value.amount.toString())
+    data.append('tat', formData.value.tat || '')
+    data.append('qty', formData.value.qty.toString())
+    data.append('status', formData.value.status)
+    
+    if (formData.value.size) {
+      data.append('size', formData.value.size)
+    }
+    
+    // ✅ Append tags as comma-separated string
+    if (formData.value.tag && formData.value.tag.length > 0) {
+      data.append('tag', formData.value.tag.join(','))
+    } else {
+      data.append('tag', '68fdfc7f9f6421e9a1d46e08')
+    }
+
+    // ✅ Add image if selected
+    if (formData.value.image) {
+      data.append('image', formData.value.image)
+    }
+
+    const result = await productsStore.createProduct(data)
+    
+    if (result) {
+      // ✅ SUCCESS TOAST - Show success message
+      toast({
+        title: "Success!",
+        description: 'Product created successfully!',
+        variant: "default"
+      })
+      
+      resetForm()
+      addProductSheetOpen.value = false
+      
+      await productsStore.fetchProducts()
+      await productsStore.fetchProductStatusCounts()
+    }
+  } catch (error: any) {
+    console.error('Create product error:', error)
+    const errorMessage = error.response?.data?.message || 'Error creating product. Please try again.'
+    toast({
+      title: "Error",
+      description: errorMessage,
+      variant: 'destructive'
+    })
+  }
+}
+
+// Update product - USING FORM DATA LIKE CREATE
+const updateProduct = async () => {
+  if (!editingProductId.value) return
+
+  // Validate required fields
+  if (!formData.value.name || !formData.value.amount) {
+    toast({
+      description: 'Please fill Name and Price fields',
+      variant: 'destructive'
+    })
+    return
   }
 
-  // Add optional fields
-  if (formData.value.description) productData.description = formData.value.description
-  if (formData.value.quantity) productData.quantity = Number(formData.value.quantity)
-  if (formData.value.deliveryTat) productData.deliveryTat = formData.value.deliveryTat
-  if (formData.value.size) productData.size = formData.value.size
-  if (formData.value.category) productData.category = formData.value.category
-  if (formData.value.tags) productData.tags = formData.value.tags.split(',').map(t => t.trim())
+  // Validate tags/categories
+  if (formData.value.tag.length === 0) {
+    toast({
+      description: 'Please select at least one category',
+      variant: 'destructive'
+    })
+    return
+  }
+
+  // Validate numeric fields
+  const amount = Number(formData.value.amount)
+  const qty = Number(formData.value.qty) || 1
+
+  if (isNaN(amount) || amount <= 0) {
+    toast({
+      description: 'Price must be a positive number',
+      variant: 'destructive'
+    })
+    return
+  }
+
+  if (isNaN(qty) || qty < 0) {
+    toast({
+      description: 'Quantity must be a positive integer',
+      variant: 'destructive'
+    })
+    return
+  }
 
   try {
-    const result = await productsStore.createProduct(productData)
+    // ✅ USE FORM DATA FOR UPDATE, JUST LIKE CREATE
+    let data = new FormData()
+    data.append('name', formData.value.name)
+    data.append('description', formData.value.description || '')
+    data.append('amount', formData.value.amount.toString())
+    data.append('tat', formData.value.tat || '')
+    data.append('qty', formData.value.qty.toString())
+    data.append('status', formData.value.status)
     
-    if (result && formData.value.image) {
-      // Upload image separately
-      await productsStore.uploadProductImage(result._id, formData.value.image)
+    if (formData.value.size) {
+      data.append('size', formData.value.size)
+    }
+    
+    // ✅ Append tags as comma-separated string (same as create)
+    if (formData.value.tag && formData.value.tag.length > 0) {
+      data.append('tag', formData.value.tag.join(','))
+    } else {
+      data.append('tag', '68fdfc7f9f6421e9a1d46e08') // fallback
     }
 
-    if (result) {
-      toast({
-        description: 'Product created successfully!',
-      })
-      resetForm()
-      sheetOpen.value = false
-      
-      // Refresh products and counts
-      await productsStore.fetchProducts()
-      await productsStore.fetchProductStatusCounts(vendorId)
+    // ✅ Add image if selected (same as create)
+    if (formData.value.image) {
+      data.append('image', formData.value.image)
     }
-  } catch (error) {
+
+    // ✅ Use the same update method but with FormData
+    const result = await productsStore.updateProduct(editingProductId.value, data)
+    
+    if (result) {
+      // ✅ SUCCESS TOAST
+      toast({
+        title: "Success!",
+        description: 'Product updated successfully!',
+        variant: "default"
+      })
+      
+      resetForm()
+      addProductSheetOpen.value = false
+      
+      await productsStore.fetchProducts()
+      await productsStore.fetchProductStatusCounts()
+    }
+  } catch (error: any) {
+    console.error('Update product error:', error)
+    const errorMessage = error.response?.data?.message || 'Error updating product. Please try again.'
     toast({
-      description: 'Error creating product. Please try again.',
+      title: "Error",
+      description: errorMessage,
+      variant: 'destructive'
+    })
+  }
+}
+
+// Delete product
+const deleteProduct = async (id: string) => {
+  if (!confirm('Are you sure you want to delete this product? This action cannot be undone.')) return
+
+  try {
+    await productsStore.deleteProduct(id)
+    toast({
+      title: "Success!",
+      description: 'Product deleted successfully!',
+      variant: "default"
+    })
+    
+ 
+    
+    // Close view sheet if it's open for the deleted product
+    if (selectedProduct.value?._id === id) {
+      viewProductSheetOpen.value = false
+      selectedProduct.value = null
+    }
+  } catch (error: any) {
+    console.error('Delete product error:', error)
+    const errorMessage = error.response?.data?.message || 'Error deleting product. Please try again.'
+    toast({
+      title: "Error",
+      description: errorMessage,
       variant: 'destructive'
     })
   }
@@ -144,23 +476,91 @@ const resetForm = () => {
   currentStep.value = 1
   bulkUploadMode.value = false
   selectedProducts.value = []
+  isEditMode.value = false
+  editingProductId.value = null
+  bulkUploadFile.value = null
+  bulkProductsList.value = []
   formData.value = {
     name: '',
     description: '',
-    price: '',
-    quantity: '',
-    deliveryTat: '',
+    amount: '',
+    qty: '1',
+    tat: '',
     size: '',
-    tags: '',
-    category: '',
+    tag: [],
     image: null,
     status: 'draft'
   }
 }
 
-// Handle search
-const handleSearch = (query: string) => {
-  productsStore.fetchProducts({ search: query })
+// View product details
+const viewProductDetails = async (id: string) => {
+  const product = await productsStore.fetchProductById(id)
+  if (product) {
+    selectedProduct.value = product
+    viewProductSheetOpen.value = true
+  }
+}
+
+// Edit product from view sheet
+const editProduct = () => {
+  if (!selectedProduct.value) return
+  
+  isEditMode.value = true
+  editingProductId.value = selectedProduct.value._id
+  bulkUploadMode.value = false
+  
+  // Set form data from selected product
+  formData.value = {
+    name: selectedProduct.value.name,
+    description: selectedProduct.value.description || '',
+    amount: (selectedProduct.value.amount || 0).toString(),
+    qty: (selectedProduct.value.qty || 0).toString(),
+    tat: selectedProduct.value.tat || '',
+    size: selectedProduct.value.size || '',
+    tag: selectedProduct.value.tag || [], // Use existing tag IDs
+    image: null, // Reset image - user can choose to upload new one
+    status: selectedProduct.value.status
+  }
+  
+  viewProductSheetOpen.value = false
+  addProductSheetOpen.value = true
+  currentStep.value = 1
+  
+}
+
+// Edit product from dropdown menu
+// Edit product from dropdown menu
+const editProductFromList = async (product: Product) => {
+  isEditMode.value = true
+  editingProductId.value = product._id
+  bulkUploadMode.value = false
+  
+  // ✅ Normalize the product first (extract tag IDs from objects)
+  const normalizedProduct = await productsStore.fetchProductById(product._id)
+  
+  // Set form data from normalized product
+  formData.value = {
+    name: normalizedProduct.name,
+    description: normalizedProduct.description || '',
+    amount: (normalizedProduct.amount || 0).toString(),
+    qty: (normalizedProduct.qty || 0).toString(),
+    tat: normalizedProduct.tat || '',
+    size: normalizedProduct.size || '',
+    tag: normalizedProduct.tag || [], // ✅ Now properly normalized to string IDs
+    image: null,
+    status: normalizedProduct.status
+  }
+  
+  addProductSheetOpen.value = true
+  currentStep.value = 1
+  showActionsMenu.value = null
+
+}
+// Get category name by ID
+const getCategoryName = (categoryId: string) => {
+  const category = categories.value.find(cat => cat._id === categoryId)
+  return category ? category.name : 'Unknown Category'
 }
 
 // Sort by field
@@ -206,16 +606,42 @@ const visiblePages = computed(() => {
   return pages
 })
 
-// View product details
-const viewProductDetails = async (id: string) => {
-  await productsStore.fetchProductById(id)
-  // You can add a modal or sheet to show details here
+// Update product status
+const updateProductStatus = async (status: 'published' | 'draft' | 'archived' | 'out-of-stock') => {
+  if (!selectedProduct.value) return
+
+  try {
+    await productsStore.updateProduct(selectedProduct.value._id, { status })
+    selectedProduct.value.status = status
+    
+    toast({
+      description: `Product ${status} successfully!`,
+    })
+    
+    await productsStore.fetchProducts()
+    await productsStore.fetchProductStatusCounts()
+  } catch (error) {
+    toast({
+      description: 'Error updating product status',
+      variant: 'destructive'
+    })
+  }
 }
 
-// Fetch products and counts on mount
+// Fetch products, counts, and categories on mount
 onMounted(async () => {
   await productsStore.fetchProducts()
-  await productsStore.fetchProductStatusCounts(vendorId)
+  await productsStore.fetchProductStatusCounts()
+  await fetchCategories() // Fetch categories on mount
+  
+  // Add click outside listeners
+  document.addEventListener('click', closeDropdownOnClickOutside)
+  document.addEventListener('click', closeActionsMenuOnClickOutside)
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener('click', closeDropdownOnClickOutside)
+  document.removeEventListener('click', closeActionsMenuOnClickOutside)
 })
 </script>
 
@@ -291,96 +717,280 @@ onMounted(async () => {
             All
             <Icon icon="mdi:chevron-down" class="w-4 h-4" />
           </Button>
-          <Search class="mt-3 lg:mt-0" @search="handleSearch" />
-          <Sheet v-model:open="sheetOpen">
-            <SheetTrigger asChild>
-              <button class="bg-[#020721] px-4 py-2 rounded-xl w-50 h-12">
-                <div class="text-base text-[#F8F9FF] text-center flex items-center">
-                  Add product
-                  <svg
-                    width="20"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="ml-6"
-                  >
-                    <path
-                      d="M12 2C6.49 2 2 6.49 2 12C2 17.51 6.49 22 12 22C17.51 22 22 17.51 22 12C22 6.49 17.51 2 12 2ZM16 12.75H12.75V16C12.75 16.41 12.41 16.75 12 16.75C11.59 16.75 11.25 16.41 11.25 16V12.75H8C7.59 12.75 7.25 12.41 7.25 12C7.25 11.59 7.59 11.25 8 11.25H11.25V8C11.25 7.59 11.59 7.25 12 7.25C12.41 7.25 12.75 7.59 12.75 8V11.25H16C16.41 11.25 16.75 11.59 16.75 12C16.75 12.41 16.41 12.75 16 12.75Z"
-                      fill="#F8F9FF"
-                    />
-                  </svg>
-                </div>
-              </button>
-            </SheetTrigger>
+          <Search class="mt-3 lg:mt-0" 
+          @search="(query: string) => productsStore.fetchProducts({ search: query })" />
+          
+          <!-- Add Product Dropdown -->
+          <div class="relative" data-add-product-menu>
+            <button 
+              @click.stop="showAddProductMenu = !showAddProductMenu"
+              class="bg-[#020721] px-4 py-2 rounded-xl w-50 h-12 relative"
+            >
+              <div class="text-base text-[#F8F9FF] text-center flex items-center">
+                Add product
+                <svg
+                  width="20"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="ml-6"
+                >
+                  <path
+                    d="M12 2C6.49 2 2 6.49 2 12C2 17.51 6.49 22 12 22C17.51 22 22 17.51 22 12C22 6.49 17.51 2 12 2ZM16 12.75H12.75V16C12.75 16.41 12.41 16.75 12 16.75C11.59 16.75 11.25 16.41 11.25 16V12.75H8C7.59 12.75 7.25 12.41 7.25 12C7.25 11.59 7.59 11.25 8 11.25H11.25V8C11.25 7.59 11.59 7.25 12 7.25C12.41 7.25 12.75 7.59 12.75 8V11.25H16C16.41 11.25 16.75 11.59 16.75 12C16.75 12.41 16.41 12.75 16 12.75Z"
+                    fill="#F8F9FF"
+                  />
+                </svg>
+              </div>
+            </button>
+
+            <!-- Dropdown Menu -->
+            <Transition
+              enter-active-class="transition ease-out duration-100"
+              enter-from-class="transform opacity-0 scale-95"
+              enter-to-class="transform opacity-100 scale-100"
+              leave-active-class="transition ease-in duration-75"
+              leave-from-class="transform opacity-100 scale-100"
+              leave-to-class="transform opacity-0 scale-95"
+            >
+              <div 
+                v-if="showAddProductMenu"
+                @click.stop
+                class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden z-50"
+              >
+                <button
+                  @click="openSingleProductMode"
+                  class="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center gap-3 border-b border-gray-100 transition-colors"
+                >
+                  <div class="w-8 h-8 rounded-lg bg-[#020721] flex items-center justify-center">
+                    <Icon icon="mdi:file-document-outline" class="text-white" width="18" />
+                  </div>
+                  <span class="text-sm font-medium text-[#020721]">One product</span>
+                </button>
+                
+                <button
+                  @click="openBulkProductMode"
+                  class="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center gap-3 transition-colors"
+                >
+                  <div class="w-8 h-8 rounded-lg bg-[#020721] flex items-center justify-center">
+                    <Icon icon="mdi:folder-multiple-outline" class="text-white" width="18" />
+                  </div>
+                  <span class="text-sm font-medium text-[#020721]">Bulk Upload</span>
+                </button>
+              </div>
+            </Transition>
+          </div>
+
+          <!-- Add Product Sheet -->
+          <Sheet v-model:open="addProductSheetOpen" @update:open="(open) => !open && resetForm()">
             <SheetContent length="mid_low" class="flex flex-col space-y-0 overflow-y-scroll">
-              <SheetHeader class="flex flex-col items-start px-4">
+              <SheetHeader class="flex flex-col items-start px-4 pb-4 border-b">
                 <SheetDescription class="text-xs text-muted-foreground">
-                  {{ currentStep === 1 ? 'Draft/Save' : currentStep === 2 ? 'Draft/Save' : 'Draft/Save' }}
+                  {{ isEditMode ? 'Editing' : 'Draft' }}
                 </SheetDescription>
-                <h3 class="text-2xl font-medium text-[#020721]">New Product</h3>
-                <p class="text-sm text-muted-foreground">{{ new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) }}</p>
+                <h3 class="text-2xl font-medium text-[#020721]">
+                  {{ isEditMode ? 'Edit Product' : 'New Product' }}
+                </h3>
+                <p class="text-sm text-muted-foreground">
+                  {{ isEditMode ? 'Last Updated' : 'Drafted Date' }}
+                </p>
+                <p class="text-sm font-medium text-[#020721]">
+                  {{ new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) }}
+                </p>
               </SheetHeader>
 
-              <!-- Upload Mode Selection -->
-              <div class="px-4 py-4" v-if="currentStep === 1">
-                <div class="text-sm font-medium text-[#020721] mb-3">Upload Mode</div>
-                <div class="flex gap-2">
+              <!-- Single Product Form -->
+              <div v-if="!bulkUploadMode" class="px-4 py-6 space-y-6">
+                <!-- Details Header with Save Button -->
+                <div class="flex items-center justify-between mb-4">
+                  <h4 class="text-base font-semibold text-[#020721]">Details</h4>
                   <button 
-                    @click="bulkUploadMode = false"
-                    :class="!bulkUploadMode ? 'bg-[#020721] text-white' : 'bg-transparent text-[#02072199]'"
-                    class="px-4 py-2 rounded-lg text-sm font-medium border border-gray-200"
+                    @click="handleNext"
+                    :disabled="productsStore.loading"
+                    class="flex items-center gap-2 px-4 py-2 bg-[#5B68DF] text-white rounded-lg text-sm font-medium hover:bg-[#4a56cc] disabled:opacity-50"
                   >
-                    Single Upload
-                  </button>
-                  <button 
-                    @click="bulkUploadMode = true"
-                    :class="bulkUploadMode ? 'bg-[#020721] text-white' : 'bg-transparent text-[#02072199]'"
-                    class="px-4 py-2 rounded-lg text-sm font-medium border border-gray-200"
-                  >
-                    Bulk Upload
+                    <span v-if="productsStore.loading">{{ isEditMode ? 'Updating...' : 'Creating...' }}</span>
+                    <span v-else>Save</span>
+                    <Icon icon="mdi:content-save" class="w-4 h-4" />
                   </button>
                 </div>
-              </div>
 
-              <!-- Step Indicator -->
-              <div class="px-4 flex items-center justify-between mb-4">
-                <div :class="currentStep === 1 ? 'text-[#020721] font-semibold' : 'text-[#02072199]'" class="text-sm">
-                  {{ currentStep === 1 ? (bulkUploadMode ? 'Bulk Upload Details' : 'Upload Details') : 
-                     currentStep === 2 ? 'Product Information' : 'Pricing & Inventory' }}
-                </div>
-                <div class="text-xs text-muted-foreground bg-gray-100 px-2 py-1 rounded">
-                  Step {{ currentStep }} of 3
-                </div>
-              </div>
-
-              <!-- Step 1: Single Upload -->
-              <div v-if="currentStep === 1 && !bulkUploadMode" class="px-4 space-y-4">
-                <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center bg-[#F8F9FF]">
-                  <div class="w-16 h-16 mx-auto mb-4 bg-white rounded-lg flex items-center justify-center">
-                    <Icon icon="mdi:upload" class="text-[#020721]" width="32" height="32" />
+                <!-- Image Upload Section -->
+                <div class="grid grid-cols-2 gap-4">
+                  <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 bg-[#F0F0FF] flex flex-col items-center justify-center">
+                    <div class="w-12 h-12 mb-3 text-[#5B68DF]">
+                      <Icon icon="mdi:clock-outline" width="48" height="48" />
+                    </div>
                   </div>
-                  <p class="text-sm font-medium text-[#020721] mb-1">Upload Product Picture</p>
-                  <p class="text-xs text-[#8B8D97] mb-4">Max 10MB, 384X384 recommended<br />Upload JPEG files</p>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    @change="handleImageUpload"
-                    class="hidden"
-                    id="product-image"
-                  />
-                  <label 
-                    for="product-image"
-                    class="inline-block px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm cursor-pointer hover:bg-gray-50"
-                  >
-                    Choose File
-                  </label>
-                  <p v-if="formData.image" class="text-sm text-green-600 mt-2">✓ Image uploaded</p>
+                  
+                  <div class="flex flex-col justify-center">
+                    <p class="text-sm font-medium text-[#020721] mb-1">Upload 1 Product Picture</p>
+                    <p class="text-xs text-[#8B8D97] mb-3">Max 10 each, 3MB, Recommended<br/>Format: JPG or PNG</p>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      @change="handleImageUpload"
+                      class="hidden"
+                      id="product-image"
+                    />
+                    <label 
+                      for="product-image"
+                      class="text-xs text-[#5B68DF] cursor-pointer hover:underline"
+                    >
+                      {{ formData.image ? '✓ Image uploaded' : 'Choose file' }}
+                    </label>
+                  </div>
                 </div>
+
+                <!-- Action Buttons -->
+                <div class="flex gap-3 py-4">
+                  <button 
+                    @click="formData.status = 'archived'; handleNext()"
+                    :disabled="productsStore.loading"
+                    class="flex-1 px-4 py-2.5 bg-white border border-gray-300 rounded-lg text-sm font-medium text-[#020721] hover:bg-gray-50 disabled:opacity-50"
+                  >
+                    Archive
+                  </button>
+                  <button 
+                    @click="formData.status = 'draft'; handleNext()"
+                    :disabled="productsStore.loading"
+                    class="flex-1 px-4 py-2.5 bg-[#020721] text-white rounded-lg text-sm font-medium hover:bg-[#020721]/90 disabled:opacity-50"
+                  >
+                    Draft
+                  </button>
+                  <button 
+                    @click="formData.status = 'published'; handleNext()"
+                    :disabled="productsStore.loading"
+                    class="flex-1 px-4 py-2.5 bg-[#020721] text-white rounded-lg text-sm font-medium hover:bg-[#020721]/90 disabled:opacity-50"
+                  >
+                    Publish
+                  </button>
+                </div>
+
+                <!-- Form Fields -->
+                <div class="space-y-4">
+                  <div>
+                    <label class="text-sm text-[#8B8D97] mb-2 block">Name <span class="text-red-500">*</span></label>
+                    <input 
+                      v-model="formData.name"
+                      type="text"
+                      placeholder="Enter product name"
+                      class="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-[#5B68DF] text-sm"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label class="text-sm text-[#8B8D97] mb-2 block">Price <span class="text-red-500">*</span></label>
+                    <input 
+                      v-model="formData.amount"
+                      type="number"
+                      min="1"
+                      placeholder="Enter price"
+                      class="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-[#5B68DF] text-sm"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label class="text-sm text-[#8B8D97] mb-2 block">Size</label>
+                    <input 
+                      v-model="formData.size"
+                      type="text"
+                      placeholder="Enter size"
+                      class="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-[#5B68DF] text-sm"
+                    />
+                  </div>
+
+                  <div>
+                    <label class="text-sm text-[#8B8D97] mb-2 block">Quantity</label>
+                    <input 
+                      v-model="formData.qty"
+                      type="number"
+                      min="1"
+                      placeholder="Enter available quantity"
+                      class="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-[#5B68DF] text-sm"
+                    />
+                  </div>
+
+                  <!-- UPDATED: Tag field as category selector -->
+                  <div>
+                    <label class="text-sm text-[#8B8D97] mb-2 block">Tags (Categories) <span class="text-red-500">*</span></label>
+                    <div class="space-y-2">
+                      <div v-if="loadingCategories" class="text-sm text-[#8B8D97]">
+                        Loading categories...
+                      </div>
+                      <div v-else class="grid grid-cols-2 gap-2">
+                        <div
+                          v-for="category in categories"
+                          :key="category._id"
+                          @click="handleTagSelection(category._id)"
+                          :class="[
+                            'border rounded-lg p-3 cursor-pointer transition-colors text-sm',
+                            formData.tag.includes(category._id)
+                              ? 'bg-[#5B68DF] text-white border-[#5B68DF]'
+                              : 'bg-white border-gray-200 hover:bg-gray-50'
+                          ]"
+                        >
+                          <div class="flex items-center justify-between">
+                            <span>{{ category.name }}</span>
+                            <Icon 
+                              v-if="formData.tag.includes(category._id)"
+                              icon="mdi:check" 
+                              class="w-4 h-4" 
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <p class="text-xs text-[#8B8D97] mt-2">
+                      Selected: {{ formData.tag.length }}/3 categories
+                    </p>
+                  </div>
+
+                  <div>
+                    <label class="text-sm text-[#8B8D97] mb-2 block">Description</label>
+                    <div class="relative">
+                      <textarea 
+                        v-model="formData.description"
+                        maxlength="140"
+                        rows="3"
+                        placeholder="Describe product in 140 characters"
+                        class="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-[#5B68DF] resize-none text-sm"
+                      ></textarea>
+                      <span class="absolute bottom-2 right-2 text-xs text-[#8B8D97]">
+                        {{ formData.description.length }}/140
+                      </span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label class="text-sm text-[#8B8D97] mb-2 block">Delivery TAT</label>
+                    <input 
+                      v-model="formData.tat"
+                      type="text"
+                      placeholder="Set estimated delivery time"
+                      class="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-[#5B68DF] text-sm"
+                    />
+                  </div>
+                </div>
+
+                <!-- Required Fields Notice -->
+                <p class="text-xs text-[#8B8D97] pt-2">Fields marked with <span class="text-red-500">*</span> are required</p>
               </div>
 
-              <!-- Step 1: Bulk Upload -->
-              <div v-if="currentStep === 1 && bulkUploadMode" class="px-4 space-y-4">
+              <!-- Bulk Upload Form -->
+              <div v-if="bulkUploadMode" class="px-4 py-6 space-y-4">
+                <div class="flex items-center justify-between mb-4">
+                  <h4 class="text-base font-semibold text-[#020721]">Bulk Upload Details</h4>
+                  <button 
+                    class="flex items-center gap-2 px-4 py-2 bg-[#5B68DF] text-white rounded-lg text-sm font-medium hover:bg-[#4a56cc]"
+                  >
+                    <span>Save</span>
+                    <Icon icon="mdi:content-save" class="w-4 h-4" />
+                  </button>
+                </div>
+                
                 <div class="border rounded-lg p-4 bg-[#F8F9FF]">
                   <div class="flex items-start gap-3 mb-4">
                     <Icon icon="mdi:download" class="text-[#020721] mt-1" width="20" height="20" />
@@ -389,7 +999,7 @@ onMounted(async () => {
                       <p class="text-xs text-[#8B8D97]">Use our XLSX file for bulk product upload</p>
                     </div>
                   </div>
-                  <button class="w-full px-4 py-2 bg-white border rounded-lg text-sm hover:bg-gray-50">
+                  <button @click="downloadTemplate" class="w-full px-4 py-2 bg-white border rounded-lg text-sm hover:bg-gray-50">
                     Download
                   </button>
                 </div>
@@ -402,157 +1012,207 @@ onMounted(async () => {
                       <p class="text-xs text-[#8B8D97]">Upload filled version of our product</p>
                     </div>
                   </div>
-                  <input type="file" accept=".xlsx,.xls" class="hidden" id="bulk-upload" />
+                  <input type="file" accept=".xlsx,.xls" @change="handleBulkFileUpload" class="hidden" id="bulk-upload" />
                   <label 
                     for="bulk-upload"
                     class="block w-full px-4 py-2 bg-white border rounded-lg text-sm text-center cursor-pointer hover:bg-gray-50"
                   >
                     Choose File
                   </label>
+                  <p v-if="bulkUploadFile" class="text-sm text-green-600 mt-2">✓ File uploaded: {{ bulkUploadFile.name }}</p>
                 </div>
 
-                <div>
-                  <p class="text-sm font-medium text-[#020721] mb-3">Select Products to Upload</p>
-                  <div class="space-y-2 max-h-60 overflow-y-auto">
-                    <div v-for="product in menu_food" :key="product.id" 
-                         class="flex items-center gap-3 p-3 border rounded-lg hover:bg-gray-50">
-                      <input 
-                        type="checkbox" 
-                        :id="`product-${product.id}`"
-                        v-model="selectedProducts"
-                        :value="product.id"
-                        class="w-4 h-4"
-                      />
-                      <img :src="product.img" :alt="product.name" class="w-12 h-12 rounded object-cover" />
-                      <div class="flex-1">
-                        <p class="text-sm font-medium text-[#020721]">{{ product.name }}</p>
-                        <p class="text-xs text-[#8B8D97]">₦{{ product.price.toLocaleString() }}</p>
-                      </div>
-                      <button class="px-3 py-1 bg-[#020721] text-white text-xs rounded-lg hover:bg-[#020721]/90">
-                        Submit
+                <!-- Bulk Products List -->
+                <div v-if="bulkProductsList.length > 0" class="space-y-4">
+                  <div class="flex items-center justify-between">
+                    <p class="text-sm font-medium text-[#020721]">Products to Upload</p>
+                    <div class="flex gap-2">
+                      <button class="px-3 py-1 bg-white border border-gray-200 text-xs rounded-lg hover:bg-gray-50">
+                        Archive all
                       </button>
+                      <button class="px-3 py-1 bg-white border border-gray-200 text-xs rounded-lg hover:bg-gray-50">
+                        Draft all
+                      </button>
+                      <button class="px-3 py-1 bg-[#020721] text-white text-xs rounded-lg hover:bg-[#020721]/90">
+                        Publish all
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="space-y-3 max-h-[400px] overflow-y-auto">
+                    <div v-for="(product, index) in bulkProductsList" :key="index" 
+                         class="border rounded-lg p-4 bg-white relative">
+                      <button 
+                        @click="removeBulkProduct(index)"
+                        class="absolute top-2 right-2 w-6 h-6 rounded-full bg-red-100 flex items-center justify-center hover:bg-red-200"
+                      >
+                        <X class="w-4 h-4 text-red-600" />
+                      </button>
+                      
+                      <div class="flex gap-3 mb-3">
+                        <div class="w-16 h-16 rounded bg-gray-100 flex items-center justify-center overflow-hidden">
+                          <img v-if="product.img" :src="product.img" :alt="product.name" class="w-full h-full object-cover" />
+                          <Icon v-else icon="mdi:package-variant" class="w-8 h-8 text-gray-400" />
+                        </div>
+                        <div class="flex-1">
+                          <p class="text-xs text-[#8B8D97] mb-1">Name</p>
+                          <p class="text-sm font-medium text-[#020721]">{{ product.name }}</p>
+                        </div>
+                      </div>
+
+                      <div class="grid grid-cols-2 gap-3 text-xs mb-3">
+                        <div>
+                          <p class="text-[#8B8D97] mb-1">Price</p>
+                          <p class="font-medium text-[#020721]">₦{{ product.amount?.toLocaleString() }}</p>
+                        </div>
+                        <div>
+                          <p class="text-[#8B8D97] mb-1">Quantity</p>
+                          <p class="font-medium text-[#020721]">{{ product.qty || 'N/A' }}</p>
+                        </div>
+                        <div>
+                          <p class="text-[#8B8D97] mb-1">Size</p>
+                          <p class="font-medium text-[#020721]">{{ product.size || 'N/A' }}</p>
+                        </div>
+                        <div>
+                          <p class="text-[#8B8D97] mb-1">Delivery TAT</p>
+                          <p class="font-medium text-[#020721]">{{ product.tat || 'N/A' }}</p>
+                        </div>
+                      </div>
+
+                      <div class="mb-3">
+                        <p class="text-[#8B8D97] text-xs mb-1">Description</p>
+                        <p class="text-sm text-[#020721]">{{ product.description || 'No description' }}</p>
+                      </div>
+
+                      <div class="flex gap-2">
+                        <button class="flex-1 px-3 py-2 bg-white border border-gray-200 text-xs rounded-lg hover:bg-gray-50">
+                          Archive
+                        </button>
+                        <button class="flex-1 px-3 py-2 bg-white border border-gray-200 text-xs rounded-lg hover:bg-gray-50">
+                          Draft
+                        </button>
+                        <button 
+                          @click="uploadBulkProduct(product)"
+                          class="flex-1 px-3 py-2 bg-[#020721] text-white text-xs rounded-lg hover:bg-[#020721]/90"
+                        >
+                          Publish
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <!-- Step 2: Product Information -->
-              <div v-if="currentStep === 2" class="px-4 space-y-4">
-                <div>
-                  <label class="text-sm font-medium text-[#020721] mb-2 block">
-                    Product Name <span class="text-red-500">*</span>
-                  </label>
-                  <input 
-                    v-model="formData.name"
-                    type="text"
-                    placeholder="Enter product name"
-                    class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#020721]"
-                  />
-                </div>
+            </SheetContent>
+          </Sheet>
 
+          <!-- View Product Sheet -->
+          <Sheet v-model:open="viewProductSheetOpen">
+            <SheetContent length="mid_low" class="flex flex-col space-y-0 overflow-y-scroll">
+              <SheetHeader class="flex flex-col items-start px-4">
+                <SheetDescription class="text-xs text-muted-foreground">
+                  {{ selectedProduct?.status || 'Draft' }}
+                </SheetDescription>
+                <h3 class="text-2xl font-medium text-[#020721]">
+                  {{ selectedProduct?.name }}
+                </h3>
+                <p class="text-sm text-muted-foreground">
+                  {{ selectedProduct?.createdAt ? new Date(selectedProduct.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : '' }}
+                </p>
+              </SheetHeader>
+
+              <div v-if="selectedProduct" class="px-4 space-y-6">
+                <!-- Details Section -->
                 <div>
-                  <label class="text-sm font-medium text-[#020721] mb-2 block">Description</label>
-                  <div class="relative">
-                    <textarea 
-                      v-model="formData.description"
-                      maxlength="140"
-                      rows="4"
-                      placeholder="Describe product in 140 characters"
-                      class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#020721] resize-none"
-                    ></textarea>
-                    <span class="absolute bottom-2 right-2 text-xs text-muted-foreground">
-                      {{ formData.description.length }}/140
-                    </span>
+                  <div class="flex items-center justify-between mb-4">
+                    <h4 class="text-sm font-semibold text-[#020721]">Details</h4>
+                    <button 
+                      @click="editProduct"
+                      class="flex items-center gap-2 px-3 py-1.5 border border-gray-200 rounded-lg text-sm hover:bg-gray-50"
+                    >
+                      <Icon icon="mdi:pencil" class="w-4 h-4" />
+                      Edit
+                    </button>
+                  </div>
+
+                  <!-- Product Image -->
+                  <div class="w-full h-48 rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden mb-4">
+                    <img v-if="selectedProduct.image" :src="selectedProduct.image" :alt="selectedProduct.name" class="w-full h-full object-cover" />
+                    <Icon v-else icon="mdi:package-variant" class="w-16 h-16 text-gray-400" />
+                  </div>
+
+                  <!-- Product Info Grid -->
+                  <div class="space-y-3">
+                    <div>
+                      <p class="text-xs text-[#8B8D97] mb-1">Name</p>
+                      <p class="text-sm font-medium text-[#020721]">{{ selectedProduct.name }}</p>
+                    </div>
+
+                    <div>
+                      <p class="text-xs text-[#8B8D97] mb-1">Price</p>
+                      <p class="text-sm font-medium text-[#020721]">{{ productsStore.formatPrice(selectedProduct.amount || 0) }}</p>
+                    </div>
+
+                    <div>
+                      <p class="text-xs text-[#8B8D97] mb-1">Size</p>
+                      <p class="text-sm font-medium text-[#020721]">{{ selectedProduct.size || 'N/A' }}</p>
+                    </div>
+
+                    <div>
+                      <p class="text-xs text-[#8B8D97] mb-1">Quantity</p>
+                      <p class="text-sm font-medium text-[#020721]">{{ selectedProduct.qty  || 0 }}</p>
+                    </div>
+
+                    <!-- UPDATED: Show category names instead of IDs -->
+                    <div>
+                      <p class="text-xs text-[#8B8D97] mb-1">Tags (Categories)</p>
+                      <div class="flex flex-wrap gap-2">
+                        <span 
+                          v-for="tagId in (selectedProduct.tag || [])" 
+                          :key="tagId" 
+                          class="px-2 py-1 bg-gray-100 rounded text-xs text-[#020721]"
+                        >
+                          {{ getCategoryName(tagId) }}
+                        </span>
+                        <span v-if="!selectedProduct.tag?.length" class="text-sm text-[#020721]">
+                          No tags
+                        </span>
+                      </div>
+                    </div>
+
+                    <div>
+                      <p class="text-xs text-[#8B8D97] mb-1">Description</p>
+                      <p class="text-sm text-[#020721]">{{ selectedProduct.description || 'No description' }}</p>
+                    </div>
+
+                    <div>
+                      <p class="text-xs text-[#8B8D97] mb-1">Delivery TAT</p>
+                      <p class="text-sm font-medium text-[#020721]">{{ selectedProduct.tat  || 'N/A' }}</p>
+                    </div>
                   </div>
                 </div>
 
-                <div>
-                  <label class="text-sm font-medium text-[#020721] mb-2 block">Size</label>
-                  <input 
-                    v-model="formData.size"
-                    type="text"
-                    placeholder="Enter size"
-                    class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#020721]"
-                  />
+                <!-- Action Buttons -->
+                <div class="flex gap-2 pb-4">
+                  <button 
+                    @click="updateProductStatus('archived')"
+                    class="flex-1 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm hover:bg-gray-50"
+                  >
+                    Archive
+                  </button>
+                  <button 
+                    @click="updateProductStatus('draft')"
+                    class="flex-1 px-4 py-2 bg-[#020721] text-white rounded-lg text-sm hover:bg-[#020721]/90"
+                  >
+                    Draft
+                  </button>
+                  <button 
+                    @click="updateProductStatus('published')"
+                    class="flex-1 px-4 py-2 bg-[#020721] text-white rounded-lg text-sm hover:bg-[#020721]/90"
+                  >
+                    Publish
+                  </button>
                 </div>
-
-                <div>
-                  <label class="text-sm font-medium text-[#020721] mb-2 block">Tags</label>
-                  <input 
-                    v-model="formData.tags"
-                    type="text"
-                    placeholder="Enter single word tags, separate with comma"
-                    class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#020721]"
-                  />
-                </div>
-              </div>
-
-              <!-- Step 3: Pricing & Inventory -->
-              <div v-if="currentStep === 3" class="px-4 space-y-4">
-                <div>
-                  <label class="text-sm font-medium text-[#020721] mb-2 block">
-                    Price <span class="text-red-500">*</span>
-                  </label>
-                  <input 
-                    v-model="formData.price"
-                    type="number"
-                    placeholder="Enter price"
-                    class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#020721]"
-                  />
-                </div>
-
-                <div>
-                  <label class="text-sm font-medium text-[#020721] mb-2 block">Quantity</label>
-                  <input 
-                    v-model="formData.quantity"
-                    type="number"
-                    placeholder="Enter available quantity"
-                    class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#020721]"
-                  />
-                </div>
-
-                <div>
-                  <label class="text-sm font-medium text-[#020721] mb-2 block">Delivery TAT</label>
-                  <input 
-                    v-model="formData.deliveryTat"
-                    type="text"
-                    placeholder="e.g. 2 Days"
-                    class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#020721]"
-                  />
-                </div>
-
-                <div>
-                  <label class="text-sm font-medium text-[#020721] mb-2 block">Category</label>
-                  <input 
-                    v-model="formData.category"
-                    type="text"
-                    placeholder="Enter category"
-                    class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#020721]"
-                  />
-                </div>
-              </div>
-
-              <!-- Navigation Buttons -->
-              <div class="px-4 py-4 mt-auto flex items-center justify-between">
-                <button 
-                  v-if="currentStep > 1"
-                  @click="currentStep--"
-                  class="flex items-center gap-2 px-4 py-2 text-sm text-[#020721] hover:bg-gray-100 rounded-lg"
-                >
-                  <Icon icon="radix-icons:chevron-left" />
-                  Back
-                </button>
-                <div v-else></div>
-                
-                <button 
-                  @click="handleNext"
-                  :disabled="productsStore.loading"
-                  class="flex items-center gap-2 px-6 py-2 bg-[#5B68DF] text-white rounded-lg text-sm font-medium hover:bg-[#4a56cc] disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <span v-if="productsStore.loading && currentStep === 3">Creating...</span>
-                  <span v-else>{{ currentStep === 3 ? 'Create Product' : 'Next' }}</span>
-                  <Icon v-if="!productsStore.loading" icon="radix-icons:chevron-right" />
-                </button>
               </div>
             </SheetContent>
           </Sheet>
@@ -577,7 +1237,7 @@ onMounted(async () => {
                 </div>
               </TableHead>
               <TableHead class="font-medium">Description</TableHead>
-              <TableHead class="font-medium cursor-pointer hover:bg-gray-50" @click="sortBy('price')">
+              <TableHead class="font-medium cursor-pointer hover:bg-gray-50" @click="sortBy('amount')">
                 <div class="flex items-center gap-1">
                   Amount
                   <Icon icon="fluent:chevron-up-down-20-regular" class="w-4 h-4" />
@@ -596,7 +1256,7 @@ onMounted(async () => {
                 </div>
               </TableHead>
               <TableHead class="font-medium">Status</TableHead>
-              <TableHead></TableHead>
+              <TableHead class="font-medium">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -609,9 +1269,9 @@ onMounted(async () => {
               </TableCell>
               <TableCell class="text-sm font-medium text-[#020721]">{{ product.name }}</TableCell>
               <TableCell class="text-sm text-[#8B8D97] max-w-[200px] truncate">{{ product.description || 'No description' }}</TableCell>
-              <TableCell class="text-sm font-medium text-[#020721]">{{ productsStore.formatPrice(product.price) }}</TableCell>
-              <TableCell class="text-sm text-[#8B8D97]">{{ product.deliveryTat || 'N/A' }}</TableCell>
-              <TableCell class="text-sm text-[#8B8D97] text-center">{{ product.quantity }}</TableCell>
+              <TableCell class="text-sm font-medium text-[#020721]">{{ productsStore.formatPrice(product.amount || 0) }}</TableCell>
+              <TableCell class="text-sm text-[#8B8D97]">{{ product.tat ||'N/A' }}</TableCell>
+              <TableCell class="text-sm text-[#8B8D97] text-center">{{ product.qty  || 0 }}</TableCell>
               <TableCell>
                 <div
                   :class="statusBg(product.status)"
@@ -621,25 +1281,82 @@ onMounted(async () => {
                 </div>
               </TableCell>
               <TableCell>
-                <button @click="viewProductDetails(product._id)" class="text-gray-400 hover:text-gray-600">
-                  <svg
-                    width="20"
-                    height="20"
-                    viewBox="0 0 20 20"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
+                <!-- Actions Dropdown Menu -->
+                <div class="relative">
+                  <button 
+                    @click.stop="showActionsMenu = showActionsMenu === product._id ? null : product._id"
+                    class="text-gray-400 hover:text-gray-600 p-1 rounded hover:bg-gray-100 transition-colors"
+                    title="Product Actions"
                   >
-                    <path
-                      d="M7 5L12.5118 9.93939C13.1627 10.5227 13.1627 11.4773 12.5118 12.0606L7 17"
-                      stroke="#54586D"
-                      stroke-opacity="0.8"
-                      stroke-width="2"
-                      stroke-miterlimit="10"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                  </svg>
-                </button>
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 20 20"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M10 10.8333C10.4602 10.8333 10.8333 10.4602 10.8333 10C10.8333 9.53976 10.4602 9.16667 10 9.16667C9.53976 9.16667 9.16667 9.53976 9.16667 10C9.16667 10.4602 9.53976 10.8333 10 10.8333Z"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                      <path
+                        d="M10 5C10.4602 5 10.8333 4.6269 10.8333 4.16667C10.8333 3.70643 10.4602 3.33333 10 3.33333C9.53976 3.33333 9.16667 3.70643 9.16667 4.16667C9.16667 4.6269 9.53976 5 10 5Z"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                      <path
+                        d="M10 16.6667C10.4602 16.6667 10.8333 16.2936 10.8333 15.8333C10.8333 15.3731 10.4602 15 10 15C9.53976 15 9.16667 15.3731 9.16667 15.8333C9.16667 16.2936 9.53976 16.6667 10 16.6667Z"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                  </button>
+
+                  <!-- Actions Dropdown Menu -->
+                  <Transition
+                    enter-active-class="transition ease-out duration-100"
+                    enter-from-class="transform opacity-0 scale-95"
+                    enter-to-class="transform opacity-100 scale-100"
+                    leave-active-class="transition ease-in duration-75"
+                    leave-from-class="transform opacity-100 scale-100"
+                    leave-to-class="transform opacity-0 scale-95"
+                  >
+                    <div 
+                      v-if="showActionsMenu === product._id"
+                      @click.stop
+                      class="absolute right-0 mt-2 w-32 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden z-50"
+                    >
+                      <button
+                        @click="viewProductDetails(product._id); showActionsMenu = null"
+                        class="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center gap-2 text-sm text-gray-700 transition-colors"
+                      >
+                        <Icon icon="mdi:eye-outline" class="w-4 h-4" />
+                        View
+                      </button>
+                      <button
+                        @click="editProductFromList(product); showActionsMenu = null"
+                        class="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center gap-2 text-sm text-gray-700 transition-colors"
+                      >
+                        <Icon icon="mdi:pencil-outline" class="w-4 h-4" />
+                        Edit
+                      </button>
+                      <button
+                        @click="deleteProduct(product._id); showActionsMenu = null"
+                        class="w-full px-4 py-2 text-left hover:bg-red-50 flex items-center gap-2 text-sm text-red-600 transition-colors border-t border-gray-100"
+                      >
+                        <Icon icon="mdi:delete-outline" class="w-4 h-4" />
+                        Delete
+                      </button>
+                    </div>
+                  </Transition>
+                </div>
               </TableCell>
             </TableRow>
           </TableBody>
