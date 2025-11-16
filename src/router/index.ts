@@ -19,6 +19,7 @@ import AdminList from '@/views/protected/SuperAdminModule/AdminList.vue'
 import CreateUser from '@/views/protected/SuperAdminModule/CreateUser.vue'
 import DepotPage from '@/views/protected/AdminModule/DepotPage.vue'
 import ProductPage from '@/views/protected/AdminModule/ProductPage.vue'
+import PromotionPage from '@/views/protected/AdminModule/VendorPromotion.vue'
 import OrderPage from '@/views/protected/AdminModule/VendorOrderPage.vue'
 
 import BankPage from '@/views/protected/AdminModule/BankPage.vue'
@@ -191,6 +192,12 @@ const routes = [
     path: '/product',
     name: 'product',
     component: ProductPage,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/promotion',
+    name: 'promotion',
+    component: PromotionPage,
     meta: { requiresAuth: true }
   },
   {
