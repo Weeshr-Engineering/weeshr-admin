@@ -26,7 +26,7 @@
             <p class="text-2xl md:text-xl xl:text-3xl font-medium text-[#ffffff] absolute bottom-2 left-5">
               <!-- <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" /> -->
               <span>
-                {{ 4 }}</span>
+                {{ analytics?.overdueAndUndelivered.overdueCount || 0 }}</span>
             </p>
           </CardContent>
         </div>
@@ -43,7 +43,7 @@
             <p class="text-2xl md:text-xl xl:text-3xl font-medium text-[#ffffff] absolute bottom-2 left-5">
               <!-- <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" /> -->
               <span>
-                {{ 42 }}</span>
+                {{ analytics?.vendorPayoutAnalytics.recentPayouts.length || 0 }}</span>
             </p>
           </CardContent>
         </div>
@@ -60,7 +60,7 @@
             <p class="text-2xl md:text-xl xl:text-3xl font-medium text-[#ffffff] absolute bottom-2 left-5">
               <!-- <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" /> -->
               <span>
-                {{ 1 }}</span>
+                {{ analytics?.vendorPayoutAnalytics.totalPendingPayout || 0 }}</span>
             </p>
           </CardContent>
         </div>
@@ -77,7 +77,7 @@
             <p class="text-2xl md:text-xl xl:text-3xl font-medium text-[#ffffff] absolute bottom-2 left-5">
               <!-- <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" /> -->
               <span>
-                {{ 2 }}</span>
+                {{ analytics?.overdueAndUndelivered.notDeliveredCount || 0 }}</span>
             </p>
           </CardContent>
         </div>
@@ -95,10 +95,10 @@
 
               <p class="text-2xl md:text-xl xl:text-3xl font-medium text-[#ffffff] absolute bottom-2 left-5">
                 <!-- <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" /> -->
-                <!-- <span v-else>{{ currencySymbol(totalTransfers.currency) }}
-                  {{ totalTransfers.amount.toLocaleString() }}</span> -->
+                <!-- <span v-else>{{ currencySymbol(totalTransfers.currency) || 0 }}
+                  {{ totalTransfers.amount.toLocaleString() || 0 }}</span> -->
                    <span>
-                {{ 34 }}</span>
+                {{ analytics?.deliveredAnalytics.totalDeliveredOrders || 0 }}</span>
               </p>
             </CardContent>
           </div>
@@ -478,7 +478,7 @@ import {
   TableHead
 } from '@/components/ui/table'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
-import { ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { Button } from '@/components/ui/button'
 import { Icon } from '@iconify/vue'
 import Search from '@/components/UseSearch.vue'
@@ -499,6 +499,7 @@ import {
   SelectTrigger,
 } from '@/components/ui/select'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { useVendorTransactionStore } from '@/stores/vendor/vendor-transactions'
 
 // const open = ref<boolean>(false)
 // const id = ref<string>('0')
@@ -712,246 +713,12 @@ const transactions = ref<Transaction[]>([
       { name: "Salt Pack", amount: 5, unit: 2, unit_price: 200, image: "https://res.cloudinary.com/drykej1am/image/upload/v1721875177/weesh/categories/I9IP1OFoxLzZQpA9Sl12fb_g.jpg" },
     ],
   },
-  {
-    id: "tx_005",
-    completed_date: null,
-    created_at: "2025-09-11",
-    payout: 3800,
-    total_Unit: 9,
-    total_price: 4000,
-    product_count: 2,
-    status: "processing",
-    delivery_charge: 200,
-    payment_price: 3800,
-    discount: 0,
-    vendor: {
-      id: "v_005",
-      name: "Glow Beauty Supplies",
-      phone: "+2348012347789",
-      address: "5 Oba Akran Ave, Ikeja, Lagos",
-      email: "orders@glowbeauty.ng",
-    },
-    sender: {
-      id: "s_005",
-      name: "ParcelPro",
-      phone: "+2348085566778",
-      address: "Mushin, Lagos",
-      email: "support@parcelpro.ng",
-    },
-    receiver: {
-      id: "r_005",
-      name: "Funmi Adewale",
-      phone: "+2348076677889",
-      address: "15 Ilupeju Rd, Lagos",
-      email: "funmi.a@example.com",
-    },
-    products: [
-      { name: "Face Cream", amount: 3, unit: 3, unit_price: 1000, image: "https://res.cloudinary.com/drykej1am/image/upload/v1721874850/weesh/categories/WW18ndBhpeKoy2scWXeVqHBv.jpg" },
-      { name: "Body Lotion", amount: 3, unit: 3, unit_price: 700, image: "https://res.cloudinary.com/drykej1am/image/upload/v1721875177/weesh/categories/I9IP1OFoxLzZQpA9Sl12fb_g.jpg" },
-    ],
-  },
-  {
-    id: "tx_006",
-    completed_date: "2025-09-14",
-    created_at: "2025-09-12",
-    payout: 9000,
-    total_Unit: 18,
-    total_price: 9500,
-    product_count: 4,
-    status: "delivered",
-    delivery_charge: 500,
-    payment_price: 9000,
-    discount: 500,
-    vendor: {
-      id: "v_006",
-      name: "Urban Tech Gadgets",
-      phone: "+2348091123456",
-      address: "Yaba Tech Park, Lagos",
-      email: "info@urbantech.ng",
-    },
-    sender: {
-      id: "s_006",
-      name: "Speedy Express",
-      phone: "+2348082233556",
-      address: "CMS, Lagos",
-      email: "dispatch@speedyexpress.ng",
-    },
-    receiver: {
-      id: "r_006",
-      name: "Kunle Balogun",
-      phone: "+2348025566778",
-      address: "Victoria Island, Lagos",
-      email: "kunle.b@example.com",
-    },
-    products: [
-      { name: "Power Bank", amount: 3, unit: 3, unit_price: 2000, image: "https://res.cloudinary.com/drykej1am/image/upload/v1721874850/weesh/categories/WW18ndBhpeKoy2scWXeVqHBv.jpg" },
-      { name: "USB Cable", amount: 5, unit: 5, unit_price: 200, image: "https://res.cloudinary.com/drykej1am/image/upload/v1721875177/weesh/categories/I9IP1OFoxLzZQpA9Sl12fb_g.jpg" },
-      { name: "Wireless Mouse", amount: 2, unit: 2, unit_price: 1500, image: "https://res.cloudinary.com/drykej1am/image/upload/v1721875177/weesh/categories/I9IP1OFoxLzZQpA9Sl12fb_g.jpg" },
-      { name: "Keyboard", amount: 1, unit: 1, unit_price: 1000, image: "https://res.cloudinary.com/drykej1am/image/upload/v1721874850/weesh/categories/WW18ndBhpeKoy2scWXeVqHBv.jpg" },
-    ],
-  },
-  {
-    id: "tx_007",
-    completed_date: null,
-    created_at: "2025-09-15",
-    payout: 6000,
-    total_Unit: 12,
-    total_price: 6500,
-    product_count: 3,
-    status: "overdue",
-    delivery_charge: 500,
-    payment_price: 6000,
-    discount: 500,
-    vendor: {
-      id: "v_007",
-      name: "Daily Needs Store",
-      phone: "+2348053344556",
-      address: "Egbeda, Lagos",
-      email: "contact@dailyneeds.ng",
-    },
-    sender: {
-      id: "s_007",
-      name: "Urban Express",
-      phone: "+2348098899777",
-      address: "Agege Motor Rd, Lagos",
-      email: "logistics@urbanexpress.ng",
-    },
-    receiver: {
-      id: "r_007",
-      name: "Bisi Adebayo",
-      phone: "+2348024433221",
-      address: "Ikeja GRA, Lagos",
-      email: "bisi.a@example.com",
-    },
-    products: [
-      { name: "Toothpaste", amount: 3, unit: 3, unit_price: 500, image: "https://res.cloudinary.com/drykej1am/image/upload/v1721875177/weesh/categories/I9IP1OFoxLzZQpA9Sl12fb_g.jpg" },
-      { name: "Toilet Paper", amount: 2, unit: 4, unit_price: 300, image: "https://res.cloudinary.com/drykej1am/image/upload/v1721874850/weesh/categories/WW18ndBhpeKoy2scWXeVqHBv.jpg" },
-      { name: "Body Soap", amount: 4, unit: 5, unit_price: 700, image: "https://res.cloudinary.com/drykej1am/image/upload/v1721874426/weesh/categories/AWFAGiROM7oxB4ZJWhnaAYkP.jpg" },
-    ],
-  },
-  {
-    id: "tx_008",
-    completed_date: "2025-09-16",
-    created_at: "2025-09-15",
-    payout: 15000,
-    total_Unit: 25,
-    total_price: 16000,
-    product_count: 5,
-    status: "outbound",
-    delivery_charge: 1000,
-    payment_price: 15000,
-    discount: 1000,
-    vendor: {
-      id: "v_008",
-      name: "Mega Electronics",
-      phone: "+2348014456677",
-      address: "Computer Village, Ikeja",
-      email: "info@megaelectronics.ng",
-    },
-    sender: {
-      id: "s_008",
-      name: "RapidX Delivery",
-      phone: "+2348087766554",
-      address: "Ogba, Lagos",
-      email: "contact@rapidx.ng",
-    },
-    receiver: {
-      id: "r_008",
-      name: "Emeka Ofor",
-      phone: "+2348029911223",
-      address: "Ajah, Lagos",
-      email: "emeka.o@example.com",
-    },
-    products: [
-      { name: "Bluetooth Speaker", amount: 3, unit: 3, unit_price: 2500, image: "https://res.cloudinary.com/drykej1am/image/upload/v1721874850/weesh/categories/WW18ndBhpeKoy2scWXeVqHBv.jpg" },
-      { name: "Earphones", amount: 5, unit: 5, unit_price: 800, image: "https://res.cloudinary.com/drykej1am/image/upload/v1721875177/weesh/categories/I9IP1OFoxLzZQpA9Sl12fb_g.jpg" },
-      { name: "Smartwatch", amount: 2, unit: 2, unit_price: 3000, image: "https://res.cloudinary.com/drykej1am/image/upload/v1721875177/weesh/categories/I9IP1OFoxLzZQpA9Sl12fb_g.jpg" },
-      { name: "Laptop Stand", amount: 3, unit: 3, unit_price: 1000, image: "https://res.cloudinary.com/drykej1am/image/upload/v1721874426/weesh/categories/AWFAGiROM7oxB4ZJWhnaAYkP.jpg" },
-      { name: "Mouse Pad", amount: 4, unit: 4, unit_price: 200, image: "https://res.cloudinary.com/drykej1am/image/upload/v1721874850/weesh/categories/WW18ndBhpeKoy2scWXeVqHBv.jpg" },
-    ],
-  },
-  {
-    id: "tx_009",
-    completed_date: null,
-    created_at: "2025-09-18",
-    payout: 7200,
-    total_Unit: 14,
-    total_price: 7500,
-    product_count: 3,
-    status: "processing",
-    delivery_charge: 300,
-    payment_price: 7200,
-    discount: 300,
-    vendor: {
-      id: "v_009",
-      name: "Elite Kitchenware",
-      phone: "+2348094455667",
-      address: "Maryland Mall, Lagos",
-      email: "support@elitekitchen.ng",
-    },
-    sender: {
-      id: "s_009",
-      name: "ParcelNow",
-      phone: "+2348076655443",
-      address: "Obalende, Lagos",
-      email: "info@parcelnow.ng",
-    },
-    receiver: {
-      id: "r_009",
-      name: "Amaka Eze",
-      phone: "+2348025566778",
-      address: "Lekki Phase 1, Lagos",
-      email: "amaka.e@example.com",
-    },
-    products: [
-      { name: "Blender", amount: 2, unit: 2, unit_price: 2000, image: "https://res.cloudinary.com/drykej1am/image/upload/v1721874850/weesh/categories/WW18ndBhpeKoy2scWXeVqHBv.jpg" },
-      { name: "Frying Pan", amount: 3, unit: 3, unit_price: 1500, image: "https://res.cloudinary.com/drykej1am/image/upload/v1721874426/weesh/categories/AWFAGiROM7oxB4ZJWhnaAYkP.jpg" },
-      { name: "Kettle", amount: 4, unit: 4, unit_price: 500, image: "https://res.cloudinary.com/drykej1am/image/upload/v1721875177/weesh/categories/I9IP1OFoxLzZQpA9Sl12fb_g.jpg" },
-    ],
-  },
-  {
-    id: "tx_010",
-    completed_date: "2025-09-20",
-    created_at: "2025-09-19",
-    payout: 8500,
-    total_Unit: 16,
-    total_price: 9000,
-    product_count: 4,
-    status: "new",
-    delivery_charge: 500,
-    payment_price: 8500,
-    discount: 500,
-    vendor: {
-      id: "v_010",
-      name: "Campus Essentials",
-      phone: "+2348012233445",
-      address: "LASU Campus, Lagos",
-      email: "hello@campusessentials.ng",
-    },
-    sender: {
-      id: "s_010",
-      name: "Student Courier",
-      phone: "+2348085544332",
-      address: "Yaba, Lagos",
-      email: "orders@studentcourier.ng",
-    },
-    receiver: {
-      id: "r_010",
-      name: "Samuel Ojo",
-      phone: "+2348029988775",
-      address: "Unilag Campus, Lagos",
-      email: "samuel.o@example.com",
-    },
-    products: [
-      { name: "Notebook", amount: 5, unit: 5, unit_price: 300, image: "https://res.cloudinary.com/drykej1am/image/upload/v1721874850/weesh/categories/WW18ndBhpeKoy2scWXeVqHBv.jpg" },
-      { name: "Backpack", amount: 2, unit: 2, unit_price: 2500, image: "https://res.cloudinary.com/drykej1am/image/upload/v1721874426/weesh/categories/AWFAGiROM7oxB4ZJWhnaAYkP.jpg" },
-      { name: "Pen Pack", amount: 3, unit: 3, unit_price: 200, image: "https://res.cloudinary.com/drykej1am/image/upload/v1721875177/weesh/categories/I9IP1OFoxLzZQpA9Sl12fb_g.jpg" },
-      { name: "Flash Drive", amount: 2, unit: 2, unit_price: 1000, image: "https://res.cloudinary.com/drykej1am/image/upload/v1721874850/weesh/categories/WW18ndBhpeKoy2scWXeVqHBv.jpg" },
-    ],
-  },
 ])
 
 const filteredList = ref<Transaction[]>(transactions.value)
+const analytics = computed(()=>{
+  return useVendorTransactionStore().analytics
+})
 
 // Keep track of sort directions per field
 const sortState: Record<string, "asc" | "desc"> = {
@@ -999,15 +766,15 @@ function sortByPayout() {
 }
 
 // Sort by total units
-function sortByUnit() {
-  const order = sortState.unit === "asc" ? "desc" : "asc";
-  sortState.unit = order;
+// function sortByUnit() {
+//   const order = sortState.unit === "asc" ? "desc" : "asc";
+//   sortState.unit = order;
 
-  const newArr = [...transactions.value].sort((a, b) =>
-    order === "asc" ? a.total_Unit - b.total_Unit : b.total_Unit - a.total_Unit
-  );
-  transactions.value = newArr;
-}
+//   const newArr = [...transactions.value].sort((a, b) =>
+//     order === "asc" ? a.total_Unit - b.total_Unit : b.total_Unit - a.total_Unit
+//   );
+//   transactions.value = newArr;
+// }
 
 // Sort by product count
 function sortByProductCount() {
@@ -1032,5 +799,9 @@ function formatDate(dateStr: string | null): string | null {
     year: "numeric",
   }).format(date);
 }
+
+onMounted(()=>{
+  useVendorTransactionStore().fetchAnalytics('Analytics')
+})
 
 </script>

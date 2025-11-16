@@ -9,7 +9,9 @@ interface SuperAdminState {
   password: string
   id: string
   newUser: NewUser[]
-  token: string
+  token: string,
+  isVendor: boolean,
+  vendorId: string,
 }
 
 interface NewUser {
@@ -25,7 +27,9 @@ export const useSuperAdminStore = defineStore({
     password: '',
     id: '',
     newUser: [],
-    token: sessionStorage.getItem('token') || ''
+    token: sessionStorage.getItem('token') || '',
+    isVendor: true,
+    vendorId: ''
   }),
 
   actions: {
@@ -41,7 +45,7 @@ export const useSuperAdminStore = defineStore({
         firstname,
         lastname,
         email,
-        id
+        id,
       }
       // store basic user data in local storage
       localStorage.setItem('user', JSON.stringify(user))

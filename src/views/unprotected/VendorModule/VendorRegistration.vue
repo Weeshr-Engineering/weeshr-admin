@@ -10,15 +10,19 @@ import { FormControl, FormField, FormItem, FormMessage } from '@/components/ui/f
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { toast } from '@/components/ui/toast'
-import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
+import axios from 'axios'
+import { catchErr } from '@/composables/catchError'
+import { useRoute, useRouter } from 'vue-router'
 
 const currentYear = ref(new Date().getFullYear())
+const router = useRouter()
+const route = useRoute()
+const id = route.params.id
+const vendor = route.params.vendor
 
 const updateYear = () => {
   currentYear.value = new Date().getFullYear()
 }
-
-const {setPassword, setuserEmail, } = useSuperAdminStore()
 
 
 onMounted(() => {
@@ -35,12 +39,6 @@ const confirmPasswordValue = ref('')
 
 const formSchema = toTypedSchema(
   z.object({
-    userEmail: z
-      .string({
-        required_error: 'Please enter a valid email'
-      })
-      .email(),
-
     password: z
       .string({
         required_error: 'Please enter your password '
@@ -62,12 +60,6 @@ const form = useForm({
   validationSchema: formSchema
 })
 
-// Watch for form value changes
-const onEmailInput = (event: Event) => {
-  const target = event.target as HTMLInputElement
-  emailValue.value = target.value
-}
-
 const onPasswordInput = (event: Event) => {
   const target = event.target as HTMLInputElement
   passwordValue.value = target.value
@@ -78,22 +70,55 @@ const onConfirmPasswordInput = (event: Event) => {
   confirmPasswordValue.value = target.value
 }
 
+const saveDetails = async (password: string) => {
+    toast({
+      title: 'Loading Data',
+      description: 'Saving bank details...',
+      variant: 'loading',
+      duration: 0 // Set duration to 0 to make it indefinite until manually closed
+    })
+    // VendorListStore.loadingControl(true)
+    try {
+      const response = await axios.post(
+        `/api/v1/admin/market/invites/${id}/accept`,
+        {
+          "password": password
+        }
+      )
+
+      // Check if response status is 200 or 201
+      if (response.status === 200 || response.status === 201) {
+        // Show success toast
+        console.log(response)
+        
+        toast({
+          title: 'Success',
+          description: `Registration successfully!`,
+          variant: 'success'
+        })
+      }
+      // Handle success
+    } catch (err: any) {
+      //   VendorListStore.loadingControl(false)
+      console.log(err)
+      catchErr(err)
+      // Handle other errors
+    }
+  }
+
 const onSubmit = form.handleSubmit(async () => {
   loading.value = true
 
   // Ensure userEmail and password have values
-  if (form.values.userEmail && form.values.password && form.values.confirmPassword) {
-    const { userEmail, password } = form.values
+  if (form.values.password && form.values.confirmPassword) {
+    const { password } = form.values
 
     // Set the username and password in the store
-    setuserEmail(userEmail)
-    setPassword(password)
+    // setPassword(password)
+
 
     try {
-      // Simulate form processing (replace with your actual logic)
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      // Your form submission logic here
+      await saveDetails(password)
       
       toast({
         description: 'Form submitted successfully!',
@@ -102,9 +127,9 @@ const onSubmit = form.handleSubmit(async () => {
 
       // Reset form after successful submission
       form.resetForm()
-      emailValue.value = ''
       passwordValue.value = ''
       confirmPasswordValue.value = ''
+      // router.push('/')
 
     } catch (error: any) {
       loading.value = false
@@ -202,32 +227,32 @@ const onSubmit = form.handleSubmit(async () => {
               </CardHeader>
               <CardContent class="grid gap-4">
                 <form class="space-y-4" @submit.prevent="onSubmit">
-                  <FormField v-slot="{ componentField }" name="userEmail">
+                  <!-- <FormField v-slot="{ componentField }" name="userEmail">
                     <FormItem v-auto-animate>
-                      <FormControl>
+                      <FormControl> -->
                         <div class="relative">
                           <div class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
                               <Building2 class="w-4 h-6 text-[#4145A7]" />
                           </div>
-                          <Input
+                          <!-- <Input
                             id="email"
                             type="email"
                             placeholder="Your username"
                             class="focus-visible:ring-[#BAEF23] pl-10 pr-3"
                             v-bind="componentField"
                             @input="onEmailInput"
-                          />
+                          /> -->
                           <span 
                             v-if="!emailValue"
-                            class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 text-sm transition-opacity duration-200"
+                            class="absolute inset-y-0 right-0 flex items-center gap-1 pr-3 text-gray-400 text-sm transition-opacity duration-200"
                           >
-                            DangxWeeshr
+                            <span class="font-semibold">{{ vendor }}</span> X <span class="font-semibold"> Weeshr</span>
                           </span>
                         </div>
-                      </FormControl>
+                      <!-- </FormControl>
                       <FormMessage />
                     </FormItem>
-                  </FormField>
+                  </FormField> -->
                   
                   <FormField v-slot="{ componentField }" name="password">
                     <FormItem>
@@ -313,3 +338,52 @@ const onSubmit = form.handleSubmit(async () => {
   cursor: not-allowed;
 }
 </style>
+<!-- 
+categoryIds
+: 
+[]
+companyAddress
+: 
+"20 Marina, Lagos Island, Lagos"
+companyEmail
+: 
+"WakameRestaurant@yahoo.com"
+companyName
+: 
+"Wakame Restaurant"
+companyState
+: 
+"Lagos"
+companyType
+: 
+"COMPANY"
+cover
+: 
+null
+createdAt
+: 
+"2025-10-26T12:43:09.379Z"
+deletedAt
+: 
+null
+isDeleted
+: 
+false
+logo
+: 
+null
+rcNumber
+: 
+23935
+status
+: 
+"published"
+updatedAt
+: 
+"2025-10-26T12:43:09.379Z"
+__v
+: 
+0
+_id
+: 
+"68fe175da98f5d209988f4b7" -->

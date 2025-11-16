@@ -34,7 +34,7 @@ export interface vendorProfile {
 }
 
 
-interface VendorListStore {
+interface VendorOperationStore {
   vendors: vendorProfile[],
   adminStatus: boolean, //single admin id gotten from admin details page
   sheetOpen: boolean,
@@ -46,9 +46,9 @@ interface VendorListStore {
   activityLog: any[]
 }
 
-export const useVendorListStore = defineStore({
-  id: 'vendor-list',
-  state: (): VendorListStore => ({
+export const useVendorOperationStore = defineStore({
+  id: 'vendor-operation',
+  state: (): VendorOperationStore => ({
     vendors: [],
     adminStatus: true,
     sheetOpen: false,
@@ -219,73 +219,6 @@ export const useVendorListStore = defineStore({
           this.catchErr(error)
         });
     },
-    async getActivityLog (id: any){
-      
-        toast({
-          title: 'Loading Data',
-          description: 'Fetching data...',
-          variant: 'loading',
-          duration: 0 // Set duration to 0 to make it indefinite until manually closed
-        })
-
-        // useGeneralStore().setLoading(true)
-        try {
-          // Set loading to true
-
-          const response = await axios.get(
-            `/api/v1/admin/logs/activity-logs?log_user_type=ADMIN&user_id=${id}`,
-          )
-
-          if (response.status === 200 || response.status === 201) {
-            // Show success toast
-            toast({
-              title: 'Success',
-              description: `data fetched`,
-              variant: 'success'
-            })
-
-            
-          }
-
-          // Update the vendors data with the response
-          const data = response.data.data.data
-          // 
-          this.activityLog = data
-          // this.vendors = data.reverse()
-          // VendorListStore.setvendors(data.reverse())
-
-          // set page data
-          //   this.perPage= response.data.data.perPage
-          // this.currentPage = response.data.data.currentPage
-          // this.totalPages = response.data.data.totalPages
-
-          // close loading screen
-          // useGeneralStore().setLoading(false)
-        } catch (error: any) {
-          this.catchErr(error)
-          if (error.response.status === 401) {
-            sessionStorage.removeItem('token')
-            // Clear token from superAdminStore
-            // superAdminStore.setToken('')
-
-            setTimeout(() => {
-              router.push({ name: 'home' })
-            }, 3000)
-
-            toast({
-              title: 'Unauthorized',
-              description: 'You are not authorized to perform this action. Redirecting to home page...',
-              variant: 'warning'
-            })
-            // Redirect after 3 seconds
-          } else {
-            toast({
-              title: error.response.data.message || 'An error occurred',
-              variant: 'destructive'
-            })
-          }
-        }
-      },
     catchErr(error: any) {
       if (error.response.status === 400) {
         toast({

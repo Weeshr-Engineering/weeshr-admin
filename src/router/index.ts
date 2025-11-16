@@ -36,30 +36,36 @@ import VendorTransaction from '@/views/protected/AdminModule/VendorTransaction.v
 import VendorDetails from '@/views/protected/AdminModule/VendorDetails.vue'
 import GlobalTransaction from '@/views/protected/VendorModule/GlobalTransaction.vue'
 import GlobalGeeftr from '@/views/protected/VendorModule/GlobalGeeftr.vue'
+import VendorRegistration from '@/views/unprotected/VendorModule/VendorRegistration.vue'
 
 // "68f45f0fc718bf7e6875d761"
 // "68fe1772a98f5d209988f4c1"
-const vendor = '68fe1772a98f5d209988f4c1';
-const dashboard = vendor.length === 0 ? {
+// const vendor = useSuperAdminStore().isVendor
+// const dashboard = vendor ? {
+//     path: '/',
+//     name: 'home',
+//     component: Vendors,
+//     meta: { requiresAuth: true }
+//   } : {
+//     path: '/',
+//     name: 'home',
+//     component: AdminDashboard,
+//     meta: { requiresAuth: true }
+//   };
+const routes = [
+  // dashboard,
+  {
     path: '/',
     name: 'home',
     component: AdminDashboard,
-    meta: { requiresAuth: true }
-  } : {
-    path: '/',
-    name: 'home',
-    component: Vendors,
-    meta: { requiresAuth: true }
-  };
-const routes = [
-  dashboard,
-  // {
-  //   path: '/',
-  //   name: 'home',
-  //   component: HomeView,
-  //   meta: { requiresAuth: true }
-  // },
-
+    meta: { requiresAuth: true, dynamic: true  }
+  },
+  {
+    path: '/vendors/registration/:vendor/:id',
+    name: 'vendorRegistration',
+    component: VendorRegistration,
+    meta: { hideSidebar: true }
+  },
   {
     path: '/login',
     name: 'superAdmin-login',
@@ -111,12 +117,6 @@ const routes = [
     component: VendorTransaction,
     // meta: { requiresAuth: true }
   },
-  // {
-  //   path: '/vendors',
-  //   name: 'vendorDetails',
-  //   component: Vendors,
-  //   // meta: { requiresAuth: true }
-  // },
   {
     path: '/user/vendors/:id',
     name: 'vendorDetails',
@@ -278,7 +278,20 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const isAuthenticated = useSuperAdminStore().token !== ''
+  const isVendor = useSuperAdminStore().isVendor
   const requiresAuth = to.matched.some((record) => record.meta.requiresAuth)
+ // 🧠 Dynamic dashboard: if user is vendor, switch home component
+ if (to.name === 'home') {
+  const record = to.matched[0]
+
+  if (record?.components) {
+    record.components.default = isVendor
+      ? Vendors
+      : AdminDashboard
+  }
+}
+
+
 
   if (requiresAuth && !isAuthenticated) {
     next({ name: 'superAdmin-login' }) // Redirect to login if not authenticated

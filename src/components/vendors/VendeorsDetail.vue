@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, reactive, onMounted, computed } from 'vue'
+import { ref, watch, onMounted, computed } from 'vue'
 import { Icon } from '@iconify/vue'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Card, CardDescription, CardHeader, CardContent } from '@/components/ui/card'
@@ -12,8 +12,8 @@ import { ability, defineAbilities, verifyAbilities } from '@/lib/ability'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import * as z from 'zod'
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 // import CountryCodes from '@/lib/CountryCodes'
+import { cbnBankCodes } from './bankcodes'
 import { Input } from '@/components/ui/input'
 import {
   Select,
@@ -22,16 +22,38 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetDescription,
+  SheetTrigger
+} from '@/components/ui/sheet'
 import { catchErr } from '@/composables/catchError'
 import VendorNav from '@/components/VendorNav.vue'
 import { Badge } from '@/components/ui/badge'
 import { Label } from '../ui/label'
+import type { Bank } from './vendor-types'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import VendorsOperation from './VendorsOperation.vue'
 
 defineAbilities()
 const update = true//ability.can('update', 'users')
 const route = useRoute()
 const id = route.params.id
 const isVendor = ref(true);
+const sheetOpen = ref(false)
+const bankDetails = ref<Bank[]>([])
 const editStyle = computed(() => {
   return update ? 'flex' : 'flex cursor-not-allowed opacity-20'
 })
@@ -138,6 +160,7 @@ interface Vendor {
 }
 //get User
 const vendor = ref<Vendor>()
+
 const appUser = ref<AppUser>({
   id: '011',
   firstName: "Ruby",
@@ -223,11 +246,6 @@ const appUser = ref<AppUser>({
   isLive: true
 })
 
-const scheduled = ref(true)
-const handleScheduled = ()=>{
-  scheduled.value = !scheduled.value
-}
-
 const fileInput = ref<HTMLInputElement | null>(null)
 const bgFileInput = ref<HTMLInputElement | null>(null)
 const imageFile = ref<File | null>(null)
@@ -261,8 +279,6 @@ const handleBgFileChange = (e: Event) => {
   bgImagePreview.value = URL.createObjectURL(file) // preview
 }
 
-const status = ref(true)
-
 const statusVal = ref('Suspended') // default state
 const isEdit = ref(false)
 
@@ -275,10 +291,169 @@ const cycleStatus = () => {
   // editDetails('status', status.value)
 }
 
+const deleteBankData = async (msg: string, _id: string) => {
+  toast({
+    title: 'Loading Data',
+    description: 'Fetching data...',
+    variant: 'loading',
+    duration: 0 // Set duration to 0 to make it indefinite until manually closed
+  })
+
+  try {
+    // Set loading to true
+    // useGeneralStore().setLoading(true)
+    const response = await axios.delete(`/api/v1/admin/market/banks/${_id}`)
+
+    if (response.status === 200 || response.status === 201) {
+      toast({
+        title: 'Success',
+        description: `Success- ${msg}`,
+        variant: 'success'
+      })
+      fetchBankData('Success')
+    }
+    // set Loading to false
+  } catch (error: any) {
+    catchErr(error)
+    if (error.response.status === 401) {
+      // sessionStorage.removeItem('token')
+      // Clear token from superAdminStore
+      // superAdminStore.setToken('')
+
+      setTimeout(() => {
+        // router.push({ name: 'super-admin-login' })
+      }, 3000)
+
+      toast({
+        title: 'Unauthorized',
+        description: 'You are not authorized to perform this action. Redirecting to home page...',
+        variant: 'destructive'
+      })
+      // Redirect after 3 seconds
+    } else {
+      toast({
+        title: error.response.data.message || 'An error occurred',
+        variant: 'destructive'
+      })
+    }
+  }
+}
+
+const fetchBankData = async (msg: string) => {
+  toast({
+    title: 'Loading Data',
+    description: 'Fetching data...',
+    variant: 'loading',
+    duration: 0 // Set duration to 0 to make it indefinite until manually closed
+  })
+
+  try {
+    // Set loading to true
+    // useGeneralStore().setLoading(true)
+    const response = await axios.get(`/api/v1/admin/market/banks/vendor/${id}`)
+
+    if (response.status === 200 || response.status === 201) {
+      // Update the users data with the response
+      // console.log(response)
+      bankDetails.value = response.data.data;
+      // const responseData = response.data.data[0]
+      // const phoneData = response.data.data[0].phoneNumber.normalizedNumber
+      // const data = { ...responseData, phone: phoneData }
+      // Show success toast
+      toast({
+        title: 'Success',
+        description: `Success- ${msg}`,
+        variant: 'success'
+      })
+    }
+    // set Loading to false
+    // useGeneralStore().setLoading(false)
+  } catch (error: any) {
+    catchErr(error)
+    if (error.response.status === 401) {
+      // sessionStorage.removeItem('token')
+      // Clear token from superAdminStore
+      // superAdminStore.setToken('')
+
+      setTimeout(() => {
+        // router.push({ name: 'super-admin-login' })
+      }, 3000)
+
+      toast({
+        title: 'Unauthorized',
+        description: 'You are not authorized to perform this action. Redirecting to home page...',
+        variant: 'destructive'
+      })
+      // Redirect after 3 seconds
+    } else {
+      toast({
+        title: error.response.data.message || 'An error occurred',
+        variant: 'destructive'
+      })
+    }
+  }
+}
+
+const fetchData = async (msg: string) => {
+  toast({
+    title: 'Loading Data',
+    description: 'Fetching data...',
+    variant: 'loading',
+    duration: 0 // Set duration to 0 to make it indefinite until manually closed
+  })
+
+  try {
+    // Set loading to true
+    // useGeneralStore().setLoading(true)
+    const response = await axios.get(`/api/v1/admin/market/vendor/rcdetails/9000`)
+
+    if (response.status === 200 || response.status === 201) {
+      // Update the users data with the response
+      console.log(response)
+      // vendor.value = response.data.data;
+      // const responseData = response.data.data[0]
+      // const phoneData = response.data.data[0].phoneNumber.normalizedNumber
+      // const data = { ...responseData, phone: phoneData }
+      // Show success toast
+      toast({
+        title: 'Success',
+        description: `Success- ${msg}`,
+        variant: 'success'
+      })
+    }
+    // set Loading to false
+    // useGeneralStore().setLoading(false)
+  } catch (error: any) {
+    catchErr(error)
+    if (error.response.status === 401) {
+      // sessionStorage.removeItem('token')
+      // Clear token from superAdminStore
+      // superAdminStore.setToken('')
+
+      setTimeout(() => {
+        // router.push({ name: 'super-admin-login' })
+      }, 3000)
+
+      toast({
+        title: 'Unauthorized',
+        description: 'You are not authorized to perform this action. Redirecting to home page...',
+        variant: 'destructive'
+      })
+      // Redirect after 3 seconds
+    } else {
+      toast({
+        title: error.response.data.message || 'An error occurred',
+        variant: 'destructive'
+      })
+    }
+  }
+}
+
 const fetchUsersData = async (msg: string) => {
   toast({
     title: 'Loading Data',
     description: 'Fetching data...',
+    variant: 'loading',
     duration: 0 // Set duration to 0 to make it indefinite until manually closed
   })
 
@@ -384,18 +559,13 @@ function removeUndefinedKeys<T extends Record<string, any>>(obj: T): Partial<T> 
 }
 
 const editProfile = async (values: any) => {
-  const adminData = removeUndefinedKeys(values)
+  
 }
 
 // const toggleDayActive = (key: string) => {
 //   appUser.value.workingHours.days[key].active = 
 //   !appUser.value.workingHours.days[key].active
 // }
-
-const toggleDayActive = (index: number) => {
-  appUser.value.workingHours.days[index].active =
-    !appUser.value.workingHours.days[index].active
-}
 
 const editDetails = (param: keyof typeof appUser.value, val: string | number | boolean)=>{
   appUser.value = {...appUser.value, [param]: val}
@@ -461,48 +631,133 @@ const onSubmit = contactForm((values) => {
   }
 })
 
-const frequency = ['Daily', 'Weekly', 'Monthly', 'Yearly']
-const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+const frequency = ref(['DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY'])
 
-const categories = [
-  {
-    title: "Food",
-    image:
-      "https://res.cloudinary.com/drykej1am/image/upload/v1757806163/weeshr-marketplace/food_c2n9cf.png",
-    color: "bg-[#C6F4EB]",
-  },
-  {
-    title: "Fashion",
-    image:
-      "https://res.cloudinary.com/drykej1am/image/upload/v1757806164/weeshr-marketplace/fashion_hl0xe1.png",
-    color: "bg-[#DCDEFF]",
-  },
-  {
-    title: "Gadgets",
-    image:
-      "https://res.cloudinary.com/drykej1am/image/upload/v1757806163/weeshr-marketplace/gadget_rzmwyw.png",
-    color: "bg-[#E9F4D1]",
-  },
-  {
-    title: "Lifestyle",
-    image:
-      "https://res.cloudinary.com/drykej1am/image/upload/v1757806163/weeshr-marketplace/style_nqxqv7.png",
-    color: "bg-[#C6EDF6]",
+// 🔹 Form state
+const bankCode = ref('')
+const bankName = computed(() =>
+  cbnBankCodes.find(bank => bank.code === bankCode.value)
+);
+// const bankCode = ref(cbnBankCodes[])
+const accountNumber = ref("");
+const payoutFrequency = ref("WEEKLY");
+const initialData = ref({
+  bankCode: "",
+  accountNumber: "",
+  payoutFrequency: ""
+});
+
+// whether to show button
+const showButton = ref(false);
+
+// watch all three fields for change
+watch([bankCode, accountNumber, payoutFrequency], ([newBank, newAcc, newFreq]) => {
+  const changed =
+    newBank !== initialData.value.bankCode ||
+    newAcc !== initialData.value.accountNumber ||
+    newFreq !== initialData.value.payoutFrequency;
+  showButton.value = changed;
+});
+
+ const saveBankDetails = async () => {
+    toast({
+      title: 'Loading Data',
+      description: 'Saving bank details...',
+      variant: 'loading',
+      duration: 0 // Set duration to 0 to make it indefinite until manually closed
+    })
+    if(!bankCode.value || accountNumber.value === ''){
+      toast({
+        description: 'Incomplete data',
+        variant: 'destructive'
+      })
+      return;
+    }
+    // VendorListStore.loadingControl(true)
+    try {
+      const response = await axios.post(
+        '/api/v1/admin/market/banks',
+        {
+          "vendorId": id,
+          "bankName": bankName.value?.name,
+          "bankCode": bankCode.value,
+          "accountNumber": accountNumber.value,
+          "payoutFrequency": payoutFrequency.value.toLowerCase()
+        }
+      )
+
+      // Check if response status is 200 or 201
+      if (response.status === 200 || response.status === 201) {
+        // Show success toast
+        toast({
+          title: 'Success',
+          description: `${bankName.value?.name} added successfully.`,
+          variant: 'success'
+        })
+      }
+      // Handle success
+    } catch (err: any) {
+      //   VendorListStore.loadingControl(false)
+      catchErr(err)
+      // Handle other errors
+    }
   }
-]
 
+  const verifyDetails = async (accNum: string, code: string) => {
+    toast({
+      title: 'Loading Data',
+      description: 'Verifying bank details...',
+      variant: 'loading',
+      duration: 0 // Set duration to 0 to make it indefinite until manually closed
+    })
+    if(!code || accNum === ''){
+      toast({
+        description: 'Incomplete data',
+        variant: 'destructive'
+      })
+      return;
+    }
+    // VendorListStore.loadingControl(true)
+    try {
+      const response = await axios.post(
+        '/api/v1/admin/market/banks',
+        {
+          "bankCode": code,
+          "accountNumber": accNum,
+        }
+      )
+
+      // Check if response status is 200 or 201
+      if (response.status === 200 || response.status === 201) {
+        // Show success toast
+        toast({
+          title: 'Success',
+          description: `Verification successfully.`,
+          variant: 'success'
+        })
+      }
+      // Handle success
+    } catch (err: any) {
+      //   VendorListStore.loadingControl(false)
+      catchErr(err)
+      // console.log(err)
+      // Handle other errors
+    }
+  }
 onMounted(() => {
   fetchUsersData('data fetched')
+  fetchBankData('data fetched')
+  fetchData('success')
 })
 </script>
 
 <template>
-  <div class="max-h-screen h-screen">
+  <div class="max-h-screen h-full">
     <VendorNav class="mx-6" heading-text="Profile"/>
   <!-- <div v-if="!appUser">
     <LoadingSpinner />
   </div> -->
-    <div class="flex-col lg:flex lg:flex-row gap-1 px-8 mt-9">
+    <div class="flex-col lg:flex lg:flex-row gap-1 px-8 mt-9 h-full">
       <Card class="lg:w-4/12 bg-[#F8F9FF] sm:items-center shadow-xl">
         <CardHeader>
           <h1 class="font-semibold text-lg">Dang!</h1>
@@ -756,200 +1011,224 @@ onMounted(() => {
           </TabsContent>
 
           <TabsContent value="product" class="space-y-4">
-            <div class="p-4">
-              <div class="w-full flex items-center justify-between mb-4">
-                <h1 class="text-lg font-medium">Product & Operation</h1>
-              </div>
-              <div class="grid md:grid-cols-8 gap-2 md:gap-8">
-                <div class="md:col-span-8">
-                  <Label class="px-2">Product Category</Label>
-                  <!-- <Input class="ghost"/> -->
-                   <ToggleGroup type="multiple">
-                    <div v-if="categories.length !== 0" class="overflow-auto bg-white pb-4 flex items-center gap-4 space-y-2">
-                        <ToggleGroupItem v-for="(category, key) in categories" :key="key" :value="category.title" aria-label="Toggle bold">
-                          <Card Content class="border flex items-center justify-center rounded-lg hover:shadow-xl w-fit py-2 px-4">
-                            <!-- <CardContent
-                            > -->
-                              <span class="flex gap-2 items-center"><div
-                                class="inline-block text-[#F8F9FF] w-6 h-6"
-                              >
-                                <img :src='category.image' class="w-6 h-6 rounded-sm"/>
-                              </div>
-                              <div class="flex flex-col items-start justify-between">
-                                <p class="text-sm text-muted-foreground text-center text-[#000000]">
-                                  {{category.title}}
-                                </p>
-                              </div>
-                            </span>
-                            <!-- </CardContent> -->
-                          </Card>
-                        </ToggleGroupItem>
-                    </div>
-                  </ToggleGroup>
-                </div>
-              </div>
-              <div class="grid grid-cols-8 gap-2 md:gap-8 my-2 md:my-4 w-full">
-                <div class="col-span-8 md:col-span-3 w-full">
-                  <Label class="px-2">Delivery Coverage</Label>
-                  <Select
-                    id="gender"
-                    class="bg-gray-900 w-auto mt-3 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
-                  >
-                      <SelectTrigger class="">
-                        <SelectValue placeholder="Weekly" />
-                      </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem
-                        v-for="(code, key) in frequency"
-                        :value="code"
-                        :key="key"
-                        class="flex justify-center items-center gap-2"
-                      >
-                        {{ code }}                        
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div class="col-span-8 md:col-span-5 w-full">
-                  <Label class="px-2">Delivery Logistics Type</Label>
-                  <Select
-                    id="gender"
-                    class="bg-gray-900 w-auto mt-3 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
-                  >
-                      <SelectTrigger class="">
-                        <SelectValue placeholder="Weekly" />
-                      </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem
-                        v-for="(code, key) in frequency"
-                        :value="code"
-                        :key="key"
-                        class="flex justify-center items-center gap-2"
-                      >
-                        {{ code }}                        
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div class="grid grid-cols-12 gap-2 md:gap-8 my-2 md:my-4">
-                <div class="col-span-12 md:col-span-4">
-                  <Label class="px-2">Average Delivery Timeframe</Label>
-                  <Select
-                    id="gender"
-                    class="bg-gray-900 w-auto mt-3 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
-                  >
-                      <SelectTrigger class="">
-                        <SelectValue placeholder="Weekly" />
-                      </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem
-                        v-for="(code, key) in frequency"
-                        :value="code"
-                        :key="key"
-                        class="flex justify-center items-center gap-2"
-                      >
-                        {{ code }}                        
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div class="col-span-12 md:col-span-4">
-                  <Label class="px-2">Max. Delivery Cost</Label>
-                  <Input class="ghost" value="0.00" readonly/>
-                </div>
-                <div class="col-span-12 md:col-span-4">
-                  <Label class="px-2">Link to Return Policy</Label>
-                  <Input class="ghost w-full"/>
-                </div>
-              </div>
-              <div class="w-full flex flex-col md:flex-row md:items-center justify-between pt-8 pb-4">
-                <h1 class="text-lg font-medium">Working Hours</h1>
-                <div class="w-48 mt-2 md:mt-0">
-                  <label
-                    class="relative w-full justify-between inline-flex cursor-pointer items-center"
-                    @click="handleScheduled"
-                  >
-                    <input
-                      type="checkbox"
-                      value=""
-                      :checked="scheduled"
-                      disabled
-                      class="peer sr-only"
-                    />
-                    <div
-                      class="peer flex border h-8 items-center gap-6 justify-between rounded-full px-4 text-black after:absolute after:left-1 after: after:h-6 after:w-[48%] after:rounded-full after:bg-slate-700 after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-focus:outline-none dark:border-slate-600 text-sm peer-checked:text-white w-full"
-                    >
-                      <span :class="scheduled ? 'text-[#020721] z-30' : 'text-white z-30'">Scheduled</span>
-                      <span :class="!scheduled ? 'text-[#020721] z-30' : 'text-white z-30'">24hrs</span>
-                    </div>
-                  </label>
-                </div>
-              </div>
-              <div class="grid grid-cols-12 gap-4">
-                <div class="col-span-6 md:col-span-3" v-for="(day, key) in days" :key="key">
-                  <Label class="px-2 my-1 w-full flex items-center justify-between">
-                    <p>{{ day }} </p>
-                    <Switch 
-                    :checked="appUser.workingHours.days[key].active" :disabled="scheduled"
-                    @click="toggleDayActive(key)"
-                    />
-                    <!-- <Switch :checked="!scheduled" :disabled="scheduled"/> -->
-                  </Label>
-                  <Input :id="'input'+day" class="ghost" placeholder="9:00am - 6:00pm" readonly :disabled="day === 'Saturday' || day === 'Sunday'"/>
-                </div>
-              </div>
-            </div>
+            <VendorsOperation/>
           </TabsContent>
 
           <!-- <TabsContent value="support" class="space-y-4"> </TabsContent> -->
 
-          <TabsContent value="financial" class="space-y-4">
-            <div class="px-4 py-2">
-              <div class="w-full flex flex-col md:flex-row md:items-center justify-between mb-4">
+          <TabsContent value="financial" class="space-y-4 h-full">
+            <div class="px-4 py-2 h-full">
+              <div class="flex items-center justify-between w-full mb-2">
                 <h1 class="text-lg font-medium">Bank Details</h1>
-                <Button class="border-2 mt-2 md:mt-0 border-[#020721] text-[#020721] rounded-full px-4 md:px-8 py-2 flex items-center gap-2" variant="outline">
-                  Verify Account
-                  <Icon
-                    icon="mdi:minus-box-outline"
-                    class="verified-icon text-[#020721]"
-                    width="20"
-                    height="20"
-                  />
-                </Button>
+                <Sheet v-model:open="sheetOpen">
+                  <SheetTrigger as-child>
+                    <button @click="sheetOpen = true" class="bg-[#020721] px-4 py-2 rounded-xl w-50 h-12">
+                      <div class="text-base text-[#F8F9FF] text-center flex items-center">
+                        Add Account
+                        <svg
+                          width="20"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                          class="ml-6"
+                        >
+                          <path
+                            d="M12 2C6.49 2 2 6.49 2 12C2 17.51 6.49 22 12 22C17.51 22 22 17.51 22 12C22 6.49 17.51 2 12 2ZM16 12.75H12.75V16C12.75 16.41 12.41 16.75 12 16.75C11.59 16.75 11.25 16.41 11.25 16V12.75H8C7.59 12.75 7.25 12.41 7.25 12C7.25 11.59 7.59 11.25 8 11.25H11.25V8C11.25 7.59 11.59 7.25 12 7.25C12.41 7.25 12.75 7.59 12.75 8V11.25H16C16.41 11.25 16.75 11.59 16.75 12C16.75 12.41 16.41 12.75 16 12.75Z"
+                            fill="#F8F9FF"
+                          />
+                        </svg>
+                      </div>
+                    </button>
+                  </SheetTrigger>
+                  <SheetContent class="overflow-y-auto">
+                    <SheetHeader>
+                      <h3 class="text-2xl font-medium">Add Account Information</h3>
+                      <SheetDescription>
+                        Add bank info. Click submit when you're done.
+                      </SheetDescription>
+                    </SheetHeader>
+                    <div class="space-y-4 py-2">
+                      <div class=" gap-2 md:gap-8">
+                        <div class="">
+                          <Label class="px-2">Bank Name</Label>
+                          <Select
+                            v-model="bankCode"
+                            id="gender"
+                            class="bg-gray-900 w-auto mt-3 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+                          >
+                              <SelectTrigger class="">
+                                <SelectValue placeholder="Select Bank" />
+                              </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem
+                                v-for="(bank) in cbnBankCodes"
+                                :value="bank.code"
+                                :key="bank.code"
+                                class="flex justify-center items-center gap-2"
+                              >
+                                {{ bank.name }}                        
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div class="">
+                          <Label class="px-2">Account Number</Label>
+                          <Input v-model="accountNumber" class="" placeholder="XXXXXXXXXX"/>
+                        </div>
+                      </div>
+                      <Button @click="()=> saveBankDetails()" class="border-2 border-[#020721] w-full px-4 md:px-8 py-2 flex items-center gap-2">
+                        Save
+                      </Button>
+                    </div>
+                  </SheetContent>
+                </Sheet>
               </div>
-              <div class="grid md:grid-cols-8 gap-2 md:gap-8">
-                <div class="md:col-span-5">
-                  <Label class="px-2">Bank Name</Label>
-                  <Input class="ghost"/>
+              <div v-for="bank in bankDetails" :key="bank.accountNumber" class="shadow-md p-2 rounded-md">
+                <div class="grid md:grid-cols-8 gap-2 md:gap-8">
+                  <div class="md:col-span-5">
+                    <Label class="px-2">Bank Name</Label>
+                    <Select
+                      v-model="bankCode"
+                      id="gender"
+                      class="bg-gray-900 w-auto mt-3 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+                    >
+                        <SelectTrigger class="">
+                          <SelectValue :placeholder="bank.bankName || 'Select Bank'" />
+                        </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem
+                          v-for="(bank) in cbnBankCodes"
+                          :value="bank.code"
+                          :key="bank.code"
+                          class="flex justify-center items-center gap-2"
+                        >
+                          {{ bank.name }}                        
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div class="md:col-span-3 ">
+                    <Label class="px-2">Account Number</Label>
+                    <Input v-model="accountNumber" class="ghost" :value="bank.accountNumber" :placeholder="bank.accountNumber"/>
+                  </div>
                 </div>
-                <div class="md:col-span-3 ">
-                  <Label class="px-2">Account Number</Label>
-                  <Input class="ghost"/>
+                <div class="grid md:grid-cols-8 gap-2 md:gap-8 my-2 md:my-4">
+                  <div class="md:col-span-3">
+                    <Label class="px-2">Payout Frequency</Label>
+                    <Select
+                      v-model="payoutFrequency"
+                      id="gender"
+                      class="bg-gray-900 w-auto mt-3 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+                    >
+                        <SelectTrigger class="">
+                          <SelectValue :placeholder="bank.payoutFrequency" />
+                        </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem
+                          v-for="(code, key) in frequency"
+                          :value="code"
+                          :key="key"
+                          class="flex justify-center items-center gap-2"
+                        >
+                          {{ code }}                        
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div class="md:col-span-5 flex items-end">
+                    <div class="w-full flex flex-col md:flex-row md:items-center justify-end">
+                      <div class="flex items-center gap-4">
+                        <Button  class="border-2 mt-2 md:mt-0 text-[#020721] rounded-full px-4 md:px-8 py-2 flex items-center gap-2" variant="outline">
+                          <Icon
+                            icon="uil:edit"
+                            class="verified-icon text-[#020721]"
+                            width="20"
+                            height="20"
+                          />
+                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger as-child>
+                            <Button class="border-2 mt-2 md:mt-0 text-white rounded-full px-4 md:px-8 py-2 flex items-center gap-2" variant="destructive">
+                              <Icon
+                                icon="mi:delete"
+                                class="verified-icon text-white"
+                                width="20"
+                                height="20"
+                              />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                This action cannot be undone.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction @click="deleteBankData('Deleted successfully', bank._id)">Continue</AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+
+                        <Button @click="()=> saveBankDetails()" v-if="showButton" class="border-2 mt-2 md:mt-0 border-[#020721] text-[#020721] rounded-full px-4 md:px-8 py-2 flex items-center gap-2" variant="outline">
+                          Save
+                          <Icon
+                            icon="mingcute:save-line"
+                            class="verified-icon text-[#020721]"
+                            width="20"
+                            height="20"
+                          />
+                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger as-child>
+                            <Button class="border-2 mt-2 md:mt-0 border-[#020721] text-[#020721] rounded-full px-4 md:px-8 py-2 flex items-center gap-2" variant="outline">
+                              Verify Account
+                              <Icon
+                                icon="mdi:minus-box-outline"
+                                class="verified-icon text-[#020721]"
+                                width="20"
+                                height="20"
+                              />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Do you want to begin verification?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                This may take a second.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction @click="verifyDetails(bank.accountNumber, bank.bankCode)">Continue</AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div class="grid md:grid-cols-8 gap-2 md:gap-8 my-2 md:my-4">
-                <div class="md:col-span-3">
-                  <Label class="px-2">Payout Frequency</Label>
-                  <Select
-                    id="gender"
-                    class="bg-gray-900 w-auto mt-3 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
-                  >
-                      <SelectTrigger class="">
-                        <SelectValue placeholder="Weekly" />
-                      </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem
-                        v-for="(code, key) in frequency"
-                        :value="code"
-                        :key="key"
-                        class="flex justify-center items-center gap-2"
-                      >
-                        {{ code }}                        
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+              <div v-if="bankDetails.length === 0" class="h-[60dvh]">
+                <Card class="h-full">
+                  <CardContent class="flex border-none flex-col gap-4 items-center justify-center h-full px-2 sm:px-4 py-4">
+                    <img src="https://res.cloudinary.com/drykej1am/image/upload/v1762618116/weeshr-marketplace/empty_wallet_register_transaction_payment_purchase_shopping_incomplete_vrdj7e.png" class="w-48 h-48" alt="">
+                    <h1>No account setup</h1>
+                    <div class="w-full flex items-center justify-center">
+                      <Button class="animate-bounce flex items-center gap-2 text-primary border-primary" @click="()=> sheetOpen = true" variant="outline">
+                        Add Account 
+                        <Icon
+                          icon="mdi:plus-box-outline"
+                          class="verified-icon text-[#020721]"
+                          width="20"
+                          height="20"
+                        />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
             </div>
           </TabsContent>

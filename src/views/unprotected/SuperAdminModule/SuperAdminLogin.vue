@@ -112,6 +112,7 @@ const onSubmit = form.handleSubmit(async () => {
       const {
         data: { data }
       } = response
+      // console.log(response)
 
       // Check if the token property exists in the response
       if (data && data.user && data.user.token) {
@@ -120,6 +121,8 @@ const onSubmit = form.handleSubmit(async () => {
           user: { token, firstName, lastName, _id: id, email: userEmail }
         } = data
 
+        const roles: {_id: string, name: string}[] = response.data.data.user.roles
+
         // save basic user data to local storage
         setLocalStorage(firstName, lastName, userEmail, id)
         // save user email
@@ -127,6 +130,12 @@ const onSubmit = form.handleSubmit(async () => {
         // Save the token in Pinia store
         setToken(token)
 
+        if(roles){
+          const vendorRole = roles.find((r)=> r.name.toLowerCase() === 'vendor')
+          if(vendorRole){
+            useSuperAdminStore().isVendor = true
+          }
+        }
         sessionStorage.setItem('permissions', JSON.stringify(response.data.data.user.permissions))
         // console.log(response.data)
         // const permissions = modPermissions(response.data.data.user.permissions)
@@ -145,7 +154,7 @@ const onSubmit = form.handleSubmit(async () => {
     } catch ({ response }: any) {
       loading.value = false
 
-      const { status, data, statusText } = response
+      const { status, data } = response
 
       if ([400, 401].includes(status)) {
         return toast({
