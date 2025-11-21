@@ -34,10 +34,13 @@ const logout = async () => {
     </DropdownMenuTrigger>
     <DropdownMenuContent class="w-56" align="end">
       <DropdownMenuLabel class="flex font-normal">
-        <router-link :to="`/user/vendors/${id}`">
+        <router-link :to="`/details`">
           <div class="flex flex-col space-y-1">
-            <p class="text-sm font-medium leading-none">
+            <p class="text-sm md:hidden font-medium leading-none">
               {{ user.firstname[0] }}{{ user.lastname[0] }}
+            </p>
+            <p class="text-sm hidden md:block font-medium leading-none">
+              {{ user.firstname }} {{ user.lastname }}
             </p>
             <p class="text-xs leading-none text-muted-foreground">{{ user.email }}</p>
           </div>

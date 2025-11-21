@@ -100,6 +100,16 @@ const openNotificationsBoard = () => {
         </a>
       </li>
 
+      <li v-if="superAdminStore.isVendor" :class="{ 'dashboard-active': isActive('/details') }">
+        <a @click="$router.push({ name: 'vendorDetailsPage' })">
+          <div class="icon-grid">
+            <Icon icon="teenyicons:users-solid" width="16" height="16" class="icons-sidebar" />
+          </div>
+
+          <span class="nav-text"> Profile </span>
+        </a>
+      </li>
+
       <li v-if="weeshes" :class="{ 'dashboard-active': isActive('/weeshes') }">
         <a @click="$router.push({ name: 'weeshes' })">
           <div class="icon-grid">
@@ -110,7 +120,7 @@ const openNotificationsBoard = () => {
         </a>
       </li>
 
-      <li :class="{ 'dashboard-active': isActive('/depot') }">
+      <li v-if="!superAdminStore.isVendor" :class="{ 'dashboard-active': isActive('/depot') }">
         <a @click="$router.push({ name: 'depot' })">
           <div class="icon-grid">
             <Icon icon="mdi:truck-fast" width="17" height="17" class="icons-sidebar" />
@@ -181,7 +191,7 @@ const openNotificationsBoard = () => {
         </a>
       </li>
 
-      <li :class="{ 'dashboard-active': isActive('/vendors/geeftr') }">
+      <li v-if="!superAdminStore.isVendor" :class="{ 'dashboard-active': isActive('/vendors/geeftr') }">
         <a @click="$router.push({ name: 'GlobalGeeftr' })">
           <div class="icon-grid">
             <Icon icon="mingcute:send-fill" width="17" height="17" class="icons-sidebar" />

@@ -12,6 +12,7 @@ interface SuperAdminState {
   token: string,
   isVendor: boolean,
   vendorId: string,
+  companyName: string,
 }
 
 interface NewUser {
@@ -28,8 +29,9 @@ export const useSuperAdminStore = defineStore({
     id: '',
     newUser: [],
     token: sessionStorage.getItem('token') || '',
-    isVendor: true,
-    vendorId: ''
+    isVendor: JSON.parse(localStorage.getItem('isVendor') || 'false'),
+    vendorId: JSON.parse(localStorage.getItem('vendorId') || ''),
+    companyName: JSON.parse(localStorage.getItem('vendor') || ''),
   }),
 
   actions: {
@@ -49,6 +51,11 @@ export const useSuperAdminStore = defineStore({
       }
       // store basic user data in local storage
       localStorage.setItem('user', JSON.stringify(user))
+    },
+    setVendor(value: boolean, id: string) {
+      this.isVendor = value
+      localStorage.setItem('isVendor', JSON.stringify(value))
+      localStorage.setItem('vendorId', JSON.stringify(id))
     },
     getLocalstorageData() {
       const data = localStorage.getItem('user')!

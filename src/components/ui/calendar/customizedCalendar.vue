@@ -67,7 +67,7 @@ const formatter = useDateFormatter('en')
         <Select
           :default-value="placeholder.month.toString()"
           @update:model-value="
-            (v) => {
+            (v: any) => {
               if (!v || !placeholder) return
               if (Number(v) === placeholder?.month) return
               placeholder = placeholder.set({
@@ -93,7 +93,7 @@ const formatter = useDateFormatter('en')
         <Select
           :default-value="placeholder.year.toString()"
           @update:model-value="
-            (v) => {
+            (v: any) => {
               if (!v || !placeholder) return
               if (Number(v) === placeholder?.year) return
               placeholder = placeholder.set({

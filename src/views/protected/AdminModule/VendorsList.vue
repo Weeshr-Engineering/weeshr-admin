@@ -21,6 +21,7 @@ import {
 import Badge from '@/components/ui/badge/Badge.vue'
 import axios from 'axios'
 import type { VendorAnalytics } from '@/stores/vendor/vendor-transactions'
+import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
 // import { toast } from '@/components/ui/toast'
 // import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
 // import { useGeneralStore } from '@/stores/general-use'
@@ -92,7 +93,7 @@ interface Order {
   updatedAt?: Date | null
 }
 
-const id = '68fe1772a98f5d209988f4c1'//"68fe1816a98f5d209988f4ea"//'68fe1772a98f5d209988f4c1';
+const id = useSuperAdminStore().vendorId;
 // Define a ref to hold the users data
 const orders = ref<Order[]>([])
 const analytics = ref<VendorAnalytics>()
@@ -219,13 +220,13 @@ const fetchAnalytics = async (msg: string) => {
   try {
     // Set loading to true
     // useGeneralStore().setLoading(true)
-    const response = await axios.get(`/api/v1/admin/market/products/status/counts`)
+    const response = await axios.get(`/api/v1/admin/market/vendor/dashboard/${id}`)
 
     if (response.status === 200 || response.status === 201) {
       // Update the users data with the response
       // products.value = response.data.data.data;
       // console.log(response)
-      analytics.value = response.data;
+      analytics.value = response.data.data;
       // const phoneData = response.data.data[0].phoneNumber.normalizedNumber
       // const data = { ...responseData, phone: phoneData }
       // Show success toast
@@ -266,8 +267,8 @@ const fetchAnalytics = async (msg: string) => {
 
 
 onMounted(() => {
-  // fetchOrders('data fetched')
-  // fetchProducts('Products are available')
+  fetchOrders('data fetched')
+  fetchProducts('Products are available')
   fetchAnalytics('Success')
 })
 </script>
@@ -286,8 +287,8 @@ onMounted(() => {
       <VendorsCards
         type="orders"
         :loading="loading"
-        :value=60
-        :subvalue=60
+        :value='analytics?.deliveredAnalytics.totalDeliveredOrders || 0'
+        :subvalue='analytics?.overdueAndUndelivered.overdueCount || 0'
       />
       <VendorsCards
         type="totalFulfilment"
@@ -298,8 +299,8 @@ onMounted(() => {
       <VendorsCards
         type="products"
         :loading="loading"
-        :value=60
-        :subvalue=60
+        :value=0
+        :subvalue=0
       />
     </div>
 
@@ -313,7 +314,7 @@ onMounted(() => {
           <Search />
         </div>
 
-        <div class="overflow-auto bg-white rounded-lg">
+        <div class="overflow-y-scroll max-h-[60dvh] bg-white rounded-lg">
           <Table class="h-[20dvh] overflow-y-scroll" v-if="orders.length !== 0">
             <TableHeader>
               <TableRow
@@ -382,7 +383,7 @@ onMounted(() => {
             <VendorAdd v-if="products.length !== 0"/>
           </div>
 
-          <div v-if="products.length !== 0" class="overflow-auto bg-white pb-4 flex flex-col space-y-2">
+          <div v-if="products.length !== 0" class="overflow-y-scroll bg-white pb-4 flex flex-col space-y-2 max-h-[60dvh]">
             <Card Content class="border rounded-lg hover:shadow-xl" v-for="(product, key) in products" :key="key">
               <CardContent
                 class="flex items-center justify-between px-2 sm:px-4 py-4"

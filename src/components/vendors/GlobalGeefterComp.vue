@@ -801,7 +801,7 @@ function formatDate(dateStr: string | null): string | null {
 }
 
 onMounted(()=>{
-  useVendorTransactionStore().fetchAnalytics('Analytics')
+  useVendorTransactionStore().fetchAllTransactions('Analytics')
 })
 
 </script>

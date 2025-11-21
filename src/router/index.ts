@@ -4,12 +4,13 @@ import SuperAdminLogin from '@/views/unprotected/SuperAdminModule/SuperAdminLogi
 import configuration from '@/views/protected/AdminModule/UserConfiguration.vue'
 import user from '@/views/protected/AdminModule/UserHub.vue'
 import AppUsers from '@/views/protected/AdminModule/AppUsers.vue'
-import Vendors from '@/views/protected/AdminModule/VendorsList.vue'
+// import Vendors from '@/views/protected/AdminModule/VendorsList.vue'
 import VendorListAdmin from '@/views/protected/VendorModule/VendorListAdmin.vue'
 import AdminDetails from '@/views/protected/AdminModule/AdminDetails.vue'
 import UserDetails from '@/views/protected/AdminModule/UserDetails.vue'
-import AdminDashboard from '@/views/protected/AdminModule/AdminDashboard.vue'
+// import AdminDashboard from '@/views/protected/AdminModule/AdminDashboard.vue'
 import Analytics from '@/views/protected/AdminModule/AnalyticsView.vue'
+import DashboardWrapper from '@/views/protected/AdminModule/DashboardWrapper.vue'
 
 import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
 import ErrorPage from '@/views/unprotected/ErrorPageView.vue'
@@ -37,31 +38,18 @@ import VendorDetails from '@/views/protected/AdminModule/VendorDetails.vue'
 import GlobalTransaction from '@/views/protected/VendorModule/GlobalTransaction.vue'
 import GlobalGeeftr from '@/views/protected/VendorModule/GlobalGeeftr.vue'
 import VendorRegistration from '@/views/unprotected/VendorModule/VendorRegistration.vue'
+import VendorsDetailsPage from '@/components/vendors/vendorsDetailsPage.vue'
 
-// "68f45f0fc718bf7e6875d761"
-// "68fe1772a98f5d209988f4c1"
-// const vendor = useSuperAdminStore().isVendor
-// const dashboard = vendor ? {
-//     path: '/',
-//     name: 'home',
-//     component: Vendors,
-//     meta: { requiresAuth: true }
-//   } : {
-//     path: '/',
-//     name: 'home',
-//     component: AdminDashboard,
-//     meta: { requiresAuth: true }
-//   };
 const routes = [
   // dashboard,
   {
     path: '/',
     name: 'home',
-    component: AdminDashboard,
+    component: DashboardWrapper,
     meta: { requiresAuth: true, dynamic: true  }
   },
   {
-    path: '/vendors/registration/:vendor/:id',
+    path: '/registration',
     name: 'vendorRegistration',
     component: VendorRegistration,
     meta: { hideSidebar: true }
@@ -121,6 +109,12 @@ const routes = [
     path: '/user/vendors/:id',
     name: 'vendorDetails',
     component: VendorDetails,
+    // meta: { requiresAuth: true }
+  },
+  {
+    path: '/details',
+    name: 'vendorDetailsPage',
+    component: VendorsDetailsPage,
     // meta: { requiresAuth: true }
   },
   {
@@ -278,18 +272,18 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const isAuthenticated = useSuperAdminStore().token !== ''
-  const isVendor = useSuperAdminStore().isVendor
+  // const isVendor = useSuperAdminStore().isVendor
   const requiresAuth = to.matched.some((record) => record.meta.requiresAuth)
  // 🧠 Dynamic dashboard: if user is vendor, switch home component
- if (to.name === 'home') {
-  const record = to.matched[0]
+//  if (to.name === 'home') {
+//   const record = to.matched[0]
 
-  if (record?.components) {
-    record.components.default = isVendor
-      ? Vendors
-      : AdminDashboard
-  }
-}
+//   if (record?.components) {
+//     record.components.default = isVendor
+//       ? Vendors
+//       : AdminDashboard
+//   }
+// }
 
 
 

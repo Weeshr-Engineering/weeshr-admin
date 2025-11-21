@@ -217,7 +217,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted, watch } from 'vue'
+import { ref, reactive, onMounted, watch } from 'vue'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -226,7 +226,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch'
 import { toast } from '@/components/ui/toast'
 import axios from 'axios'
-import { useRoute } from 'vue-router'
 import { catchErr } from '@/composables/catchError'
 
 // Interfaces
@@ -292,8 +291,10 @@ const vendorData = reactive<VendorData>({
 
 const selectedCategories = ref<string[]>([])
 const isLoading = ref(false)
-const route = useRoute()
-const id = route.params.id
+const props = defineProps({
+  id: String,
+})
+const id = props.id
 
 // Static data
 const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
@@ -422,8 +423,20 @@ const createConfig = async ():  Promise<VendorData | undefined>=>{
 // API functions
 const fetchVendorData = async (): Promise<VendorData |  undefined> => {
   try {
+    toast({
+      title: 'Loading Data',
+      description: 'Fetching data...',
+      variant: 'loading',
+      duration: 0 // Set duration to 0 to make it indefinite until manually closed
+    })
     const response = await axios.get(`/api/v1/market/vendor/operations/${id}`)
   // console.log(response)
+  toast({
+    title: 'Loading Data',
+    description: 'Success!',
+    variant: 'success',
+    duration: 0 // Set duration to 0 to make it indefinite until manually closed
+  })
   // Simulate API call - replace with actual API endpoint
   return response.data.data;
   } catch (error: any) {

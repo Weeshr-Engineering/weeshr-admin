@@ -17,8 +17,8 @@ import { useRoute, useRouter } from 'vue-router'
 const currentYear = ref(new Date().getFullYear())
 const router = useRouter()
 const route = useRoute()
-const id = route.params.id
-const vendor = route.params.vendor
+const id = route.query.id
+const vendor = route.query.vendor
 
 const updateYear = () => {
   currentYear.value = new Date().getFullYear()
@@ -73,14 +73,14 @@ const onConfirmPasswordInput = (event: Event) => {
 const saveDetails = async (password: string) => {
     toast({
       title: 'Loading Data',
-      description: 'Saving bank details...',
+      description: 'Processing...',
       variant: 'loading',
       duration: 0 // Set duration to 0 to make it indefinite until manually closed
     })
     // VendorListStore.loadingControl(true)
     try {
       const response = await axios.post(
-        `/api/v1/admin/market/invites/${id}/accept`,
+        `/api/v1/market/invites/${id}/accept`,
         {
           "password": password
         }
@@ -89,7 +89,7 @@ const saveDetails = async (password: string) => {
       // Check if response status is 200 or 201
       if (response.status === 200 || response.status === 201) {
         // Show success toast
-        console.log(response)
+        // console.log(response)
         
         toast({
           title: 'Success',
@@ -100,7 +100,7 @@ const saveDetails = async (password: string) => {
       // Handle success
     } catch (err: any) {
       //   VendorListStore.loadingControl(false)
-      console.log(err)
+      // console.log(err)
       catchErr(err)
       // Handle other errors
     }
@@ -120,16 +120,16 @@ const onSubmit = form.handleSubmit(async () => {
     try {
       await saveDetails(password)
       
-      toast({
-        description: 'Form submitted successfully!',
-        variant: 'default'
-      })
+      // toast({
+      //   description: 'Form submitted successfully!',
+      //   variant: 'default'
+      // })
 
       // Reset form after successful submission
       form.resetForm()
       passwordValue.value = ''
       confirmPasswordValue.value = ''
-      // router.push('/')
+      router.push('/')
 
     } catch (error: any) {
       loading.value = false
@@ -246,7 +246,7 @@ const onSubmit = form.handleSubmit(async () => {
                             v-if="!emailValue"
                             class="absolute inset-y-0 right-0 flex items-center gap-1 pr-3 text-gray-400 text-sm transition-opacity duration-200"
                           >
-                            <span class="font-semibold">{{ vendor }}</span> X <span class="font-semibold"> Weeshr</span>
+                            <span class="font-semibold truncate w-40">{{ vendor }}</span> X <span class="font-semibold"> WEESHR</span>
                           </span>
                         </div>
                       <!-- </FormControl>
@@ -301,10 +301,10 @@ const onSubmit = form.handleSubmit(async () => {
               </CardContent>
              <CardFooter>
   <div class="flex flex-col w-full">
-    <div class="flex items-center justify-between w-full mb-4">
-      <a href="#" class="text-sm text-white hover:underline">
+    <div class="flex items-center justify-end w-full mb-4">
+      <!-- <a href="#" class="text-sm text-white hover:underline">
         Forgot credentials?
-      </a>
+      </a> -->
       <Button
         @click="onSubmit()"
         type="submit"

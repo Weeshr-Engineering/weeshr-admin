@@ -82,7 +82,7 @@ export const useVendorTransactionStore = defineStore({
     analytics: null
   }),
   actions: {
-    async fetchAnalytics(msg: string){
+    async fetchAnalytics(msg: string, id: string){
       toast({
         title: 'Loading Data',
         description: 'Fetching data...',
@@ -92,10 +92,57 @@ export const useVendorTransactionStore = defineStore({
       try {
         // Set loading to true
         // useGeneralStore().setLoading(true)
-        const response = await axios.get(`/api/v1/admin/market/products/status/counts`)
+        const response = await axios.get(`/api/v1/admin/market/vendor/dashboard/${id}`)
 
         if (response.status === 200 || response.status === 201) {
-          this.analytics = response.data;
+          this.analytics = response.data.data;
+          toast({
+            title: 'Success',
+            description: `${msg}`,
+            variant: 'success'
+          })
+        }
+        // set Loading to false
+        // useGeneralStore().setLoading(false)
+      } catch (error: any) {
+        catchErr(error)
+        if (error.response.status === 401) {
+          // sessionStorage.removeItem('token')
+          // Clear token from superAdminStore
+          // superAdminStore.setToken('')
+
+          setTimeout(() => {
+            // router.push({ name: 'super-admin-login' })
+          }, 3000)
+
+          toast({
+            title: 'Unauthorized',
+            description: 'You are not authorized to perform this action. Redirecting to home page...',
+            variant: 'destructive'
+          })
+          // Redirect after 3 seconds
+        } else {
+          toast({
+            title: error.response.data.message || 'An error occurred',
+            variant: 'destructive'
+          })
+        }
+      }
+    },
+    async fetchAllTransactions(msg: string){
+      toast({
+        title: 'Loading Data',
+        description: 'Fetching data...',
+        duration: 0 // Set duration to 0 to make it indefinite until manually closed
+      })
+
+      try {
+        // Set loading to true
+        // useGeneralStore().setLoading(true)
+        const response = await axios.get(`/api/v1/admin/payouts`)
+
+        if (response.status === 200 || response.status === 201) {
+          this.analytics = response.data.data;
           toast({
             title: 'Success',
             description: `${msg}`,

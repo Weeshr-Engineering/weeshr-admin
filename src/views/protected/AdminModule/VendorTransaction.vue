@@ -1,5 +1,5 @@
 <template>
-  <div class="flex-col flex bg-[#f0f8ff] h-full px-4 sm:px-10 pb-10">
+  <div class="flex-col flex bg-[#f0f8ff] h-screen px-4 sm:px-10 pb-10">
     <VendorNav class="mx-6" headingText="Transactions"/>
 
     <div class="container w-full grid gap-4 md:grid-cols-2 md:gap-6 lg:grid-cols-2 pt-6 text-nowrap">
@@ -52,7 +52,7 @@
             Details of all transactions
           </p>
         </div>
-        <div class="flex items-center flex-col md:flex-row gap-4">
+        <div v-if="transactions.length !== 0" class="flex items-center flex-col md:flex-row gap-4">
           <Search class="mt-3 lg:mt-0" />
           <button class="bg-[#020721] px-4 py-2 rounded-xl w-50 h-12">
             <div class="text-base text-[#F8F9FF] text-center flex items-center">
@@ -76,7 +76,7 @@
       </div>
 
       <div class="overflow-auto bg-white rounded-lg shadow">
-        <Table class="lg:w-full w-[800px]">
+        <Table v-if="transactions.length !== 0" class="lg:w-full w-[800px]">
           <TableHeader>
             <TableRow
               class="text-xs sm:text-sm md:text-base text-[#02072199] font-semibold bg-gray-200"
@@ -251,8 +251,12 @@
             </TableRow>
           </TableBody>
         </Table>
+        <div v-else class="flex h-full w-full flex-col gap-4 items-center justify-center px-2 sm:px-4 py-4">
+          <img src="https://res.cloudinary.com/drykej1am/image/upload/v1757871471/weershr-vendor/empty-cart_x2itw9.png" class="w-60 h-60" alt="">
+          <h1 class="text-2xl font-semibold animate-pulse">No Transaction yet</h1>
+        </div>
       </div>
-      <div class="flex gap-2 max-w-full flex-wrap justify-end mt-8 mr-4 items-center text-[15px]">
+      <div class="hidden gap-2 max-w-full flex-wrap justify-end mt-8 mr-4 items-center text-[15px]">
         <Button variant="secondary"> <Icon icon="radix-icons:chevron-left" /> </Button>
         <Button variant="secondary" class="bg-[#020721] text-gray-400"> 1 </Button>
         <Button variant="outline"> 2 </Button>
@@ -293,11 +297,12 @@ import axios from 'axios'
 import { catchErr } from '@/composables/catchError'
 import { toast } from '@/components/ui/toast'
 import { useVendorTransactionStore } from '@/stores/vendor/vendor-transactions'
+import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
 
 // const open = ref<boolean>(false)
 // const id = ref<string>('0')
 
-const id = "68fe175da98f5d209988f4b7"//'68fe1772a98f5d209988f4c1';
+const id = useSuperAdminStore().vendorId;
 const statusBg = (status: string) => {
   switch (status) {
     case 'failed':
@@ -561,19 +566,19 @@ function sortByProductCount() {
   transactions.value = newArr;
 }
 
-function formatDate(dateStr: string | null): string | null {
-  if (!dateStr) return null;
-  const date = new Date(dateStr);
-  return new Intl.DateTimeFormat("en-GB", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  }).format(date);
-}
+// function formatDate(dateStr: string | null): string | null {
+//   if (!dateStr) return null;
+//   const date = new Date(dateStr);
+//   return new Intl.DateTimeFormat("en-GB", {
+//     day: "numeric",
+//     month: "long",
+//     year: "numeric",
+//   }).format(date);
+// }
 
-onMounted(() => {
-  fetchTransactions('Products are available')
-  useVendorTransactionStore().fetchAnalytics('Analytics')
+onMounted(async () => {
+  // fetchTransactions('Products are available')
+  await useVendorTransactionStore().fetchAnalytics('Analytics', id)
   // fetchAnalytics('Products are available')
 })
 
