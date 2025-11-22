@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { useRoute } from 'vue-router'
 import VendorDetailCom from './vendorDetailCom.vue'
+import { useSuperAdminStore } from '@/stores/super-admin/super-admin';
 
-const route = useRoute()
-const id: any = route.params.id
+const id = useSuperAdminStore().vendorId;
 
 </script>
 

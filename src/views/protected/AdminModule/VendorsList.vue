@@ -20,6 +20,9 @@ import {
 } from '@/components/ui/table'
 import Badge from '@/components/ui/badge/Badge.vue'
 import axios from 'axios'
+import type { VendorAnalytics } from '@/stores/vendor/vendor-transactions'
+import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
+import ProxyNav from '@/components/ProxyNav.vue'
 // import { toast } from '@/components/ui/toast'
 // import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
 // import { useGeneralStore } from '@/stores/general-use'
@@ -91,9 +94,10 @@ interface Order {
   updatedAt?: Date | null
 }
 
-const id = "68fe1816a98f5d209988f4ea"//'68fe1772a98f5d209988f4c1';
+const id = useSuperAdminStore().vendorId;
 // Define a ref to hold the users data
 const orders = ref<Order[]>([])
+const analytics = ref<VendorAnalytics>()
 
 const products = ref<Product[]>([])
 
@@ -164,7 +168,7 @@ const fetchProducts = async (msg: string) => {
   try {
     // Set loading to true
     // useGeneralStore().setLoading(true)
-    const response = await axios.get(`/api/v1/market/products/??status=published&vendorId=${id}`)
+    const response = await axios.get(`/api/v1/market/products/?status=published&vendorId=${id}`)
 
     if (response.status === 200 || response.status === 201) {
       // Update the users data with the response
@@ -207,55 +211,112 @@ const fetchProducts = async (msg: string) => {
   }
 }
 
+const fetchAnalytics = async (msg: string) => {
+  toast({
+    title: 'Loading Data',
+    description: 'Fetching data...',
+    duration: 0 // Set duration to 0 to make it indefinite until manually closed
+  })
+
+  try {
+    // Set loading to true
+    // useGeneralStore().setLoading(true)
+    const response = await axios.get(`/api/v1/admin/market/vendor/dashboard/${id}`)
+
+    if (response.status === 200 || response.status === 201) {
+      // Update the users data with the response
+      // products.value = response.data.data.data;
+      // console.log(response)
+      analytics.value = response.data.data;
+      // const phoneData = response.data.data[0].phoneNumber.normalizedNumber
+      // const data = { ...responseData, phone: phoneData }
+      // Show success toast
+      toast({
+        title: 'Success',
+        description: `${msg}`,
+        variant: 'success'
+      })
+    }
+    // set Loading to false
+    // useGeneralStore().setLoading(false)
+  } catch (error: any) {
+    catchErr(error)
+    // console.log(error)
+    if (error.response.status === 401) {
+      // sessionStorage.removeItem('token')
+      // Clear token from superAdminStore
+      // superAdminStore.setToken('')
+
+      setTimeout(() => {
+        // router.push({ name: 'super-admin-login' })
+      }, 3000)
+
+      toast({
+        title: 'Unauthorized',
+        description: 'You are not authorized to perform this action. Redirecting to home page...',
+        variant: 'destructive'
+      })
+      // Redirect after 3 seconds
+    } else {
+      toast({
+        title: error.response.data.message || 'An error occurred',
+        variant: 'destructive'
+      })
+    }
+  }
+}
+
 
 onMounted(() => {
   fetchOrders('data fetched')
   fetchProducts('Products are available')
+  fetchAnalytics('Success')
 })
 </script>
 
 <template>
   <div class="flex-col flex bg-[#f0f8ff] min-h-[400px] px-4 sm:px-10 pb-10">
     <!-- <MainNav class="mx-6" headingText="Dashboard" /> -->
+    <ProxyNav/>
     <VendorNav class="mx-6" headingText="Dashboard"/>
     <div class="w-full grid gap-4 md:grid-cols-2 md:gap-6 lg:grid-cols-4">
       <VendorsCards
         type="payouts"
         :loading="loading"
-        :value=50
-        :subvalue=50
+        :value='analytics?.vendorPayoutAnalytics.totalCompletedPayout || 0'
+        :subvalue='analytics?.vendorPayoutAnalytics.totalPendingPayout || 0'
       />
       <VendorsCards
         type="orders"
         :loading="loading"
-        :value=60
-        :subvalue=60
+        :value='analytics?.deliveredAnalytics.totalDeliveredOrders || 0'
+        :subvalue='analytics?.overdueAndUndelivered.overdueCount || 0'
       />
       <VendorsCards
         type="totalFulfilment"
         :loading="loading"
-        :value=60
-        :subvalue=60
+        :value='analytics?.deliveredAnalytics.totalDeliveredOrders || 0'
+        :subvalue='analytics?.deliveredAnalytics.totalDeliveredAmount || 0'
       />
       <VendorsCards
         type="products"
         :loading="loading"
-        :value=60
-        :subvalue=60
+        :value=0
+        :subvalue=0
       />
     </div>
 
    <div class="grid grid-cols-10 gap-4 md:gap-8 my-8">
-     <Card class="container col-span-10 md:col-span-6 px-4 py-6 pb-10 mx-auto sm:px-6 lg:px-8 bg-[#FFFFFF] rounded-2xl">
+     <Card class="shadow-none container col-span-10 md:col-span-6 px-4 py-6 pb-10 mx-auto sm:px-6 lg:px-8 h-full bg-[#FFFFFF] rounded-2xl">
         <div class="flex items-center justify-between px-6 py-4">
           <div class="text-2xl font-bold tracking-tight text-[#020721]">
             Orders
-            <p class="text-xs text-[#02072199] py-2">List of Weeshr Vendors</p>
+            <p class="text-xs text-[#02072199] py-2">List of Orders</p>
           </div>
           <Search />
         </div>
 
-        <div class="overflow-auto bg-white rounded-lg shadow">
+        <div class="overflow-y-scroll h-[50dvh] bg-white rounded-lg">
           <Table class="h-[20dvh] overflow-y-scroll" v-if="orders.length !== 0">
             <TableHeader>
               <TableRow
@@ -305,7 +366,7 @@ onMounted(() => {
           </Table>
           <div v-else class="flex h-full flex-col gap-4 items-center justify-center px-2 sm:px-4 py-4">
             <img src="https://res.cloudinary.com/drykej1am/image/upload/v1757871471/weershr-vendor/empty-cart_x2itw9.png" class="w-60 h-60" alt="">
-            <h1 class="text-2xl font-semibold animate-bounce">No Order yet!</h1>
+            <h1 class="text-2xl font-semibold animate-pulse">No Order yet</h1>
           </div>
         </div>
         <div class="w-full md:flex flex-col md:flex-row items-end justify-center gap-4" v-if="orders.length !== 0">
@@ -315,8 +376,8 @@ onMounted(() => {
           </div>
         </div>
       </Card>
-       <Card class="container col-span-10 md:col-span-4 relative px-4 pt-6 md:pt-0 pb-10 mx-auto sm:px-6 lg:px-8 bg-[#FFFFFF] rounded-2xl">
-          <div class="flex items-center justify-between px-2 py-4">
+       <Card class="container shadow-none col-span-10 md:col-span-4 relative px-4 pt-6 md:pt-0 pb-10 mx-auto sm:px-6 lg:px-8 bg-[#FFFFFF] rounded-2xl">
+          <div class="flex items-center justify-between px-2 py-8">
             <div class="text-2xl font-bold tracking-tight text-[#020721]">
               Our Products
               <p class="text-xs text-[#02072199] py-2">List of our published products</p>
@@ -324,7 +385,7 @@ onMounted(() => {
             <VendorAdd v-if="products.length !== 0"/>
           </div>
 
-          <div v-if="products.length !== 0" class="overflow-auto bg-white pb-4 flex flex-col space-y-2">
+          <div v-if="products.length !== 0" class="overflow-y-scroll bg-white pb-4 flex flex-col space-y-2 h-[50dvh]">
             <Card Content class="border rounded-lg hover:shadow-xl" v-for="(product, key) in products" :key="key">
               <CardContent
                 class="flex items-center justify-between px-2 sm:px-4 py-4"
@@ -352,16 +413,16 @@ onMounted(() => {
               <a href="#">See all</a>
             </div>
           </div>
-          <div v-else>
-            <Card>
-              <CardContent class="flex flex-col gap-4 items-center justify-center px-2 sm:px-4 py-4">
+          <div v-else class="h-full flex items-center justify-center">
+            <!-- <Card> -->
+              <div class="flex shadow-none flex-col gap-4 items-center justify-center px-2 sm:px-4 py-4">
                 <img src="https://res.cloudinary.com/drykej1am/image/upload/v1757871412/weershr-vendor/ecommerce_xrvr9h.png" class="w-48 h-48" alt="">
                 <h1>No products to display</h1>
                 <div class="w-full flex items-center justify-center">
                   <span class="animate-bounce"><VendorAdd/></span>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            <!-- </Card> -->
           </div>
         </Card>
    </div>

@@ -32,7 +32,7 @@
     "embla-carousel": "^8.1.4",
     "embla-carousel-vue": "^8.1.4",
     "lucide-vue-next": "^0.372.0",
-    "pinia": "^2.1.7",
+    "pinia": "^2.3.1",
     "radix-vue": "^1.7.1",
     "tailwind-merge": "^2.3.0",
     "tailwindcss-animate": "^1.0.7",

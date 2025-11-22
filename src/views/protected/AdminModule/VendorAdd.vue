@@ -1,8 +1,8 @@
 <template>
     <div class="py-5 ml-auto">
-      <Sheet>
-        <SheetTrigger as-child>
-          <button class="bg-[#020721] px-4 py-2 rounded-xl w-50 h-12">
+      <!-- <Sheet>
+        <SheetTrigger as-child> -->
+         <router-link to="/product"> <button class="bg-[#020721] px-4 py-2 rounded-xl w-50 h-12">
             <div class="text-base text-[#F8F9FF] text-center flex items-center">
               Add
               <svg
@@ -19,8 +19,8 @@
                 />
               </svg>
             </div>
-          </button>
-        </SheetTrigger>
+          </button></router-link>
+        <!-- </SheetTrigger>
         <SheetContent class="overflow-y-auto">
           <SheetHeader>
             <h3 class="text-2xl font-medium">Add Product</h3>
@@ -29,16 +29,16 @@
             </SheetDescription>
           </SheetHeader>
         </SheetContent>
-      </Sheet>
+      </Sheet> -->
     </div>
 </template>
 
 <script lang="ts" setup>
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetDescription,
-  SheetTrigger
-} from '@/components/ui/sheet'
+// import {
+//   Sheet,
+//   SheetContent,
+//   SheetHeader,
+//   SheetDescription,
+//   SheetTrigger
+// } from '@/components/ui/sheet'
 </script>

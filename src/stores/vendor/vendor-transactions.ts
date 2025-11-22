@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import axios from "@/services/ApiService";
 import { toast } from '@/components/ui/toast'
 import router from '@/router'
+import { catchErr } from "@/composables/catchError";
 
 // interface PhoneNumber {
 //   countryCode: string;
@@ -34,7 +35,7 @@ export interface vendorProfile {
 }
 
 
-interface VendorListStore {
+interface VendorTransactionStore {
   vendors: vendorProfile[],
   adminStatus: boolean, //single admin id gotten from admin details page
   sheetOpen: boolean,
@@ -43,13 +44,32 @@ interface VendorListStore {
   totalpage: any[],
   detailLoading: boolean,
   totalPages: number,
-  page: number,
-  activityLog: any[]
+  activityLog: any[],
+  analytics: VendorAnalytics | null,
 }
 
-export const useVendorListStore = defineStore({
-  id: 'vendor-list',
-  state: (): VendorListStore => ({
+export interface VendorAnalytics {
+  vendorId: string;
+  overdueAndUndelivered: {
+    overdueCount: number;
+    notDeliveredCount: number;
+  };
+  deliveredAnalytics: {
+    totalDeliveredOrders: number;
+    totalDeliveredAmount: number;
+  };
+  orderStatusSummary: any[]; // Replace `any` with your specific status type if available
+  vendorPayoutAnalytics: {
+    totalCompletedPayout: number;
+    totalPendingPayout: number;
+    totalPayoutCount: number;
+    recentPayouts: any[]; // Same here — type it when you know the shape
+  };
+}
+
+export const useVendorTransactionStore = defineStore({
+  id: 'vendor-transaction',
+  state: (): VendorTransactionStore => ({
     vendors: [],
     adminStatus: true,
     sheetOpen: false,
@@ -58,70 +78,104 @@ export const useVendorListStore = defineStore({
     totalpage: [],
     detailLoading: false,
     totalPages: 1,
-    page: 1,
-    activityLog: []
+    activityLog: [],
+    analytics: null
   }),
   actions: {
-  async fetchVendors(params?: {
-    page?: number
-    limit?: number
-    search?: string
-    sortBy?: string
-    status?: string
-    vendorId?: string
-  }) {
-    this.loading = true
-    try {
-      const response = await axios.get( '/api/v1/admin/market/vendors?per_page=15', {
-        params: {
-          page: params?.page || 1,
-          limit: params?.limit || 10,
-          search: params?.search || '',
-          // sortBy: params?.sortBy || 'name',
-          // status: params?.status || 'all'
-        }
-      })
-
-  
-
-      // const data = response.data.data
-      const products = response.data.data.data
-      this.currentPage = response.data.data.currentPage
-      this.totalPages = response.data.data.totalPages
-
-      
-      this.vendors = products
-      
-    
-      // this.pagination = {
-      //   currentPage: data.currentPage || 1,
-      //   totalPages: data.totalPages || 1,
-      //   totalProducts: data.total || data.data?.length || 0,
-      //   hasNext: data.totalPages > data.currentPage,
-      //   hasPrev: data.currentPage > 1 
-      // }
-
-      return this.vendors
-    } catch (error) {
-      console.error('Error fetching products:', error)
-      this.vendors = []
-      throw error
-    } finally {
-      this.loading = false
-    }
-  },
-  handlePageChange (newPage: number){
-    if (newPage > 0 && newPage <= this.totalPages) {
-      this.currentPage = newPage;
-      this.page = newPage
-      this.fetchVendors({page: this.page})
+    async fetchAnalytics(msg: string, id: string){
       toast({
-        description: `Loading page ${newPage}`,
-        duration: 0, // Set duration to 0 to make it indefinite until manually closed
-        variant: 'loading'
+        title: 'Loading Data',
+        description: 'Fetching data...',
+        duration: 0 // Set duration to 0 to make it indefinite until manually closed
       })
-    }
-  },
+
+      try {
+        // Set loading to true
+        // useGeneralStore().setLoading(true)
+        const response = await axios.get(`/api/v1/admin/market/vendor/dashboard/${id}`)
+
+        if (response.status === 200 || response.status === 201) {
+          this.analytics = response.data.data;
+          toast({
+            title: 'Success',
+            description: `${msg}`,
+            variant: 'success'
+          })
+        }
+        // set Loading to false
+        // useGeneralStore().setLoading(false)
+      } catch (error: any) {
+        catchErr(error)
+        if (error.response.status === 401) {
+          // sessionStorage.removeItem('token')
+          // Clear token from superAdminStore
+          // superAdminStore.setToken('')
+
+          setTimeout(() => {
+            // router.push({ name: 'super-admin-login' })
+          }, 3000)
+
+          toast({
+            title: 'Unauthorized',
+            description: 'You are not authorized to perform this action. Redirecting to home page...',
+            variant: 'destructive'
+          })
+          // Redirect after 3 seconds
+        } else {
+          toast({
+            title: error.response.data.message || 'An error occurred',
+            variant: 'destructive'
+          })
+        }
+      }
+    },
+    async fetchAllTransactions(msg: string){
+      toast({
+        title: 'Loading Data',
+        description: 'Fetching data...',
+        duration: 0 // Set duration to 0 to make it indefinite until manually closed
+      })
+
+      try {
+        // Set loading to true
+        // useGeneralStore().setLoading(true)
+        const response = await axios.get(`/api/v1/admin/payouts`)
+
+        if (response.status === 200 || response.status === 201) {
+          this.analytics = response.data.data;
+          toast({
+            title: 'Success',
+            description: `${msg}`,
+            variant: 'success'
+          })
+        }
+        // set Loading to false
+        // useGeneralStore().setLoading(false)
+      } catch (error: any) {
+        catchErr(error)
+        if (error.response.status === 401) {
+          // sessionStorage.removeItem('token')
+          // Clear token from superAdminStore
+          // superAdminStore.setToken('')
+
+          setTimeout(() => {
+            // router.push({ name: 'super-admin-login' })
+          }, 3000)
+
+          toast({
+            title: 'Unauthorized',
+            description: 'You are not authorized to perform this action. Redirecting to home page...',
+            variant: 'destructive'
+          })
+          // Redirect after 3 seconds
+        } else {
+          toast({
+            title: error.response.data.message || 'An error occurred',
+            variant: 'destructive'
+          })
+        }
+      }
+    },
     async fetchVendorsData() {
 
       toast({
@@ -152,7 +206,7 @@ export const useVendorListStore = defineStore({
         const data = response.data.data.data
         // console.log(data)
         this.vendors = data.reverse()
-        // VendorListStore.setvendors(data.reverse())
+        // VendorTransactionStore.setvendors(data.reverse())
 
         // set page data
         //   this.perPage= response.data.data.perPage
@@ -188,7 +242,7 @@ export const useVendorListStore = defineStore({
     },
     // Save user data to the /administrator endpoint
     async saveUserData(user: any) {
-      // VendorListStore.loadingControl(true)
+      // VendorTransactionStore.loadingControl(true)
       try {
         const response = await axios.post(
           '/api/v1/admin/market/vendor',
@@ -207,16 +261,16 @@ export const useVendorListStore = defineStore({
         }
         // Handle success
       } catch (err: any) {
-        //   VendorListStore.loadingControl(false)
+        //   VendorTransactionStore.loadingControl(false)
         this.catchErr(err)
         // Handle other errors
       }
     },
-    // handlePageChange(newPage: number) {
-    //   if (newPage > 0 && newPage <= this.totalPages) {
-    //     this.currentPage = newPage;
-    //   }
-    // },
+    handlePageChange(newPage: number) {
+      if (newPage > 0 && newPage <= this.totalPages) {
+        this.currentPage = newPage;
+      }
+    },
     sheetControl(value: boolean) {
       if (value) {
         this.sheetOpen = value
@@ -314,7 +368,7 @@ export const useVendorListStore = defineStore({
           // 
           this.activityLog = data
           // this.vendors = data.reverse()
-          // VendorListStore.setvendors(data.reverse())
+          // VendorTransactionStore.setvendors(data.reverse())
 
           // set page data
           //   this.perPage= response.data.data.perPage
