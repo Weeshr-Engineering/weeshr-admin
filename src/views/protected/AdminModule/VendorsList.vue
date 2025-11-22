@@ -22,6 +22,7 @@ import Badge from '@/components/ui/badge/Badge.vue'
 import axios from 'axios'
 import type { VendorAnalytics } from '@/stores/vendor/vendor-transactions'
 import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
+import ProxyNav from '@/components/ProxyNav.vue'
 // import { toast } from '@/components/ui/toast'
 // import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
 // import { useGeneralStore } from '@/stores/general-use'
@@ -276,6 +277,7 @@ onMounted(() => {
 <template>
   <div class="flex-col flex bg-[#f0f8ff] min-h-[400px] px-4 sm:px-10 pb-10">
     <!-- <MainNav class="mx-6" headingText="Dashboard" /> -->
+    <ProxyNav/>
     <VendorNav class="mx-6" headingText="Dashboard"/>
     <div class="w-full grid gap-4 md:grid-cols-2 md:gap-6 lg:grid-cols-4">
       <VendorsCards
@@ -309,12 +311,12 @@ onMounted(() => {
         <div class="flex items-center justify-between px-6 py-4">
           <div class="text-2xl font-bold tracking-tight text-[#020721]">
             Orders
-            <p class="text-xs text-[#02072199] py-2">List of Weeshr Vendors</p>
+            <p class="text-xs text-[#02072199] py-2">List of Orders</p>
           </div>
           <Search />
         </div>
 
-        <div class="overflow-y-scroll max-h-[60dvh] bg-white rounded-lg">
+        <div class="overflow-y-scroll h-[50dvh] bg-white rounded-lg">
           <Table class="h-[20dvh] overflow-y-scroll" v-if="orders.length !== 0">
             <TableHeader>
               <TableRow
@@ -383,7 +385,7 @@ onMounted(() => {
             <VendorAdd v-if="products.length !== 0"/>
           </div>
 
-          <div v-if="products.length !== 0" class="overflow-y-scroll bg-white pb-4 flex flex-col space-y-2 max-h-[60dvh]">
+          <div v-if="products.length !== 0" class="overflow-y-scroll bg-white pb-4 flex flex-col space-y-2 h-[50dvh]">
             <Card Content class="border rounded-lg hover:shadow-xl" v-for="(product, key) in products" :key="key">
               <CardContent
                 class="flex items-center justify-between px-2 sm:px-4 py-4"

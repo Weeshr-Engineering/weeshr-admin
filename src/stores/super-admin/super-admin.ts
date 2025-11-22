@@ -11,6 +11,7 @@ interface SuperAdminState {
   newUser: NewUser[]
   token: string,
   isVendor: boolean,
+  isProxy: boolean,
   vendorId: string,
   companyName: string,
 }
@@ -30,6 +31,7 @@ export const useSuperAdminStore = defineStore({
     newUser: [],
     token: sessionStorage.getItem('token') || '',
     isVendor: JSON.parse(localStorage.getItem('isVendor') || 'false'),
+    isProxy: JSON.parse(sessionStorage.getItem('isProxy') || 'false'),
     vendorId: JSON.parse(localStorage.getItem('vendorId') || ''),
     companyName: JSON.parse(localStorage.getItem('vendor') || ''),
   }),

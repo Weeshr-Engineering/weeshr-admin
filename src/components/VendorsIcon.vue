@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,7 +12,6 @@ import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
 
 const superAdminStore = useSuperAdminStore()
 const user = superAdminStore.getLocalstorageData()
-const id = '68fe1807a98f5d209988f4e0'
 const logout = async () => {
   await superAdminStore.logout()
 }

@@ -133,8 +133,6 @@ const onSubmit = form.handleSubmit(async () => {
         if(vendors.length !== 0){
           useSuperAdminStore().setVendor(true, vendors[0].vendorId)
           localStorage.setItem('vendor', JSON.stringify(vendors[0].companyName))
-          useSuperAdminStore().vendorId = vendors[0].vendorId
-          useSuperAdminStore().companyName = vendors[0].companyName
         }else{
           useSuperAdminStore().setVendor(false, '')
         }

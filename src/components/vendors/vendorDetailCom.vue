@@ -46,6 +46,9 @@ import {
 } from "@/components/ui/alert-dialog"
 import VendorsOperation from './VendorsOperation.vue'
 import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
+import { useRouter } from 'vue-router'
+import ProxyNav from '../ProxyNav.vue'
+import MainNav from '../MainNav.vue'
 
 defineAbilities()
 // const update = true//ability.can('update', 'users')
@@ -53,7 +56,8 @@ const props = defineProps({
   id: String,
 })
 const id = props.id
-const isVendor = ref(true);
+const router = useRouter()
+const isVendor = ref<boolean>(useSuperAdminStore().isVendor);
 const sheetOpen = ref(false)
 const logo = ref<File | null>(null)
 const bankDetails = ref<Bank[]>([])
@@ -179,115 +183,30 @@ interface Vendor {
 const vendor = ref<Vendor>()
 const vendorData = ref<VendorData>()
 
-const appUser = ref<AppUser>({
-  id: '011',
-  firstName: "Ruby",
-  middleName: null,
-  lastName: "Stone",
-  userName: "ruby.dev",
-  coverImg: {
-      resource: {
-        asset_id: "img12345",
-        secure_url: "https://res.cloudinary.com/demo/image/upload/v1234567890/sample.jpg",
-      },
-  },
-  logo: {
-    resource: {
-      asset_id: "img12345",
-      secure_url: "https://res.cloudinary.com/demo/image/upload/v1234567890/sample.jpg",
-    },
-  },
-  phoneNumber: {
-    normalizedNumber: "+2348012345678",
-  },
-  onboarded: '1995-05-12',
-  policyLink: 'https://google.com',
-  productCategory: [''],
-  deliveryCoverage: [''],
-  deliveryType: '',
-  deliveryTime: '1hr',
-  maxDeliveryCost: 3000,
-  workingHours: {
-    scheduled: true,
-    generalTime: '9-6',
-    days: [
-      {
-        day: 'Monday',
-        time: '9-6',
-        active: true
-      },
-      {
-        day: 'Tuesday',
-        time: '9-6',
-        active: true
-      },
-      {
-        day: 'Wednesday',
-        time: '9-6',
-        active: true
-      },
-      {
-        day: 'Thursday',
-        time: '9-6',
-        active: true
-      },
-      {
-        day: 'Friday',
-        time: '9-6',
-        active: true
-      },
-      {
-        day: 'Saturday',
-        time: '9-6',
-        active: true
-      },
-      {
-        day: 'Sunday',
-        time: '9-6',
-        active: true
-      },
-    ],
-  },
-  bankName: 'First Bank',
-  accountNumber: '3133386728',
-  payoutFrequency: 'Weekly',
-  accountVerified: false,
-  rcNumber: 'RC1838790',
-  companyName: 'Dang!',
-  companyType: 'Limited Liability Company',
-  comanyEmail: 'danglimited@gmail.com',
-  companyAddress: 'No. 51, Briswood Ipaja Rd, Ikeja',
-  companyState: 'Lagos',
-  dob: "1995-05-12",
-  gender: "male",
-  email: "ruby.stone@example.com",
-  isLive: true
-})
-
-const fileInput = ref<HTMLInputElement | null>(null)
+// const fileInput = ref<HTMLInputElement | null>(null)
 const bgFileInput = ref<HTMLInputElement | null>(null)
-const imageFile = ref<File | null>(null)
+// const imageFile = ref<File | null>(null)
 const bgImageFile = ref<File | null>(null)
-const imagePreview = ref<string | null>(null)
+// const imagePreview = ref<string | null>(null)
 const bgImagePreview = ref<string | null>(null)
 
-const triggerFileInput = () => {
-  fileInput.value?.click()
-}
+// const triggerFileInput = () => {
+//   fileInput.value?.click()
+// }
 
 
 const triggerBgFileInput = () => {
   bgFileInput.value?.click()
 }
 
-const handleFileChange = (e: Event) => {
-  const target = e.target as HTMLInputElement
-  const file = target.files?.[0]
-  if (!file) return
+// const handleFileChange = (e: Event) => {
+//   const target = e.target as HTMLInputElement
+//   const file = target.files?.[0]
+//   if (!file) return
 
-  imageFile.value = file
-  imagePreview.value = URL.createObjectURL(file) // preview
-}
+//   imageFile.value = file
+//   imagePreview.value = URL.createObjectURL(file) // preview
+// }
 const handleBgFileChange = (e: Event) => {
   const target = e.target as HTMLInputElement
   const file = target.files?.[0]
@@ -639,6 +558,26 @@ function removeUndefinedKeys<T extends Record<string, any>>(obj: T): Partial<T> 
   return filteredObject
 }
 
+const handleProxy = ()=>{
+  toast({
+      description: 'Setting up proxy...',
+      variant: 'loading',
+      duration: 0 // Set duration to 0 to make it indefinite until manually closed
+    })
+  if(vendorData.value && vendor.value){
+    useSuperAdminStore().setVendor(true, vendorData.value?.vendorId)
+    localStorage.setItem('vendor', JSON.stringify(vendor.value.companyName))
+    sessionStorage.setItem('isProxy', JSON.stringify(true))
+    router.push('/')
+  }else{
+    toast({
+      description: 'The page is not ready for proxy actions, please refresh your browser and try again',
+      variant: 'destructive',
+      duration: 0 // Set duration to 0 to make it indefinite until manually closed
+    })
+  }
+}
+
 const editProfile = async (values: any) => {
   
 }
@@ -648,9 +587,9 @@ const editProfile = async (values: any) => {
 //   !appUser.value.workingHours.days[key].active
 // }
 
-const editDetails = (param: keyof typeof appUser.value, val: string | number | boolean)=>{
-  appUser.value = {...appUser.value, [param]: val}
-}
+// const editDetails = (param: keyof typeof appUser.value, val: string | number | boolean)=>{
+//   appUser.value = {...appUser.value, [param]: val}
+// }
 
 const contactFormSchema = toTypedSchema(
   z.object({
@@ -872,6 +811,9 @@ watch([bankCode, accountNumber, payoutFrequency], ([newBank, newAcc, newFreq]) =
    await fetchVendorsData('Success')
    fetchData('Success')
   }
+  const View = computed(() =>
+    useSuperAdminStore().isVendor ? VendorNav : MainNav
+  )
 onMounted(() => {
   fetchUsersData('data fetched')
   fetchBankData('data fetched')
@@ -882,7 +824,8 @@ onMounted(() => {
 
 <template>
   <div class="max-h-screen h-full">
-    <VendorNav class="mx-6" heading-text="Profile"/>
+    <component :is="View" class="mx-6" :heading-text="isVendor ? 'Profile' : 'Dashboard'"/>
+    <ProxyNav/>
   <!-- <div v-if="!appUser">
     <LoadingSpinner />
   </div> -->
@@ -891,7 +834,7 @@ onMounted(() => {
         <CardHeader>
           <h1 class="font-semibold text-lg">{{ useSuperAdminStore().companyName }}</h1>
           <CardDescription>
-            <div v-if="appUser">
+            <div>
               <h6 class="font-semibold text-primary">Business Logo</h6>
               <!-- <div class="mt-2 flex items-center justify-between relative">
                   <div class="ghost w-20 h-20 rounded-xl"
@@ -974,9 +917,9 @@ onMounted(() => {
               >
                 <p class="text-[#02072199] text-xs md:text-sm lg:text-sm">Password</p>
                 <p class="text-xs md:text-sm lg:text-sm text-[#020721]">********</p>
-                <Badge variant="outline" class="badge absolute bottom-2 right-2 rounded-full">
+                <!-- <Badge variant="outline" class="badge absolute bottom-2 right-2 rounded-full">
                     Change
-                </Badge>
+                </Badge> -->
               </div>
               <div
                 class="grid grid-cols-3 py-2 my-2"
@@ -990,7 +933,7 @@ onMounted(() => {
                 <span class="text-base font-bold lg:text-base text-[#020721]">Profile Status</span>
                 <Switch v-if="!isVendor"/>
               </div>
-              <div
+              <!-- <div
                 v-if="vendor?.status && isVendor"
                 class="flex justify-between rounded-md w-full"
               >
@@ -1012,7 +955,7 @@ onMounted(() => {
                     <span :class="vendor?.status !== 'published' ? 'text-[#020721] z-30' : 'text-white z-30'">Live</span>
                   </div>
                 </label>
-              </div>
+              </div> -->
               <div v-if="!isVendor" class="flex justify-between rounded-md w-full">
                 <label
                   class="relative inline-flex cursor-pointer items-center w-full"
@@ -1081,7 +1024,7 @@ onMounted(() => {
               Financial
             </TabsTrigger>
             <div v-if="!useSuperAdminStore().isVendor" class="p-4 w-1/3 flex items-center justify-end">
-              <Button class="my-4" @click="()=> isVendor=!isVendor">
+              <Button class="my-4" @click="handleProxy">
                 Open Proxy Portal
               </Button>
             </div>

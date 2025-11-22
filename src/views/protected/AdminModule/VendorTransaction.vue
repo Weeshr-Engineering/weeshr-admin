@@ -1,5 +1,6 @@
 <template>
   <div class="flex-col flex bg-[#f0f8ff] h-screen px-4 sm:px-10 pb-10">
+    <ProxyNav/>
     <VendorNav class="mx-6" headingText="Transactions"/>
 
     <div class="container w-full grid gap-4 md:grid-cols-2 md:gap-6 lg:grid-cols-2 pt-6 text-nowrap">
@@ -298,6 +299,7 @@ import { catchErr } from '@/composables/catchError'
 import { toast } from '@/components/ui/toast'
 import { useVendorTransactionStore } from '@/stores/vendor/vendor-transactions'
 import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
+import ProxyNav from '@/components/ProxyNav.vue'
 
 // const open = ref<boolean>(false)
 // const id = ref<string>('0')
