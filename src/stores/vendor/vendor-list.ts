@@ -85,7 +85,6 @@ export const useVendorListStore = defineStore({
   
 
       // const data = response.data.data
-      console.log(response)
       const products = response.data.data.data
       this.currentPage = response.data.data.currentPage
       this.totalPages = response.data.data.totalPages

@@ -141,46 +141,10 @@ interface AppUser {
   isLive: boolean
 }
 
-interface UploadResponse {
-  public_id: string
-  version: number
-  signature: string
-  api_key: string
-  asset_id: string
-  bytes: number
-  created_at: string
-  etag: string
-  folder: string
-  format: string
-  height: number
-  original_filename: string
-  placeholder: boolean
-  resource_type: string
-  secure_url: string
-  tags: string[]
-  type: string
-  url: string
-  version_id: string
-  width: number
-}
-
-interface Vendor {
-   logo: UploadResponse | null;
-  cover: UploadResponse | null;
-  rcNumber: number;
-  companyName: string;
-  companyType: string;
-  companyEmail: string;
-  companyAddress: string;
-  companyState: string;
-  status: 'draft' | 'published' | 'archived' | string;
-  isDeleted: boolean;
-  deletedAt?: Date | null;
-  createdAt?: Date;
-  updatedAt?: Date;
-}
 //get User
-const vendor = ref<Vendor>()
+const vendor = computed(()=>{
+  return useSuperAdminStore().vendor;
+})
 const vendorData = ref<VendorData>()
 
 // const fileInput = ref<HTMLInputElement | null>(null)
@@ -384,62 +348,7 @@ const fetchVendorsData = async (msg: string) => {
       })
     }
   }
-} // Call the fetchUsersData function when the component is mounted
-
-const fetchUsersData = async (msg: string) => {
-  toast({
-    title: 'Loading Data',
-    description: 'Fetching data...',
-    variant: 'loading',
-    duration: 0 // Set duration to 0 to make it indefinite until manually closed
-  })
-
-  try {
-    // Set loading to true
-    // useGeneralStore().setLoading(true)
-    const response = await axios.get(`/api/v1/market/vendor/${id}`)
-
-    if (response.status === 200 || response.status === 201) {
-      // Update the users data with the response
-      // console.log(response)
-      vendor.value = response.data.data;
-      // const responseData = response.data.data[0]
-      // const phoneData = response.data.data[0].phoneNumber.normalizedNumber
-      // const data = { ...responseData, phone: phoneData }
-      // Show success toast
-      toast({
-        title: 'Success',
-        description: `Success- ${msg}`,
-        variant: 'success'
-      })
-    }
-    // set Loading to false
-    // useGeneralStore().setLoading(false)
-  } catch (error: any) {
-    catchErr(error)
-    if (error.response.status === 401) {
-      // sessionStorage.removeItem('token')
-      // Clear token from superAdminStore
-      // superAdminStore.setToken('')
-
-      setTimeout(() => {
-        // router.push({ name: 'super-admin-login' })
-      }, 3000)
-
-      toast({
-        title: 'Unauthorized',
-        description: 'You are not authorized to perform this action. Redirecting to home page...',
-        variant: 'destructive'
-      })
-      // Redirect after 3 seconds
-    } else {
-      toast({
-        title: error.response.data.message || 'An error occurred',
-        variant: 'destructive'
-      })
-    }
-  }
-} // Call the fetchUsersData function when the component is mounted
+}
 
 const handleImageUpload = (e: Event) => {
   const target = e.target as HTMLInputElement
@@ -556,7 +465,7 @@ const editProfile = async (values: string) => {
           variant: 'success'
         })
       }
-      fetchUsersData('Success')
+      useSuperAdminStore().fetchUsersData('Success')
       // Handle success
     } catch (err: any) {
       //   VendorListStore.loadingControl(false)
@@ -723,11 +632,21 @@ watch([bankCode, accountNumber, payoutFrequency], ([newBank, newAcc, newFreq]) =
     }
     // VendorListStore.loadingControl(true)
     try {
+      let data = new FormData()
+      if (logo.value) {
+        data.append('logo', logo.value)
+      }
+
+      // let config = {}
+      const config = {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      }
+
       const response = await axios.patch(
         `/api/v1/admin/market/vendor/${id}`,
-        {
-          logo: logo,
-        }
+        data, config
       )
 
       // Check if response status is 200 or 201
@@ -742,7 +661,6 @@ watch([bankCode, accountNumber, payoutFrequency], ([newBank, newAcc, newFreq]) =
       // Handle success
     } catch (err: any) {
       //   VendorListStore.loadingControl(false)
-      // console.log(err)
       catchErr(err)
       // Handle other errors
     }
@@ -790,7 +708,6 @@ watch([bankCode, accountNumber, payoutFrequency], ([newBank, newAcc, newFreq]) =
     }
   }
   const fetchBioData = async()=>{
-//    await fetchUsersData('data fetched')
    await fetchVendorsData('Success')
   //  fetchData('Success')
   }
@@ -798,7 +715,6 @@ watch([bankCode, accountNumber, payoutFrequency], ([newBank, newAcc, newFreq]) =
     useSuperAdminStore().isVendor ? VendorNav : MainNav
   )
 onMounted(() => {
-  fetchUsersData('data fetched')
   fetchBankData('data fetched')
   // fetchData('success')
   fetchVendorsData('Success')
@@ -822,8 +738,8 @@ onMounted(() => {
               <div class="border-t border-b pt-6 pb-4 mt-4">
                 <div class="grid grid-cols-2 gap-4">
                   <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 bg-[#F0F0FF] flex flex-col items-center justify-center">
-                    <div v-if="vendor?.cover?.secure_url || bgImagePreview" class="w-full h-full rounded-md relative bg-no-repeat bg-contain"
-                      :style="{ backgroundImage: vendor?.cover?.secure_url ? vendor.cover.secure_url : `url(${bgImagePreview})` }"></div>
+                    <div v-if="vendor?.logo?.secure_url || bgImagePreview" class="w-full h-full rounded-md relative bg-no-repeat bg-contain"
+                      :style="{ backgroundImage: vendor?.logo?.secure_url ? `url(${vendor.logo?.secure_url})` : `url(${bgImagePreview})` }"></div>
                     <div v-else class="w-12 h-12 mb-3 text-[#5B68DF]">
                       
                     <Icon icon="mdi:clock-outline" width="48" height="48" />

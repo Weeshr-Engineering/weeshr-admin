@@ -9,12 +9,21 @@ import {
 } from '@/components/ui/dropdown-menu'
 
 import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
+import { onMounted } from 'vue'
 
 const superAdminStore = useSuperAdminStore()
 const user = superAdminStore.getLocalstorageData()
 const logout = async () => {
   await superAdminStore.logout()
 }
+
+const setFallbackImage = (event: Event): void => {
+  const target = event.target as HTMLImageElement;
+  target.src = 'https://res.cloudinary.com/drykej1am/image/upload/v1697377875/weehser%20pay/Weeshr_Light_lrreyo.svg'
+};
+onMounted(()=>{
+  useSuperAdminStore().fetchUsersData('Success')
+})
 </script>
 
 <template>
@@ -27,7 +36,7 @@ const logout = async () => {
         {{ user.firstname[0] }}{{ user.lastname[0] }}
       </Button> -->
       <span class="relative">
-        <img src="https://res.cloudinary.com/drykej1am/image/upload/v1757871530/weershr-vendor/Group_348_izzhlm.png" alt="" class=" max-h-10 max-w-10"/>
+        <img :src='superAdminStore.vendor?.logo?.secure_url' @error="setFallbackImage" alt="" class=" max-h-10 max-w-10"/>
       </span>
     </DropdownMenuTrigger>
     <DropdownMenuContent class="w-56" align="end">
