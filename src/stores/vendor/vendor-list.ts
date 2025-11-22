@@ -43,6 +43,7 @@ interface VendorListStore {
   totalpage: any[],
   detailLoading: boolean,
   totalPages: number,
+  page: number,
   activityLog: any[]
 }
 
@@ -57,6 +58,7 @@ export const useVendorListStore = defineStore({
     totalpage: [],
     detailLoading: false,
     totalPages: 1,
+    page: 1,
     activityLog: []
   }),
   actions: {
@@ -70,20 +72,24 @@ export const useVendorListStore = defineStore({
   }) {
     this.loading = true
     try {
-      const response = await axios.get( '/api/v1/admin/market/vendors?per_page=200', {
+      const response = await axios.get( '/api/v1/admin/market/vendors?per_page=15', {
         params: {
           page: params?.page || 1,
           limit: params?.limit || 10,
           search: params?.search || '',
-          sortBy: params?.sortBy || 'name',
-          status: params?.status || 'all'
+          // sortBy: params?.sortBy || 'name',
+          // status: params?.status || 'all'
         }
       })
 
   
 
       // const data = response.data.data
+      console.log(response)
       const products = response.data.data.data
+      this.currentPage = response.data.data.currentPage
+      this.totalPages = response.data.data.totalPages
+
       
       this.vendors = products
       
@@ -103,6 +109,18 @@ export const useVendorListStore = defineStore({
       throw error
     } finally {
       this.loading = false
+    }
+  },
+  handlePageChange (newPage: number){
+    if (newPage > 0 && newPage <= this.totalPages) {
+      this.currentPage = newPage;
+      this.page = newPage
+      this.fetchVendors({page: this.page})
+      toast({
+        description: `Loading page ${newPage}`,
+        duration: 0, // Set duration to 0 to make it indefinite until manually closed
+        variant: 'loading'
+      })
     }
   },
     async fetchVendorsData() {
@@ -195,11 +213,11 @@ export const useVendorListStore = defineStore({
         // Handle other errors
       }
     },
-    handlePageChange(newPage: number) {
-      if (newPage > 0 && newPage <= this.totalPages) {
-        this.currentPage = newPage;
-      }
-    },
+    // handlePageChange(newPage: number) {
+    //   if (newPage > 0 && newPage <= this.totalPages) {
+    //     this.currentPage = newPage;
+    //   }
+    // },
     sheetControl(value: boolean) {
       if (value) {
         this.sheetOpen = value

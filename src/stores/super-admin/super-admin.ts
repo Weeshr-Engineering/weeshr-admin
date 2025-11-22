@@ -32,8 +32,8 @@ export const useSuperAdminStore = defineStore({
     token: sessionStorage.getItem('token') || '',
     isVendor: JSON.parse(localStorage.getItem('isVendor') || 'false'),
     isProxy: JSON.parse(sessionStorage.getItem('isProxy') || 'false'),
-    vendorId: JSON.parse(localStorage.getItem('vendorId') || ''),
-    companyName: JSON.parse(localStorage.getItem('vendor') || ''),
+    vendorId: JSON.parse(localStorage.getItem('vendorId') || 'null'),
+    companyName: JSON.parse(localStorage.getItem('vendor') || 'null'),
   }),
 
   actions: {

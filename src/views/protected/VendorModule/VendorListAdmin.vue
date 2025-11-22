@@ -23,6 +23,17 @@ import {
 } from '@/components/ui/sheet'
 
 import {
+  Pagination,
+  PaginationEllipsis,
+  PaginationFirst,
+  PaginationLast,
+  PaginationList,
+  PaginationListItem,
+  PaginationNext,
+  PaginationPrev,
+} from '@/components/ui/pagination';
+
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -81,7 +92,7 @@ const newUser = ref({
 const sheetOpen = ref(false)
 const loading = ref(false)
 const vendorListStore = useVendorListStore()
-const { fetchVendorsData, saveUserData } = useVendorListStore()
+const { fetchVendors, saveUserData } = useVendorListStore()
 const vendors = computed(()=>{
   return vendorListStore.vendors;
 })
@@ -193,10 +204,28 @@ const onSubmit = handleSubmit(async (values) => {
 // const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
 
 // onMounted(fetchVendorsData);
+// const page = computed(()=>{
+//   return vendorListStore.page
+// })
+const currentPage = computed(()=>{
+  return vendorListStore.currentPage
+});
+const totalPages = computed(()=>{
+  return vendorListStore.totalPages
+})
+
+
+const paginationItems = computed(() => {
+  const pages = [];
+  for (let i = 1; i <= totalPages.value; i++) {
+    pages.push({ type: 'page', value: i });
+  }
+  return pages;
+});
 
 onMounted(async () => {
   // useGeneralStore().setLoading(true);
-  fetchVendorsData()
+  fetchVendors()
 })
 </script>
 
@@ -472,7 +501,7 @@ onMounted(async () => {
           Vendors
           <p class="text-xs text-[#02072199] py-2">List of Weeshr Vendors</p>
         </div>
-        <Search class="mt-3 lg:mt-0" @search="(query: string) => vendorListStore.fetchVendors({ search: query })"/>
+        <Search class="mt-3 lg:mt-0" @keypress="(query: string) => vendorListStore.fetchVendors({ search: query })"/>
       </div>
 
       <div class="overflow-auto bg-white rounded-lg shadow">
@@ -530,6 +559,24 @@ onMounted(async () => {
           </TableBody>
         </Table>
       </div>
+      <div class="flex gap-2 max-w-full flex-wrap justify-end mt-8 mr-4 items-center text-[15px]" v-if="vendorListStore.vendors.length !== 0">
+          <Pagination :total="totalPages" :sibling-count="1" show-edges :default-page="1" @change="vendorListStore.handlePageChange">
+            <PaginationList class="flex items-center gap-1">
+              <PaginationFirst @click="vendorListStore.handlePageChange(1)" />
+              <PaginationPrev @click="vendorListStore.handlePageChange(Math.max(currentPage - 1, 1))" />
+              <template v-for="(item, index) in paginationItems" :key="index">
+                <PaginationListItem v-if="item.type === 'page'" :value="item.value" as-child>
+                  <Button class="w-10 h-10 p-0" :variant="item.value === currentPage ? 'default' : 'outline'" @click="vendorListStore.handlePageChange(item.value)">
+                    {{ item.value }}
+                  </Button>
+                </PaginationListItem>
+                <PaginationEllipsis v-else :index="index" />
+              </template>
+              <PaginationNext @click="vendorListStore.handlePageChange(Math.min(currentPage + 1, totalPages))" />
+              <PaginationLast @click="vendorListStore.handlePageChange(totalPages)" />
+            </PaginationList>
+          </Pagination>
+        </div>
     </Card>
   </div>
 </template>

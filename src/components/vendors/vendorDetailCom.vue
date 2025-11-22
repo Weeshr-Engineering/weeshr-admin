@@ -225,7 +225,7 @@ const cycleStatus = () => {
   else statusVal.value = 'Suspended'
 
   // Optional: call backend update
-  // editDetails('status', status.value)
+  // editProfvendor?.statuse)
 }
 
 const deleteBankData = async (msg: string, _id: string) => {
@@ -293,61 +293,6 @@ const fetchBankData = async (msg: string) => {
       // Update the users data with the response
       // console.log(response)
       bankDetails.value = response.data.data;
-      // const responseData = response.data.data[0]
-      // const phoneData = response.data.data[0].phoneNumber.normalizedNumber
-      // const data = { ...responseData, phone: phoneData }
-      // Show success toast
-      toast({
-        title: 'Success',
-        description: `Success- ${msg}`,
-        variant: 'success'
-      })
-    }
-    // set Loading to false
-    // useGeneralStore().setLoading(false)
-  } catch (error: any) {
-    catchErr(error)
-    if (error.response.status === 401) {
-      // sessionStorage.removeItem('token')
-      // Clear token from superAdminStore
-      // superAdminStore.setToken('')
-
-      setTimeout(() => {
-        // router.push({ name: 'super-admin-login' })
-      }, 3000)
-
-      toast({
-        title: 'Unauthorized',
-        description: 'You are not authorized to perform this action. Redirecting to home page...',
-        variant: 'destructive'
-      })
-      // Redirect after 3 seconds
-    } else {
-      toast({
-        title: error.response.data.message || 'An error occurred',
-        variant: 'destructive'
-      })
-    }
-  }
-}
-
-const fetchData = async (msg: string) => {
-  toast({
-    title: 'Loading Data',
-    description: 'Fetching data...',
-    variant: 'loading',
-    duration: 0 // Set duration to 0 to make it indefinite until manually closed
-  })
-
-  try {
-    // Set loading to true
-    // useGeneralStore().setLoading(true)
-    const response = await axios.get(`/api/v1/admin/market/vendor/rcdetails/9000`)
-
-    if (response.status === 200 || response.status === 201) {
-      // Update the users data with the response
-    //   console.log(response)
-      // vendor.value = response.data.data;
       // const responseData = response.data.data[0]
       // const phoneData = response.data.data[0].phoneNumber.normalizedNumber
       // const data = { ...responseData, phone: phoneData }
@@ -501,6 +446,7 @@ const handleImageUpload = (e: Event) => {
   const file = target.files?.[0]
   if (file) {
     logo.value = file
+    bgImagePreview.value = URL.createObjectURL(file) 
   }
 }
 
@@ -541,22 +487,22 @@ const dateFormat = (dob: string, time?: string): string => {
   return formattedDate
 }
 
-function removeUndefinedKeys<T extends Record<string, any>>(obj: T): Partial<T> {
-  // Create a new object to store the filtered keys
-  const filteredObject: Partial<T> = {}
+// function removeUndefinedKeys<T extends Record<string, any>>(obj: T): Partial<T> {
+//   // Create a new object to store the filtered keys
+//   const filteredObject: Partial<T> = {}
 
-  // Iterate through the keys of the input object
-  for (const key in obj) {
-    if (Object.prototype.hasOwnProperty.call(obj, key)) {
-      // Copy the key-value pair if the value is not undefined
-      if (obj[key] !== undefined) {
-        filteredObject[key] = obj[key]
-      }
-    }
-  }
+//   // Iterate through the keys of the input object
+//   for (const key in obj) {
+//     if (Object.prototype.hasOwnProperty.call(obj, key)) {
+//       // Copy the key-value pair if the value is not undefined
+//       if (obj[key] !== undefined) {
+//         filteredObject[key] = obj[key]
+//       }
+//     }
+//   }
 
-  return filteredObject
-}
+//   return filteredObject
+// }
 
 const handleProxy = ()=>{
   toast({
@@ -578,8 +524,46 @@ const handleProxy = ()=>{
   }
 }
 
-const editProfile = async (values: any) => {
-  
+const editProfile = async (values: string) => {
+  toast({
+      title: 'Loading Data',
+      description: 'Updating Profile status...',
+      variant: 'loading',
+      duration: 0 // Set duration to 0 to make it indefinite until manually closed
+    })
+    if(!values){
+      toast({
+        description: 'Incomplete data',
+        variant: 'destructive'
+      })
+      return;
+    }
+    // VendorListStore.loadingControl(true)
+    try {
+      const response = await axios.patch(
+        `/api/v1/admin/market/vendor/${id}`,
+        {
+          status: values === 'published' ? 'drafted' : 'published',
+        }
+      )
+
+      // Check if response status is 200 or 201
+      if (response.status === 200 || response.status === 201) {
+        // Show success toast
+        toast({
+          title: 'Success',
+          description: `Status updated successfully.`,
+          variant: 'success'
+        })
+      }
+      fetchUsersData('Success')
+      // Handle success
+    } catch (err: any) {
+      //   VendorListStore.loadingControl(false)
+      // console.log(err)
+      catchErr(err)
+      // Handle other errors
+    }
 }
 
 // const toggleDayActive = (key: string) => {
@@ -587,7 +571,7 @@ const editProfile = async (values: any) => {
 //   !appUser.value.workingHours.days[key].active
 // }
 
-// const editDetails = (param: keyof typeof appUser.value, val: string | number | boolean)=>{
+// const editProfile = (param: keyof typeof appUser.value, val: stvendor?.status>{
 //   appUser.value = {...appUser.value, [param]: val}
 // }
 
@@ -632,24 +616,24 @@ const contactFormSchema = toTypedSchema(
   })
 )
 
-const { handleSubmit: contactForm } = useForm({
-  validationSchema: contactFormSchema
-})
+// const { handleSubmit: contactForm } = useForm({
+//   validationSchema: contactFormSchema
+// })
 
-const onSubmit = contactForm((values) => {
-  function valueChecker<T extends Record<string, any>>(obj: T): boolean {
-    return Object.values(obj).some((value) => value !== undefined)
-  }
-  if (valueChecker(values)) {
-    editProfile(values)
-  } else {
-    toast({
-      title: 'Form Input Is Empty',
-      description: `Make a change: There is nothing to update`,
-      variant: 'destructive'
-    })
-  }
-})
+// const onSubmit = contactForm((values) => {
+//   function valueChecker<T extends Record<string, any>>(obj: T): boolean {
+//     return Object.values(obj).some((value) => value !== undefined)
+//   }
+//   if (valueChecker(values)) {
+//     editProfile(values)
+//   } else {
+//     toast({
+//       title: 'Form Input Is Empty',
+//       description: `Make a change: There is nothing to update`,
+//       variant: 'destructive'
+//     })
+//   }
+// })
 
 const frequency = ref(['DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY'])
 
@@ -726,7 +710,7 @@ watch([bankCode, accountNumber, payoutFrequency], ([newBank, newAcc, newFreq]) =
    const saveLogo = async () => {
     toast({
       title: 'Loading Data',
-      description: 'Saving bank details...',
+      description: 'Saving logo details...',
       variant: 'loading',
       duration: 0 // Set duration to 0 to make it indefinite until manually closed
     })
@@ -742,7 +726,6 @@ watch([bankCode, accountNumber, payoutFrequency], ([newBank, newAcc, newFreq]) =
       const response = await axios.patch(
         `/api/v1/admin/market/vendor/${id}`,
         {
-          "vendorId": id,
           logo: logo,
         }
       )
@@ -759,8 +742,8 @@ watch([bankCode, accountNumber, payoutFrequency], ([newBank, newAcc, newFreq]) =
       // Handle success
     } catch (err: any) {
       //   VendorListStore.loadingControl(false)
+      // console.log(err)
       catchErr(err)
-    //   console.log(err)
       // Handle other errors
     }
   }
@@ -809,7 +792,7 @@ watch([bankCode, accountNumber, payoutFrequency], ([newBank, newAcc, newFreq]) =
   const fetchBioData = async()=>{
 //    await fetchUsersData('data fetched')
    await fetchVendorsData('Success')
-   fetchData('Success')
+  //  fetchData('Success')
   }
   const View = computed(() =>
     useSuperAdminStore().isVendor ? VendorNav : MainNav
@@ -817,7 +800,7 @@ watch([bankCode, accountNumber, payoutFrequency], ([newBank, newAcc, newFreq]) =
 onMounted(() => {
   fetchUsersData('data fetched')
   fetchBankData('data fetched')
-  fetchData('success')
+  // fetchData('success')
   fetchVendorsData('Success')
 })
 </script>
@@ -836,46 +819,14 @@ onMounted(() => {
           <CardDescription>
             <div>
               <h6 class="font-semibold text-primary">Business Logo</h6>
-              <!-- <div class="mt-2 flex items-center justify-between relative">
-                  <div class="ghost w-20 h-20 rounded-xl"
-                    :style="{ backgroundImage: vendor?.logo?.secure_url ? vendor.logo?.secure_url : imagePreview ? `url(${imagePreview})` : 'none' }"
-                  >
-
-                  </div>
-                  <div class="h-full flex items-end justify-end p-2">
-                      <Badge @click="triggerFileInput" variant="outline" class="badge absolute bottom-0 right-2 rounded-full">
-                          {{ vendor?.logo?.secure_url ? 'Change' : 'Upload' }}
-                      </Badge>
-                      <input 
-                        type="file"
-                        accept="image/*"
-                        ref="fileInput"
-                        @change="handleFileChange"
-                        class="hidden"
-                      />
-                  </div>
-              </div> -->
               <div class="border-t border-b pt-6 pb-4 mt-4">
-                <div v-if="vendor?.cover?.secure_url" class="mt-2">
-                    <div class="ghost w-full h-28 rounded-xl relative"
-                      :style="{ backgroundImage: vendor?.cover?.secure_url ? vendor.cover.secure_url : bgImagePreview ? `url(${bgImagePreview})` : 'none' }"
-                    >
-                        <Badge @click="triggerBgFileInput" variant="outline" class="badge absolute bottom-2 right-2 rounded-full">
-                            {{ vendor?.cover?.secure_url ? 'Change' : 'Upload' }}
-                        </Badge>
-                        <input 
-                          type="file"
-                          accept="image/*"
-                          ref="bgFileInput"
-                          @change="handleBgFileChange"
-                          class="hidden"
-                        />
-                    </div>
-                </div>
-                <div v-else class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-2 gap-4">
                   <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 bg-[#F0F0FF] flex flex-col items-center justify-center">
-                    <div class="w-12 h-12 mb-3 text-[#5B68DF]">
-                      <Icon icon="mdi:clock-outline" width="48" height="48" />
+                    <div v-if="vendor?.cover?.secure_url || bgImagePreview" class="w-full h-full rounded-md relative bg-no-repeat bg-contain"
+                      :style="{ backgroundImage: vendor?.cover?.secure_url ? vendor.cover.secure_url : `url(${bgImagePreview})` }"></div>
+                    <div v-else class="w-12 h-12 mb-3 text-[#5B68DF]">
+                      
+                    <Icon icon="mdi:clock-outline" width="48" height="48" />
                     </div>
                   </div>
                   
@@ -933,18 +884,18 @@ onMounted(() => {
                 <span class="text-base font-bold lg:text-base text-[#020721]">Profile Status</span>
                 <Switch v-if="!isVendor"/>
               </div>
-              <!-- <div
+              <div
                 v-if="vendor?.status && isVendor"
                 class="flex justify-between rounded-md w-full"
               >
                 <label
                   class="relative inline-flex cursor-pointer items-center w-full"
-                  @click="() => editDetails('isLive', !appUser.isLive)"
+                  @click="() => editProfile(vendor?.status!)"
                 >
                   <input
                     type="checkbox"
                     value=""
-                    :checked="appUser.isLive"
+                    :checked="vendor?.status === 'published'"
                     disabled
                     class="peer sr-only"
                   />
@@ -955,7 +906,7 @@ onMounted(() => {
                     <span :class="vendor?.status !== 'published' ? 'text-[#020721] z-30' : 'text-white z-30'">Live</span>
                   </div>
                 </label>
-              </div> -->
+              </div>
               <div v-if="!isVendor" class="flex justify-between rounded-md w-full">
                 <label
                   class="relative inline-flex cursor-pointer items-center w-full"
@@ -1038,31 +989,31 @@ onMounted(() => {
               <div class="grid md:grid-cols-8 gap-2 md:gap-8">
                 <div class="md:col-span-3">
                   <Label class="px-2">RC Number</Label>
-                  <Input :value="vendor?.rcNumber" class="ghost" readonly disabled/>
+                  <Input :value="vendor?.rcNumber" :placeholder="vendor?.rcNumber" class="ghost" disabled/>
                 </div>
                 <div class="md:col-span-5 ">
                   <Label class="px-2">Company Name</Label>
-                  <Input :value="vendor?.companyName" class="ghost" readonly disabled />
+                  <Input :value="vendor?.companyName" :placeholder="vendor?.companyName" class="ghost" disabled />
                 </div>
               </div>
               <div class="grid md:grid-cols-8 gap-2 md:gap-8">
                 <div class="md:col-span-3">
                   <Label class="px-2">Company Type</Label>
-                  <Input :value="vendor?.companyType" class="ghost" readonly disabled />
+                  <Input :value="vendor?.companyType" :placeholder="vendor?.companyType" class="ghost" disabled />
                 </div>
                 <div class="md:col-span-5 ">
                   <Label class="px-2">Company Email</Label>
-                  <Input :value="vendor?.companyEmail" class="ghost" readonly disabled />
+                  <Input :value="vendor?.companyEmail" :placeholder="vendor?.companyEmail" class="ghost" disabled />
                 </div>
               </div>
               <div class="grid md:grid-cols-8 gap-2 md:gap-8">
                 <div class="md:col-span-5">
                   <Label class="px-2">Address</Label>
-                  <Input :value="vendor?.companyAddress" class="ghost" readonly disabled />
+                  <Input :value="vendor?.companyAddress" :placeholder="vendor?.companyAddress" class="ghost" disabled/>
                 </div>
                 <div class="md:col-span-3 ">
                   <Label class="px-2">State</Label>
-                  <Input :value="vendor?.companyState" class="ghost" readonly disabled />
+                  <Input :value="vendor?.companyState" :placeholder="vendor?.companyState" class="ghost" disabled />
                 </div>
               </div>
               <div class="w-full flex items-center justify-between pt-8">
@@ -1088,21 +1039,21 @@ onMounted(() => {
               <div class="grid md:grid-cols-8 gap-2 md:gap-8">
                 <div class="md:col-span-4">
                   <Label class="px-2">First Name</Label>
-                  <Input :value="vendorData?.firstName" class="ghost" :disabled="!isEdit"/>
+                  <Input :value="vendorData?.firstName" :placeholder="vendorData?.firstName" class="ghost" :disabled="!isEdit"/>
                 </div>
                 <div class="md:col-span-4 ">
                   <Label class="px-2">Last Name</Label>
-                  <Input :value="vendorData?.lastName" class="ghost" :disabled="!isEdit"/>
+                  <Input :value="vendorData?.lastName" :placeholder="vendorData?.lastName" class="ghost" :disabled="!isEdit"/>
                 </div>
               </div>
               <div class="grid md:grid-cols-8 gap-2 md:gap-8">
                 <div class="md:col-span-5">
                   <Label class="px-2">Email</Label>
-                  <Input :value="vendorData?.email" class="ghost" :disabled="!isEdit"/>
+                  <Input :value="vendorData?.email" :placeholder="vendorData?.email" class="ghost" :disabled="!isEdit"/>
                 </div>
                 <div class="md:col-span-3 ">
                   <Label class="px-2">Phone Number</Label>
-                  <Input :value="`${vendorData?.phoneNumber.countryCode} ${vendorData?.phoneNumber.phoneNumber}`" class="ghost" :disabled="!isEdit"/>
+                  <Input :value="`${vendorData?.phoneNumber.countryCode} ${vendorData?.phoneNumber.phoneNumber}`" :placeholder="`${vendorData?.phoneNumber.countryCode} ${vendorData?.phoneNumber.phoneNumber}`" class="ghost" :disabled="!isEdit"/>
                 </div>
               </div>
             </div>
