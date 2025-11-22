@@ -60,6 +60,51 @@ export const useVendorListStore = defineStore({
     activityLog: []
   }),
   actions: {
+  async fetchVendors(params?: {
+    page?: number
+    limit?: number
+    search?: string
+    sortBy?: string
+    status?: string
+    vendorId?: string
+  }) {
+    this.loading = true
+    try {
+      const response = await axios.get( '/api/v1/admin/market/vendors?per_page=200', {
+        params: {
+          page: params?.page || 1,
+          limit: params?.limit || 10,
+          search: params?.search || '',
+          sortBy: params?.sortBy || 'name',
+          status: params?.status || 'all'
+        }
+      })
+
+  
+
+      // const data = response.data.data
+      const products = response.data.data.data
+      
+      this.vendors = products
+      
+    
+      // this.pagination = {
+      //   currentPage: data.currentPage || 1,
+      //   totalPages: data.totalPages || 1,
+      //   totalProducts: data.total || data.data?.length || 0,
+      //   hasNext: data.totalPages > data.currentPage,
+      //   hasPrev: data.currentPage > 1 
+      // }
+
+      return this.vendors
+    } catch (error) {
+      console.error('Error fetching products:', error)
+      this.vendors = []
+      throw error
+    } finally {
+      this.loading = false
+    }
+  },
     async fetchVendorsData() {
 
       toast({

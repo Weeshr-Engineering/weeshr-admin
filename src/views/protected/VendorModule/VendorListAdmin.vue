@@ -472,7 +472,7 @@ onMounted(async () => {
           Vendors
           <p class="text-xs text-[#02072199] py-2">List of Weeshr Vendors</p>
         </div>
-        <Search />
+        <Search class="mt-3 lg:mt-0" @search="(query: string) => vendorListStore.fetchVendors({ search: query })"/>
       </div>
 
       <div class="overflow-auto bg-white rounded-lg shadow">
