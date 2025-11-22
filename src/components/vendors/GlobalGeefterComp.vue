@@ -1,18 +1,7 @@
 <template>
   <div class="flex-col flex bg-[#f0f8ff] h-full px-4 sm:px-10 pb-10">
     <MainNav class="mx-6" headingText="Geeftr Ops" />
-    <div class="fixed top-0 right-0 z-50 w-screen flex items-start justify-center">
-      <div class="border-2 rounded-b-3xl w-52 text-blue-700 flex items-center justify-center gap-4 py-2 shadow-lg">
-          <span class="border-2 border-blue-300 w-10 h-10 flex items-center justify-center rounded-full animate-pulse shadow-lg">
-            <span class="border-2 border-blue-300 w-8 h-8 flex items-center justify-center rounded-full animate-pulse shadow-lg cursor-pointer">
-              <span class="border-2 border-blue-300 w-6 h-6 flex items-center justify-center rounded-full animate-pulse shadow-lg">
-                X
-              </span>
-            </span>
-          </span>
-          Proxy mode
-        </div>
-    </div>
+    <ProxyNav/>
 
     <div class="container w-full grid gap-4 md:grid-cols-5 md:gap-6 pt-6 text-nowrap">
       <Card class="h-[150px] rounded-[24px] bg-[#DF6C50] shadow-lg shadow-[#DF6C50] border-transparent transition-transform transform hover:scale-105">
@@ -500,6 +489,7 @@ import {
 } from '@/components/ui/select'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useVendorTransactionStore } from '@/stores/vendor/vendor-transactions'
+import ProxyNav from '../ProxyNav.vue'
 
 // const open = ref<boolean>(false)
 // const id = ref<string>('0')

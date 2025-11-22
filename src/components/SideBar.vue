@@ -90,7 +90,7 @@ const openNotificationsBoard = () => {
         </a>
       </li>
 
-      <li v-if="users" :class="{ 'dashboard-active': isActive('/user') }">
+      <li v-if="users && !superAdminStore.isVendor" :class="{ 'dashboard-active': isActive('/user') }">
         <a @click="$router.push({ name: 'user' })">
           <div class="icon-grid">
             <Icon icon="teenyicons:users-solid" width="16" height="16" class="icons-sidebar" />
@@ -110,7 +110,7 @@ const openNotificationsBoard = () => {
         </a>
       </li>
 
-      <li v-if="weeshes" :class="{ 'dashboard-active': isActive('/weeshes') }">
+      <li v-if="weeshes && !superAdminStore.isVendor" :class="{ 'dashboard-active': isActive('/weeshes') }">
         <a @click="$router.push({ name: 'weeshes' })">
           <div class="icon-grid">
             <Icon icon="codicon:note" width="17" height="17" class="icons-sidebar" />
@@ -129,7 +129,7 @@ const openNotificationsBoard = () => {
           <span class="nav-text"> Depot </span>
         </a>
       </li>
-        <li :class="{ 'dashboard-active': isActive('/product') }">
+      <li v-if="superAdminStore.isVendor" :class="{ 'dashboard-active': isActive('/product') }">
         <a @click="$router.push({ name: 'product' })">
           <div class="icon-grid">
              <Layers width="17" height="17" class="icons-sidebar" />
@@ -139,7 +139,7 @@ const openNotificationsBoard = () => {
         </a>
       </li>
 
-      <li v-if='bank' :class="{ 'dashboard-active': isActive('/bank') }">
+      <li v-if='bank && !superAdminStore.isVendor' :class="{ 'dashboard-active': isActive('/bank') }">
         <a @click="$router.push({ name: 'bank' })">
           <div class="icon-grid">
             <Icon icon="fluent:building-bank-16-filled" width="17" height="17" class="icons-sidebar" />
@@ -149,7 +149,7 @@ const openNotificationsBoard = () => {
         </a>
       </li>
 
-      <li v-if="config" :class="{ 'dashboard-active': isActive('/config') }">
+      <li v-if="config && !superAdminStore.isVendor" :class="{ 'dashboard-active': isActive('/config') }">
         <a @click="$router.push({ name: 'config' })">
           <div class="icon-grid">
             <Icon icon="mdi:settings" width="17" height="17" class="icons-sidebar" />
@@ -159,7 +159,7 @@ const openNotificationsBoard = () => {
         </a>
       </li>
 
-      <li :class="{ 'dashboard-active': isActive('/vendors/transaction') }">
+      <li v-if="superAdminStore.isVendor" :class="{ 'dashboard-active': isActive('/vendors/transaction') }">
         <a @click="$router.push({ name: 'vendorTransaction' })">
           <div class="icon-grid">
             <Icon icon="gridicons:money" width="17" height="17" class="icons-sidebar" />
@@ -181,7 +181,7 @@ const openNotificationsBoard = () => {
  
      
 
-      <li v-if="analytics" :class="{ 'dashboard-active': isActive('/analytics') }">
+      <li v-if="analytics && !superAdminStore.isVendor" :class="{ 'dashboard-active': isActive('/analytics') }">
         <a @click="$router.push({ name: 'AdminAnalytics' })">
           <div class="icon-grid">
             <Icon icon="carbon:text-link-analysis" width="17" height="17" class="icons-sidebar" />
@@ -201,7 +201,7 @@ const openNotificationsBoard = () => {
         </a>
       </li>
       
-      <li v-if="ability.can('read', 'admin-board-notifications')">
+      <li v-if="ability.can('read', 'admin-board-notifications') && !superAdminStore.isVendor">
         <a @click.prevent="openNotificationsBoard">
           <div class="icon-grid">
             <Icon icon="codicon:bell" width="17" height="17" class="icons-sidebar" />
