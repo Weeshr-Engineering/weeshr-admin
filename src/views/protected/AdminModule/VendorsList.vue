@@ -377,7 +377,7 @@ onMounted(() => {
         </div>
       </Card>
        <Card class="container shadow-none col-span-10 md:col-span-4 relative px-4 pt-6 md:pt-0 pb-10 mx-auto sm:px-6 lg:px-8 bg-[#FFFFFF] rounded-2xl">
-          <div class="flex items-center justify-between px-2 py-4">
+          <div class="flex items-center justify-between px-2 py-8">
             <div class="text-2xl font-bold tracking-tight text-[#020721]">
               Our Products
               <p class="text-xs text-[#02072199] py-2">List of our published products</p>
@@ -413,7 +413,7 @@ onMounted(() => {
               <a href="#">See all</a>
             </div>
           </div>
-          <div v-else>
+          <div v-else class="h-full flex items-center justify-center">
             <!-- <Card> -->
               <div class="flex shadow-none flex-col gap-4 items-center justify-center px-2 sm:px-4 py-4">
                 <img src="https://res.cloudinary.com/drykej1am/image/upload/v1757871412/weershr-vendor/ecommerce_xrvr9h.png" class="w-48 h-48" alt="">
