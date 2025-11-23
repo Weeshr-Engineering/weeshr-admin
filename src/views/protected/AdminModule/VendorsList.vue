@@ -381,7 +381,7 @@ onMounted(() => {
         <div class="w-full md:flex flex-col md:flex-row items-end justify-center gap-4" v-if="orders.length !== 0">
           <PagePagination :page-total="1" :page-current="1" @pagination="()=> console.log('trigger page change')" />
           <div class="h-10 w-full md:w-fit flex items-center justify-center text-blue-500">
-            <a href="#">See all</a>
+            <a href="/order">See all</a>
           </div>
         </div>
       </Card>
