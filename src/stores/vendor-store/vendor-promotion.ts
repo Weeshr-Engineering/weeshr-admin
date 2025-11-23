@@ -1,6 +1,6 @@
-// stores/promotions.ts
 import { defineStore } from 'pinia';
 import axios from 'axios';
+import { useSuperAdminStore } from '@/stores/super-admin/super-admin';
 import { useToast } from '@/components/ui/toast';
 
 // Get auth headers for API requests
@@ -161,38 +161,20 @@ export const usePromotionsStore = defineStore('promotions', {
   },
 
   actions: {
-    // Get vendor ID from localStorage
-    getVendorId(): string | null {
-      const possibleKeys = ['vendor', 'user', 'userData', 'vendorData', 'auth'];
-      
-      for (const key of possibleKeys) {
-        const data = localStorage.getItem(key);
-        if (data) {
-          try {
-            const parsed = JSON.parse(data);
-            const vendorId = parsed._id || parsed.id || parsed.vendorId || 
-                           parsed.vendor_id || parsed.vendor?._id || 
-                           parsed.vendor?.id || parsed.data?._id || 
-                           parsed.data?.id || parsed.user?._id || 
-                           parsed.user?.id;
-            
-            if (vendorId) {
-              return vendorId;
-            }
-          } catch (e) {
-            continue;
-          }
-        }
-      }
-      
-      return null;
+    // Get vendor ID from SuperAdminStore (same as product store)
+    getVendorId(): string {
+      const superAdminStore = useSuperAdminStore()
+      return superAdminStore.vendorId
     },
 
     // Fetch status counts
     async fetchStatusCounts() {
       const { toast } = useToast();
       try {
+        const vendorId = this.getVendorId();
+        
         const response = await axios.get('/api/v1/admin/market/promotions/status/counts', {
+          params: { vendorId },
           headers: getAuthHeaders()
         });
         
@@ -222,7 +204,12 @@ export const usePromotionsStore = defineStore('promotions', {
       try {
         this.loading = true;
         
+        const vendorId = this.getVendorId();
         const queryParams = new URLSearchParams();
+        
+        // Add vendorId to query params
+        queryParams.append('vendorId', vendorId);
+        
         if (params?.page) queryParams.append('page', params.page.toString());
         if (params?.perPage) queryParams.append('perPage', params.perPage.toString());
         if (params?.sortBy) queryParams.append('sortBy', params.sortBy);
@@ -230,7 +217,7 @@ export const usePromotionsStore = defineStore('promotions', {
         if (params?.search) queryParams.append('search', params.search);
 
         const queryString = queryParams.toString();
-        const url = `/api/v1/admin/market/promotions${queryString ? `?${queryString}` : '?sortBy=startDate'}`;
+        const url = `/api/v1/admin/market/promotions${queryString ? `?${queryString}` : ''}`;
 
         const response = await axios.get(url, {
           headers: getAuthHeaders()
@@ -283,7 +270,10 @@ export const usePromotionsStore = defineStore('promotions', {
       const { toast } = useToast();
       try {
         this.loading = true;
+        const vendorId = this.getVendorId();
+        
         const response = await axios.get(`/api/v1/admin/market/promotions/${id}`, {
+          params: { vendorId },
           headers: getAuthHeaders()
         });
         
@@ -368,8 +358,12 @@ export const usePromotionsStore = defineStore('promotions', {
       const { toast } = useToast();
       try {
         this.loading = true;
+        const vendorId = this.getVendorId();
         
-        const response = await axios.put(`/api/v1/admin/market/promotions/${id}`, promotionData, {
+        const response = await axios.put(`/api/v1/admin/market/promotions/${id}`, {
+          ...promotionData,
+          vendorId
+        }, {
           headers: getAuthHeaders()
         });
         
@@ -407,7 +401,12 @@ export const usePromotionsStore = defineStore('promotions', {
       const { toast } = useToast();
       try {
         this.loading = true;
-        const response = await axios.put(`/api/v1/admin/market/promotions/${id}/products`, { productIds }, {
+        const vendorId = this.getVendorId();
+        
+        const response = await axios.put(`/api/v1/admin/market/promotions/${id}/products`, { 
+          productIds,
+          vendorId 
+        }, {
           headers: getAuthHeaders()
         });
         
@@ -444,7 +443,11 @@ export const usePromotionsStore = defineStore('promotions', {
       const { toast } = useToast();
       try {
         this.loading = true;
-        const response = await axios.post(`/api/v1/admin/market/promotions/${id}/publish`, {}, {
+        const vendorId = this.getVendorId();
+        
+        const response = await axios.post(`/api/v1/admin/market/promotions/${id}/publish`, {
+          vendorId
+        }, {
           headers: getAuthHeaders()
         });
         
@@ -482,7 +485,10 @@ export const usePromotionsStore = defineStore('promotions', {
       const { toast } = useToast();
       try {
         this.loading = true;
+        const vendorId = this.getVendorId();
+        
         const response = await axios.delete(`/api/v1/admin/market/promotions/${id}`, {
+          data: { vendorId },
           headers: getAuthHeaders()
         });
         

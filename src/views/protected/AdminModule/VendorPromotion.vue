@@ -490,7 +490,7 @@ import {
   TableHead
 } from '@/components/ui/table'
 import { Card, CardContent } from '@/components/ui/card'
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { Button } from '@/components/ui/button'
 import { Icon } from '@iconify/vue'
 import Search from '@/components/UseSearch.vue'
@@ -505,9 +505,15 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet"
 import { usePromotionsStore } from '@/stores/vendor-store/vendor-promotion'
+import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
 import { useToast } from '@/components/ui/toast'
 
 const promotionsStore = usePromotionsStore()
+const superAdminStore = useSuperAdminStore()
+const { toast } = useToast()
+
+// Get vendorId from super admin store
+const vendorId = computed(() => superAdminStore.vendorId)
 
 const statusBg = (status: string) => {
   switch (status) {
@@ -592,7 +598,6 @@ const handleNext = async () => {
 const createPromotion = async () => {
   // Validate required fields
   if (!formData.value.name || !formData.value.promotionType || !formData.value.discountValue) {
-    const { toast } = useToast();
     toast({
       description: 'Please fill all required fields',
       variant: 'destructive'
@@ -728,7 +733,31 @@ const viewPromotionDetails = async (id: string) => {
 }
 
 // Fetch promotions on mount
-onMounted(() => {
-  promotionsStore.fetchPromotions()
+onMounted(async () => {
+  // Wait for vendorId to be available
+  if (vendorId.value) {
+    await promotionsStore.fetchPromotions()
+    await promotionsStore.fetchStatusCounts()
+  }
+})
+
+// Watch for vendorId changes and refetch data
+watch(vendorId, async (newVendorId) => {
+  if (newVendorId) {
+    await promotionsStore.fetchPromotions()
+    await promotionsStore.fetchStatusCounts()
+  }
 })
 </script>
+
+<style scoped>
+.cardShadow4 {
+  box-shadow:
+    0px 31px 30px -23px #e45044,
+    inset 0px -23px 20px -23px rgba(0, 0, 0, 0.25);
+}
+
+.weeshr-icon2 {
+  background-color: white;
+}
+</style>
