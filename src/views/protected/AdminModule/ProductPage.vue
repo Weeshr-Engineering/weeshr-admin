@@ -1,4 +1,3 @@
-<!-- ProductPage.vue -->
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import MainNav from '@/components/MainNav.vue'
@@ -21,16 +20,20 @@ import {
   SheetContent,
   SheetDescription,
   SheetHeader,
-  // SheetTrigger,
 } from "@/components/ui/sheet"
 import { useProductsStore } from '@/stores/vendor/product'
+import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
 import { useToast } from '@/components/ui/toast'
 import { menu_food } from '@/lib/menu-food'
 import type { Product } from '@/stores/vendor/product'
 import axios from 'axios'
 
 const productsStore = useProductsStore()
+const superAdminStore = useSuperAdminStore()
 const { toast } = useToast()
+
+// Get vendorId from superadmin store
+const vendorId = computed(() => superAdminStore.vendorId)
 
 // Categories state
 const categories = ref<{_id: string, name: string}[]>([])
@@ -166,7 +169,8 @@ const uploadBulkProduct = async (product: any) => {
       name: product.name,
       amount: product.amount || product.price,
       qty: product.qty || 1,
-      status: 'published'
+      status: 'published',
+      vendorId: vendorId.value 
     }
     
     if (product.description) productData.description = product.description
@@ -185,8 +189,8 @@ const uploadBulkProduct = async (product: any) => {
       description: `${product.name} uploaded successfully!`,
     })
     
-    await productsStore.fetchProducts()
-    await productsStore.fetchProductStatusCounts()
+    await productsStore.fetchProducts({ vendorId: vendorId.value })
+    await productsStore.fetchProductStatusCounts(vendorId.value)
   } catch (error) {
     console.error('Bulk upload error:', error)
     toast({
@@ -301,19 +305,20 @@ const createProduct = async () => {
     data.append('tat', formData.value.tat || '')
     data.append('qty', formData.value.qty.toString())
     data.append('status', formData.value.status)
+    data.append('vendorId', vendorId.value) 
     
     if (formData.value.size) {
       data.append('size', formData.value.size)
     }
     
-    // ✅ Append tags as comma-separated string
+    // Append tags as comma-separated string
     if (formData.value.tag && formData.value.tag.length > 0) {
       data.append('tag', formData.value.tag.join(','))
     } else {
       data.append('tag', '68fdfc7f9f6421e9a1d46e08')
     }
 
-    // ✅ Add image if selected
+    // Add image if selected
     if (formData.value.image) {
       data.append('image', formData.value.image)
     }
@@ -321,7 +326,6 @@ const createProduct = async () => {
     const result = await productsStore.createProduct(data)
     
     if (result) {
-      // ✅ SUCCESS TOAST - Show success message
       toast({
         title: "Success!",
         description: 'Product created successfully!',
@@ -331,8 +335,8 @@ const createProduct = async () => {
       resetForm()
       addProductSheetOpen.value = false
       
-      await productsStore.fetchProducts()
-      await productsStore.fetchProductStatusCounts()
+      await productsStore.fetchProducts({ vendorId: vendorId.value })
+      await productsStore.fetchProductStatusCounts(vendorId.value)
     }
   } catch (error: any) {
     console.error('Create product error:', error)
@@ -345,7 +349,7 @@ const createProduct = async () => {
   }
 }
 
-// Update product - USING FORM DATA LIKE CREATE
+// Update product
 const updateProduct = async () => {
   if (!editingProductId.value) return
 
@@ -388,7 +392,6 @@ const updateProduct = async () => {
   }
 
   try {
-    // ✅ USE FORM DATA FOR UPDATE, JUST LIKE CREATE
     let data = new FormData()
     data.append('name', formData.value.name)
     data.append('description', formData.value.description || '')
@@ -396,28 +399,27 @@ const updateProduct = async () => {
     data.append('tat', formData.value.tat || '')
     data.append('qty', formData.value.qty.toString())
     data.append('status', formData.value.status)
+    data.append('vendorId', vendorId.value) 
     
     if (formData.value.size) {
       data.append('size', formData.value.size)
     }
     
-    // ✅ Append tags as comma-separated string (same as create)
+    // Append tags as comma-separated string
     if (formData.value.tag && formData.value.tag.length > 0) {
       data.append('tag', formData.value.tag.join(','))
     } else {
-      data.append('tag', '68fdfc7f9f6421e9a1d46e08') // fallback
+      data.append('tag', '')
     }
 
-    // ✅ Add image if selected (same as create)
+    // Add image if selected
     if (formData.value.image) {
       data.append('image', formData.value.image)
     }
 
-    // ✅ Use the same update method but with FormData
     const result = await productsStore.updateProduct(editingProductId.value, data)
     
     if (result) {
-      // ✅ SUCCESS TOAST
       toast({
         title: "Success!",
         description: 'Product updated successfully!',
@@ -427,8 +429,8 @@ const updateProduct = async () => {
       resetForm()
       addProductSheetOpen.value = false
       
-      await productsStore.fetchProducts()
-      await productsStore.fetchProductStatusCounts()
+      await productsStore.fetchProducts({ vendorId: vendorId.value })
+      await productsStore.fetchProductStatusCounts(vendorId.value)
     }
   } catch (error: any) {
     console.error('Update product error:', error)
@@ -452,8 +454,6 @@ const deleteProduct = async (id: string) => {
       description: 'Product deleted successfully!',
       variant: "default"
     })
-    
- 
     
     // Close view sheet if it's open for the deleted product
     if (selectedProduct.value?._id === id) {
@@ -518,28 +518,24 @@ const editProduct = () => {
     qty: (selectedProduct.value.qty || 0).toString(),
     tat: selectedProduct.value.tat || '',
     size: selectedProduct.value.size || '',
-    tag: selectedProduct.value.tag || [], // Use existing tag IDs
-    image: null, // Reset image - user can choose to upload new one
+    tag: selectedProduct.value.tag || [],
+    image: null,
     status: selectedProduct.value.status
   }
   
   viewProductSheetOpen.value = false
   addProductSheetOpen.value = true
   currentStep.value = 1
-  
 }
 
-// Edit product from dropdown menu
 // Edit product from dropdown menu
 const editProductFromList = async (product: Product) => {
   isEditMode.value = true
   editingProductId.value = product._id
   bulkUploadMode.value = false
   
-  // ✅ Normalize the product first (extract tag IDs from objects)
   const normalizedProduct = await productsStore.fetchProductById(product._id)
   
-  // Set form data from normalized product
   formData.value = {
     name: normalizedProduct.name,
     description: normalizedProduct.description || '',
@@ -547,7 +543,7 @@ const editProductFromList = async (product: Product) => {
     qty: (normalizedProduct.qty || 0).toString(),
     tat: normalizedProduct.tat || '',
     size: normalizedProduct.size || '',
-    tag: normalizedProduct.tag || [], // ✅ Now properly normalized to string IDs
+    tag: normalizedProduct.tag || [],
     image: null,
     status: normalizedProduct.status
   }
@@ -555,8 +551,8 @@ const editProductFromList = async (product: Product) => {
   addProductSheetOpen.value = true
   currentStep.value = 1
   showActionsMenu.value = null
-
 }
+
 // Get category name by ID
 const getCategoryName = (categoryId: string) => {
   const category = categories.value.find(cat => cat._id === categoryId)
@@ -565,13 +561,13 @@ const getCategoryName = (categoryId: string) => {
 
 // Sort by field
 const sortBy = (field: string) => {
-  productsStore.fetchProducts({ sortBy: field })
+  productsStore.fetchProducts({ sortBy: field, vendorId: vendorId.value })
 }
 
 // Change page
 const changePage = (page: number | string) => {
   if (typeof page === 'number' && page >= 1 && page <= productsStore.pagination.totalPages) {
-    productsStore.fetchProducts({ page })
+    productsStore.fetchProducts({ page, vendorId: vendorId.value })
   }
 }
 
@@ -611,15 +607,15 @@ const updateProductStatus = async (status: 'published' | 'draft' | 'archived' | 
   if (!selectedProduct.value) return
 
   try {
-    await productsStore.updateProduct(selectedProduct.value._id, { status })
+    await productsStore.updateProduct(selectedProduct.value._id, { status, vendorId: vendorId.value })
     selectedProduct.value.status = status
     
     toast({
       description: `Product ${status} successfully!`,
     })
     
-    await productsStore.fetchProducts()
-    await productsStore.fetchProductStatusCounts()
+    await productsStore.fetchProducts({ vendorId: vendorId.value })
+    await productsStore.fetchProductStatusCounts(vendorId.value)
   } catch (error) {
     toast({
       description: 'Error updating product status',
@@ -630,9 +626,9 @@ const updateProductStatus = async (status: 'published' | 'draft' | 'archived' | 
 
 // Fetch products, counts, and categories on mount
 onMounted(async () => {
-  await productsStore.fetchProducts()
-  await productsStore.fetchProductStatusCounts()
-  await fetchCategories() // Fetch categories on mount
+  await productsStore.fetchProducts({ vendorId: vendorId.value })
+  await productsStore.fetchProductStatusCounts(vendorId.value)
+  await fetchCategories()
   
   // Add click outside listeners
   document.addEventListener('click', closeDropdownOnClickOutside)
@@ -645,6 +641,7 @@ onBeforeUnmount(() => {
 })
 </script>
 
+<!-- REST OF THE TEMPLATE REMAINS THE SAME -->
 <template>
   <div class="flex-col flex bg-[#f0f8ff] h-full px-4 sm:px-10 pb-10">
     <MainNav class="mx-6" headingText="Products" />
