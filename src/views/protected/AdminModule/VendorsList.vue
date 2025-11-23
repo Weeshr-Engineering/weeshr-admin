@@ -168,7 +168,16 @@ const fetchProducts = async (msg: string) => {
   try {
     // Set loading to true
     // useGeneralStore().setLoading(true)
-    const response = await axios.get(`/api/v1/market/products/?status=published&vendorId=${id}`)
+    const response = await axios.get('/api/v1/admin/market/products/', {
+      params: {
+        vendorId:  '67001b0cdce3af5c124e5dd9',
+        // page: params?.page || 1,
+        // limit: params?.limit || 10,
+        // search: params?.search || '',
+        // sortBy: params?.sortBy || 'name',
+        // status: params?.status || 'all'
+      }
+    })
 
     if (response.status === 200 || response.status === 201) {
       // Update the users data with the response
