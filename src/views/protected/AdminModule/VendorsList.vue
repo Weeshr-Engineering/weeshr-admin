@@ -419,7 +419,7 @@ onMounted(() => {
               </CardContent>
             </Card>
             <div class="text-center text-blue-500 absolute bottom-4 w-full place-self-center">
-              <a href="#">See all</a>
+              <a href="/product">See all</a>
             </div>
           </div>
           <div v-else class="h-full flex items-center justify-center">
