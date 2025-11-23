@@ -146,7 +146,7 @@ const openNotificationsBoard = () => {
           <span class="nav-text"> Product </span>
         </a>
       </li>
-      <li :class="{ 'dashboard-active': isActive('/order') }">
+      <li v-if="superAdminStore.isVendor" :class="{ 'dashboard-active': isActive('/order') }">
         <a @click="$router.push({ name: 'order' })">
           <div class="icon-grid">
              <NotepadText width="17" height="17" class="icons-sidebar" />
