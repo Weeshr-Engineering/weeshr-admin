@@ -22,6 +22,14 @@ import {
   SheetDescription,
   SheetHeader,
 } from "@/components/ui/sheet"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import { useProductsStore } from '@/stores/vendor/product'
 import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
 import { useToast } from '@/components/ui/toast'
@@ -39,9 +47,16 @@ const vendorId = computed(() => superAdminStore.vendorId)
 const categories = ref<{_id: string, name: string}[]>([])
 const loadingCategories = ref(false)
 
-// NEW: Status filter state
+// Status filter state
 const statusFilter = ref('all')
 const showStatusFilter = ref(false)
+
+// Delete modal state
+const deleteModalOpen = ref(false)
+const productToDelete = ref<Product | null>(null)
+
+
+const searchQuery = ref('')
 
 const statusBg = (status: string) => {
   switch (status) {
@@ -80,7 +95,7 @@ const formData = ref({
   qty: '1',
   tat: '',
   size: '',
-  tag: [] as string[], // Array of category IDs
+  tag: [] as string[], 
   image: null as File | null,
   status: 'draft' as 'published' | 'draft' | 'archived' | 'out-of-stock'
 })
@@ -121,7 +136,7 @@ const fetchCategories = async () => {
   }
 }
 
-// NEW: Apply status filter
+// Apply status filter
 const applyStatusFilter = (status: string) => {
   statusFilter.value = status
   showStatusFilter.value = false
@@ -133,7 +148,7 @@ const applyStatusFilter = (status: string) => {
   }
 }
 
-// NEW: Get display name for status filter
+// Get display name for status filter
 const getStatusFilterDisplay = () => {
   switch (statusFilter.value) {
     case 'all': return 'All'
@@ -142,6 +157,55 @@ const getStatusFilterDisplay = () => {
     case 'archived': return 'Archived'
     case 'out-of-stock': return 'Out of Stock'
     default: return 'All'
+  }
+}
+
+// NEW: Handle search
+const handleSearch = (query: string) => {
+  searchQuery.value = query
+  productsStore.fetchProducts({ 
+    vendorId: vendorId.value, 
+    search: query,
+    ...(statusFilter.value !== 'all' && { status: statusFilter.value })
+  })
+}
+
+// NEW: Open delete confirmation modal
+const openDeleteModal = (product: Product) => {
+  productToDelete.value = product
+  deleteModalOpen.value = true
+  showActionsMenu.value = null
+}
+
+// NEW: Confirm delete product
+const confirmDeleteProduct = async () => {
+  if (!productToDelete.value) return
+
+  try {
+    await productsStore.deleteProduct(productToDelete.value._id)
+    toast({
+      title: "Success!",
+      description: 'Product deleted successfully!',
+      variant: "default"
+    })
+    
+    // Close view sheet if it's open for the deleted product
+    if (selectedProduct.value?._id === productToDelete.value._id) {
+      viewProductSheetOpen.value = false
+      selectedProduct.value = null
+    }
+    
+    // Close the modal
+    deleteModalOpen.value = false
+    productToDelete.value = null
+  } catch (error: any) {
+    console.error('Delete product error:', error)
+    const errorMessage = error.response?.data?.message || 'Error deleting product. Please try again.'
+    toast({
+      title: "Error",
+      description: errorMessage,
+      variant: 'destructive'
+    })
   }
 }
 
@@ -169,7 +233,7 @@ const closeDropdownOnClickOutside = (event: MouseEvent) => {
     showAddProductMenu.value = false
   }
   
-  // NEW: Close status filter dropdown
+  // Close status filter dropdown
   const statusFilterDropdown = target.closest('.relative')
   if (!statusFilterDropdown || !statusFilterDropdown.querySelector('[data-status-filter]')) {
     showStatusFilter.value = false
@@ -564,34 +628,6 @@ const updateProduct = async () => {
   }
 }
 
-// Delete product
-const deleteProduct = async (id: string) => {
-  if (!confirm('Are you sure you want to delete this product? This action cannot be undone.')) return
-
-  try {
-    await productsStore.deleteProduct(id)
-    toast({
-      title: "Success!",
-      description: 'Product deleted successfully!',
-      variant: "default"
-    })
-    
-    // Close view sheet if it's open for the deleted product
-    if (selectedProduct.value?._id === id) {
-      viewProductSheetOpen.value = false
-      selectedProduct.value = null
-    }
-  } catch (error: any) {
-    console.error('Delete product error:', error)
-    const errorMessage = error.response?.data?.message || 'Error deleting product. Please try again.'
-    toast({
-      title: "Error",
-      description: errorMessage,
-      variant: 'destructive'
-    })
-  }
-}
-
 // Reset form
 const resetForm = () => {
   currentStep.value = 1
@@ -748,7 +784,7 @@ const updateProductStatus = async (status: 'published' | 'draft' | 'archived' | 
   }
 }
 
-// NEW: Check if a product can be uploaded (has category selected)
+// Check if a product can be uploaded (has category selected)
 const canUploadProduct = (index: number) => {
   if (applyTagToAll.value) {
     return !!globalBulkTag.value
@@ -756,7 +792,7 @@ const canUploadProduct = (index: number) => {
   return !!bulkProductTags.value[index]
 }
 
-// NEW: Check if all products can be bulk uploaded
+// Check if all products can be bulk uploaded
 const canBulkUpload = computed(() => {
   if (bulkProductsList.value.length === 0) return false
   
@@ -768,7 +804,7 @@ const canBulkUpload = computed(() => {
   return bulkProductsList.value.every((_, index) => !!bulkProductTags.value[index])
 })
 
-// NEW: Upload individual product with specific status
+// Upload individual product with specific status
 const uploadProductWithStatus = async (product: any, index: number, status: 'published' | 'draft' | 'archived') => {
   // Validate tag is selected
   if (!canUploadProduct(index)) {
@@ -807,7 +843,7 @@ const uploadProductWithStatus = async (product: any, index: number, status: 'pub
   }
 }
 
-// NEW: Bulk publish all products - FIXED to upload sequentially
+// Bulk publish all products - FIXED to upload sequentially
 const bulkPublishAll = async () => {
   if (!canBulkUpload.value) {
     toast({
@@ -857,7 +893,7 @@ const bulkPublishAll = async () => {
   resetForm()
 }
 
-// NEW: Bulk draft all products - FIXED to upload sequentially
+// Bulk draft all products - FIXED to upload sequentially
 const bulkDraftAll = async () => {
   if (!canBulkUpload.value) {
     toast({
@@ -904,7 +940,7 @@ const bulkDraftAll = async () => {
   resetForm()
 }
 
-// NEW: Bulk archive all products - FIXED to upload sequentially
+// Bulk archive all products - FIXED to upload sequentially
 const bulkArchiveAll = async () => {
   if (!canBulkUpload.value) {
     toast({
@@ -1074,7 +1110,7 @@ onBeforeUnmount(() => {
           </p>
         </div>
         <div class="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
-          <!-- UPDATED: Status Filter Dropdown -->
+          <!-- Status Filter Dropdown -->
           <div class="relative" data-status-filter>
             <Button 
               variant="outline" 
@@ -1168,8 +1204,12 @@ onBeforeUnmount(() => {
             </Transition>
           </div>
 
-          <Search class="mt-3 lg:mt-0" 
-          @search="(query: string) => productsStore.fetchProducts({ search: query })" />
+          <!-- UPDATED: Search component with proper event handling -->
+          <Search 
+            class="mt-3 lg:mt-0" 
+            @search="handleSearch"
+            :value="searchQuery"
+          />
           
           <!-- Add Product Dropdown -->
           <div class="relative" data-add-product-menu>
@@ -1477,7 +1517,7 @@ onBeforeUnmount(() => {
                   <p v-if="bulkUploadFile" class="text-sm text-green-600 mt-2">✓ File uploaded: {{ bulkUploadFile.name }}</p>
                 </div>
 
-                <!-- UPDATED: Bulk Products List with Individual Category Selection -->
+                <!-- Bulk Products List with Individual Category Selection -->
                 <div v-if="bulkProductsList.length > 0" class="space-y-4">
                   <!-- Option to apply same tag to all -->
                   <div class="border rounded-lg p-4 bg-[#F8F9FF]">
@@ -1942,7 +1982,7 @@ onBeforeUnmount(() => {
                         Edit
                       </button>
                       <button
-                        @click="deleteProduct(product._id); showActionsMenu = null"
+                        @click="openDeleteModal(product)"
                         class="w-full px-4 py-2 text-left hover:bg-red-50 flex items-center gap-2 text-sm text-red-600 transition-colors border-t border-gray-100"
                       >
                         <Icon icon="mdi:delete-outline" class="w-4 h-4" />
@@ -1986,6 +2026,41 @@ onBeforeUnmount(() => {
       </div>
     </Card>
     <DashboardFooter />
+
+    <!-- NEW: Delete Confirmation Dialog -->
+    <Dialog v-model:open="deleteModalOpen">
+      <DialogContent class="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle class="flex items-center gap-2">
+            <Icon icon="mdi:alert-circle-outline" class="w-6 h-6 text-red-500" />
+            Confirm Deletion
+          </DialogTitle>
+          <DialogDescription>
+            Are you sure you want to delete the product "
+            <span class="font-semibold text-[#020721]">{{ productToDelete?.name }}</span>"?
+            This action cannot be undone and will permanently remove the product from your store.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter class="flex flex-col sm:flex-row gap-2 sm:gap-0">
+          <Button 
+            variant="outline" 
+            @click="deleteModalOpen = false"
+            class="w-full sm:w-auto"
+          >
+            Cancel
+          </Button>
+          <Button 
+            variant="destructive" 
+            @click="confirmDeleteProduct"
+            :disabled="productsStore.loading"
+            class="w-full sm:w-auto"
+          >
+            <Icon icon="mdi:delete" class="w-4 h-4 mr-2" />
+            {{ productsStore.loading ? 'Deleting...' : 'Delete Product' }}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   </div>
 </template>
 
