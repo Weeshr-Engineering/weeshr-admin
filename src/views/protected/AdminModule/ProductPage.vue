@@ -1,3 +1,4 @@
+<!-- ProductPage.vue -->
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import MainNav from '@/components/MainNav.vue'
@@ -6,6 +7,7 @@ import Search from '@/components/UseSearch.vue'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Icon } from '@iconify/vue'
+import * as XLSX from 'xlsx'
 import { Check, ScrollText, Battery, ListFilter, Archive, X } from 'lucide-vue-next'
 import {
   Table,
@@ -24,7 +26,6 @@ import {
 import { useProductsStore } from '@/stores/vendor/product'
 import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
 import { useToast } from '@/components/ui/toast'
-import { menu_food } from '@/lib/menu-food'
 import type { Product } from '@/stores/vendor/product'
 import axios from 'axios'
 
@@ -153,37 +154,137 @@ const closeActionsMenuOnClickOutside = (event: MouseEvent) => {
 }
 
 // Handle bulk file upload
-const handleBulkFileUpload = (e: Event) => {
+// Replace the handleBulkFileUpload function
+const handleBulkFileUpload = async (e: Event) => {
   const target = e.target as HTMLInputElement
   const file = target.files?.[0]
-  if (file) {
+  if (!file) return
+
+  try {
     bulkUploadFile.value = file
-    bulkProductsList.value = menu_food.slice(0, 3)
+
+    // Read the file
+    const data = await file.arrayBuffer()
+    const workbook = XLSX.read(data, { type: 'array' })
+    
+    // Get first sheet
+    const sheetName = workbook.SheetNames[0]
+    const worksheet = workbook.Sheets[sheetName]
+    
+    // Convert to JSON
+    const jsonData = XLSX.utils.sheet_to_json(worksheet)
+    
+    // Process and normalize the data
+    bulkProductsList.value = jsonData.map((row: any) => {
+      // Handle date conversion for 'tat' field
+      let tatValue = row.tat || row.TAT || ''
+      
+      // If tat is a number (Excel date serial)
+      if (typeof tatValue === 'number') {
+        const date = XLSX.SSF.parse_date_code(tatValue)
+        tatValue = `${date.y}-${String(date.m).padStart(2, '0')}-${String(date.d).padStart(2, '0')}`
+      }
+      // If tat is a string in DD/MM/YYYY format
+      else if (typeof tatValue === 'string' && tatValue.includes('/')) {
+        const parts = tatValue.split('/')
+        if (parts.length === 3) {
+          const day = parts[0].padStart(2, '0')
+          const month = parts[1].padStart(2, '0')
+          const year = parts[2]
+          tatValue = `${year}-${month}-${day}`
+        }
+      }
+
+      return {
+        name: row.name || row.Name || '',
+        amount: Number(row.amount || row.Amount || row.price || row.Price || 0),
+        qty: Number(row.qty || row.Qty || row.quantity || row.Quantity || 1),
+        tat: tatValue,
+        size: row.size || row.Size || '',
+        description: row.description || row.Description || '',
+        img: row.img || row.Img || row.image || row.Image || ''
+      }
+    })
+
+    toast({
+      description: `${bulkProductsList.value.length} products loaded successfully!`,
+    })
+  } catch (error) {
+    console.error('Error reading XLSX file:', error)
+    toast({
+      description: 'Error reading file. Please check the format.',
+      variant: 'destructive'
+    })
   }
 }
 
-// Upload bulk product
+// Updated uploadBulkProduct with image download
+
+
+// Add this helper function to download images
+const downloadImageAsFile = async (url: string, filename: string): Promise<File | null> => {
+  try {
+    const response = await fetch(url)
+    const blob = await response.blob()
+    return new File([blob], filename, { type: blob.type })
+  } catch (error) {
+    console.error('Error downloading image:', error)
+    return null
+  }
+}
+
+// Updated uploadBulkProduct with image download
 const uploadBulkProduct = async (product: any) => {
   try {
-    const productData: any = {
-      name: product.name,
-      amount: product.amount || product.price,
-      qty: product.qty || 1,
-      status: 'published',
-      vendorId: vendorId.value 
+    // Validate tags are selected
+    if (bulkSelectedTags.value.length === 0) {
+      toast({
+        description: 'Please select at least one category (tag) before publishing',
+        variant: 'destructive'
+      })
+      return
+    }
+
+    if (bulkSelectedTags.value.length > 3) {
+      toast({
+        description: 'You can select up to 3 categories only',
+        variant: 'destructive'
+      })
+      return
+    }
+
+    // Build FormData
+    let data = new FormData()
+    data.append('name', product.name)
+    data.append('description', product.description || '')
+    data.append('amount', product.amount.toString())
+    data.append('tat', product.tat || '')
+    data.append('qty', product.qty.toString())
+    data.append('status', product.status || 'published')
+    data.append('vendorId', vendorId.value)
+    
+    if (product.size) {
+      data.append('size', product.size)
     }
     
-    if (product.description) productData.description = product.description
-    if (product.tat) productData.tat = product.tat
-    
-    // Use first category as default tag for bulk upload
-    if (categories.value.length > 0) {
-      productData.tag = [categories.value[0]._id]
-    } else {
-      productData.tag = ['68d2bd8683bae446451f7745'] // fallback
+    // Append tags as comma-separated string
+    data.append('tag', bulkSelectedTags.value.join(','))
+
+    // Download and attach image if URL provided
+    if (product.img) {
+      const imageFile = await downloadImageAsFile(
+        product.img, 
+        `${product.name.replace(/[^a-z0-9]/gi, '_')}.jpg`
+      )
+      
+      if (imageFile) {
+        data.append('image', imageFile)
+      } else {
+        console.warn(`Could not download image for ${product.name}`)
+      }
     }
     
-    await productsStore.createProduct(productData)
+    await productsStore.createProduct(data)
     
     toast({
       description: `${product.name} uploaded successfully!`,
@@ -191,10 +292,11 @@ const uploadBulkProduct = async (product: any) => {
     
     await productsStore.fetchProducts({ vendorId: vendorId.value })
     await productsStore.fetchProductStatusCounts(vendorId.value)
-  } catch (error) {
+  } catch (error: any) {
     console.error('Bulk upload error:', error)
+    const errorMessage = error.response?.data?.message || `Error uploading ${product.name}`
     toast({
-      description: `Error uploading ${product.name}`,
+      description: errorMessage,
       variant: 'destructive'
     })
   }
@@ -480,7 +582,8 @@ const resetForm = () => {
   editingProductId.value = null
   bulkUploadFile.value = null
   bulkProductsList.value = []
-  formData.value = {
+ bulkSelectedTags.value = []
+   formData.value = {
     name: '',
     description: '',
     amount: '',
@@ -639,6 +742,154 @@ onBeforeUnmount(() => {
   document.removeEventListener('click', closeDropdownOnClickOutside)
   document.removeEventListener('click', closeActionsMenuOnClickOutside)
 })
+
+// Format TAT for display (convert YYYY-MM-DD to readable format)
+const formatTatForDisplay = (tat: string) => {
+  if (!tat) return 'N/A'
+  
+  // If it's already in YYYY-MM-DD format
+  if (tat.match(/^\d{4}-\d{2}-\d{2}$/)) {
+    const date = new Date(tat)
+    return date.toLocaleDateString('en-GB', { 
+      day: 'numeric', 
+      month: 'short', 
+      year: 'numeric' 
+    })
+  }
+  
+  return tat
+}
+
+// Keep the existing formatTatDate function for backward compatibility
+const formatTatDate = (dateString: string) => {
+  if (!dateString) return 'N/A'
+  
+  // Check if it's already in a readable format
+  if (dateString.includes('mins') || dateString.includes('hours') || dateString.includes('days')) {
+    return dateString
+  }
+  
+  // If it's in YYYY-MM-DD format
+  if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
+    const date = new Date(dateString)
+    return date.toLocaleDateString('en-GB', { 
+      day: 'numeric', 
+      month: 'short', 
+      year: 'numeric' 
+    })
+  }
+  
+  return dateString
+}
+
+// Add this with your other ref declarations
+const bulkSelectedTags = ref<string[]>([])
+
+// Add this function after your other functions
+// Replace handleBulkCategorySelection with this
+const handleBulkTagSelection = (categoryId: string) => {
+  const index = bulkSelectedTags.value.indexOf(categoryId)
+  if (index > -1) {
+    // Remove if already selected
+    bulkSelectedTags.value.splice(index, 1)
+  } else {
+    // Add if not selected, but limit to 3
+    if (bulkSelectedTags.value.length < 3) {
+      bulkSelectedTags.value.push(categoryId)
+    } else {
+      toast({
+        description: 'You can select up to 3 categories only',
+        variant: 'destructive'
+      })
+    }
+  }
+}
+
+// Bulk publish all products
+const bulkPublishAll = async () => {
+  if (bulkSelectedTags.value.length === 0) {
+    toast({
+      description: 'Please select at least one category before publishing',
+      variant: 'destructive'
+    })
+    return
+  }
+
+  for (const product of bulkProductsList.value) {
+    await uploadBulkProduct(product)
+  }
+  
+  // Clear the list after successful upload
+  bulkProductsList.value = []
+  bulkUploadFile.value = null
+  addProductSheetOpen.value = false
+}
+
+// Bulk draft all products
+const bulkDraftAll = async () => {
+  if (bulkSelectedTags.value.length === 0) {
+    toast({
+      description: 'Please select at least one category',
+      variant: 'destructive'
+    })
+    return
+  }
+
+  for (const product of bulkProductsList.value) {
+    // Create a copy and set status to draft
+    const draftProduct = { ...product, status: 'draft' }
+    await uploadBulkProduct(draftProduct)
+  }
+  
+  bulkProductsList.value = []
+  bulkUploadFile.value = null
+  addProductSheetOpen.value = false
+}
+
+// Bulk archive all products
+const bulkArchiveAll = async () => {
+  if (bulkSelectedTags.value.length === 0) {
+    toast({
+      description: 'Please select at least one category',
+      variant: 'destructive'
+    })
+    return
+  }
+
+  for (const product of bulkProductsList.value) {
+    const archivedProduct = { ...product, status: 'archived' }
+    await uploadBulkProduct(archivedProduct)
+  }
+  
+  bulkProductsList.value = []
+  bulkUploadFile.value = null
+  addProductSheetOpen.value = false
+}
+
+// Upload individual product with specific status
+const uploadProductWithStatus = async (product: any, status: 'published' | 'draft' | 'archived') => {
+  if (bulkSelectedTags.value.length === 0) {
+    toast({
+      description: 'Please select at least one category',
+      variant: 'destructive'
+    })
+    return
+  }
+
+  const productWithStatus = { ...product, status }
+  await uploadBulkProduct(productWithStatus)
+  
+  // Remove from list after upload
+  const index = bulkProductsList.value.indexOf(product)
+  if (index > -1) {
+    bulkProductsList.value.splice(index, 1)
+  }
+  
+  // Close sheet if all products uploaded
+  if (bulkProductsList.value.length === 0) {
+    addProductSheetOpen.value = false
+  }
+}
 </script>
 
 <!-- REST OF THE TEMPLATE REMAINS THE SAME -->
@@ -1017,24 +1268,85 @@ onBeforeUnmount(() => {
                     Choose File
                   </label>
                   <p v-if="bulkUploadFile" class="text-sm text-green-600 mt-2">✓ File uploaded: {{ bulkUploadFile.name }}</p>
+
+        <!-- Place this RIGHT AFTER the file upload section and BEFORE the products list -->
+<div v-if="bulkProductsList.length > 0" class="border rounded-lg p-4 bg-[#F8F9FF] mb-4">
+  <div class="flex items-start gap-3 mb-4">
+    <Icon icon="mdi:tag-multiple" class="text-[#020721] mt-1" width="20" height="20" />
+    <div class="flex-1">
+      <p class="text-sm font-medium text-[#020721]">Select Categories (Tags)</p>
+      <p class="text-xs text-[#8B8D97]">Choose 1-3 categories to apply as tags for all products</p>
+    </div>
+  </div>
+  
+  <div v-if="loadingCategories" class="text-sm text-[#8B8D97]">
+    Loading categories...
+  </div>
+  <div v-else class="space-y-2">
+    <div class="grid grid-cols-2 gap-2 max-h-[200px] overflow-y-auto">
+      <div
+        v-for="category in categories"
+        :key="category._id"
+        @click="handleBulkTagSelection(category._id)"
+        :class="[
+          'border rounded-lg p-3 cursor-pointer transition-colors text-sm',
+          bulkSelectedTags.includes(category._id)
+            ? 'bg-[#5B68DF] text-white border-[#5B68DF]'
+            : 'bg-white border-gray-200 hover:bg-gray-50'
+        ]"
+      >
+        <div class="flex items-center justify-between">
+          <span>{{ category.name }}</span>
+          <Icon 
+            v-if="bulkSelectedTags.includes(category._id)"
+            icon="mdi:check" 
+            class="w-4 h-4" 
+          />
+        </div>
+      </div>
+    </div>
+    <p class="text-xs text-[#8B8D97] mt-2">
+      Selected: {{ bulkSelectedTags.length }}/3 categories (minimum 1 required)
+    </p>
+    <p v-if="bulkSelectedTags.length === 0" class="text-xs text-red-500 mt-1">
+      ⚠️ Please select at least 1 category before publishing
+    </p>
+  </div>
+</div>
                 </div>
 
                 <!-- Bulk Products List -->
                 <div v-if="bulkProductsList.length > 0" class="space-y-4">
-                  <div class="flex items-center justify-between">
-                    <p class="text-sm font-medium text-[#020721]">Products to Upload</p>
-                    <div class="flex gap-2">
-                      <button class="px-3 py-1 bg-white border border-gray-200 text-xs rounded-lg hover:bg-gray-50">
-                        Archive all
-                      </button>
-                      <button class="px-3 py-1 bg-white border border-gray-200 text-xs rounded-lg hover:bg-gray-50">
-                        Draft all
-                      </button>
-                      <button class="px-3 py-1 bg-[#020721] text-white text-xs rounded-lg hover:bg-[#020721]/90">
-                        Publish all
-                      </button>
-                    </div>
-                  </div>
+                <!-- Find the bulk action buttons section and update to this -->
+<div class="flex items-center justify-between">
+  <p class="text-sm font-medium text-[#020721]">Products to Upload</p>
+  <div class="flex gap-2">
+    <button 
+      @click="bulkArchiveAll"
+      class="px-3 py-1 bg-white border border-gray-200 text-xs rounded-lg hover:bg-gray-50"
+    >
+      Archive all
+    </button>
+    <button 
+      @click="bulkDraftAll"
+      class="px-3 py-1 bg-white border border-gray-200 text-xs rounded-lg hover:bg-gray-50"
+    >
+      Draft all
+    </button>
+    <button 
+      @click="bulkPublishAll"
+      :disabled="bulkSelectedTags.length === 0"
+      :class="[
+        'px-3 py-1 text-white text-xs rounded-lg',
+        bulkSelectedTags.length === 0 
+          ? 'bg-gray-400 cursor-not-allowed' 
+          : 'bg-[#020721] hover:bg-[#020721]/90'
+      ]"
+    >
+      Publish all
+    </button>
+  </div>
+</div>
 
                   <div class="space-y-3 max-h-[400px] overflow-y-auto">
                     <div v-for="(product, index) in bulkProductsList" :key="index" 
@@ -1055,46 +1367,64 @@ onBeforeUnmount(() => {
                           <p class="text-xs text-[#8B8D97] mb-1">Name</p>
                           <p class="text-sm font-medium text-[#020721]">{{ product.name }}</p>
                         </div>
+
+                        
                       </div>
 
-                      <div class="grid grid-cols-2 gap-3 text-xs mb-3">
-                        <div>
-                          <p class="text-[#8B8D97] mb-1">Price</p>
-                          <p class="font-medium text-[#020721]">₦{{ product.amount?.toLocaleString() }}</p>
-                        </div>
-                        <div>
-                          <p class="text-[#8B8D97] mb-1">Quantity</p>
-                          <p class="font-medium text-[#020721]">{{ product.qty || 'N/A' }}</p>
-                        </div>
-                        <div>
-                          <p class="text-[#8B8D97] mb-1">Size</p>
-                          <p class="font-medium text-[#020721]">{{ product.size || 'N/A' }}</p>
-                        </div>
-                        <div>
-                          <p class="text-[#8B8D97] mb-1">Delivery TAT</p>
-                          <p class="font-medium text-[#020721]">{{ product.tat || 'N/A' }}</p>
-                        </div>
-                      </div>
+                     <!-- In the bulk products list display -->
+<div class="grid grid-cols-2 gap-3 text-xs mb-3">
+  <div>
+    <p class="text-[#8B8D97] mb-1">Price</p>
+    <p class="font-medium text-[#020721]">₦{{ (product.amount || product.price || 0).toLocaleString() }}</p>
+  </div>
+  <div>
+    <p class="text-[#8B8D97] mb-1">Quantity</p>
+    <p class="font-medium text-[#020721]">{{ product.qty || 1 }}</p>
+  </div>
+  <div>
+    <p class="text-[#8B8D97] mb-1">Size</p>
+    <p class="font-medium text-[#020721]">{{ product.size || 'N/A' }}</p>
+  </div>
+ <div>
+  <p class="text-[#8B8D97] mb-1">Delivery TAT</p>
+  <p class="font-medium text-[#020721]">{{ formatTatForDisplay(product.tat) || 'N/A' }}</p>
+</div>
+</div>
 
                       <div class="mb-3">
                         <p class="text-[#8B8D97] text-xs mb-1">Description</p>
                         <p class="text-sm text-[#020721]">{{ product.description || 'No description' }}</p>
                       </div>
 
-                      <div class="flex gap-2">
-                        <button class="flex-1 px-3 py-2 bg-white border border-gray-200 text-xs rounded-lg hover:bg-gray-50">
-                          Archive
-                        </button>
-                        <button class="flex-1 px-3 py-2 bg-white border border-gray-200 text-xs rounded-lg hover:bg-gray-50">
-                          Draft
-                        </button>
-                        <button 
-                          @click="uploadBulkProduct(product)"
-                          class="flex-1 px-3 py-2 bg-[#020721] text-white text-xs rounded-lg hover:bg-[#020721]/90"
-                        >
-                          Publish
-                        </button>
-                      </div>
+                      <!-- In the individual product card, update the buttons -->
+<div class="flex gap-2">
+  <button 
+    @click="uploadProductWithStatus(product, 'archived')"
+    :disabled="bulkSelectedTags.length === 0"
+    class="flex-1 px-3 py-2 bg-white border border-gray-200 text-xs rounded-lg hover:bg-gray-50 disabled:opacity-50"
+  >
+    Archive
+  </button>
+  <button 
+    @click="uploadProductWithStatus(product, 'draft')"
+    :disabled="bulkSelectedTags.length === 0"
+    class="flex-1 px-3 py-2 bg-white border border-gray-200 text-xs rounded-lg hover:bg-gray-50 disabled:opacity-50"
+  >
+    Draft
+  </button>
+  <button 
+    @click="uploadProductWithStatus(product, 'published')"
+    :disabled="bulkSelectedTags.length === 0"
+    :class="[
+      'flex-1 px-3 py-2 text-white text-xs rounded-lg',
+      bulkSelectedTags.length === 0 
+        ? 'bg-gray-400 cursor-not-allowed' 
+        : 'bg-[#020721] hover:bg-[#020721]/90'
+    ]"
+  >
+    Publish
+  </button>
+</div>
                     </div>
                   </div>
                 </div>
