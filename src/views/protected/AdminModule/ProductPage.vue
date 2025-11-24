@@ -398,11 +398,115 @@ const removeBulkProduct = (index: number) => {
   bulkProductTags.value = newTags
 }
 
-// Download template
+// Download template - UPDATED to create actual XLSX file
 const downloadTemplate = () => {
-  toast({
-    description: 'Template download started',
-  })
+  try {
+    // Create template data with headers and example rows
+    const templateData = [
+      // Headers
+      ['name', 'amount', 'qty', 'tat', 'size', 'description', 'img'],
+      // Example row 1
+      [
+        'Sample Product 1',
+        5000,
+        10,
+        '12/11/2025',
+        'Medium',
+        'This is a sample product description',
+        'https://example.com/image1.jpg'
+      ],
+      // Example row 2
+      [
+        'Sample Product 2',
+        8500,
+        5,
+        '15/12/2025',
+        'Large',
+        'Another sample product for demonstration',
+        'https://example.com/image2.jpg'
+      ],
+      // Instructions row
+      [
+        '⚠️ INSTRUCTIONS',
+        '',
+        '',
+        '',
+        '',
+        '',
+        ''
+      ],
+      [
+        'Delete these example rows before uploading',
+        '',
+        '',
+        '',
+        '',
+        '',
+        ''
+      ],
+      [
+        'name: Product name (required)',
+        'amount: Price in Naira (required)',
+        'qty: Available quantity',
+        'tat: Date format DD/MM/YYYY',
+        'size: Product size',
+        'description: Max 140 characters',
+        'img: Image URL (optional)'
+      ]
+    ]
+
+    // Create a new workbook
+    const worksheet = XLSX.utils.aoa_to_sheet(templateData)
+
+    // Set column widths for better readability
+    worksheet['!cols'] = [
+      { wch: 25 }, 
+      { wch: 12 }, 
+      { wch: 8 },  
+      { wch: 15 }, 
+      { wch: 12 }, 
+      { wch: 40 }, 
+      { wch: 35 }  
+    ]
+
+    // Style the header row (make it bold and centered)
+    const headerRange = XLSX.utils.decode_range(worksheet['!ref'] || 'A1')
+    for (let col = headerRange.s.c; col <= headerRange.e.c; col++) {
+      const cellAddress = XLSX.utils.encode_cell({ r: 0, c: col })
+      if (!worksheet[cellAddress]) continue
+      
+      worksheet[cellAddress].s = {
+        font: { bold: true },
+        alignment: { horizontal: 'center' },
+        fill: { fgColor: { rgb: '4472C4' } }
+      }
+    }
+
+    // Create workbook
+    const workbook = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Products')
+
+    // Generate file name with current date
+    const today = new Date()
+    const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
+    const fileName = `product_upload_template_${dateStr}.xlsx`
+
+    // Download the file
+    XLSX.writeFile(workbook, fileName)
+
+    toast({
+      title: "Success!",
+      description: 'Template downloaded successfully!',
+      variant: "default"
+    })
+  } catch (error) {
+    console.error('Error creating template:', error)
+    toast({
+      title: "Error",
+      description: 'Failed to download template. Please try again.',
+      variant: 'destructive'
+    })
+  }
 }
 
 // Handle image upload
