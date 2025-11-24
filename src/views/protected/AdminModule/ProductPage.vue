@@ -6,6 +6,7 @@ import Search from '@/components/UseSearch.vue'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Icon } from '@iconify/vue'
+import * as XLSX from 'xlsx'
 import { Check, ScrollText, Battery, ListFilter, Archive, X } from 'lucide-vue-next'
 import {
   Table,
@@ -21,10 +22,17 @@ import {
   SheetDescription,
   SheetHeader,
 } from "@/components/ui/sheet"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import { useProductsStore } from '@/stores/vendor/product'
 import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
 import { useToast } from '@/components/ui/toast'
-import { menu_food } from '@/lib/menu-food'
 import type { Product } from '@/stores/vendor/product'
 import axios from 'axios'
 
@@ -38,6 +46,17 @@ const vendorId = computed(() => superAdminStore.vendorId)
 // Categories state
 const categories = ref<{_id: string, name: string}[]>([])
 const loadingCategories = ref(false)
+
+// Status filter state
+const statusFilter = ref('all')
+const showStatusFilter = ref(false)
+
+// Delete modal state
+const deleteModalOpen = ref(false)
+const productToDelete = ref<Product | null>(null)
+
+
+const searchQuery = ref('')
 
 const statusBg = (status: string) => {
   switch (status) {
@@ -76,7 +95,7 @@ const formData = ref({
   qty: '1',
   tat: '',
   size: '',
-  tag: [] as string[], // Array of category IDs
+  tag: [] as string[], 
   image: null as File | null,
   status: 'draft' as 'published' | 'draft' | 'archived' | 'out-of-stock'
 })
@@ -84,6 +103,11 @@ const formData = ref({
 // Edit mode
 const isEditMode = ref(false)
 const editingProductId = ref<string | null>(null)
+
+// Bulk upload states
+const bulkProductTags = ref<Record<number, string>>({}) // Tag per product index
+const applyTagToAll = ref(false) // Toggle for same tag
+const globalBulkTag = ref<string>('') // Tag to apply to all
 
 // Fetch categories from API
 const fetchCategories = async () => {
@@ -106,16 +130,82 @@ const fetchCategories = async () => {
       description: 'Error loading categories',
       variant: 'destructive'
     })
-    // Fallback categories if API fails
-    categories.value = [
-      { _id: '68d2bd8683bae446451f7745', name: 'Electronics' },
-      { _id: '68d2bd8683bae446451f7746', name: 'Home & Kitchen' },
-      { _id: '68d2bd8683bae446451f7747', name: 'Fashion' },
-      { _id: '68d2bd8683bae446451f7748', name: 'Sports' },
-      { _id: '68d2bd8683bae446451f7749', name: 'Beauty' }
-    ]
+    
   } finally {
     loadingCategories.value = false
+  }
+}
+
+// Apply status filter
+const applyStatusFilter = (status: string) => {
+  statusFilter.value = status
+  showStatusFilter.value = false
+  
+  if (status === 'all') {
+    productsStore.fetchProducts({ vendorId: vendorId.value })
+  } else {
+    productsStore.fetchProducts({ vendorId: vendorId.value, status })
+  }
+}
+
+// Get display name for status filter
+const getStatusFilterDisplay = () => {
+  switch (statusFilter.value) {
+    case 'all': return 'All'
+    case 'published': return 'Published'
+    case 'draft': return 'Draft'
+    case 'archived': return 'Archived'
+    case 'out-of-stock': return 'Out of Stock'
+    default: return 'All'
+  }
+}
+
+// NEW: Handle search
+const handleSearch = (query: string) => {
+  searchQuery.value = query
+  productsStore.fetchProducts({ 
+    vendorId: vendorId.value, 
+    search: query,
+    ...(statusFilter.value !== 'all' && { status: statusFilter.value })
+  })
+}
+
+// NEW: Open delete confirmation modal
+const openDeleteModal = (product: Product) => {
+  productToDelete.value = product
+  deleteModalOpen.value = true
+  showActionsMenu.value = null
+}
+
+// NEW: Confirm delete product
+const confirmDeleteProduct = async () => {
+  if (!productToDelete.value) return
+
+  try {
+    await productsStore.deleteProduct(productToDelete.value._id)
+    toast({
+      title: "Success!",
+      description: 'Product deleted successfully!',
+      variant: "default"
+    })
+    
+    // Close view sheet if it's open for the deleted product
+    if (selectedProduct.value?._id === productToDelete.value._id) {
+      viewProductSheetOpen.value = false
+      selectedProduct.value = null
+    }
+    
+    // Close the modal
+    deleteModalOpen.value = false
+    productToDelete.value = null
+  } catch (error: any) {
+    console.error('Delete product error:', error)
+    const errorMessage = error.response?.data?.message || 'Error deleting product. Please try again.'
+    toast({
+      title: "Error",
+      description: errorMessage,
+      variant: 'destructive'
+    })
   }
 }
 
@@ -142,6 +232,12 @@ const closeDropdownOnClickOutside = (event: MouseEvent) => {
   if (!dropdown || !dropdown.querySelector('[data-add-product-menu]')) {
     showAddProductMenu.value = false
   }
+  
+  // Close status filter dropdown
+  const statusFilterDropdown = target.closest('.relative')
+  if (!statusFilterDropdown || !statusFilterDropdown.querySelector('[data-status-filter]')) {
+    showStatusFilter.value = false
+  }
 }
 
 // Close actions menu when clicking outside
@@ -153,56 +249,153 @@ const closeActionsMenuOnClickOutside = (event: MouseEvent) => {
 }
 
 // Handle bulk file upload
-const handleBulkFileUpload = (e: Event) => {
+const handleBulkFileUpload = async (e: Event) => {
   const target = e.target as HTMLInputElement
   const file = target.files?.[0]
-  if (file) {
+  if (!file) return
+
+  try {
     bulkUploadFile.value = file
-    bulkProductsList.value = menu_food.slice(0, 3)
+
+    // Read the file
+    const data = await file.arrayBuffer()
+    const workbook = XLSX.read(data, { type: 'array' })
+    
+    // Get first sheet
+    const sheetName = workbook.SheetNames[0]
+    const worksheet = workbook.Sheets[sheetName]
+    
+    // Convert to JSON
+    const jsonData = XLSX.utils.sheet_to_json(worksheet)
+    
+    // Process and normalize the data
+    bulkProductsList.value = jsonData.map((row: any) => {
+      // Handle date conversion for 'tat' field
+      let tatValue = row.tat || row.TAT || ''
+      
+      // If tat is a number (Excel date serial)
+      if (typeof tatValue === 'number') {
+        const date = XLSX.SSF.parse_date_code(tatValue)
+        tatValue = `${date.y}-${String(date.m).padStart(2, '0')}-${String(date.d).padStart(2, '0')}`
+      }
+      // If tat is a string in DD/MM/YYYY format
+      else if (typeof tatValue === 'string' && tatValue.includes('/')) {
+        const parts = tatValue.split('/')
+        if (parts.length === 3) {
+          const day = parts[0].padStart(2, '0')
+          const month = parts[1].padStart(2, '0')
+          const year = parts[2]
+          tatValue = `${year}-${month}-${day}`
+        }
+      }
+
+      return {
+        name: row.name || row.Name || '',
+        amount: Number(row.amount || row.Amount || row.price || row.Price || 0),
+        qty: Number(row.qty || row.Qty || row.quantity || row.Quantity || 1),
+        tat: tatValue,
+        size: row.size || row.Size || '',
+        description: row.description || row.Description || '',
+        img: row.img || row.Img || row.image || row.Image || ''
+      }
+    })
+
+    toast({
+      description: `${bulkProductsList.value.length} products loaded successfully!`,
+    })
+  } catch (error) {
+    console.error('Error reading XLSX file:', error)
+    toast({
+      description: 'Error reading file. Please check the format.',
+      variant: 'destructive'
+    })
   }
 }
 
-// Upload bulk product
-const uploadBulkProduct = async (product: any) => {
+// Helper to download image from URL
+const downloadImageAsFile = async (url: string, filename: string): Promise<File | null> => {
   try {
-    const productData: any = {
-      name: product.name,
-      amount: product.amount || product.price,
-      qty: product.qty || 1,
-      status: 'published',
-      vendorId: vendorId.value 
-    }
-    
-    if (product.description) productData.description = product.description
-    if (product.tat) productData.tat = product.tat
-    
-    // Use first category as default tag for bulk upload
-    if (categories.value.length > 0) {
-      productData.tag = [categories.value[0]._id]
-    } else {
-      productData.tag = ['68d2bd8683bae446451f7745'] // fallback
-    }
-    
-    await productsStore.createProduct(productData)
-    
-    toast({
-      description: `${product.name} uploaded successfully!`,
-    })
-    
-    await productsStore.fetchProducts({ vendorId: vendorId.value })
-    await productsStore.fetchProductStatusCounts(vendorId.value)
+    const response = await fetch(url)
+    const blob = await response.blob()
+    return new File([blob], filename, { type: blob.type })
   } catch (error) {
+    console.error('Error downloading image:', error)
+    return null
+  }
+}
+
+// Updated uploadBulkProduct - removed individual fetches
+const uploadBulkProduct = async (product: any, productIndex: number, status: string = 'published') => {
+  try {
+    // Get the tag for this product
+    let productTag: string
+    if (applyTagToAll.value) {
+      productTag = globalBulkTag.value
+    } else {
+      productTag = bulkProductTags.value[productIndex]
+    }
+
+    // Validate tag is selected
+    if (!productTag) {
+      toast({
+        description: 'Please select a category (tag) for this product',
+        variant: 'destructive'
+      })
+      throw new Error('No category selected')
+    }
+
+    // Build FormData
+    let data = new FormData()
+    data.append('name', product.name)
+    data.append('description', product.description || '')
+    data.append('amount', product.amount.toString())
+    data.append('tat', product.tat || '')
+    data.append('qty', product.qty.toString())
+    data.append('status', status)
+    data.append('vendorId', vendorId.value)
+    
+    if (product.size) {
+      data.append('size', product.size)
+    }
+    
+    // Append single tag
+    data.append('tag', productTag)
+
+    // Download and attach image if URL provided
+    if (product.img) {
+      const imageFile = await downloadImageAsFile(
+        product.img, 
+        `${product.name.replace(/[^a-z0-9]/gi, '_')}.jpg`
+      )
+      
+      if (imageFile) {
+        data.append('image', imageFile)
+      }
+    }
+    
+    await productsStore.createProduct(data)
+    
+  } catch (error: any) {
     console.error('Bulk upload error:', error)
-    toast({
-      description: `Error uploading ${product.name}`,
-      variant: 'destructive'
-    })
+    const errorMessage = error.response?.data?.message || `Error uploading ${product.name}`
+    throw error // Re-throw to handle in calling function
   }
 }
 
 // Remove bulk product from list
 const removeBulkProduct = (index: number) => {
   bulkProductsList.value.splice(index, 1)
+  // Remove the tag mapping for this index and adjust remaining indices
+  const newTags: Record<number, string> = {}
+  Object.keys(bulkProductTags.value).forEach(key => {
+    const idx = Number(key)
+    if (idx < index) {
+      newTags[idx] = bulkProductTags.value[idx]
+    } else if (idx > index) {
+      newTags[idx - 1] = bulkProductTags.value[idx]
+    }
+  })
+  bulkProductTags.value = newTags
 }
 
 // Download template
@@ -221,22 +414,14 @@ const handleImageUpload = (e: Event) => {
   }
 }
 
-// Handle tag selection
+// Handle tag selection - UPDATED to allow only ONE tag
 const handleTagSelection = (categoryId: string) => {
-  const index = formData.value.tag.indexOf(categoryId)
-  if (index > -1) {
-    // Remove if already selected
-    formData.value.tag.splice(index, 1)
+  // If clicking the same tag, deselect it
+  if (formData.value.tag.includes(categoryId)) {
+    formData.value.tag = []
   } else {
-    // Add if not selected, but limit to 3
-    if (formData.value.tag.length < 3) {
-      formData.value.tag.push(categoryId)
-    } else {
-      toast({
-        description: 'You can select up to 3 categories only',
-        variant: 'destructive'
-      })
-    }
+    // Replace with new selection (only one tag allowed)
+    formData.value.tag = [categoryId]
   }
 }
 
@@ -251,10 +436,10 @@ const handleNext = async () => {
     return
   }
 
-  // Validate tags/categories
+  // Validate tags/categories - UPDATED MESSAGE
   if (formData.value.tag.length === 0) {
     toast({
-      description: 'Please select at least one category',
+      description: 'Please select a category', // Changed from "at least one"
       variant: 'destructive'
     })
     return
@@ -362,10 +547,10 @@ const updateProduct = async () => {
     return
   }
 
-  // Validate tags/categories
+  // Validate tags/categories - UPDATED MESSAGE
   if (formData.value.tag.length === 0) {
     toast({
-      description: 'Please select at least one category',
+      description: 'Please select a category', // Changed from "at least one"
       variant: 'destructive'
     })
     return
@@ -443,34 +628,6 @@ const updateProduct = async () => {
   }
 }
 
-// Delete product
-const deleteProduct = async (id: string) => {
-  if (!confirm('Are you sure you want to delete this product? This action cannot be undone.')) return
-
-  try {
-    await productsStore.deleteProduct(id)
-    toast({
-      title: "Success!",
-      description: 'Product deleted successfully!',
-      variant: "default"
-    })
-    
-    // Close view sheet if it's open for the deleted product
-    if (selectedProduct.value?._id === id) {
-      viewProductSheetOpen.value = false
-      selectedProduct.value = null
-    }
-  } catch (error: any) {
-    console.error('Delete product error:', error)
-    const errorMessage = error.response?.data?.message || 'Error deleting product. Please try again.'
-    toast({
-      title: "Error",
-      description: errorMessage,
-      variant: 'destructive'
-    })
-  }
-}
-
 // Reset form
 const resetForm = () => {
   currentStep.value = 1
@@ -480,6 +637,9 @@ const resetForm = () => {
   editingProductId.value = null
   bulkUploadFile.value = null
   bulkProductsList.value = []
+  bulkProductTags.value = {} // Clear individual tags
+  applyTagToAll.value = false // Reset toggle
+  globalBulkTag.value = '' // Clear global tag
   formData.value = {
     name: '',
     description: '',
@@ -624,6 +784,248 @@ const updateProductStatus = async (status: 'published' | 'draft' | 'archived' | 
   }
 }
 
+// Check if a product can be uploaded (has category selected)
+const canUploadProduct = (index: number) => {
+  if (applyTagToAll.value) {
+    return !!globalBulkTag.value
+  }
+  return !!bulkProductTags.value[index]
+}
+
+// Check if all products can be bulk uploaded
+const canBulkUpload = computed(() => {
+  if (bulkProductsList.value.length === 0) return false
+  
+  if (applyTagToAll.value) {
+    return !!globalBulkTag.value
+  }
+  
+  // Check if all products have tags selected
+  return bulkProductsList.value.every((_, index) => !!bulkProductTags.value[index])
+})
+
+// Upload individual product with specific status
+const uploadProductWithStatus = async (product: any, index: number, status: 'published' | 'draft' | 'archived') => {
+  // Validate tag is selected
+  if (!canUploadProduct(index)) {
+    toast({
+      description: 'Please select a category for this product',
+      variant: 'destructive'
+    })
+    return
+  }
+
+  try {
+    await uploadBulkProduct(product, index, status)
+    
+    // Remove from list after successful upload
+    bulkProductsList.value.splice(index, 1)
+    
+    // Remove tag mapping for this index and adjust remaining indices
+    const newTags: Record<number, string> = {}
+    Object.keys(bulkProductTags.value).forEach(key => {
+      const idx = Number(key)
+      if (idx < index) {
+        newTags[idx] = bulkProductTags.value[idx]
+      } else if (idx > index) {
+        newTags[idx - 1] = bulkProductTags.value[idx]
+      }
+    })
+    bulkProductTags.value = newTags
+    
+    // Close sheet if all products uploaded
+    if (bulkProductsList.value.length === 0) {
+      addProductSheetOpen.value = false
+      resetForm()
+    }
+  } catch (error) {
+    // Error already handled in uploadBulkProduct
+  }
+}
+
+// Bulk publish all products - FIXED to upload sequentially
+const bulkPublishAll = async () => {
+  if (!canBulkUpload.value) {
+    toast({
+      description: applyTagToAll.value 
+        ? 'Please select a category for all products'
+        : 'Please select a category for each product',
+      variant: 'destructive'
+    })
+    return
+  }
+
+  const totalProducts = bulkProductsList.value.length
+  let successCount = 0
+  let failCount = 0
+
+  // Show initial toast
+  toast({
+    description: `Uploading ${totalProducts} products...`,
+  })
+
+  // Upload products one by one
+  for (let i = 0; i < totalProducts; i++) {
+    try {
+      await uploadBulkProduct(bulkProductsList.value[i], i, 'published')
+      successCount++
+    } catch (error) {
+      failCount++
+      console.error(`Failed to upload product ${i}:`, error)
+    }
+  }
+  
+  // Refresh products and counts ONCE after all uploads complete
+  await productsStore.fetchProducts({ vendorId: vendorId.value })
+  await productsStore.fetchProductStatusCounts(vendorId.value)
+  
+  toast({
+    description: `Upload complete! ${successCount} published${failCount > 0 ? `, ${failCount} failed` : ''}`,
+    variant: failCount > 0 ? 'destructive' : 'default'
+  })
+  
+  // Clear the list after upload
+  bulkProductsList.value = []
+  bulkProductTags.value = {}
+  globalBulkTag.value = ''
+  applyTagToAll.value = false
+  addProductSheetOpen.value = false
+  resetForm()
+}
+
+// Bulk draft all products - FIXED to upload sequentially
+const bulkDraftAll = async () => {
+  if (!canBulkUpload.value) {
+    toast({
+      description: applyTagToAll.value 
+        ? 'Please select a category for all products'
+        : 'Please select a category for each product',
+      variant: 'destructive'
+    })
+    return
+  }
+
+  const totalProducts = bulkProductsList.value.length
+  let successCount = 0
+  let failCount = 0
+
+  toast({
+    description: `Uploading ${totalProducts} products as drafts...`,
+  })
+
+  for (let i = 0; i < totalProducts; i++) {
+    try {
+      await uploadBulkProduct(bulkProductsList.value[i], i, 'draft')
+      successCount++
+    } catch (error) {
+      failCount++
+      console.error(`Failed to upload product ${i}:`, error)
+    }
+  }
+  
+  // Refresh products and counts ONCE after all uploads complete
+  await productsStore.fetchProducts({ vendorId: vendorId.value })
+  await productsStore.fetchProductStatusCounts(vendorId.value)
+  
+  toast({
+    description: `Upload complete! ${successCount} drafted${failCount > 0 ? `, ${failCount} failed` : ''}`,
+    variant: failCount > 0 ? 'destructive' : 'default'
+  })
+  
+  bulkProductsList.value = []
+  bulkProductTags.value = {}
+  globalBulkTag.value = ''
+  applyTagToAll.value = false
+  addProductSheetOpen.value = false
+  resetForm()
+}
+
+// Bulk archive all products - FIXED to upload sequentially
+const bulkArchiveAll = async () => {
+  if (!canBulkUpload.value) {
+    toast({
+      description: applyTagToAll.value 
+        ? 'Please select a category for all products'
+        : 'Please select a category for each product',
+      variant: 'destructive'
+    })
+    return
+  }
+
+  const totalProducts = bulkProductsList.value.length
+  let successCount = 0
+  let failCount = 0
+
+  toast({
+    description: `Uploading ${totalProducts} products as archived...`,
+  })
+
+  for (let i = 0; i < totalProducts; i++) {
+    try {
+      await uploadBulkProduct(bulkProductsList.value[i], i, 'archived')
+      successCount++
+    } catch (error) {
+      failCount++
+      console.error(`Failed to upload product ${i}:`, error)
+    }
+  }
+  
+  // Refresh products and counts ONCE after all uploads complete
+  await productsStore.fetchProducts({ vendorId: vendorId.value })
+  await productsStore.fetchProductStatusCounts(vendorId.value)
+  
+  toast({
+    description: `Upload complete! ${successCount} archived${failCount > 0 ? `, ${failCount} failed` : ''}`,
+    variant: failCount > 0 ? 'destructive' : 'default'
+  })
+  
+  bulkProductsList.value = []
+  bulkProductTags.value = {}
+  globalBulkTag.value = ''
+  applyTagToAll.value = false
+  addProductSheetOpen.value = false
+  resetForm()
+}
+
+// Format TAT for display (convert YYYY-MM-DD to readable format)
+const formatTatForDisplay = (tat: string) => {
+  if (!tat) return 'N/A'
+  
+  // If it's already in YYYY-MM-DD format
+  if (tat.match(/^\d{4}-\d{2}-\d{2}$/)) {
+    const date = new Date(tat)
+    return date.toLocaleDateString('en-GB', { 
+      day: 'numeric', 
+      month: 'short', 
+      year: 'numeric' 
+    })
+  }
+  
+  return tat
+}
+
+// Keep the existing formatTatDate function for backward compatibility
+const formatTatDate = (dateString: string) => {
+  if (!dateString) return 'N/A'
+  
+  // Check if it's already in a readable format
+  if (dateString.includes('mins') || dateString.includes('hours') || dateString.includes('days')) {
+    return dateString
+  }
+  
+  // If it's in YYYY-MM-DD format
+  if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
+    const date = new Date(dateString)
+    return date.toLocaleDateString('en-GB', { 
+      day: 'numeric', 
+      month: 'short', 
+      year: 'numeric' 
+    })
+  }
+  
+  return dateString
+}
+
 // Fetch products, counts, and categories on mount
 onMounted(async () => {
   await productsStore.fetchProducts({ vendorId: vendorId.value })
@@ -641,7 +1043,6 @@ onBeforeUnmount(() => {
 })
 </script>
 
-<!-- REST OF THE TEMPLATE REMAINS THE SAME -->
 <template>
   <div class="flex-col flex bg-[#f0f8ff] h-full px-4 sm:px-10 pb-10">
     <MainNav class="mx-6" headingText="Products" />
@@ -709,13 +1110,106 @@ onBeforeUnmount(() => {
           </p>
         </div>
         <div class="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
-          <Button variant="outline" class="flex items-center gap-2 w-full sm:w-auto bg-[#EEEFF5]">
-            <ListFilter class="w-4 h-4"/>
-            All
-            <Icon icon="mdi:chevron-down" class="w-4 h-4" />
-          </Button>
-          <Search class="mt-3 lg:mt-0" 
-          @search="(query: string) => productsStore.fetchProducts({ search: query })" />
+          <!-- Status Filter Dropdown -->
+          <div class="relative" data-status-filter>
+            <Button 
+              variant="outline" 
+              class="flex items-center gap-2 w-full sm:w-auto bg-[#EEEFF5]"
+              @click.stop="showStatusFilter = !showStatusFilter"
+            >
+              <ListFilter class="w-4 h-4"/>
+              {{ getStatusFilterDisplay() }}
+              <Icon icon="mdi:chevron-down" class="w-4 h-4" />
+            </Button>
+
+            <!-- Status Filter Dropdown Menu -->
+            <Transition
+              enter-active-class="transition ease-out duration-100"
+              enter-from-class="transform opacity-0 scale-95"
+              enter-to-class="transform opacity-100 scale-100"
+              leave-active-class="transition ease-in duration-75"
+              leave-from-class="transform opacity-100 scale-100"
+              leave-to-class="transform opacity-0 scale-95"
+            >
+              <div 
+                v-if="showStatusFilter"
+                @click.stop
+                class="absolute left-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden z-50"
+              >
+                <button
+                  @click="applyStatusFilter('all')"
+                  :class="[
+                    'w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center gap-3 border-b border-gray-100 transition-colors',
+                    statusFilter === 'all' ? 'bg-blue-50 text-blue-600' : 'text-gray-700'
+                  ]"
+                >
+                  <div class="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center">
+                    <Icon v-if="statusFilter === 'all'" icon="mdi:check" class="w-4 h-4 text-blue-600" />
+                  </div>
+                  <span class="text-sm font-medium">All Status</span>
+                </button>
+                
+                <button
+                  @click="applyStatusFilter('published')"
+                  :class="[
+                    'w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center gap-3 border-b border-gray-100 transition-colors',
+                    statusFilter === 'published' ? 'bg-green-50 text-green-600' : 'text-gray-700'
+                  ]"
+                >
+                  <div class="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center">
+                    <Icon v-if="statusFilter === 'published'" icon="mdi:check" class="w-4 h-4 text-green-600" />
+                  </div>
+                  <span class="text-sm font-medium">Published</span>
+                </button>
+
+                <button
+                  @click="applyStatusFilter('draft')"
+                  :class="[
+                    'w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center gap-3 border-b border-gray-100 transition-colors',
+                    statusFilter === 'draft' ? 'bg-purple-50 text-purple-600' : 'text-gray-700'
+                  ]"
+                >
+                  <div class="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center">
+                    <Icon v-if="statusFilter === 'draft'" icon="mdi:check" class="w-4 h-4 text-purple-600" />
+                  </div>
+                  <span class="text-sm font-medium">Draft</span>
+                </button>
+
+                <button
+                  @click="applyStatusFilter('archived')"
+                  :class="[
+                    'w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center gap-3 border-b border-gray-100 transition-colors',
+                    statusFilter === 'archived' ? 'bg-blue-50 text-blue-600' : 'text-gray-700'
+                  ]"
+                >
+                  <div class="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center">
+                    <Icon v-if="statusFilter === 'archived'" icon="mdi:check" class="w-4 h-4 text-blue-600" />
+                  </div>
+                  <span class="text-sm font-medium">Archived</span>
+                </button>
+
+                <button
+                  @click="applyStatusFilter('out-of-stock')"
+                  :class="[
+                    'w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center gap-3 transition-colors',
+                    statusFilter === 'out-of-stock' ? 'bg-orange-50 text-orange-600' : 'text-gray-700'
+                  ]"
+                >
+                  <div class="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center">
+                    <Icon v-if="statusFilter === 'out-of-stock'" icon="mdi:check" class="w-4 h-4 text-orange-600" />
+                  </div>
+                  <span class="text-sm font-medium">Out of Stock</span>
+                </button>
+              </div>
+            </Transition>
+          </div>
+
+          <!-- UPDATED: Search component with proper event handling -->
+          <Search 
+            class="mt-3 lg:mt-0" 
+            @search="handleSearch"
+            :value="searchQuery"
+          />
           
           <!-- Add Product Dropdown -->
           <div class="relative" data-add-product-menu>
@@ -912,7 +1406,7 @@ onBeforeUnmount(() => {
 
                   <!-- UPDATED: Tag field as category selector -->
                   <div>
-                    <label class="text-sm text-[#8B8D97] mb-2 block">Tags (Categories) <span class="text-red-500">*</span></label>
+                    <label class="text-sm text-[#8B8D97] mb-2 block">Tag (Category) <span class="text-red-500">*</span></label>
                     <div class="space-y-2">
                       <div v-if="loadingCategories" class="text-sm text-[#8B8D97]">
                         Loading categories...
@@ -933,7 +1427,7 @@ onBeforeUnmount(() => {
                             <span>{{ category.name }}</span>
                             <Icon 
                               v-if="formData.tag.includes(category._id)"
-                              icon="mdi:check" 
+                              icon="mdi:check-circle" 
                               class="w-4 h-4" 
                             />
                           </div>
@@ -941,7 +1435,7 @@ onBeforeUnmount(() => {
                       </div>
                     </div>
                     <p class="text-xs text-[#8B8D97] mt-2">
-                      Selected: {{ formData.tag.length }}/3 categories
+                      Select 1 category (required)
                     </p>
                   </div>
 
@@ -961,14 +1455,18 @@ onBeforeUnmount(() => {
                     </div>
                   </div>
 
+                  <!-- UPDATED: Delivery TAT as Date Picker -->
                   <div>
                     <label class="text-sm text-[#8B8D97] mb-2 block">Delivery TAT</label>
                     <input 
                       v-model="formData.tat"
-                      type="text"
-                      placeholder="Set estimated delivery time"
+                      type="date"
+                      placeholder="Select delivery date"
                       class="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-[#5B68DF] text-sm"
                     />
+                    <p class="text-xs text-[#8B8D97] mt-1">
+                      Format: YYYY-MM-DD
+                    </p>
                   </div>
                 </div>
 
@@ -1019,24 +1517,103 @@ onBeforeUnmount(() => {
                   <p v-if="bulkUploadFile" class="text-sm text-green-600 mt-2">✓ File uploaded: {{ bulkUploadFile.name }}</p>
                 </div>
 
-                <!-- Bulk Products List -->
+                <!-- Bulk Products List with Individual Category Selection -->
                 <div v-if="bulkProductsList.length > 0" class="space-y-4">
+                  <!-- Option to apply same tag to all -->
+                  <div class="border rounded-lg p-4 bg-[#F8F9FF]">
+                    <div class="flex items-center justify-between mb-3">
+                      <div class="flex items-center gap-2">
+                        <input 
+                          type="checkbox" 
+                          id="apply-to-all" 
+                          v-model="applyTagToAll"
+                          class="w-4 h-4 text-[#5B68DF] border-gray-300 rounded focus:ring-[#5B68DF]"
+                        />
+                        <label for="apply-to-all" class="text-sm font-medium text-[#020721] cursor-pointer">
+                          Apply same category to all products
+                        </label>
+                      </div>
+                    </div>
+
+                    <!-- Global category selector (shown when "apply to all" is checked) -->
+                    <div v-if="applyTagToAll" class="mt-3">
+                      <p class="text-xs text-[#8B8D97] mb-2">Select category for all products:</p>
+                      <div v-if="loadingCategories" class="text-sm text-[#8B8D97]">
+                        Loading categories...
+                      </div>
+                      <div v-else class="grid grid-cols-2 gap-2 max-h-[200px] overflow-y-auto">
+                        <div
+                          v-for="category in categories"
+                          :key="category._id"
+                          @click="globalBulkTag = category._id"
+                          :class="[
+                            'border rounded-lg p-3 cursor-pointer transition-colors text-sm',
+                            globalBulkTag === category._id
+                              ? 'bg-[#5B68DF] text-white border-[#5B68DF]'
+                              : 'bg-white border-gray-200 hover:bg-gray-50'
+                          ]"
+                        >
+                          <div class="flex items-center justify-between">
+                            <span>{{ category.name }}</span>
+                            <Icon 
+                              v-if="globalBulkTag === category._id"
+                              icon="mdi:check-circle" 
+                              class="w-4 h-4" 
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      <p v-if="!globalBulkTag" class="text-xs text-red-500 mt-2">
+                        ⚠️ Please select a category
+                      </p>
+                    </div>
+
+                    <!-- Info message when not applying to all -->
+                    <div v-else class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                      <div class="flex items-start gap-2">
+                        <Icon icon="mdi:information" class="text-blue-600 mt-0.5" width="16" />
+                        <p class="text-xs text-blue-800">
+                          You can select a different category for each product below.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Products List Header -->
                   <div class="flex items-center justify-between">
-                    <p class="text-sm font-medium text-[#020721]">Products to Upload</p>
+                    <p class="text-sm font-medium text-[#020721]">Products to Upload ({{ bulkProductsList.length }})</p>
                     <div class="flex gap-2">
-                      <button class="px-3 py-1 bg-white border border-gray-200 text-xs rounded-lg hover:bg-gray-50">
+                      <button 
+                        @click="bulkArchiveAll"
+                        :disabled="!canBulkUpload"
+                        class="px-3 py-1 bg-white border border-gray-200 text-xs rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
                         Archive all
                       </button>
-                      <button class="px-3 py-1 bg-white border border-gray-200 text-xs rounded-lg hover:bg-gray-50">
+                      <button 
+                        @click="bulkDraftAll"
+                        :disabled="!canBulkUpload"
+                        class="px-3 py-1 bg-white border border-gray-200 text-xs rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
                         Draft all
                       </button>
-                      <button class="px-3 py-1 bg-[#020721] text-white text-xs rounded-lg hover:bg-[#020721]/90">
+                      <button 
+                        @click="bulkPublishAll"
+                        :disabled="!canBulkUpload"
+                        :class="[
+                          'px-3 py-1 text-white text-xs rounded-lg',
+                          !canBulkUpload
+                            ? 'bg-gray-400 cursor-not-allowed' 
+                            : 'bg-[#020721] hover:bg-[#020721]/90'
+                        ]"
+                      >
                         Publish all
                       </button>
                     </div>
                   </div>
 
-                  <div class="space-y-3 max-h-[400px] overflow-y-auto">
+                  <!-- Individual Products List with Category Selection -->
+                  <div class="space-y-3 max-h-[500px] overflow-y-auto">
                     <div v-for="(product, index) in bulkProductsList" :key="index" 
                          class="border rounded-lg p-4 bg-white relative">
                       <button 
@@ -1060,11 +1637,11 @@ onBeforeUnmount(() => {
                       <div class="grid grid-cols-2 gap-3 text-xs mb-3">
                         <div>
                           <p class="text-[#8B8D97] mb-1">Price</p>
-                          <p class="font-medium text-[#020721]">₦{{ product.amount?.toLocaleString() }}</p>
+                          <p class="font-medium text-[#020721]">₦{{ (product.amount || product.price || 0).toLocaleString() }}</p>
                         </div>
                         <div>
                           <p class="text-[#8B8D97] mb-1">Quantity</p>
-                          <p class="font-medium text-[#020721]">{{ product.qty || 'N/A' }}</p>
+                          <p class="font-medium text-[#020721]">{{ product.qty || 1 }}</p>
                         </div>
                         <div>
                           <p class="text-[#8B8D97] mb-1">Size</p>
@@ -1072,7 +1649,7 @@ onBeforeUnmount(() => {
                         </div>
                         <div>
                           <p class="text-[#8B8D97] mb-1">Delivery TAT</p>
-                          <p class="font-medium text-[#020721]">{{ product.tat || 'N/A' }}</p>
+                          <p class="font-medium text-[#020721]">{{ formatTatForDisplay(product.tat) || 'N/A' }}</p>
                         </div>
                       </div>
 
@@ -1081,16 +1658,76 @@ onBeforeUnmount(() => {
                         <p class="text-sm text-[#020721]">{{ product.description || 'No description' }}</p>
                       </div>
 
+                      <!-- Individual Category Selection (only show if NOT applying to all) -->
+                      <div v-if="!applyTagToAll" class="mb-3">
+                        <p class="text-xs text-[#8B8D97] mb-2">
+                          Category (Tag) 
+                          <span class="text-red-500">*</span>
+                        </p>
+                        <div v-if="loadingCategories" class="text-sm text-[#8B8D97]">
+                          Loading categories...
+                        </div>
+                        <div v-else class="grid grid-cols-2 gap-2">
+                          <div
+                            v-for="category in categories"
+                            :key="category._id"
+                            @click="bulkProductTags[index] = category._id"
+                            :class="[
+                              'border rounded-lg p-2 cursor-pointer transition-colors text-xs',
+                              bulkProductTags[index] === category._id
+                                ? 'bg-[#5B68DF] text-white border-[#5B68DF]'
+                                : 'bg-white border-gray-200 hover:bg-gray-50'
+                            ]"
+                          >
+                            <div class="flex items-center justify-between">
+                              <span>{{ category.name }}</span>
+                              <Icon 
+                                v-if="bulkProductTags[index] === category._id"
+                                icon="mdi:check-circle" 
+                                class="w-3 h-3" 
+                              />
+                            </div>
+                          </div>
+                        </div>
+                        <p v-if="!bulkProductTags[index]" class="text-xs text-red-500 mt-1">
+                          ⚠️ Category required
+                        </p>
+                      </div>
+
+                      <!-- Category display when applying to all -->
+                      <div v-else class="mb-3">
+                        <p class="text-xs text-[#8B8D97] mb-1">Category (Tag)</p>
+                        <div class="px-3 py-2 bg-gray-50 rounded-lg border border-gray-200">
+                          <p class="text-sm text-[#020721]">
+                            {{ globalBulkTag ? getCategoryName(globalBulkTag) : 'Select category above' }}
+                          </p>
+                        </div>
+                      </div>
+
                       <div class="flex gap-2">
-                        <button class="flex-1 px-3 py-2 bg-white border border-gray-200 text-xs rounded-lg hover:bg-gray-50">
+                        <button 
+                          @click="uploadProductWithStatus(product, index, 'archived')"
+                          :disabled="!canUploadProduct(index)"
+                          class="flex-1 px-3 py-2 bg-white border border-gray-200 text-xs rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
                           Archive
                         </button>
-                        <button class="flex-1 px-3 py-2 bg-white border border-gray-200 text-xs rounded-lg hover:bg-gray-50">
+                        <button 
+                          @click="uploadProductWithStatus(product, index, 'draft')"
+                          :disabled="!canUploadProduct(index)"
+                          class="flex-1 px-3 py-2 bg-white border border-gray-200 text-xs rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
                           Draft
                         </button>
                         <button 
-                          @click="uploadBulkProduct(product)"
-                          class="flex-1 px-3 py-2 bg-[#020721] text-white text-xs rounded-lg hover:bg-[#020721]/90"
+                          @click="uploadProductWithStatus(product, index, 'published')"
+                          :disabled="!canUploadProduct(index)"
+                          :class="[
+                            'flex-1 px-3 py-2 text-white text-xs rounded-lg',
+                            !canUploadProduct(index)
+                              ? 'bg-gray-400 cursor-not-allowed' 
+                              : 'bg-[#020721] hover:bg-[#020721]/90'
+                          ]"
                         >
                           Publish
                         </button>
@@ -1345,7 +1982,7 @@ onBeforeUnmount(() => {
                         Edit
                       </button>
                       <button
-                        @click="deleteProduct(product._id); showActionsMenu = null"
+                        @click="openDeleteModal(product)"
                         class="w-full px-4 py-2 text-left hover:bg-red-50 flex items-center gap-2 text-sm text-red-600 transition-colors border-t border-gray-100"
                       >
                         <Icon icon="mdi:delete-outline" class="w-4 h-4" />
@@ -1389,6 +2026,41 @@ onBeforeUnmount(() => {
       </div>
     </Card>
     <DashboardFooter />
+
+    <!-- NEW: Delete Confirmation Dialog -->
+    <Dialog v-model:open="deleteModalOpen">
+      <DialogContent class="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle class="flex items-center gap-2">
+            <Icon icon="mdi:alert-circle-outline" class="w-6 h-6 text-red-500" />
+            Confirm Deletion
+          </DialogTitle>
+          <DialogDescription>
+            Are you sure you want to delete the product "
+            <span class="font-semibold text-[#020721]">{{ productToDelete?.name }}</span>"?
+            This action cannot be undone and will permanently remove the product from your store.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter class="flex flex-col sm:flex-row gap-2 sm:gap-0">
+          <Button 
+            variant="outline" 
+            @click="deleteModalOpen = false"
+            class="w-full sm:w-auto"
+          >
+            Cancel
+          </Button>
+          <Button 
+            variant="destructive" 
+            @click="confirmDeleteProduct"
+            :disabled="productsStore.loading"
+            class="w-full sm:w-auto"
+          >
+            <Icon icon="mdi:delete" class="w-4 h-4 mr-2" />
+            {{ productsStore.loading ? 'Deleting...' : 'Delete Product' }}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   </div>
 </template>
 

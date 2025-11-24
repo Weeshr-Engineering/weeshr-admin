@@ -1,3 +1,4 @@
+// product.ts
 import { defineStore } from 'pinia'
 import axios from 'axios'
 import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
