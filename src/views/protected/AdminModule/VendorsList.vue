@@ -168,7 +168,16 @@ const fetchProducts = async (msg: string) => {
   try {
     // Set loading to true
     // useGeneralStore().setLoading(true)
-    const response = await axios.get(`/api/v1/market/products/?status=published&vendorId=${id}`)
+    const response = await axios.get('/api/v1/admin/market/products/', {
+      params: {
+        vendorId:  '67001b0cdce3af5c124e5dd9',
+        // page: params?.page || 1,
+        // limit: params?.limit || 10,
+        // search: params?.search || '',
+        // sortBy: params?.sortBy || 'name',
+        // status: params?.status || 'all'
+      }
+    })
 
     if (response.status === 200 || response.status === 201) {
       // Update the users data with the response
@@ -372,7 +381,7 @@ onMounted(() => {
         <div class="w-full md:flex flex-col md:flex-row items-end justify-center gap-4" v-if="orders.length !== 0">
           <PagePagination :page-total="1" :page-current="1" @pagination="()=> console.log('trigger page change')" />
           <div class="h-10 w-full md:w-fit flex items-center justify-center text-blue-500">
-            <a href="#">See all</a>
+            <a href="/order">See all</a>
           </div>
         </div>
       </Card>
@@ -410,7 +419,7 @@ onMounted(() => {
               </CardContent>
             </Card>
             <div class="text-center text-blue-500 absolute bottom-4 w-full place-self-center">
-              <a href="#">See all</a>
+              <a href="/product">See all</a>
             </div>
           </div>
           <div v-else class="h-full flex items-center justify-center">

@@ -707,10 +707,10 @@ watch([bankCode, accountNumber, payoutFrequency], ([newBank, newAcc, newFreq]) =
       // Handle other errors
     }
   }
-  const fetchBioData = async()=>{
-   await fetchVendorsData('Success')
-  //  fetchData('Success')
-  }
+  // const fetchBioData = async()=>{
+  //  await fetchVendorsData('Success')
+  // //  fetchData('Success')
+  // }
   const View = computed(() =>
     useSuperAdminStore().isVendor ? VendorNav : MainNav
   )
@@ -722,13 +722,13 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="max-h-screen h-full">
+  <div class="max-h-screen h-screen">
     <component :is="View" class="mx-6" :heading-text="isVendor ? 'Profile' : 'Dashboard'"/>
     <ProxyNav/>
   <!-- <div v-if="!appUser">
     <LoadingSpinner />
   </div> -->
-    <div class="flex-col lg:flex lg:flex-row gap-1 px-8 mt-9 h-full">
+    <div class="flex-col lg:flex lg:flex-row gap-1 px-8 mt-9 min-h-[80dvh]">
       <Card class="lg:w-4/12 bg-[#F8F9FF] sm:items-center shadow-xl">
         <CardHeader>
           <h1 class="font-semibold text-lg">{{ useSuperAdminStore().companyName }}</h1>
@@ -869,7 +869,6 @@ onMounted(() => {
         <Tabs default-value="bio" class="space-y-2">
           <TabsList class="w-full bg-transparent flex items-center">
             <TabsTrigger
-              @click="fetchBioData"
               value="bio"
               class="text-[#000000] data-[state=active]:border-[#6A70FF]"
             >
