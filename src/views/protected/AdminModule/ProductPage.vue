@@ -1,4 +1,3 @@
-<!-- ProductPage.vue -->
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import MainNav from '@/components/MainNav.vue'
@@ -116,14 +115,7 @@ const fetchCategories = async () => {
       description: 'Error loading categories',
       variant: 'destructive'
     })
-    // Fallback categories if API fails
-    categories.value = [
-      { _id: '68d2bd8683bae446451f7745', name: 'Electronics' },
-      { _id: '68d2bd8683bae446451f7746', name: 'Home & Kitchen' },
-      { _id: '68d2bd8683bae446451f7747', name: 'Fashion' },
-      { _id: '68d2bd8683bae446451f7748', name: 'Sports' },
-      { _id: '68d2bd8683bae446451f7749', name: 'Beauty' }
-    ]
+    
   } finally {
     loadingCategories.value = false
   }
