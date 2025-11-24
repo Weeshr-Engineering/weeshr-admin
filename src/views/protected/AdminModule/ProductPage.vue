@@ -40,6 +40,10 @@ const vendorId = computed(() => superAdminStore.vendorId)
 const categories = ref<{_id: string, name: string}[]>([])
 const loadingCategories = ref(false)
 
+// NEW: Status filter state
+const statusFilter = ref('all')
+const showStatusFilter = ref(false)
+
 const statusBg = (status: string) => {
   switch (status) {
     case 'published':
@@ -125,6 +129,30 @@ const fetchCategories = async () => {
   }
 }
 
+// NEW: Apply status filter
+const applyStatusFilter = (status: string) => {
+  statusFilter.value = status
+  showStatusFilter.value = false
+  
+  if (status === 'all') {
+    productsStore.fetchProducts({ vendorId: vendorId.value })
+  } else {
+    productsStore.fetchProducts({ vendorId: vendorId.value, status })
+  }
+}
+
+// NEW: Get display name for status filter
+const getStatusFilterDisplay = () => {
+  switch (statusFilter.value) {
+    case 'all': return 'All'
+    case 'published': return 'Published'
+    case 'draft': return 'Draft'
+    case 'archived': return 'Archived'
+    case 'out-of-stock': return 'Out of Stock'
+    default: return 'All'
+  }
+}
+
 // Open single product mode
 const openSingleProductMode = () => {
   bulkUploadMode.value = false
@@ -147,6 +175,12 @@ const closeDropdownOnClickOutside = (event: MouseEvent) => {
   const dropdown = target.closest('.relative')
   if (!dropdown || !dropdown.querySelector('[data-add-product-menu]')) {
     showAddProductMenu.value = false
+  }
+  
+  // NEW: Close status filter dropdown
+  const statusFilterDropdown = target.closest('.relative')
+  if (!statusFilterDropdown || !statusFilterDropdown.querySelector('[data-status-filter]')) {
+    showStatusFilter.value = false
   }
 }
 
@@ -285,13 +319,9 @@ const uploadBulkProduct = async (product: any, productIndex: number, status: str
     
     await productsStore.createProduct(data)
     
-    // DON'T fetch products here - we'll do it once at the end
-    // await productsStore.fetchProducts({ vendorId: vendorId.value })
-    // await productsStore.fetchProductStatusCounts(vendorId.value)
-    
   } catch (error: any) {
     console.error('Bulk upload error:', error)
-    // const errorMessage = error.response?.data?.message || `Error uploading ${product.name}`
+    const errorMessage = error.response?.data?.message || `Error uploading ${product.name}`
     throw error // Re-throw to handle in calling function
   }
 }
@@ -817,7 +847,7 @@ const bulkPublishAll = async () => {
     }
   }
   
-  // Refresh products and counts ONCE after all uploads
+  // Refresh products and counts ONCE after all uploads complete
   await productsStore.fetchProducts({ vendorId: vendorId.value })
   await productsStore.fetchProductStatusCounts(vendorId.value)
   
@@ -865,7 +895,7 @@ const bulkDraftAll = async () => {
     }
   }
   
-  // Refresh products and counts ONCE after all uploads
+  // Refresh products and counts ONCE after all uploads complete
   await productsStore.fetchProducts({ vendorId: vendorId.value })
   await productsStore.fetchProductStatusCounts(vendorId.value)
   
@@ -912,7 +942,7 @@ const bulkArchiveAll = async () => {
     }
   }
   
-  // Refresh products and counts ONCE after all uploads
+  // Refresh products and counts ONCE after all uploads complete
   await productsStore.fetchProducts({ vendorId: vendorId.value })
   await productsStore.fetchProductStatusCounts(vendorId.value)
   
@@ -1052,11 +1082,100 @@ onBeforeUnmount(() => {
           </p>
         </div>
         <div class="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
-          <Button variant="outline" class="flex items-center gap-2 w-full sm:w-auto bg-[#EEEFF5]">
-            <ListFilter class="w-4 h-4"/>
-            All
-            <Icon icon="mdi:chevron-down" class="w-4 h-4" />
-          </Button>
+          <!-- UPDATED: Status Filter Dropdown -->
+          <div class="relative" data-status-filter>
+            <Button 
+              variant="outline" 
+              class="flex items-center gap-2 w-full sm:w-auto bg-[#EEEFF5]"
+              @click.stop="showStatusFilter = !showStatusFilter"
+            >
+              <ListFilter class="w-4 h-4"/>
+              {{ getStatusFilterDisplay() }}
+              <Icon icon="mdi:chevron-down" class="w-4 h-4" />
+            </Button>
+
+            <!-- Status Filter Dropdown Menu -->
+            <Transition
+              enter-active-class="transition ease-out duration-100"
+              enter-from-class="transform opacity-0 scale-95"
+              enter-to-class="transform opacity-100 scale-100"
+              leave-active-class="transition ease-in duration-75"
+              leave-from-class="transform opacity-100 scale-100"
+              leave-to-class="transform opacity-0 scale-95"
+            >
+              <div 
+                v-if="showStatusFilter"
+                @click.stop
+                class="absolute left-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden z-50"
+              >
+                <button
+                  @click="applyStatusFilter('all')"
+                  :class="[
+                    'w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center gap-3 border-b border-gray-100 transition-colors',
+                    statusFilter === 'all' ? 'bg-blue-50 text-blue-600' : 'text-gray-700'
+                  ]"
+                >
+                  <div class="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center">
+                    <Icon v-if="statusFilter === 'all'" icon="mdi:check" class="w-4 h-4 text-blue-600" />
+                  </div>
+                  <span class="text-sm font-medium">All Status</span>
+                </button>
+                
+                <button
+                  @click="applyStatusFilter('published')"
+                  :class="[
+                    'w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center gap-3 border-b border-gray-100 transition-colors',
+                    statusFilter === 'published' ? 'bg-green-50 text-green-600' : 'text-gray-700'
+                  ]"
+                >
+                  <div class="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center">
+                    <Icon v-if="statusFilter === 'published'" icon="mdi:check" class="w-4 h-4 text-green-600" />
+                  </div>
+                  <span class="text-sm font-medium">Published</span>
+                </button>
+
+                <button
+                  @click="applyStatusFilter('draft')"
+                  :class="[
+                    'w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center gap-3 border-b border-gray-100 transition-colors',
+                    statusFilter === 'draft' ? 'bg-purple-50 text-purple-600' : 'text-gray-700'
+                  ]"
+                >
+                  <div class="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center">
+                    <Icon v-if="statusFilter === 'draft'" icon="mdi:check" class="w-4 h-4 text-purple-600" />
+                  </div>
+                  <span class="text-sm font-medium">Draft</span>
+                </button>
+
+                <button
+                  @click="applyStatusFilter('archived')"
+                  :class="[
+                    'w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center gap-3 border-b border-gray-100 transition-colors',
+                    statusFilter === 'archived' ? 'bg-blue-50 text-blue-600' : 'text-gray-700'
+                  ]"
+                >
+                  <div class="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center">
+                    <Icon v-if="statusFilter === 'archived'" icon="mdi:check" class="w-4 h-4 text-blue-600" />
+                  </div>
+                  <span class="text-sm font-medium">Archived</span>
+                </button>
+
+                <button
+                  @click="applyStatusFilter('out-of-stock')"
+                  :class="[
+                    'w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center gap-3 transition-colors',
+                    statusFilter === 'out-of-stock' ? 'bg-orange-50 text-orange-600' : 'text-gray-700'
+                  ]"
+                >
+                  <div class="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center">
+                    <Icon v-if="statusFilter === 'out-of-stock'" icon="mdi:check" class="w-4 h-4 text-orange-600" />
+                  </div>
+                  <span class="text-sm font-medium">Out of Stock</span>
+                </button>
+              </div>
+            </Transition>
+          </div>
+
           <Search class="mt-3 lg:mt-0" 
           @search="(query: string) => productsStore.fetchProducts({ search: query })" />
           
@@ -1304,14 +1423,18 @@ onBeforeUnmount(() => {
                     </div>
                   </div>
 
+                  <!-- UPDATED: Delivery TAT as Date Picker -->
                   <div>
                     <label class="text-sm text-[#8B8D97] mb-2 block">Delivery TAT</label>
                     <input 
                       v-model="formData.tat"
-                      type="text"
-                      placeholder="Set estimated delivery time"
+                      type="date"
+                      placeholder="Select delivery date"
                       class="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-[#5B68DF] text-sm"
                     />
+                    <p class="text-xs text-[#8B8D97] mt-1">
+                      Format: YYYY-MM-DD
+                    </p>
                   </div>
                 </div>
 
