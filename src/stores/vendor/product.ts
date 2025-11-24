@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import axios from 'axios'
+import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
 
 export interface Product {
   _id: string
@@ -65,6 +66,11 @@ export const useProductsStore = defineStore('products', {
   }),
 
   actions: {
+    getVendorId(): string {
+      const superAdminStore = useSuperAdminStore()
+      return superAdminStore.vendorId
+    },
+
     //  Fetch all categories to use as tags
     async fetchCategories() {
       this.loadingCategories = true
@@ -98,57 +104,58 @@ export const useProductsStore = defineStore('products', {
 
     //  Fetch all products with optional filters
     async fetchProducts(params?: {
-  page?: number
-  limit?: number
-  search?: string
-  sortBy?: string
-  status?: string
-  vendorId?: string
-}) {
-  this.loading = true
-  try {
-    const response = await axios.get('/api/v1/admin/market/products/', {
-      params: {
-        vendorId:  '67001b0cdce3af5c124e5dd9',
-        page: params?.page || 1,
-        limit: params?.limit || 10,
-        search: params?.search || '',
-        sortBy: params?.sortBy || 'name',
-        status: params?.status || 'all'
+      page?: number
+      limit?: number
+      search?: string
+      sortBy?: string
+      status?: string
+      vendorId?: string
+    }) {
+      this.loading = true
+      try {
+        const vendorId = params?.vendorId || this.getVendorId()
+        
+        const response = await axios.get('/api/v1/admin/market/products/', {
+          params: {
+            vendorId: vendorId,
+            page: params?.page || 1,
+            limit: params?.limit || 10,
+            search: params?.search || '',
+            sortBy: params?.sortBy || 'name',
+            status: params?.status || 'all'
+          }
+        })
+
+        const data = response.data.data
+        const products = (data.data || data.products || []).map((product: any) => this.normalizeProduct(product))
+        
+        this.products = products
+        
+        this.pagination = {
+          currentPage: data.currentPage || 1,
+          totalPages: data.totalPages || 1,
+          totalProducts: data.total || data.data?.length || 0,
+          hasNext: data.totalPages > data.currentPage,
+          hasPrev: data.currentPage > 1 
+        }
+
+        return this.products
+      } catch (error) {
+        console.error('Error fetching products:', error)
+        this.products = []
+        throw error
+      } finally {
+        this.loading = false
       }
-    })
-
- 
-
-    const data = response.data.data
-   const products = (data.data || data.products || []).map((product: any) => this.normalizeProduct(product))
-    
-    this.products = products
-    
-   
-    this.pagination = {
-      currentPage: data.currentPage || 1,
-      totalPages: data.totalPages || 1,
-      totalProducts: data.total || data.data?.length || 0,
-      hasNext: data.totalPages > data.currentPage,
-      hasPrev: data.currentPage > 1 
-    }
-
-    return this.products
-  } catch (error) {
-    console.error('Error fetching products:', error)
-    this.products = []
-    throw error
-  } finally {
-    this.loading = false
-  }
-},
+    },
 
     //  Fetch product status counts
     async fetchProductStatusCounts(vendorId?: string) {
       try {
+        const finalVendorId = vendorId || this.getVendorId()
+        
         const response = await axios.get('/api/v1/admin/market/products/status/counts', {
-          params: vendorId ? { vendorId } : undefined
+          params: finalVendorId ? { vendorId: finalVendorId } : undefined
         })
         
         if (response.status === 200) {
@@ -180,32 +187,18 @@ export const useProductsStore = defineStore('products', {
     },
 
    
-  //  Fetch a single product by ID
-    async fetchProductById(id: string, vendorId: string = '67001b0cdce3af5c124e5dd9') {
-   try{
-const product = this.products.find(p => p._id === id)
-
-
-
-
-        // const response = await axios.get(`/api/v1/admin/market/products/${id}`, {data})
+    //  Fetch a single product by ID
+    async fetchProductById(id: string) {
+      try {
+        const product = this.products.find(p => p._id === id)
         
-
-
-
-        // console.log('✅ Fetch product by ID response:', response.data)
-        
-        // const product = response.data.data
-        
-        // // Normalize the product data
+        // Normalize the product data
         const normalizedProduct = this.normalizeProduct(product)
         
         return normalizedProduct
         
       } catch (error: any) {
         console.error('❌ Error fetching product by ID:', error)
-        console.error('Product ID attempted:', id)
-        console.error('Vendor ID used:', vendorId)
         throw error
       }
     },
@@ -213,175 +206,184 @@ const product = this.products.find(p => p._id === id)
     normalizeProduct(product: any): Product {
       if (!product) return product
    
-  let imageUrl = null
-  if (product.image) {
-    if (typeof product.image === 'string') {
-      imageUrl = product.image
-    } else if (product.image.secure_url) {
-      imageUrl = product.image.secure_url
-    } else if (product.image.url) {
-      imageUrl = product.image.url
-    }
-  }
+      let imageUrl = null
+      if (product.image) {
+        if (typeof product.image === 'string') {
+          imageUrl = product.image
+        } else if (product.image.secure_url) {
+          imageUrl = product.image.secure_url
+        } else if (product.image.url) {
+          imageUrl = product.image.url
+        }
+      }
 
       // Handle tag field - can be array of IDs or array of Category objects
-     let tags: string[] = []
-  if (product.tag && Array.isArray(product.tag)) {
-    tags = product.tag.map((t: any) => {
-      if (typeof t === 'string') return t
-      if (t && typeof t === 'object' && t._id) return t._id
-      return String(t)
-    }).filter(Boolean) 
-  }
+      let tags: string[] = []
+      if (product.tag && Array.isArray(product.tag)) {
+        tags = product.tag.map((t: any) => {
+          if (typeof t === 'string') return t
+          if (t && typeof t === 'object' && t._id) return t._id
+          return String(t)
+        }).filter(Boolean) 
+      }
 
 
-  return {
-    ...product,
-    image: imageUrl,
-    tag: tags, 
-    vendorId: product.vendor?._id || product.vendorId
-  }
-},
+      return {
+        ...product,
+        image: imageUrl,
+        tag: tags, 
+        vendorId: product.vendor?._id || product.vendorId
+      }
+    },
     /**
      * Normalize product data to handle different API response formats
      */
     
 
-      // Create a new product
-async createProduct(productData: any) {
-  this.loading = true
-  try {
-    // Add vendorId to the request body
-    if (productData instanceof FormData) {
-      productData.append('vendorId', '67001b0cdce3af5c124e5dd9')
-    } else {
-      productData = {
-        ...productData,
-        vendorId: '67001b0cdce3af5c124e5dd9'
-      }
-    }
-    
-    let config = {}
-    
-    if (productData instanceof FormData) {
-      config = {
-        headers: {
-          'Content-Type': 'multipart/form-data'
+    // Create a new product
+    async createProduct(productData: any) {
+      this.loading = true
+      try {
+        const vendorId = this.getVendorId()
+        
+        // Add vendorId to the request body
+        if (productData instanceof FormData) {
+          if (!productData.has('vendorId')) {
+            productData.append('vendorId', vendorId)
+          }
+        } else {
+          if (!productData.vendorId) {
+            productData = {
+              ...productData,
+              vendorId: vendorId
+            }
+          }
         }
-      }
-    }
+        
+        let config = {}
+        
+        if (productData instanceof FormData) {
+          config = {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          }
+        }
 
-    const response = await axios.post('/api/v1/admin/market/products', productData, config)
-    const newProduct = response.data.data
-    
-    return newProduct
-  } catch (error) {
-    console.error('Error creating product:', error)
-    throw error
-  } finally {
-    this.loading = false
-  }
-},
+        const response = await axios.post('/api/v1/admin/market/products', productData, config)
+        const newProduct = response.data.data
+        
+        return newProduct
+      } catch (error) {
+        console.error('Error creating product:', error)
+        throw error
+      } finally {
+        this.loading = false
+      }
+    },
    
   
     // Update an existing product
-async updateProduct(id: string, productData: any) {
-  this.loading = true
-  try {
-    // Add vendorId to the request body
-    if (productData instanceof FormData) {
-      productData.append('vendorId', '67001b0cdce3af5c124e5dd9')
-    } else {
-      productData = {
-        ...productData,
-        vendorId: '67001b0cdce3af5c124e5dd9'
-      }
-    }
-    
-    let config = {}
-    
-    // Handle FormData with multipart/form-data headers (for image uploads)
-    if (productData instanceof FormData) {
-      config = {
-        headers: {
-          'Content-Type': 'multipart/form-data'
+    async updateProduct(id: string, productData: any) {
+      this.loading = true
+      try {
+        const vendorId = this.getVendorId()
+        
+        // Add vendorId to the request body if not present
+        if (productData instanceof FormData) {
+          if (!productData.has('vendorId')) {
+            productData.append('vendorId', vendorId)
+          }
+        } else {
+          if (!productData.vendorId) {
+            productData = {
+              ...productData,
+              vendorId: vendorId
+            }
+          }
         }
-      }
-    }
+        
+        let config = {}
+        
+        // Handle FormData with multipart/form-data headers (for image uploads)
+        if (productData instanceof FormData) {
+          config = {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          }
+        }
 
-    const response = await axios.patch(`/api/v1/admin/market/products/${id}`, productData, config)
-    const updatedProduct = response.data.data
-    
-    // Find and update the product in the list
-    const index = this.products.findIndex(p => p._id === id)
-    if (index !== -1) {
-      const oldStatus = this.products[index].status
-      this.products[index] = updatedProduct
-      
-      // Update counts if status changed
-      if (updatedProduct.status && oldStatus !== updatedProduct.status) {
-        this.updateCountsAfterStatusChange(oldStatus, updatedProduct.status)
+        const response = await axios.patch(`/api/v1/admin/market/products/${id}`, productData, config)
+        const updatedProduct = response.data.data
+        
+        // Find and update the product in the list
+        const index = this.products.findIndex(p => p._id === id)
+        if (index !== -1) {
+          const oldStatus = this.products[index].status
+          this.products[index] = updatedProduct
+          
+          // Update counts if status changed
+          if (updatedProduct.status && oldStatus !== updatedProduct.status) {
+            this.updateCountsAfterStatusChange(oldStatus, updatedProduct.status)
+          }
+        }
+        
+        // Update current product if it's the one being viewed
+        if (this.currentProduct?._id === id) {
+          this.currentProduct = updatedProduct
+        }
+        
+        return updatedProduct
+      } catch (error) {
+        console.error('Error updating product:', error)
+        throw error
+      } finally {
+        this.loading = false
       }
-    }
-    
-    // Update current product if it's the one being viewed
-    if (this.currentProduct?._id === id) {
-      this.currentProduct = updatedProduct
-    }
-    
-    return updatedProduct
-  } catch (error) {
-    console.error('Error updating product:', error)
-    throw error
-  } finally {
-    this.loading = false
-  }
-}
-,
+    },
 
 
   
-async deleteProduct(id: string) {
-  this.loading = true
-  try {
-
-    const productToDelete = this.products.find(p => p._id === id)
-    
-  
-    await axios.delete(`/api/v1/admin/market/products/${id}`, {
-      data: {
-        vendorId: '67001b0cdce3af5c124e5dd9'
+    async deleteProduct(id: string) {
+      this.loading = true
+      try {
+        const vendorId = this.getVendorId()
+        const productToDelete = this.products.find(p => p._id === id)
+        
+        await axios.delete(`/api/v1/admin/market/products/${id}`, {
+          data: {
+            vendorId: vendorId
+          }
+        })
+        
+        // Update counts BEFORE removing from list
+        if (productToDelete) {
+          this.updateCountsAfterDelete(productToDelete.status)
+        }
+        
+        // Remove product from the list IMMEDIATELY (optimistic update)
+        this.products = this.products.filter(p => p._id !== id)
+        
+        // Update pagination count
+        if (this.pagination.totalProducts > 0) {
+          this.pagination.totalProducts--
+        }
+        
+        // Clear current product if it's the one being deleted
+        if (this.currentProduct?._id === id) {
+          this.currentProduct = null
+        }
+        
+        // Return success without re-fetching
+        return { success: true }
+      } catch (error) {
+        console.error('❌ Error deleting product:', error)
+        throw error
+      } finally {
+        this.loading = false
       }
-    })
-    
-    // Update counts BEFORE removing from list
-    if (productToDelete) {
-      this.updateCountsAfterDelete(productToDelete.status)
-    }
-    
-    // Remove product from the list IMMEDIATELY (optimistic update)
-    this.products = this.products.filter(p => p._id !== id)
-    
-    // Update pagination count
-    if (this.pagination.totalProducts > 0) {
-      this.pagination.totalProducts--
-    }
-    
-    // Clear current product if it's the one being deleted
-    if (this.currentProduct?._id === id) {
-      this.currentProduct = null
-    }
-    
-    
-    // Return success without re-fetching
-    return { success: true }
-  } catch (error) {
-    console.error('❌ Error deleting product:', error)
-    throw error
-  } finally {
-    this.loading = false
-  }
-},
+    },
 
     /**
      * Bulk upload products
