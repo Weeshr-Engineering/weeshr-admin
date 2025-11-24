@@ -300,36 +300,10 @@ const id = props.id
 const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 const deliveryOptions = ['Local', 'Regional', 'National', 'International']
 const logisticsTypes = ['self-managed', 'third-party', 'mixed']
-// const categories = [
-//   {
-//     title: "Food",
-//     image:
-//       "https://res.cloudinary.com/drykej1am/image/upload/v1757806163/weeshr-marketplace/food_c2n9cf.png",
-//     color: "bg-[#C6F4EB]",
-//   },
-//   {
-//     title: "Fashion",
-//     image:
-//       "https://res.cloudinary.com/drykej1am/image/upload/v1757806164/weeshr-marketplace/fashion_hl0xe1.png",
-//     color: "bg-[#DCDEFF]",
-//   },
-//   {
-//     title: "Gadgets",
-//     image:
-//       "https://res.cloudinary.com/drykej1am/image/upload/v1757806163/weeshr-marketplace/gadget_rzmwyw.png",
-//     color: "bg-[#E9F4D1]",
-//   },
-//   {
-//     title: "Lifestyle",
-//     image:
-//       "https://res.cloudinary.com/drykej1am/image/upload/v1757806163/weeshr-marketplace/style_nqxqv7.png",
-//     color: "bg-[#C6EDF6]",
-//   }
-// ]
-// const frequency = ['Weekly', 'Bi-weekly', 'Monthly']
 
 // Working hours state
 const workingHours = reactive<WorkingHourDay[]>(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   days.map(day => ({
     active: false,
     time: ''
@@ -450,57 +424,6 @@ const fetchVendorData = async (): Promise<VendorData |  undefined> => {
        }
     }
   }
-  // return new Promise((resolve) => {
-  //   setTimeout(() => {
-  //     resolve({
-  //       _id: "690f2b929a4d3511f9ccdc98",
-  //       vendorId: "67001b0cdce3af5c124e5dd9",
-  //       scheduled: true,
-  //       weeklySchedule: [
-  //         {
-  //           day: "monday",
-  //           slots: [
-  //             {
-  //               open: "09:00",
-  //               close: "13:00"
-  //             }
-  //           ]
-  //         },
-  //         {
-  //           day: "tuesday",
-  //           slots: [
-  //             {
-  //               open: "09:00",
-  //               close: "18:00"
-  //             }
-  //           ]
-  //         }
-  //       ],
-  //       categories: [
-  //         {
-  //           _id: "68d2bd8683bae446451f7747",
-  //           name: "Books",
-  //           description: "Wide variety of books and literature",
-  //           image: null
-  //         },
-  //         {
-  //           _id: "68d2bd8683bae446451f7746",
-  //           name: "Fashion",
-  //           description: "Clothing, accessories, and trends",
-  //           image: null
-  //         }
-  //       ],
-  //       deliveryCoverage: "Regional",
-  //       deliveryType: "self-managed",
-  //       averageDeliveryMins: 45,
-  //       policyPageUrl: "https://meet.google.com",
-  //       isActive: true,
-  //       createdAt: "2025-11-08T11:37:54.886Z",
-  //       updatedAt: "2025-11-08T11:37:54.886Z",
-  //       __v: 0
-  //     })
-  //   }, 500)
-  // })
 }
 
 const patchVendorData = async (data: Partial<VendorData>): Promise<void> => {

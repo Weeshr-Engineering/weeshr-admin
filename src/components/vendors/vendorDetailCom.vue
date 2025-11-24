@@ -4,14 +4,9 @@ import { Icon } from '@iconify/vue'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Card, CardDescription, CardHeader, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Switch } from '@/components/ui/switch'
 import axios from '@/services/ApiService'
 import { toast } from '@/components/ui/toast'
 import { defineAbilities } from '@/lib/ability'
-import { useForm } from 'vee-validate'
-import { toTypedSchema } from '@vee-validate/zod'
-import * as z from 'zod'
-// import CountryCodes from '@/lib/CountryCodes'
 import { cbnBankCodes } from './bankcodes'
 import { Input } from '@/components/ui/input'
 import {
@@ -30,7 +25,6 @@ import {
 } from '@/components/ui/sheet'
 import { catchErr } from '@/composables/catchError'
 import VendorNav from '@/components/VendorNav.vue'
-import { Badge } from '@/components/ui/badge'
 import { Label } from '../ui/label'
 import type { Bank } from './vendor-types'
 import {
@@ -79,67 +73,6 @@ interface VendorData {
     "updatedAt": string,
 }
 
-interface Resource {
-  asset_id: string
-  secure_url: string
-}
-
-interface CoverImage {
-  resource: Resource
-}
-
-interface Logo {
-  resource: Resource
-}
-
-interface PhoneNumber {
-  normalizedNumber: string
-}
-
-interface WorkingDay {
-  day: string
-  time: string
-  active: boolean
-}
-
-interface WorkingHours {
-  scheduled: boolean
-  generalTime: string
-  days: WorkingDay[]
-}
-
-interface AppUser {
-  id: string
-  firstName: string
-  middleName: string | null
-  lastName: string
-  userName: string
-  coverImg: CoverImage
-  logo: Logo
-  phoneNumber: PhoneNumber
-  onboarded: string
-  policyLink: string
-  productCategory: string[]
-  deliveryCoverage: string[]
-  deliveryType: string
-  deliveryTime: string
-  maxDeliveryCost: number
-  workingHours: WorkingHours
-  bankName: string
-  accountNumber: string
-  payoutFrequency: string
-  accountVerified: boolean
-  rcNumber: string
-  companyName: string
-  companyType: string
-  comanyEmail: string
-  companyAddress: string
-  companyState: string
-  dob: string
-  gender: string
-  email: string
-  isLive: boolean
-}
 
 //get User
 const vendor = computed(()=>{
@@ -148,9 +81,9 @@ const vendor = computed(()=>{
 const vendorData = ref<VendorData>()
 
 // const fileInput = ref<HTMLInputElement | null>(null)
-const bgFileInput = ref<HTMLInputElement | null>(null)
+// const bgFileInput = ref<HTMLInputElement | null>(null)
 // const imageFile = ref<File | null>(null)
-const bgImageFile = ref<File | null>(null)
+// const bgImageFile = ref<File | null>(null)
 // const imagePreview = ref<string | null>(null)
 const bgImagePreview = ref<string | null>(null)
 
@@ -159,9 +92,9 @@ const bgImagePreview = ref<string | null>(null)
 // }
 
 
-const triggerBgFileInput = () => {
-  bgFileInput.value?.click()
-}
+// const triggerBgFileInput = () => {
+//   bgFileInput.value?.click()
+// }
 
 // const handleFileChange = (e: Event) => {
 //   const target = e.target as HTMLInputElement
@@ -171,26 +104,31 @@ const triggerBgFileInput = () => {
 //   imageFile.value = file
 //   imagePreview.value = URL.createObjectURL(file) // preview
 // }
-const handleBgFileChange = (e: Event) => {
-  const target = e.target as HTMLInputElement
-  const file = target.files?.[0]
-  if (!file) return
+// const handleBgFileChange = (e: Event) => {
+//   const target = e.target as HTMLInputElement
+//   const file = target.files?.[0]
+//   if (!file) return
 
-  bgImageFile.value = file
-  bgImagePreview.value = URL.createObjectURL(file) // preview
-}
+//   bgImageFile.value = file
+//   bgImagePreview.value = URL.createObjectURL(file) // preview
+// }
 
-const statusVal = ref('Suspended') // default state
 const isEdit = ref(false)
-
-const cycleStatus = () => {
-  if (statusVal.value === 'Suspended') statusVal.value = 'Draft'
-  else if (statusVal.value === 'Draft') statusVal.value = 'Live'
-  else statusVal.value = 'Suspended'
-
-  // Optional: call backend update
-  // editProfvendor?.statuse)
-}
+const isEditCompany = ref(false)
+const companyFormData = ref({
+  rcNumber: vendor.value?.rcNumber,
+  companyName: vendor.value?.companyName,
+  companyEmail: vendor.value?.companyEmail,
+  companyAddress: vendor.value?.companyAddress,
+  companyState: vendor.value?.companyState,
+  companyType: vendor.value?.companyType
+});
+const vendorFormData = ref({
+  firstName: vendorData.value?.firstName,
+  lastName: vendorData.value?.lastName,
+  phone: vendorData.value?.phoneNumber.phoneNumber,
+  email: vendorData.value?.email
+});
 
 const deleteBankData = async (msg: string, _id: string) => {
   toast({
@@ -312,6 +250,12 @@ const fetchVendorsData = async (msg: string) => {
       // Update the users data with the response
     //   console.log(response)
       vendorData.value = response.data.data[0];
+      vendorFormData.value={
+        firstName: vendorData.value?.firstName,
+        lastName: vendorData.value?.lastName,
+        email: vendorData.value?.email,
+        phone: `${vendorData.value?.phoneNumber.countryCode} - ${vendorData.value?.phoneNumber.phoneNumber}`
+      }
       // const responseData = response.data.data[0]
       // const phoneData = response.data.data[0].phoneNumber.normalizedNumber
       // const data = { ...responseData, phone: phoneData }
@@ -485,47 +429,6 @@ const editProfile = async (values: string) => {
 //   appUser.value = {...appUser.value, [param]: val}
 // }
 
-const contactFormSchema = toTypedSchema(
-  z.object({
-    firstName: z
-      .string()
-      .min(2, {
-        message: 'Username must be at least 2 characters.'
-      })
-      .max(30, {
-        message: 'Username must not be longer than 30 characters.'
-      })
-      .optional(),
-    lastName: z
-      .string()
-      .min(2, {
-        message: 'Username must be at least 2 characters.'
-      })
-      .max(30, {
-        message: 'Username must not be longer than 30 characters.'
-      })
-      .optional(),
-    userName: z
-      .string()
-      .min(2, {
-        message: 'Username must be at least 2 characters.'
-      })
-      .max(30, {
-        message: 'Username must not be longer than 30 characters.'
-      })
-      .optional(),
-    dob: z.string().optional(),
-    gender: z.string().optional(),
-    // phone: z
-    //   .string()
-    //   .min(10, { message: 'Phone number must be 10 characters' })
-    //   .max(10, { message: 'Phone number must be 10 characters' })
-    //   .optional(),
-    // countrycode: z.string().optional(),
-    email: z.string().email({ message: 'Invalid email address' }).optional()
-  })
-)
-
 // const { handleSubmit: contactForm } = useForm({
 //   validationSchema: contactFormSchema
 // })
@@ -667,6 +570,74 @@ watch([bankCode, accountNumber, payoutFrequency], ([newBank, newAcc, newFreq]) =
     }
   }
 
+const saveUserData = async () => {
+    toast({
+      title: 'Loading Data',
+      description: 'Saving logo details...',
+      variant: 'loading',
+      duration: 0 // Set duration to 0 to make it indefinite until manually closed
+    })
+
+    try {
+      const response = await axios.patch(
+        `/api/v1/admin/market/invite/${id}`,
+        {
+          "firstName": vendorFormData.value.firstName,
+          "phoneNumber": {
+            "countryCode": vendorFormData.value.phone?.split('-')[0],
+            "phoneNumber": vendorFormData.value.phone?.split('-')[1]
+          }
+        }
+      )
+
+      // Check if response status is 200 or 201
+      if (response.status === 200 || response.status === 201) {
+        // Show success toast
+        toast({
+          title: 'Success',
+          description: `${bankName.value?.name} added successfully.`,
+          variant: 'success'
+        })
+      }
+      // Handle success
+    } catch (err: any) {
+      //   VendorListStore.loadingControl(false)
+      catchErr(err)
+      // Handle other errors
+    }
+  }
+
+  const saveCompanyData = async () => {
+    toast({
+      title: 'Loading Data',
+      description: 'Processing...',
+      variant: 'loading',
+      duration: 0 // Set duration to 0 to make it indefinite until manually closed
+    })
+    // VendorListStore.loadingControl(true)
+    try {
+      const response = await axios.patch(
+        `/api/v1/admin/market/vendor/${id}`,
+        companyFormData.value,
+      )
+
+      // Check if response status is 200 or 201
+      if (response.status === 200 || response.status === 201) {
+        // Show success toast
+        toast({
+          title: 'Success',
+          description: `Update successful.`,
+          variant: 'success'
+        })
+      }
+      // Handle success
+    } catch (err: any) {
+      //   VendorListStore.loadingControl(false)
+      catchErr(err)
+      // Handle other errors
+    }
+  }
+
   const verifyDetails = async (accNum: string, code: string) => {
     toast({
       title: 'Loading Data',
@@ -715,11 +686,19 @@ watch([bankCode, accountNumber, payoutFrequency], ([newBank, newAcc, newFreq]) =
   const View = computed(() =>
     useSuperAdminStore().isVendor ? VendorNav : MainNav
   )
-onMounted(() => {
+onMounted(async () => {
   fetchBankData('data fetched')
   // fetchData('success')
-  useSuperAdminStore().fetchUsersData('Success', id)
+  await useSuperAdminStore().fetchUsersData('Success', id)
   fetchVendorsData('Success')
+  companyFormData.value={
+    companyAddress: vendor.value?.companyAddress,
+    companyEmail: vendor.value?.companyEmail,
+    companyName: vendor.value?.companyName,
+    companyState: vendor.value?.companyState,
+    companyType: vendor.value?.companyType,
+    rcNumber: vendor.value?.rcNumber
+  }
   // console.log(id)
 })
 </script>
@@ -905,47 +884,14 @@ onMounted(() => {
             <div class="p-4 space-y-2">
               <div class="w-full flex items-center justify-between mb-4">
                 <h1 class="text-lg font-medium">Business Information</h1>
-              </div>
-              <div class="grid md:grid-cols-8 gap-2 md:gap-8">
-                <div class="md:col-span-3">
-                  <Label class="px-2">RC Number</Label>
-                  <Input :value="vendor?.rcNumber" :placeholder="vendor?.rcNumber" class="ghost" disabled/>
-                </div>
-                <div class="md:col-span-5 ">
-                  <Label class="px-2">Company Name</Label>
-                  <Input :value="vendor?.companyName" :placeholder="vendor?.companyName" class="ghost" disabled />
-                </div>
-              </div>
-              <div class="grid md:grid-cols-8 gap-2 md:gap-8">
-                <div class="md:col-span-3">
-                  <Label class="px-2">Company Type</Label>
-                  <Input :value="vendor?.companyType" :placeholder="vendor?.companyType" class="ghost" disabled />
-                </div>
-                <div class="md:col-span-5 ">
-                  <Label class="px-2">Company Email</Label>
-                  <Input :value="vendor?.companyEmail" :placeholder="vendor?.companyEmail" class="ghost" disabled />
-                </div>
-              </div>
-              <div class="grid md:grid-cols-8 gap-2 md:gap-8">
-                <div class="md:col-span-5">
-                  <Label class="px-2">Address</Label>
-                  <Input :value="vendor?.companyAddress" :placeholder="vendor?.companyAddress" class="ghost" disabled/>
-                </div>
-                <div class="md:col-span-3 ">
-                  <Label class="px-2">State</Label>
-                  <Input :value="vendor?.companyState" :placeholder="vendor?.companyState" class="ghost" disabled />
-                </div>
-              </div>
-              <div class="w-full flex items-center justify-between pt-8">
-                <h1 class="text-lg font-medium">Contact Person</h1>
-                <div v-if="!useSuperAdminStore().isVendor" class="flex flex-col md:flex-row items-center gap-2">
-                  <Button v-if="!isVendor" class="border-2 border-[#020721] text-[#020721] rounded-full px-4 md:px-8 py-2 flex items-center gap-2" variant="outline">
-                    Send Invite                  
-                    <Icon icon="mingcute:send-fill" class="text-[#020721] font-bold"
+                <div v-if="!isVendor" class="flex flex-col md:flex-row items-center gap-2">
+                  <Button v-if="!isVendor && isEditCompany" @click="saveCompanyData" class="border-2 border-[#020721] text-[#020721] rounded-full px-4 md:px-8 py-2 flex items-center gap-2" variant="outline">
+                    Save
+                    <Icon icon="mingcute:save-fill" class="text-[#020721] font-bold"
                       width="20"
                       height="20" />
                   </Button>
-                  <Button @click="()=> isEdit=!isEdit" class="border-2 border-[#020721] text-[#020721] rounded-full px-4 md:px-8 py-2 flex items-center gap-2" variant="outline">
+                  <Button @click="()=> isEditCompany=!isEditCompany" class="border-2 border-[#020721] text-[#020721] rounded-full px-4 md:px-8 py-2 flex items-center gap-2" variant="outline">
                     Edit                  
                     <Icon
                       icon="mage:edit"
@@ -957,19 +903,69 @@ onMounted(() => {
                 </div>
               </div>
               <div class="grid md:grid-cols-8 gap-2 md:gap-8">
+                <div class="md:col-span-3">
+                  <Label class="px-2">RC Number</Label>
+                  <Input v-model="companyFormData.rcNumber" :placeholder="vendor?.rcNumber" class="ghost" :disabled="!isEditCompany"/>
+                </div>
+                <div class="md:col-span-5 ">
+                  <Label class="px-2">Company Name</Label>
+                  <Input v-model="companyFormData.companyName" :placeholder="vendor?.companyName" class="ghost" :disabled="!isEditCompany" />
+                </div>
+              </div>
+              <div class="grid md:grid-cols-8 gap-2 md:gap-8">
+                <div class="md:col-span-3">
+                  <Label class="px-2">Company Type</Label>
+                  <Input v-model="companyFormData.companyType" :placeholder="vendor?.companyType" class="ghost" :disabled="!isEditCompany" />
+                </div>
+                <div class="md:col-span-5 ">
+                  <Label class="px-2">Company Email</Label>
+                  <Input v-model="companyFormData.companyEmail" :placeholder="vendor?.companyEmail" class="ghost" :disabled="!isEditCompany" />
+                </div>
+              </div>
+              <div class="grid md:grid-cols-8 gap-2 md:gap-8">
+                <div class="md:col-span-5">
+                  <Label class="px-2">Address</Label>
+                  <Input v-model="companyFormData.companyAddress" :placeholder="vendor?.companyAddress" class="ghost" :disabled="!isEditCompany"/>
+                </div>
+                <div class="md:col-span-3 ">
+                  <Label class="px-2">State</Label>
+                  <Input v-model="companyFormData.companyState" :placeholder="vendor?.companyState" class="ghost" :disabled="!isEditCompany" />
+                </div>
+              </div>
+              <div class="w-full flex items-center justify-between pt-8">
+                <h1 class="text-lg font-medium">Contact Person</h1>
+                <div v-if="!useSuperAdminStore().isVendor" class="flex flex-col md:flex-row items-center gap-2">
+                  <Button v-if="!isVendor && isEdit" @click="saveUserData" class="border-2 border-[#020721] text-[#020721] rounded-full px-4 md:px-8 py-2 flex items-center gap-2" variant="outline">
+                    Save
+                    <Icon icon="mingcute:save-fill" class="text-[#020721] font-bold"
+                      width="20"
+                      height="20" />
+                  </Button>
+                  <!-- <Button @click="()=> isEdit=!isEdit" class="border-2 border-[#020721] text-[#020721] rounded-full px-4 md:px-8 py-2 flex items-center gap-2" variant="outline">
+                    Edit                  
+                    <Icon
+                      icon="mage:edit"
+                      class="text-[#020721] font-bold"
+                      width="20"
+                      height="20"
+                    />
+                  </Button> -->
+                </div>
+              </div>
+              <div class="grid md:grid-cols-8 gap-2 md:gap-8">
                 <div class="md:col-span-4">
                   <Label class="px-2">First Name</Label>
-                  <Input :value="vendorData?.firstName" :placeholder="vendorData?.firstName" class="ghost" :disabled="!isEdit"/>
+                  <Input v-model="vendorFormData.firstName" :placeholder="vendorFormData?.firstName" class="ghost" :disabled="!isEdit"/>
                 </div>
                 <div class="md:col-span-4 ">
                   <Label class="px-2">Last Name</Label>
-                  <Input :value="vendorData?.lastName" :placeholder="vendorData?.lastName" class="ghost" :disabled="!isEdit"/>
+                  <Input v-model="vendorFormData.lastName" :placeholder="vendorFormData?.lastName" class="ghost" :disabled="!isEdit"/>
                 </div>
               </div>
               <div class="grid md:grid-cols-8 gap-2 md:gap-8">
                 <div class="md:col-span-5">
                   <Label class="px-2">Email</Label>
-                  <Input :value="vendorData?.email" :placeholder="vendorData?.email" class="ghost" :disabled="!isEdit"/>
+                  <Input v-model="vendorFormData.email" :placeholder="vendorFormData?.email" class="ghost" :disabled="!isEdit"/>
                 </div>
                 <div class="md:col-span-3 ">
                   <Label class="px-2">Phone Number</Label>
