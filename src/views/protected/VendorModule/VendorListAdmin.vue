@@ -378,7 +378,7 @@ onMounted(async () => {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="published">Published</SelectItem>
-                        <SelectItem value="draft">Draft</SelectItem>
+                        <SelectItem value="drafted">Draft</SelectItem>
                       </SelectContent>
                     </Select>
                   </FormControl>

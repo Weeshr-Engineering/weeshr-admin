@@ -449,10 +449,11 @@ const editProfile = async (values: string) => {
     }
     // VendorListStore.loadingControl(true)
     try {
+      // console.log(values)
       const response = await axios.patch(
         `/api/v1/admin/market/vendor/${id}`,
         {
-          status: values === 'published' ? 'drafted' : 'published',
+          status: values
         }
       )
 
@@ -465,7 +466,7 @@ const editProfile = async (values: string) => {
           variant: 'success'
         })
       }
-      useSuperAdminStore().fetchUsersData('Success')
+      useSuperAdminStore().fetchUsersData('Success', id)
       // Handle success
     } catch (err: any) {
       //   VendorListStore.loadingControl(false)
@@ -717,7 +718,9 @@ watch([bankCode, accountNumber, payoutFrequency], ([newBank, newAcc, newFreq]) =
 onMounted(() => {
   fetchBankData('data fetched')
   // fetchData('success')
+  useSuperAdminStore().fetchUsersData('Success', id)
   fetchVendorsData('Success')
+  // console.log(id)
 })
 </script>
 
@@ -798,7 +801,7 @@ onMounted(() => {
               </div>
               <div class="flex justify-between items-center py-2">
                 <span class="text-base font-bold lg:text-base text-[#020721]">Profile Status</span>
-                <Switch v-if="!isVendor"/>
+                <!-- <Switch v-if="!isVendor"/> -->
               </div>
               <div
                 v-if="vendor?.status && isVendor"
@@ -806,7 +809,6 @@ onMounted(() => {
               >
                 <label
                   class="relative inline-flex cursor-pointer items-center w-full"
-                  @click="() => editProfile(vendor?.status!)"
                 >
                   <input
                     type="checkbox"
@@ -818,47 +820,50 @@ onMounted(() => {
                   <div
                     class="peer flex h-10 w-full items-center gap-6 rounded-md bg-[#F6F6F6] text-black after:absolute after:left-1 after:h-8 after:w-[49%] after:rounded-md after:bg-slate-700 after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-focus:outline-none dark:border-[#F6F6F6] dark:bg[#F6F6F6] text-sm peer-checked:text-white justify-between px-[20%] py-4 -mr-2"
                   >
-                    <span :class="vendor?.status === 'published' ? 'text-[#020721] z-30' : 'text-white z-30'">Draft</span>
-                    <span :class="vendor?.status !== 'published' ? 'text-[#020721] z-30' : 'text-white z-30'">Live</span>
+                    <span @click="() => editProfile('drafted')" :class="vendor?.status === 'published' ? 'text-[#020721] z-30' : 'text-white z-30'">Draft</span>
+                    <span @click="() => editProfile('published')" :class="vendor?.status !== 'published' ? 'text-[#020721] z-30' : 'text-white z-30'">Live</span>
                   </div>
                 </label>
               </div>
               <div v-if="!isVendor" class="flex justify-between rounded-md w-full">
-                <label
-                  class="relative inline-flex cursor-pointer items-center w-full"
-                  @click="cycleStatus"
+                <div
+                  class="relative flex h-10 w-full items-center gap-6 rounded-md bg-[#F6F6F6] text-black justify-between px-[10%] py-4"
                 >
+                  <!-- Sliding indicator -->
                   <div
-                    class="relative flex h-10 w-full items-center gap-6 rounded-md bg-[#F6F6F6] text-black justify-between px-[10%] py-4"
-                  >
-                    <!-- Sliding indicator -->
-                    <div
-                      class="absolute top-1 left-1 h-8 w-1/3 rounded-md bg-slate-700 transition-all duration-300"
-                      :style="{
-                        transform:
-                          statusVal === 'Suspended'
-                            ? 'translateX(0%)'
-                            : statusVal === 'Draft'
-                            ? 'translateX(100%)'
-                            : 'translateX(200%)',
-                      }"
-                    ></div>
+                    class="absolute top-1 left-1 h-8 w-1/3 rounded-md bg-slate-700 transition-all duration-300"
+                    :style="{
+                      transform:
+                        vendor?.status === 'suspended'
+                          ? 'translateX(0%)'
+                          : vendor?.status === 'drafted'
+                          ? 'translateX(100%)'
+                          : 'translateX(200%)',
+                    }"
+                  ></div>
 
-                    <!-- Labels -->
-                    <span
-                      :class="statusVal === 'Suspended' ? 'text-white z-30' : 'text-[#020721] z-30'"
-                      >Suspended</span
-                    >
-                    <span
-                      :class="statusVal === 'Draft' ? 'text-white z-30' : 'text-[#020721] z-30'"
-                      >Draft</span
-                    >
-                    <span
-                      :class="statusVal === 'Live' ? 'text-white z-30' : 'text-[#020721] z-30'"
-                      >Live</span
-                    >
-                  </div>
-                </label>
+                  <!-- Labels -->
+                  <span
+                    @click="editProfile('suspended')"
+                    :class="vendor?.status === 'suspended' ? 'text-white z-30' : 'text-[#020721] z-30'"
+                    class="cursor-pointer"
+                    >Suspended</span
+                  >
+
+                  <span
+                    @click="editProfile('drafted')"
+                    :class="vendor?.status === 'drafted' ? 'text-white z-30' : 'text-[#020721] z-30'"
+                    class="cursor-pointer text-center"
+                    >Draft</span
+                  >
+
+                  <span
+                    @click="editProfile('published')"
+                    :class="vendor?.status === 'published' ? 'text-white z-30' : 'text-[#020721] z-30'"
+                    class="cursor-pointer"
+                    >Live</span
+                  >
+                </div>
               </div>
             </div>
           </CardDescription>

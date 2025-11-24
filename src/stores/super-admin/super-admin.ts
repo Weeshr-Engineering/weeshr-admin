@@ -101,7 +101,7 @@ export const useSuperAdminStore = defineStore({
       localStorage.setItem('isVendor', JSON.stringify(value))
       localStorage.setItem('vendorId', JSON.stringify(id))
     },
-    async fetchUsersData(msg: string){
+    async fetchUsersData(msg: string, id?: string){
       toast({
         title: 'Loading Data',
         description: 'Fetching data...',
@@ -112,11 +112,12 @@ export const useSuperAdminStore = defineStore({
       try {
         // Set loading to true
         // useGeneralStore().setLoading(true)
-        const response = await axios.get(`/api/v1/market/vendor/${this.vendorId}`)
+        const response = await axios.get(`/api/v1/market/vendor/${id || this.vendorId}`)
 
         if (response.status === 200 || response.status === 201) {
           // Update the users data with the response
           this.vendor = response.data.data;
+          // console.log(response.data.data)
           // const responseData = response.data.data[0]
           // const phoneData = response.data.data[0].phoneNumber.normalizedNumber
           // const data = { ...responseData, phone: phoneData }
