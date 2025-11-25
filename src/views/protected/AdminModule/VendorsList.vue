@@ -181,7 +181,7 @@ const fetchProducts = async (msg: string) => {
 
     if (response.status === 200 || response.status === 201) {
       // Update the users data with the response
-      console.log(response)
+      // console.log(response)
       products.value = response.data.data.data;
       // const responseData = response.data.data[0]
       // const phoneData = response.data.data[0].phoneNumber.normalizedNumber

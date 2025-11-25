@@ -943,7 +943,7 @@ onMounted(async () => {
                       width="20"
                       height="20" />
                   </Button>
-                  <Button @click="()=> isEdit=!isEdit" class="border-2 border-[#020721] text-[#020721] rounded-full px-4 md:px-8 py-2 flex items-center gap-2" variant="outline">
+                  <Button v-if="!isVendor" @click="()=> isEdit=!isEdit" class="border-2 border-[#020721] text-[#020721] rounded-full px-4 md:px-8 py-2 flex items-center gap-2" variant="outline">
                     Edit                  
                     <Icon
                       icon="mage:edit"
