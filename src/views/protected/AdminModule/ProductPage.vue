@@ -109,6 +109,59 @@ const bulkProductTags = ref<Record<number, string>>({}) // Tag per product index
 const applyTagToAll = ref(false) // Toggle for same tag
 const globalBulkTag = ref<string>('') // Tag to apply to all
 
+// Function to convert delivery time to YYYY-MM-DD format
+const convertDeliveryTimeToDate = (deliveryTime: string): string => {
+  if (!deliveryTime) return ''
+  
+  const today = new Date()
+  
+  switch (deliveryTime) {
+    case 'Same Day':
+      // Same day - return today's date
+      return today.toISOString().split('T')[0]
+    
+    case '1 Day':
+      today.setDate(today.getDate() + 1)
+      return today.toISOString().split('T')[0]
+    
+    case '2 Days':
+      today.setDate(today.getDate() + 2)
+      return today.toISOString().split('T')[0]
+    
+    case '3 Days':
+      today.setDate(today.getDate() + 3)
+      return today.toISOString().split('T')[0]
+    
+    case '4 Days':
+      today.setDate(today.getDate() + 4)
+      return today.toISOString().split('T')[0]
+    
+    case '5 Days':
+      today.setDate(today.getDate() + 5)
+      return today.toISOString().split('T')[0]
+    
+    case '1 Week':
+      today.setDate(today.getDate() + 7)
+      return today.toISOString().split('T')[0]
+    
+    case '2 Weeks':
+      today.setDate(today.getDate() + 14)
+      return today.toISOString().split('T')[0]
+    
+    case '3 Weeks':
+      today.setDate(today.getDate() + 21)
+      return today.toISOString().split('T')[0]
+    
+    case '1 Month':
+      today.setMonth(today.getMonth() + 1)
+      return today.toISOString().split('T')[0]
+    
+    default:
+      // If it's already in YYYY-MM-DD format or empty, return as is
+      return deliveryTime
+  }
+}
+
 // Fetch categories from API
 const fetchCategories = async () => {
   loadingCategories.value = true
@@ -160,7 +213,7 @@ const getStatusFilterDisplay = () => {
   }
 }
 
-// NEW: Handle search
+// Handle search
 const handleSearch = (query: string) => {
   searchQuery.value = query
   productsStore.fetchProducts({ 
@@ -170,14 +223,14 @@ const handleSearch = (query: string) => {
   })
 }
 
-// NEW: Open delete confirmation modal
+// Open delete confirmation modal
 const openDeleteModal = (product: Product) => {
   productToDelete.value = product
   deleteModalOpen.value = true
   showActionsMenu.value = null
 }
 
-// NEW: Confirm delete product
+// Confirm delete product
 const confirmDeleteProduct = async () => {
   if (!productToDelete.value) return
 
@@ -248,7 +301,7 @@ const closeActionsMenuOnClickOutside = (event: MouseEvent) => {
   }
 }
 
-// Handle bulk file upload
+// Handle bulk file upload - UPDATED to convert delivery time to date
 const handleBulkFileUpload = async (e: Event) => {
   const target = e.target as HTMLInputElement
   const file = target.files?.[0]
@@ -257,36 +310,30 @@ const handleBulkFileUpload = async (e: Event) => {
   try {
     bulkUploadFile.value = file
 
-    // Read the file
     const data = await file.arrayBuffer()
     const workbook = XLSX.read(data, { type: 'array' })
     
-    // Get first sheet
     const sheetName = workbook.SheetNames[0]
     const worksheet = workbook.Sheets[sheetName]
     
-    // Convert to JSON
     const jsonData = XLSX.utils.sheet_to_json(worksheet)
     
     // Process and normalize the data
     bulkProductsList.value = jsonData.map((row: any) => {
-      // Handle date conversion for 'tat' field
+      // Handle TAT field - convert delivery time to date
       let tatValue = row.tat || row.TAT || ''
       
-      // If tat is a number (Excel date serial)
-      if (typeof tatValue === 'number') {
-        const date = XLSX.SSF.parse_date_code(tatValue)
-        tatValue = `${date.y}-${String(date.m).padStart(2, '0')}-${String(date.d).padStart(2, '0')}`
+      // If it's a string, convert delivery time to date
+      if (typeof tatValue === 'string') {
+        tatValue = tatValue.trim()
+        // Convert delivery time option to date format
+        tatValue = convertDeliveryTimeToDate(tatValue)
       }
-      // If tat is a string in DD/MM/YYYY format
-      else if (typeof tatValue === 'string' && tatValue.includes('/')) {
-        const parts = tatValue.split('/')
-        if (parts.length === 3) {
-          const day = parts[0].padStart(2, '0')
-          const month = parts[1].padStart(2, '0')
-          const year = parts[2]
-          tatValue = `${year}-${month}-${day}`
-        }
+      // If it's a number, convert to days and then to date
+      else if (typeof tatValue === 'number') {
+        const days = tatValue
+        const deliveryTime = `${days} ${days === 1 ? 'Day' : 'Days'}`
+        tatValue = convertDeliveryTimeToDate(deliveryTime)
       }
 
       return {
@@ -324,7 +371,7 @@ const downloadImageAsFile = async (url: string, filename: string): Promise<File 
   }
 }
 
-// Updated uploadBulkProduct - removed individual fetches
+// Updated uploadBulkProduct
 const uploadBulkProduct = async (product: any, productIndex: number, status: string = 'published') => {
   try {
     // Get the tag for this product
@@ -378,7 +425,7 @@ const uploadBulkProduct = async (product: any, productIndex: number, status: str
   } catch (error: any) {
     console.error('Bulk upload error:', error)
     const errorMessage = error.response?.data?.message || `Error uploading ${product.name}`
-    throw error // Re-throw to handle in calling function
+    throw error
   }
 }
 
@@ -398,10 +445,9 @@ const removeBulkProduct = (index: number) => {
   bulkProductTags.value = newTags
 }
 
-// Download template - UPDATED to create actual XLSX file
+// Download template - UPDATED to use delivery time format
 const downloadTemplate = () => {
   try {
-    // Create template data with headers and example rows
     const templateData = [
       // Headers
       ['name', 'amount', 'qty', 'tat', 'size', 'description', 'img'],
@@ -410,7 +456,7 @@ const downloadTemplate = () => {
         'Sample Product 1',
         5000,
         10,
-        '12/11/2025',
+        '2 Days',
         'Medium',
         'This is a sample product description',
         'https://example.com/image1.jpg'
@@ -420,7 +466,7 @@ const downloadTemplate = () => {
         'Sample Product 2',
         8500,
         5,
-        '15/12/2025',
+        'Same Day',
         'Large',
         'Another sample product for demonstration',
         'https://example.com/image2.jpg'
@@ -448,7 +494,7 @@ const downloadTemplate = () => {
         'name: Product name (required)',
         'amount: Price in Naira (required)',
         'qty: Available quantity',
-        'tat: Date format DD/MM/YYYY',
+        'tat: Delivery time (e.g., "1 Day", "2 Days", "Same Day")',
         'size: Product size',
         'description: Max 140 characters',
         'img: Image URL (optional)'
@@ -468,19 +514,6 @@ const downloadTemplate = () => {
       { wch: 40 }, 
       { wch: 35 }  
     ]
-
-    // Style the header row (make it bold and centered)
-    const headerRange = XLSX.utils.decode_range(worksheet['!ref'] || 'A1')
-    for (let col = headerRange.s.c; col <= headerRange.e.c; col++) {
-      const cellAddress = XLSX.utils.encode_cell({ r: 0, c: col })
-      if (!worksheet[cellAddress]) continue
-      
-      worksheet[cellAddress].s = {
-        font: { bold: true },
-        alignment: { horizontal: 'center' },
-        fill: { fgColor: { rgb: '4472C4' } }
-      }
-    }
 
     // Create workbook
     const workbook = XLSX.utils.book_new()
@@ -540,10 +573,10 @@ const handleNext = async () => {
     return
   }
 
-  // Validate tags/categories - UPDATED MESSAGE
+  // Validate tags/categories
   if (formData.value.tag.length === 0) {
     toast({
-      description: 'Please select a category', // Changed from "at least one"
+      description: 'Please select a category',
       variant: 'destructive'
     })
     return
@@ -569,11 +602,18 @@ const handleNext = async () => {
     return
   }
 
+  // Convert delivery time to date format before saving
+  const originalTat = formData.value.tat
+  formData.value.tat = convertDeliveryTimeToDate(formData.value.tat)
+
   if (isEditMode.value && editingProductId.value) {
     await updateProduct()
   } else {
     await createProduct()
   }
+  
+  // Restore original value for display (in case user cancels or goes back)
+  formData.value.tat = originalTat
 }
 
 // Create product
@@ -591,6 +631,7 @@ const createProduct = async () => {
     data.append('name', formData.value.name)
     data.append('description', formData.value.description || '')
     data.append('amount', formData.value.amount.toString())
+    // tat is already converted to date format in handleNext
     data.append('tat', formData.value.tat || '')
     data.append('qty', formData.value.qty.toString())
     data.append('status', formData.value.status)
@@ -651,10 +692,10 @@ const updateProduct = async () => {
     return
   }
 
-  // Validate tags/categories - UPDATED MESSAGE
+  // Validate tags/categories
   if (formData.value.tag.length === 0) {
     toast({
-      description: 'Please select a category', // Changed from "at least one"
+      description: 'Please select a category',
       variant: 'destructive'
     })
     return
@@ -685,6 +726,7 @@ const updateProduct = async () => {
     data.append('name', formData.value.name)
     data.append('description', formData.value.description || '')
     data.append('amount', formData.value.amount.toString())
+    // tat is already converted to date format in handleNext
     data.append('tat', formData.value.tat || '')
     data.append('qty', formData.value.qty.toString())
     data.append('status', formData.value.status)
@@ -741,9 +783,9 @@ const resetForm = () => {
   editingProductId.value = null
   bulkUploadFile.value = null
   bulkProductsList.value = []
-  bulkProductTags.value = {} // Clear individual tags
-  applyTagToAll.value = false // Reset toggle
-  globalBulkTag.value = '' // Clear global tag
+  bulkProductTags.value = {}
+  applyTagToAll.value = false
+  globalBulkTag.value = ''
   formData.value = {
     name: '',
     description: '',
@@ -774,13 +816,62 @@ const editProduct = () => {
   editingProductId.value = selectedProduct.value._id
   bulkUploadMode.value = false
   
+  // Convert date back to delivery time option for display in form
+  let displayTat = selectedProduct.value.tat || ''
+  if (displayTat && displayTat.match(/^\d{4}-\d{2}-\d{2}$/)) {
+    // If it's a date, try to convert back to delivery time option
+    const date = new Date(displayTat)
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    date.setHours(0, 0, 0, 0)
+    
+    const diffTime = date.getTime() - today.getTime()
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+    
+    switch (diffDays) {
+      case 0:
+        displayTat = 'Same Day'
+        break
+      case 1:
+        displayTat = '1 Day'
+        break
+      case 2:
+        displayTat = '2 Days'
+        break
+      case 3:
+        displayTat = '3 Days'
+        break
+      case 4:
+        displayTat = '4 Days'
+        break
+      case 5:
+        displayTat = '5 Days'
+        break
+      case 7:
+        displayTat = '1 Week'
+        break
+      case 14:
+        displayTat = '2 Weeks'
+        break
+      case 21:
+        displayTat = '3 Weeks'
+        break
+      case 30:
+        displayTat = '1 Month'
+        break
+      default:
+        // Keep as date if no match
+        break
+    }
+  }
+  
   // Set form data from selected product
   formData.value = {
     name: selectedProduct.value.name,
     description: selectedProduct.value.description || '',
     amount: (selectedProduct.value.amount || 0).toString(),
     qty: (selectedProduct.value.qty || 0).toString(),
-    tat: selectedProduct.value.tat || '',
+    tat: displayTat,
     size: selectedProduct.value.size || '',
     tag: selectedProduct.value.tag || [],
     image: null,
@@ -800,12 +891,61 @@ const editProductFromList = async (product: Product) => {
   
   const normalizedProduct = await productsStore.fetchProductById(product._id)
   
+  // Convert date back to delivery time option for display in form
+  let displayTat = normalizedProduct.tat || ''
+  if (displayTat && displayTat.match(/^\d{4}-\d{2}-\d{2}$/)) {
+    // If it's a date, try to convert back to delivery time option
+    const date = new Date(displayTat)
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    date.setHours(0, 0, 0, 0)
+    
+    const diffTime = date.getTime() - today.getTime()
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+    
+    switch (diffDays) {
+      case 0:
+        displayTat = 'Same Day'
+        break
+      case 1:
+        displayTat = '1 Day'
+        break
+      case 2:
+        displayTat = '2 Days'
+        break
+      case 3:
+        displayTat = '3 Days'
+        break
+      case 4:
+        displayTat = '4 Days'
+        break
+      case 5:
+        displayTat = '5 Days'
+        break
+      case 7:
+        displayTat = '1 Week'
+        break
+      case 14:
+        displayTat = '2 Weeks'
+        break
+      case 21:
+        displayTat = '3 Weeks'
+        break
+      case 30:
+        displayTat = '1 Month'
+        break
+      default:
+        // Keep as date if no match
+        break
+    }
+  }
+  
   formData.value = {
     name: normalizedProduct.name,
     description: normalizedProduct.description || '',
     amount: (normalizedProduct.amount || 0).toString(),
     qty: (normalizedProduct.qty || 0).toString(),
-    tat: normalizedProduct.tat || '',
+    tat: displayTat,
     size: normalizedProduct.size || '',
     tag: normalizedProduct.tag || [],
     image: null,
@@ -947,7 +1087,7 @@ const uploadProductWithStatus = async (product: any, index: number, status: 'pub
   }
 }
 
-// Bulk publish all products - FIXED to upload sequentially
+// Bulk publish all products
 const bulkPublishAll = async () => {
   if (!canBulkUpload.value) {
     toast({
@@ -997,7 +1137,7 @@ const bulkPublishAll = async () => {
   resetForm()
 }
 
-// Bulk draft all products - FIXED to upload sequentially
+// Bulk draft all products
 const bulkDraftAll = async () => {
   if (!canBulkUpload.value) {
     toast({
@@ -1044,7 +1184,7 @@ const bulkDraftAll = async () => {
   resetForm()
 }
 
-// Bulk archive all products - FIXED to upload sequentially
+// Bulk archive all products
 const bulkArchiveAll = async () => {
   if (!canBulkUpload.value) {
     toast({
@@ -1091,40 +1231,48 @@ const bulkArchiveAll = async () => {
   resetForm()
 }
 
-// Format TAT for display (convert YYYY-MM-DD to readable format)
+// Format TAT for display
 const formatTatForDisplay = (tat: string) => {
   if (!tat) return 'N/A'
   
+  // If it's already a readable format (like "2 Days", "Same Day", etc.)
+  if (!tat.includes('T') && !tat.includes('-')) {
+    return tat
+  }
+  
+  // If it's in ISO format (2025-12-03T00:00:00.000Z), extract just the date
+  if (tat.includes('T')) {
+    const dateOnly = tat.split('T')[0]
+    const [year, month, day] = dateOnly.split('-')
+    return `${year}-${month}-${day}`
+  }
+  
   // If it's already in YYYY-MM-DD format
   if (tat.match(/^\d{4}-\d{2}-\d{2}$/)) {
-    const date = new Date(tat)
-    return date.toLocaleDateString('en-GB', { 
-      day: 'numeric', 
-      month: 'short', 
-      year: 'numeric' 
-    })
+    return tat
   }
   
   return tat
 }
 
-// Keep the existing formatTatDate function for backward compatibility
+// Keep this for backward compatibility
 const formatTatDate = (dateString: string) => {
   if (!dateString) return 'N/A'
   
-  // Check if it's already in a readable format
-  if (dateString.includes('mins') || dateString.includes('hours') || dateString.includes('days')) {
+  // If it's a simple format like "2 Days", return as is
+  if (!dateString.includes('T') && !dateString.includes('-')) {
     return dateString
+  }
+  
+  // If it's in ISO format, extract just the date
+  if (dateString.includes('T')) {
+    const dateOnly = dateString.split('T')[0]
+    return dateOnly
   }
   
   // If it's in YYYY-MM-DD format
   if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
-    const date = new Date(dateString)
-    return date.toLocaleDateString('en-GB', { 
-      day: 'numeric', 
-      month: 'short', 
-      year: 'numeric' 
-    })
+    return dateString
   }
   
   return dateString
@@ -1308,7 +1456,7 @@ onBeforeUnmount(() => {
             </Transition>
           </div>
 
-          <!-- UPDATED: Search component with proper event handling -->
+          <!-- Search component -->
           <Search 
             class="mt-3 lg:mt-0" 
             @search="handleSearch"
@@ -1439,28 +1587,43 @@ onBeforeUnmount(() => {
 
                 <!-- Action Buttons -->
                 <div class="flex gap-3 py-4">
-                  <button 
-                    @click="formData.status = 'archived'; handleNext()"
-                    :disabled="productsStore.loading"
-                    class="flex-1 px-4 py-2.5 bg-white border border-gray-300 rounded-lg text-sm font-medium text-[#020721] hover:bg-gray-50 disabled:opacity-50"
-                  >
-                    Archive
-                  </button>
-                  <button 
-                    @click="formData.status = 'draft'; handleNext()"
-                    :disabled="productsStore.loading"
-                    class="flex-1 px-4 py-2.5 bg-[#020721] text-white rounded-lg text-sm font-medium hover:bg-[#020721]/90 disabled:opacity-50"
-                  >
-                    Draft
-                  </button>
-                  <button 
-                    @click="formData.status = 'published'; handleNext()"
-                    :disabled="productsStore.loading"
-                    class="flex-1 px-4 py-2.5 bg-[#020721] text-white rounded-lg text-sm font-medium hover:bg-[#020721]/90 disabled:opacity-50"
-                  >
-                    Publish
-                  </button>
-                </div>
+    <button
+        @click="formData.status = 'archived'; handleNext()"
+        :disabled="productsStore.loading"
+        :class="[
+            'flex-1 px-4 py-2.5 rounded-lg text-sm font-medium disabled:opacity-50',
+            formData.status === 'archived'
+                ? 'bg-[#020721] text-white hover:bg-[#020721]/90' // Selected state
+                : 'bg-white border border-gray-300 text-[#020721] hover:bg-gray-50' // Default state
+        ]"
+    >
+        Archive
+    </button>
+    <button
+        @click="formData.status = 'draft'; handleNext()"
+        :disabled="productsStore.loading"
+        :class="[
+            'flex-1 px-4 py-2.5 rounded-lg text-sm font-medium disabled:opacity-50',
+            formData.status === 'draft'
+                ? 'bg-[#020721] text-white hover:bg-[#020721]/90' // Selected state
+                : 'bg-white border border-gray-300 text-[#020721] hover:bg-gray-50' // Default state
+        ]"
+    >
+        Draft
+    </button>
+    <button
+        @click="formData.status = 'published'; handleNext()"
+        :disabled="productsStore.loading"
+        :class="[
+            'flex-1 px-4 py-2.5 rounded-lg text-sm font-medium disabled:opacity-50',
+            formData.status === 'published'
+                ? 'bg-[#020721] text-white hover:bg-[#020721]/90' // Selected state
+                : 'bg-white border border-gray-300 text-[#020721] hover:bg-gray-50' // Default state
+        ]"
+    >
+        Publishss
+    </button>
+</div>
 
                 <!-- Form Fields -->
                 <div class="space-y-4">
@@ -1508,7 +1671,7 @@ onBeforeUnmount(() => {
                     />
                   </div>
 
-                  <!-- UPDATED: Tag field as category selector -->
+                  <!-- Tag field as category selector -->
                   <div>
                     <label class="text-sm text-[#8B8D97] mb-2 block">Tag (Category) <span class="text-red-500">*</span></label>
                     <div class="space-y-2">
@@ -1559,17 +1722,27 @@ onBeforeUnmount(() => {
                     </div>
                   </div>
 
-                  <!-- UPDATED: Delivery TAT as Date Picker -->
+                  <!-- Delivery Time as Select Dropdown -->
                   <div>
-                    <label class="text-sm text-[#8B8D97] mb-2 block">Delivery TAT</label>
-                    <input 
+                    <label class="text-sm text-[#8B8D97] mb-2 block">Delivery Time</label>
+                    <select 
                       v-model="formData.tat"
-                      type="date"
-                      placeholder="Select delivery date"
                       class="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-[#5B68DF] text-sm"
-                    />
+                    >
+                      <option value="">Select delivery time</option>
+                      <option value="Same Day">Same Day (within 24 hours)</option>
+                      <option value="1 Day">1 Day</option>
+                      <option value="2 Days">2 Days</option>
+                      <option value="3 Days">3 Days</option>
+                      <option value="4 Days">4 Days</option>
+                      <option value="5 Days">5 Days</option>
+                      <option value="1 Week">1 Week (7 days)</option>
+                      <option value="2 Weeks">2 Weeks (14 days)</option>
+                      <option value="3 Weeks">3 Weeks (21 days)</option>
+                      <option value="1 Month">1 Month (30 days)</option>
+                    </select>
                     <p class="text-xs text-[#8B8D97] mt-1">
-                      Format: YYYY-MM-DD
+                      Select estimated delivery time (will be converted to date for backend)
                     </p>
                   </div>
                 </div>
@@ -1752,7 +1925,7 @@ onBeforeUnmount(() => {
                           <p class="font-medium text-[#020721]">{{ product.size || 'N/A' }}</p>
                         </div>
                         <div>
-                          <p class="text-[#8B8D97] mb-1">Delivery TAT</p>
+                          <p class="text-[#8B8D97] mb-1">Delivery Time</p>
                           <p class="font-medium text-[#020721]">{{ formatTatForDisplay(product.tat) || 'N/A' }}</p>
                         </div>
                       </div>
@@ -1901,7 +2074,7 @@ onBeforeUnmount(() => {
                       <p class="text-sm font-medium text-[#020721]">{{ selectedProduct.qty  || 0 }}</p>
                     </div>
 
-                    <!-- UPDATED: Show category names instead of IDs -->
+                    <!-- Show category names instead of IDs -->
                     <div>
                       <p class="text-xs text-[#8B8D97] mb-1">Tags (Categories)</p>
                       <div class="flex flex-wrap gap-2">
@@ -1923,9 +2096,10 @@ onBeforeUnmount(() => {
                       <p class="text-sm text-[#020721]">{{ selectedProduct.description || 'No description' }}</p>
                     </div>
 
+                    <!-- Delivery Time display -->
                     <div>
-                      <p class="text-xs text-[#8B8D97] mb-1">Delivery TAT</p>
-                      <p class="text-sm font-medium text-[#020721]">{{ selectedProduct.tat  || 'N/A' }}</p>
+                      <p class="text-xs text-[#8B8D97] mb-1">Delivery Time</p>
+                      <p class="text-sm font-medium text-[#020721]">{{formatTatForDisplay(selectedProduct.tat??"") || 'N/A'}}</p>
                     </div>
                   </div>
                 </div>
@@ -1981,9 +2155,10 @@ onBeforeUnmount(() => {
                   <Icon icon="fluent:chevron-up-down-20-regular" class="w-4 h-4" />
                 </div>
               </TableHead>
+              <!-- Changed header to "Delivery Time" -->
               <TableHead class="font-medium">
                 <div class="flex items-center gap-1">
-                  Delivery TAT
+                  Delivery Time
                   <Icon icon="fluent:chevron-up-down-20-regular" class="w-4 h-4" />
                 </div>
               </TableHead>
@@ -2008,7 +2183,7 @@ onBeforeUnmount(() => {
               <TableCell class="text-sm font-medium text-[#020721]">{{ product.name }}</TableCell>
               <TableCell class="text-sm text-[#8B8D97] max-w-[200px] truncate">{{ product.description || 'No description' }}</TableCell>
               <TableCell class="text-sm font-medium text-[#020721]">{{ productsStore.formatPrice(product.amount || 0) }}</TableCell>
-              <TableCell class="text-sm text-[#8B8D97]">{{ product.tat ||'N/A' }}</TableCell>
+              <TableCell class="text-sm text-[#8B8D97]">{{ formatTatForDisplay(product.tat??"") || 'N/A' }}</TableCell>
               <TableCell class="text-sm text-[#8B8D97] text-center">{{ product.qty  || 0 }}</TableCell>
               <TableCell>
                 <div
@@ -2131,7 +2306,7 @@ onBeforeUnmount(() => {
     </Card>
     <DashboardFooter />
 
-    <!-- NEW: Delete Confirmation Dialog -->
+    <!-- Delete Confirmation Dialog -->
     <Dialog v-model:open="deleteModalOpen">
       <DialogContent class="sm:max-w-md">
         <DialogHeader>
