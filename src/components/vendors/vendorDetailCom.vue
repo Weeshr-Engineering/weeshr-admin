@@ -581,10 +581,11 @@ const saveUserData = async () => {
     })
 
     try {
-      const response = await axios.patch(
-        `/api/v1/admin/market/invites/${id}`,
+      const response = await axios.put(
+        `/api/v1/admin/market/invite/${id}`,
         {
           "firstName": vendorFormData.value.firstName,
+email: vendorFormData.value.email,
           "phoneNumber": {
             "countryCode": vendorFormData.value.phone?.split('-')[0],
             "phoneNumber": vendorFormData.value.phone?.split('-')[1]
@@ -937,13 +938,13 @@ onMounted(async () => {
               <div class="w-full flex items-center justify-between pt-8">
                 <h1 class="text-lg font-medium">Contact Person</h1>
                 <div class="flex flex-col md:flex-row items-center gap-2">
-                  <Button v-if="!isVendor && isEdit" @click="saveUserData" class="border-2 border-[#020721] text-[#020721] rounded-full px-4 md:px-8 py-2 flex items-center gap-2" variant="outline">
+                  <Button v-if="isEdit" @click="saveUserData" class="border-2 border-[#020721] text-[#020721] rounded-full px-4 md:px-8 py-2 flex items-center gap-2" variant="outline">
                     Save
                     <Icon icon="mingcute:save-fill" class="text-[#020721] font-bold"
                       width="20"
                       height="20" />
                   </Button>
-                  <Button v-if="!isVendor" @click="()=> isEdit=!isEdit" class="border-2 border-[#020721] text-[#020721] rounded-full px-4 md:px-8 py-2 flex items-center gap-2" variant="outline">
+                  <Button @click="()=> isEdit=!isEdit" class="border-2 border-[#020721] text-[#020721] rounded-full px-4 md:px-8 py-2 flex items-center gap-2" variant="outline">
                     Edit                  
                     <Icon
                       icon="mage:edit"
