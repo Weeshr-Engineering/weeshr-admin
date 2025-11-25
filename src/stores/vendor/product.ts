@@ -116,7 +116,7 @@ export const useProductsStore = defineStore('products', {
       try {
         const vendorId = params?.vendorId || this.getVendorId()
         
-        const response = await axios.get('/api/v1/admin/market/products/', {
+        const response = await axios.get('/api/v1/market/products/', {
           params: {
             vendorId: vendorId,
             page: params?.page || 1,

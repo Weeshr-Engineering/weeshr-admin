@@ -1561,7 +1561,7 @@ onBeforeUnmount(() => {
 
                   <!-- UPDATED: Delivery TAT as Date Picker -->
                   <div>
-                    <label class="text-sm text-[#8B8D97] mb-2 block">Delivery TAT</label>
+                    <label class="text-sm text-[#8B8D97] mb-2 block">Date before Delivery </label>
                     <input 
                       v-model="formData.tat"
                       type="date"
@@ -1752,7 +1752,7 @@ onBeforeUnmount(() => {
                           <p class="font-medium text-[#020721]">{{ product.size || 'N/A' }}</p>
                         </div>
                         <div>
-                          <p class="text-[#8B8D97] mb-1">Delivery TAT</p>
+                          <p class="text-[#8B8D97] mb-1">Date before Delivery </p>
                           <p class="font-medium text-[#020721]">{{ formatTatForDisplay(product.tat) || 'N/A' }}</p>
                         </div>
                       </div>
@@ -1924,7 +1924,7 @@ onBeforeUnmount(() => {
                     </div>
 
                     <div>
-                      <p class="text-xs text-[#8B8D97] mb-1">Delivery TAT</p>
+                      <p class="text-xs text-[#8B8D97] mb-1">Date before Delivery </p>
                       <p class="text-sm font-medium text-[#020721]">{{ selectedProduct.tat  || 'N/A' }}</p>
                     </div>
                   </div>
@@ -1983,7 +1983,7 @@ onBeforeUnmount(() => {
               </TableHead>
               <TableHead class="font-medium">
                 <div class="flex items-center gap-1">
-                  Delivery TAT
+                  Date before Delivery 
                   <Icon icon="fluent:chevron-up-down-20-regular" class="w-4 h-4" />
                 </div>
               </TableHead>
