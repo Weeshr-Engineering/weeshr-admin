@@ -582,7 +582,7 @@ const saveUserData = async () => {
 
     try {
       const response = await axios.patch(
-        `/api/v1/admin/market/invite/${id}`,
+        `/api/v1/admin/market/invites/${id}`,
         {
           "firstName": vendorFormData.value.firstName,
           "phoneNumber": {
