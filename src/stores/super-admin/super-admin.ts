@@ -98,6 +98,7 @@ export const useSuperAdminStore = defineStore({
     },
     setVendor(value: boolean, id: string) {
       this.isVendor = value
+      this.vendorId = id;
       localStorage.setItem('isVendor', JSON.stringify(value))
       localStorage.setItem('vendorId', JSON.stringify(id))
     },

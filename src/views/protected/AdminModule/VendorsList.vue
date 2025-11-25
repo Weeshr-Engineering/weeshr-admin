@@ -170,7 +170,7 @@ const fetchProducts = async (msg: string) => {
     // useGeneralStore().setLoading(true)
     const response = await axios.get('/api/v1/admin/market/products/', {
       params: {
-        vendorId:  '67001b0cdce3af5c124e5dd9',
+        vendorId:  useSuperAdminStore().vendorId,
         // page: params?.page || 1,
         // limit: params?.limit || 10,
         // search: params?.search || '',
@@ -181,6 +181,7 @@ const fetchProducts = async (msg: string) => {
 
     if (response.status === 200 || response.status === 201) {
       // Update the users data with the response
+      console.log(response)
       products.value = response.data.data.data;
       // const responseData = response.data.data[0]
       // const phoneData = response.data.data[0].phoneNumber.normalizedNumber
