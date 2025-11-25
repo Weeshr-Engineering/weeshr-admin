@@ -209,6 +209,7 @@ const fetchBankData = async (msg: string) => {
     // useGeneralStore().setLoading(false)
   } catch (error: any) {
     catchErr(error)
+    // console.log(error)
     if (error.response.status === 401) {
       // sessionStorage.removeItem('token')
       // Clear token from superAdminStore
@@ -270,6 +271,7 @@ const fetchVendorsData = async (msg: string) => {
     // useGeneralStore().setLoading(false)
   } catch (error: any) {
     catchErr(error)
+    // console.log(error)
     if (error.response.status === 401) {
       // sessionStorage.removeItem('token')
       // Clear token from superAdminStore
@@ -579,10 +581,11 @@ const saveUserData = async () => {
     })
 
     try {
-      const response = await axios.patch(
+      const response = await axios.put(
         `/api/v1/admin/market/invite/${id}`,
         {
           "firstName": vendorFormData.value.firstName,
+email: vendorFormData.value.email,
           "phoneNumber": {
             "countryCode": vendorFormData.value.phone?.split('-')[0],
             "phoneNumber": vendorFormData.value.phone?.split('-')[1]
@@ -729,7 +732,7 @@ onMounted(async () => {
                   </div>
                   
                   <div class="flex flex-col justify-center">
-                    <p class="text-sm font-medium text-[#020721] mb-1">Upload 1 Product Picture</p>
+                    <p class="text-sm font-medium text-[#020721] mb-1">Upload Business Logo</p>
                     <p class="text-xs text-[#8B8D97] mb-3">Max 10 each, 3MB, Recommended<br/>Format: JPG or PNG</p>
                     <input
                       type="file"
@@ -884,8 +887,8 @@ onMounted(async () => {
             <div class="p-4 space-y-2">
               <div class="w-full flex items-center justify-between mb-4">
                 <h1 class="text-lg font-medium">Business Information</h1>
-                <div v-if="!isVendor" class="flex flex-col md:flex-row items-center gap-2">
-                  <Button v-if="!isVendor && isEditCompany" @click="saveCompanyData" class="border-2 border-[#020721] text-[#020721] rounded-full px-4 md:px-8 py-2 flex items-center gap-2" variant="outline">
+                <div class="flex flex-col md:flex-row items-center gap-2">
+                  <Button v-if="isEditCompany" @click="saveCompanyData" class="border-2 border-[#020721] text-[#020721] rounded-full px-4 md:px-8 py-2 flex items-center gap-2" variant="outline">
                     Save
                     <Icon icon="mingcute:save-fill" class="text-[#020721] font-bold"
                       width="20"
@@ -934,14 +937,14 @@ onMounted(async () => {
               </div>
               <div class="w-full flex items-center justify-between pt-8">
                 <h1 class="text-lg font-medium">Contact Person</h1>
-                <div v-if="!useSuperAdminStore().isVendor" class="flex flex-col md:flex-row items-center gap-2">
-                  <Button v-if="!isVendor && isEdit" @click="saveUserData" class="border-2 border-[#020721] text-[#020721] rounded-full px-4 md:px-8 py-2 flex items-center gap-2" variant="outline">
+                <div class="flex flex-col md:flex-row items-center gap-2">
+                  <Button v-if="isEdit" @click="saveUserData" class="border-2 border-[#020721] text-[#020721] rounded-full px-4 md:px-8 py-2 flex items-center gap-2" variant="outline">
                     Save
                     <Icon icon="mingcute:save-fill" class="text-[#020721] font-bold"
                       width="20"
                       height="20" />
                   </Button>
-                  <!-- <Button @click="()=> isEdit=!isEdit" class="border-2 border-[#020721] text-[#020721] rounded-full px-4 md:px-8 py-2 flex items-center gap-2" variant="outline">
+                  <Button @click="()=> isEdit=!isEdit" class="border-2 border-[#020721] text-[#020721] rounded-full px-4 md:px-8 py-2 flex items-center gap-2" variant="outline">
                     Edit                  
                     <Icon
                       icon="mage:edit"
@@ -949,7 +952,7 @@ onMounted(async () => {
                       width="20"
                       height="20"
                     />
-                  </Button> -->
+                  </Button>
                 </div>
               </div>
               <div class="grid md:grid-cols-8 gap-2 md:gap-8">
@@ -969,7 +972,7 @@ onMounted(async () => {
                 </div>
                 <div class="md:col-span-3 ">
                   <Label class="px-2">Phone Number</Label>
-                  <Input :value="`${vendorData?.phoneNumber.countryCode} ${vendorData?.phoneNumber.phoneNumber}`" :placeholder="`${vendorData?.phoneNumber.countryCode} ${vendorData?.phoneNumber.phoneNumber}`" class="ghost" :disabled="!isEdit"/>
+                  <Input :value="`${vendorData?.phoneNumber.countryCode} ${vendorData?.phoneNumber.phoneNumber}`" placeholder="Phone number" class="ghost" :disabled="!isEdit"/>
                 </div>
               </div>
             </div>

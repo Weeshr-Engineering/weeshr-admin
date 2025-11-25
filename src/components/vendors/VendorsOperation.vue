@@ -120,23 +120,23 @@
 
     <!-- Delivery Details -->
     <div class="grid grid-cols-12 gap-2 md:gap-8 my-2 md:my-4">
-      <div class="col-span-12 md:col-span-4">
+      <div class="col-span-12 md:col-span-6">
         <Label class="px-2">Average Delivery Timeframe (minutes)</Label>
         <Input 
-          v-model.number="vendorData.averageDeliveryMins" 
+          v-model.number="opsFormData.averageDeliveryMins" 
           type="number" 
           class=""
           placeholder="Enter minutes"
         />
       </div>
-      <div class="col-span-12 md:col-span-4">
+      <!-- <div class="col-span-12 md:col-span-4">
         <Label class="px-2">Max. Delivery Cost</Label>
         <Input class="ghost" value="0.00"/>
-      </div>
-      <div class="col-span-12 md:col-span-4">
+      </div> -->
+      <div class="col-span-12 md:col-span-6">
         <Label class="px-2">Link to Return Policy</Label>
         <Input 
-          v-model="vendorData.policyPageUrl" 
+          v-model="opsFormData.policyPageUrl" 
           class="w-full"
           placeholder="https://example.com/return-policy"
         />
@@ -295,6 +295,10 @@ const props = defineProps({
   id: String,
 })
 const id = props.id
+const opsFormData = ref({
+  averageDeliveryMins: vendorData.averageDeliveryMins,
+  policyPageUrl: vendorData.policyPageUrl
+});
 
 // Static data
 const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
@@ -412,7 +416,12 @@ const fetchVendorData = async (): Promise<VendorData |  undefined> => {
     duration: 0 // Set duration to 0 to make it indefinite until manually closed
   })
   // Simulate API call - replace with actual API endpoint
-  return response.data.data;
+  const data = response.data.data;
+  opsFormData.value = {
+    averageDeliveryMins: data.averageDeliveryMins,
+    policyPageUrl: data.policyPageUrl
+  }
+  return data
   } catch (error: any) {
     // console.log(error)
     if(error.status === 400){
@@ -463,6 +472,7 @@ const patchVendorData = async (data: Partial<VendorData>): Promise<void> => {
 
 // Save changes
 const saveChanges = async () => {
+  // console.log(opsFormData.value)
   const updateData: Partial<VendorData> = {
     scheduled: vendorData.scheduled,
     weeklySchedule: mapWorkingHoursToWeeklySchedule(),
@@ -471,8 +481,8 @@ const saveChanges = async () => {
     // ),
     deliveryCoverage: vendorData.deliveryCoverage,
     deliveryType: vendorData.deliveryType,
-    averageDeliveryMins: vendorData.averageDeliveryMins,
-    policyPageUrl: vendorData.policyPageUrl
+    averageDeliveryMins: opsFormData.value.averageDeliveryMins || vendorData.averageDeliveryMins,
+    policyPageUrl: opsFormData.value.policyPageUrl || vendorData.policyPageUrl
   }
   
   await patchVendorData(updateData)
