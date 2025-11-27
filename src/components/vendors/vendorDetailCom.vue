@@ -27,22 +27,13 @@ import { catchErr } from '@/composables/catchError'
 import VendorNav from '@/components/VendorNav.vue'
 import { Label } from '../ui/label'
 import type { Bank } from './vendor-types'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
 import VendorsOperation from './VendorsOperation.vue'
 import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
 import { useRouter } from 'vue-router'
 import ProxyNav from '../ProxyNav.vue'
 import MainNav from '../MainNav.vue'
+import VendorBankDetails from './vendorBankDetails.vue'
+import { Badge } from '../ui/badge'
 
 defineAbilities()
 // const update = true//ability.can('update', 'users')
@@ -79,13 +70,10 @@ const vendor = computed(()=>{
   return useSuperAdminStore().vendor;
 })
 const vendorData = ref<VendorData>()
-
-// const fileInput = ref<HTMLInputElement | null>(null)
-// const bgFileInput = ref<HTMLInputElement | null>(null)
-// const imageFile = ref<File | null>(null)
-// const bgImageFile = ref<File | null>(null)
-// const imagePreview = ref<string | null>(null)
+const inviteId = ref('')
 const bgImagePreview = ref<string | null>(null)
+const newPassword = ref('')
+const showPassword = ref(false)
 
 // const triggerFileInput = () => {
 //   fileInput.value?.click()
@@ -130,54 +118,6 @@ const vendorFormData = ref({
   email: vendorData.value?.email
 });
 
-const deleteBankData = async (msg: string, _id: string) => {
-  toast({
-    title: 'Loading Data',
-    description: 'Fetching data...',
-    variant: 'loading',
-    duration: 0 // Set duration to 0 to make it indefinite until manually closed
-  })
-
-  try {
-    // Set loading to true
-    // useGeneralStore().setLoading(true)
-    const response = await axios.delete(`/api/v1/admin/market/banks/${_id}`)
-
-    if (response.status === 200 || response.status === 201) {
-      toast({
-        title: 'Success',
-        description: `Success- ${msg}`,
-        variant: 'success'
-      })
-      fetchBankData('Success')
-    }
-    // set Loading to false
-  } catch (error: any) {
-    catchErr(error)
-    if (error.response.status === 401) {
-      // sessionStorage.removeItem('token')
-      // Clear token from superAdminStore
-      // superAdminStore.setToken('')
-
-      setTimeout(() => {
-        // router.push({ name: 'super-admin-login' })
-      }, 3000)
-
-      toast({
-        title: 'Unauthorized',
-        description: 'You are not authorized to perform this action. Redirecting to home page...',
-        variant: 'destructive'
-      })
-      // Redirect after 3 seconds
-    } else {
-      toast({
-        title: error.response.data.message || 'An error occurred',
-        variant: 'destructive'
-      })
-    }
-  }
-}
-
 const fetchBankData = async (msg: string) => {
   toast({
     title: 'Loading Data',
@@ -195,6 +135,35 @@ const fetchBankData = async (msg: string) => {
       // Update the users data with the response
       // console.log(response)
       bankDetails.value = response.data.data;
+      // bankDetails.value = [{
+      //   _id: '345',
+      //    vendorId: id!,
+      //   bankName: 'Access',
+      //   bankCode: '123',
+      //   accountName: 'Ruby',
+      //   accountNumber: '12345667776',
+      //   recipientCode: '21212',
+      //   payoutFrequency: 'weekly',
+      //   isDefault: true,
+      //   isDeleted: false,
+      //   // deletedAt?: ;
+      //   // createdAt?: Date | undefined;
+      //   // updatedAt?: Date | undefined;
+      // }, {
+      //   _id: '2323',
+      //    vendorId: id!,
+      //   bankName: 'First Bank',
+      //   bankCode: '203',
+      //   accountName: 'Ruby',
+      //   accountNumber: '12343467776',
+      //   recipientCode: '21212',
+      //   payoutFrequency: 'weekly',
+      //   isDefault: true,
+      //   isDeleted: false,
+      //   // deletedAt?: ;
+      //   // createdAt?: Date | undefined;
+      //   // updatedAt?: Date | undefined;
+      // }]
       // const responseData = response.data.data[0]
       // const phoneData = response.data.data[0].phoneNumber.normalizedNumber
       // const data = { ...responseData, phone: phoneData }
@@ -249,7 +218,7 @@ const fetchVendorsData = async (msg: string) => {
 
     if (response.status === 200 || response.status === 201) {
       // Update the users data with the response
-    //   console.log(response)
+      // console.log(response)
       vendorData.value = response.data.data[0];
       vendorFormData.value={
         firstName: vendorData.value?.firstName,
@@ -257,6 +226,7 @@ const fetchVendorsData = async (msg: string) => {
         email: vendorData.value?.email,
         phone: `${vendorData.value?.phoneNumber.countryCode} - ${vendorData.value?.phoneNumber.phoneNumber}`
       }
+      inviteId.value = response.data.data[0]._id;
       // const responseData = response.data.data[0]
       // const phoneData = response.data.data[0].phoneNumber.normalizedNumber
       // const data = { ...responseData, phone: phoneData }
@@ -575,16 +545,18 @@ watch([bankCode, accountNumber, payoutFrequency], ([newBank, newAcc, newFreq]) =
 const saveUserData = async () => {
     toast({
       title: 'Loading Data',
-      description: 'Saving logo details...',
+      description: 'Saving details...',
       variant: 'loading',
       duration: 0 // Set duration to 0 to make it indefinite until manually closed
     })
 
     try {
-      const response = await axios.patch(
-        `/api/v1/admin/market/invites/${id}`,
+      const response = await axios.put(
+        `/api/v1/admin/market/invites/${inviteId.value}`,
         {
           "firstName": vendorFormData.value.firstName,
+          'email': vendorFormData.value.email,
+          'lastName': vendorFormData.value.lastName,
           "phoneNumber": {
             "countryCode": vendorFormData.value.phone?.split('-')[0],
             "phoneNumber": vendorFormData.value.phone?.split('-')[1]
@@ -595,12 +567,49 @@ const saveUserData = async () => {
       // Check if response status is 200 or 201
       if (response.status === 200 || response.status === 201) {
         // Show success toast
+        fetchVendorsData('Success')
         toast({
           title: 'Success',
-          description: `${bankName.value?.name} added successfully.`,
+          description: `Edit successfully.`,
           variant: 'success'
         })
       }
+      // Handle success
+    } catch (err: any) {
+      //   VendorListStore.loadingControl(false)
+      catchErr(err)
+      // Handle other errors
+    }
+  }
+
+  const saveNewPassword = async () => {
+    toast({
+      title: 'Loading Data',
+      description: 'Saving new password...',
+      variant: 'loading',
+      duration: 0 // Set duration to 0 to make it indefinite until manually closed
+    })
+
+    try {
+      // const response = await axios.put(
+      //   `/api/v1/admin/market/invites/${id}`,
+      //   {
+      //     password: newPassword.value
+      //   }
+      // )
+
+      // // Check if response status is 200 or 201
+      // if (response.status === 200 || response.status === 201) {
+      //   // Show success toast
+      //   fetchVendorsData('Success')
+      //   toast({
+      //     title: 'Success',
+      //     description: `Edit successfully.`,
+      //     variant: 'success'
+      //   })
+      // }
+      showPassword.value= false
+      newPassword.value = ''
       // Handle success
     } catch (err: any) {
       //   VendorListStore.loadingControl(false)
@@ -640,47 +649,6 @@ const saveUserData = async () => {
     }
   }
 
-  const verifyDetails = async (accNum: string, code: string) => {
-    toast({
-      title: 'Loading Data',
-      description: 'Verifying bank details...',
-      variant: 'loading',
-      duration: 0 // Set duration to 0 to make it indefinite until manually closed
-    })
-    if(!code || accNum === ''){
-      toast({
-        description: 'Incomplete data',
-        variant: 'destructive'
-      })
-      return;
-    }
-    // VendorListStore.loadingControl(true)
-    try {
-      const response = await axios.post(
-        '/api/v1/admin/market/banks',
-        {
-          "bankCode": code,
-          "accountNumber": accNum,
-        }
-      )
-
-      // Check if response status is 200 or 201
-      if (response.status === 200 || response.status === 201) {
-        // Show success toast
-        toast({
-          title: 'Success',
-          description: `Verification successfully.`,
-          variant: 'success'
-        })
-      }
-      // Handle success
-    } catch (err: any) {
-      //   VendorListStore.loadingControl(false)
-      catchErr(err)
-      // console.log(err)
-      // Handle other errors
-    }
-  }
   // const fetchBioData = async()=>{
   //  await fetchVendorsData('Success')
   // //  fetchData('Success')
@@ -688,6 +656,7 @@ const saveUserData = async () => {
   const View = computed(() =>
     useSuperAdminStore().isVendor ? VendorNav : MainNav
   )
+
 onMounted(async () => {
   fetchBankData('data fetched')
   // fetchData('success')
@@ -767,10 +736,21 @@ onMounted(async () => {
                 class="grid grid-cols-3 py-2 my-2 border-t border-b relative"
               >
                 <p class="text-[#02072199] text-xs md:text-sm lg:text-sm">Password</p>
-                <p class="text-xs md:text-sm lg:text-sm text-[#020721]">********</p>
-                <!-- <Badge variant="outline" class="badge absolute bottom-2 right-2 rounded-full">
-                    Change
-                </Badge> -->
+                <input
+                  v-if="showPassword"
+                    type="password"
+                    v-model="newPassword"
+                    class="border-b-2 border-primary"
+                  />
+                <p v-else class="text-xs md:text-sm lg:text-sm text-[#020721]">********</p>
+                <div class="flex items-center gap-1 absolute bottom-2 right-0">
+                  <Badge v-if="newPassword !== '' && showPassword" @click="saveNewPassword" variant="outline" class="badge rounded-full">
+                    Save
+                </Badge>
+                <Badge variant="outline" @click="()=> showPassword = !showPassword" class="badge rounded-full">
+                    {{ showPassword ? 'Cancel' : 'Change' }}
+                </Badge>
+                </div>
               </div>
               <div
                 class="grid grid-cols-3 py-2 my-2"
@@ -937,13 +917,13 @@ onMounted(async () => {
               <div class="w-full flex items-center justify-between pt-8">
                 <h1 class="text-lg font-medium">Contact Person</h1>
                 <div class="flex flex-col md:flex-row items-center gap-2">
-                  <Button v-if="!isVendor && isEdit" @click="saveUserData" class="border-2 border-[#020721] text-[#020721] rounded-full px-4 md:px-8 py-2 flex items-center gap-2" variant="outline">
+                  <Button v-if="isEdit" @click="saveUserData" class="border-2 border-[#020721] text-[#020721] rounded-full px-4 md:px-8 py-2 flex items-center gap-2" variant="outline">
                     Save
                     <Icon icon="mingcute:save-fill" class="text-[#020721] font-bold"
                       width="20"
                       height="20" />
                   </Button>
-                  <Button v-if="!isVendor" @click="()=> isEdit=!isEdit" class="border-2 border-[#020721] text-[#020721] rounded-full px-4 md:px-8 py-2 flex items-center gap-2" variant="outline">
+                  <Button @click="()=> isEdit=!isEdit" class="border-2 border-[#020721] text-[#020721] rounded-full px-4 md:px-8 py-2 flex items-center gap-2" variant="outline">
                     Edit                  
                     <Icon
                       icon="mage:edit"
@@ -987,197 +967,82 @@ onMounted(async () => {
             <div class="px-4 py-2 h-full">
               <div class="flex items-center justify-between w-full mb-2">
                 <h1 class="text-lg font-medium">Bank Details</h1>
-                <Sheet v-model:open="sheetOpen">
-                  <SheetTrigger as-child>
-                    <button @click="sheetOpen = true" class="bg-[#020721] px-4 py-2 rounded-xl w-50 h-12">
-                      <div class="text-base text-[#F8F9FF] text-center flex items-center">
-                        Add Account
-                        <svg
-                          width="20"
-                          height="24"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                          class="ml-6"
-                        >
-                          <path
-                            d="M12 2C6.49 2 2 6.49 2 12C2 17.51 6.49 22 12 22C17.51 22 22 17.51 22 12C22 6.49 17.51 2 12 2ZM16 12.75H12.75V16C12.75 16.41 12.41 16.75 12 16.75C11.59 16.75 11.25 16.41 11.25 16V12.75H8C7.59 12.75 7.25 12.41 7.25 12C7.25 11.59 7.59 11.25 8 11.25H11.25V8C11.25 7.59 11.59 7.25 12 7.25C12.41 7.25 12.75 7.59 12.75 8V11.25H16C16.41 11.25 16.75 11.59 16.75 12C16.75 12.41 16.41 12.75 16 12.75Z"
-                            fill="#F8F9FF"
-                          />
-                        </svg>
-                      </div>
-                    </button>
-                  </SheetTrigger>
-                  <SheetContent class="overflow-y-auto">
-                    <SheetHeader>
-                      <h3 class="text-2xl font-medium">Add Account Information</h3>
-                      <SheetDescription>
-                        Add bank info. Click submit when you're done.
-                      </SheetDescription>
-                    </SheetHeader>
-                    <div class="space-y-4 py-2">
-                      <div class=" gap-2 md:gap-8">
-                        <div class="">
-                          <Label class="px-2">Bank Name</Label>
-                          <Select
-                            v-model="bankCode"
-                            id="gender"
-                            class="bg-gray-900 w-auto mt-3 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+                <div class="flex items-center gap-4">
+                  <!-- <button class="text-[#020721] border-2 border-[#020721] px-4 py-2 rounded-xl w-50 h-12">
+                    <div class="text-base text-center flex items-center gap-4 border-[#020721]">
+                      Verify Account
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="#020721" d="M19 19V5H5v14zm0-16a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm-2 8v2H7v-2z"/></svg>
+                    </div>
+                  </button> -->
+                  <Sheet v-model:open="sheetOpen">
+                    <SheetTrigger as-child>
+                      <button @click="sheetOpen = true" class="bg-[#020721] px-4 py-2 rounded-xl w-50 h-12">
+                        <div class="text-base text-[#F8F9FF] text-center flex items-center">
+                          Add Account
+                          <svg
+                            width="20"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                            class="ml-6"
                           >
-                              <SelectTrigger class="">
-                                <SelectValue placeholder="Select Bank" />
-                              </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem
-                                v-for="(bank) in cbnBankCodes"
-                                :value="bank.code"
-                                :key="bank.code"
-                                class="flex justify-center items-center gap-2"
-                              >
-                                {{ bank.name }}                        
-                              </SelectItem>
-                            </SelectContent>
-                          </Select>
+                            <path
+                              d="M12 2C6.49 2 2 6.49 2 12C2 17.51 6.49 22 12 22C17.51 22 22 17.51 22 12C22 6.49 17.51 2 12 2ZM16 12.75H12.75V16C12.75 16.41 12.41 16.75 12 16.75C11.59 16.75 11.25 16.41 11.25 16V12.75H8C7.59 12.75 7.25 12.41 7.25 12C7.25 11.59 7.59 11.25 8 11.25H11.25V8C11.25 7.59 11.59 7.25 12 7.25C12.41 7.25 12.75 7.59 12.75 8V11.25H16C16.41 11.25 16.75 11.59 16.75 12C16.75 12.41 16.41 12.75 16 12.75Z"
+                              fill="#F8F9FF"
+                            />
+                          </svg>
                         </div>
-                        <div class="">
-                          <Label class="px-2">Account Number</Label>
-                          <Input v-model="accountNumber" class="" placeholder="XXXXXXXXXX"/>
+                      </button>
+                    </SheetTrigger>
+                    <SheetContent class="overflow-y-auto">
+                      <SheetHeader>
+                        <h3 class="text-2xl font-medium">Add Account Information</h3>
+                        <SheetDescription>
+                          Add bank info. Click submit when you're done.
+                        </SheetDescription>
+                      </SheetHeader>
+                      <div class="space-y-4 py-2">
+                        <div class=" gap-2 md:gap-8">
+                          <div class="">
+                            <Label class="px-2">Bank Name</Label>
+                            <Select
+                              v-model="bankCode"
+                              id="gender"
+                              class="bg-gray-900 w-auto mt-3 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+                            >
+                                <SelectTrigger class="">
+                                  <SelectValue placeholder="Select Bank" />
+                                </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem
+                                  v-for="(bank) in cbnBankCodes"
+                                  :value="bank.code"
+                                  :key="bank.code"
+                                  class="flex justify-center items-center gap-2"
+                                >
+                                  {{ bank.name }}                        
+                                </SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div class="">
+                            <Label class="px-2">Account Number</Label>
+                            <Input v-model="accountNumber" class="" placeholder="XXXXXXXXXX"/>
+                          </div>
                         </div>
-                      </div>
-                      <Button @click="()=> saveBankDetails()" class="border-2 border-[#020721] w-full px-4 md:px-8 py-2 flex items-center gap-2">
-                        Save
-                      </Button>
-                    </div>
-                  </SheetContent>
-                </Sheet>
-              </div>
-              <div v-for="bank in bankDetails" :key="bank.accountNumber" class="shadow-md p-2 rounded-md">
-                <div class="grid md:grid-cols-8 gap-2 md:gap-8">
-                  <div class="md:col-span-5">
-                    <Label class="px-2">Bank Name</Label>
-                    <Select
-                      v-model="bankCode"
-                      id="gender"
-                      class="bg-gray-900 w-auto mt-3 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
-                    >
-                        <SelectTrigger class="">
-                          <SelectValue :placeholder="bank.bankName || 'Select Bank'" />
-                        </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem
-                          v-for="(bank) in cbnBankCodes"
-                          :value="bank.code"
-                          :key="bank.code"
-                          class="flex justify-center items-center gap-2"
-                        >
-                          {{ bank.name }}                        
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div class="md:col-span-3 ">
-                    <Label class="px-2">Account Number</Label>
-                    <Input v-model="accountNumber" class="ghost" :value="bank.accountNumber" :placeholder="bank.accountNumber"/>
-                  </div>
-                </div>
-                <div class="grid md:grid-cols-8 gap-2 md:gap-8 my-2 md:my-4">
-                  <div class="md:col-span-3">
-                    <Label class="px-2">Payout Frequency</Label>
-                    <Select
-                      v-model="payoutFrequency"
-                      id="gender"
-                      class="bg-gray-900 w-auto mt-3 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
-                    >
-                        <SelectTrigger class="">
-                          <SelectValue :placeholder="bank.payoutFrequency" />
-                        </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem
-                          v-for="(code, key) in frequency"
-                          :value="code"
-                          :key="key"
-                          class="flex justify-center items-center gap-2"
-                        >
-                          {{ code }}                        
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div class="md:col-span-5 flex items-end">
-                    <div class="w-full flex flex-col md:flex-row md:items-center justify-end">
-                      <div class="flex items-center gap-4">
-                        <Button  class="border-2 mt-2 md:mt-0 text-[#020721] rounded-full px-4 md:px-8 py-2 flex items-center gap-2" variant="outline">
-                          <Icon
-                            icon="uil:edit"
-                            class="verified-icon text-[#020721]"
-                            width="20"
-                            height="20"
-                          />
-                        </Button>
-                        <AlertDialog>
-                          <AlertDialogTrigger as-child>
-                            <Button class="border-2 mt-2 md:mt-0 text-white rounded-full px-4 md:px-8 py-2 flex items-center gap-2" variant="destructive">
-                              <Icon
-                                icon="mi:delete"
-                                class="verified-icon text-white"
-                                width="20"
-                                height="20"
-                              />
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                This action cannot be undone.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction @click="deleteBankData('Deleted successfully', bank._id)">Continue</AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-
-                        <Button @click="()=> saveBankDetails()" v-if="showButton" class="border-2 mt-2 md:mt-0 border-[#020721] text-[#020721] rounded-full px-4 md:px-8 py-2 flex items-center gap-2" variant="outline">
+                        <Button @click="()=> saveBankDetails()" class="border-2 border-[#020721] w-full px-4 md:px-8 py-2 flex items-center gap-2">
                           Save
-                          <Icon
-                            icon="mingcute:save-line"
-                            class="verified-icon text-[#020721]"
-                            width="20"
-                            height="20"
-                          />
                         </Button>
-                        <AlertDialog>
-                          <AlertDialogTrigger as-child>
-                            <Button class="border-2 mt-2 md:mt-0 border-[#020721] text-[#020721] rounded-full px-4 md:px-8 py-2 flex items-center gap-2" variant="outline">
-                              Verify Account
-                              <Icon
-                                icon="mdi:minus-box-outline"
-                                class="verified-icon text-[#020721]"
-                                width="20"
-                                height="20"
-                              />
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Do you want to begin verification?</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                This may take a second.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction @click="verifyDetails(bank.accountNumber, bank.bankCode)">Continue</AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
                       </div>
-                    </div>
-                  </div>
+                    </SheetContent>
+                  </Sheet>
                 </div>
               </div>
+
+              <VendorBankDetails :bankDetails="bankDetails" :cbnBankCodes="cbnBankCodes" :frequency="frequency" :refresh="fetchBankData"/>
+
+
               <div v-if="bankDetails.length === 0" class="h-[60dvh]">
                 <Card class="h-full">
                   <CardContent class="flex border-none flex-col gap-4 items-center justify-center h-full px-2 sm:px-4 py-4">

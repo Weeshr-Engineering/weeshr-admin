@@ -120,13 +120,13 @@ const routes = [
     // meta: { requiresAuth: true }
   },
   {
-    path: '/vendors/geeftr',
+    path: '/geeftr',
     name: 'GlobalGeeftr',
     component: GlobalGeeftr,
     // meta: { requiresAuth: true }
   },
   {
-    path: '/vendors/geeftr/transaction',
+    path: '/global/transaction',
     name: 'geeftrTransaction',
     component: GlobalTransaction,
     // meta: { requiresAuth: true }

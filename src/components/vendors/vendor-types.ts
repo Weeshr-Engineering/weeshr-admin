@@ -5,7 +5,7 @@ export interface Bank {
   accountName: string;
   accountNumber: string;
   recipientCode: string;
-  payoutFrequency: PayoutFrequency;
+  payoutFrequency: 'weekly' | 'daily' | 'monthly';
   isDefault: boolean;
   isDeleted: boolean;
   deletedAt?: Date | null;

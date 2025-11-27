@@ -206,13 +206,23 @@ const openNotificationsBoard = () => {
         </a>
       </li>
 
-      <li v-if="!superAdminStore.isVendor" :class="{ 'dashboard-active': isActive('/vendors/geeftr') }">
+      <li v-if="!superAdminStore.isVendor" :class="{ 'dashboard-active': isActive('/geeftr') }">
         <a @click="$router.push({ name: 'GlobalGeeftr' })">
           <div class="icon-grid">
             <Icon icon="mingcute:send-fill" width="17" height="17" class="icons-sidebar" />
           </div>
 
           <span class="nav-text"> Geeftr Ops </span>
+        </a>
+      </li>
+
+      <li v-if="!superAdminStore.isVendor" :class="{ 'dashboard-active': isActive('/global/transaction') }">
+        <a @click="$router.push({ name: 'geeftrTransaction' })">
+          <div class="icon-grid">
+            <Icon icon="gridicons:money" width="17" height="17" class="icons-sidebar" />
+          </div>
+
+          <span class="nav-text">Global Transactions</span>
         </a>
       </li>
       

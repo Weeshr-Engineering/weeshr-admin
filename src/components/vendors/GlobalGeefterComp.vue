@@ -158,13 +158,13 @@
             >
               <TableHead @click="sortByDate">
                 <div class="flex items-center">
-                  Sender
+                  Sender Email
                   <!-- <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" /> -->
                 </div>
               </TableHead>
               <TableHead @click="sortByDate">
                 <div class="flex items-center">
-                  Receiver
+                  Receiver Address
                   <!-- <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" /> -->
                 </div>
               </TableHead>
@@ -204,12 +204,12 @@
             </TableRow>
           </TableHeader>
           <TableBody>
-            <TableRow v-for="transaction in filteredList" :key="transaction.id">
-              <TableCell class="text-xs md:text-sm lg:text-sm">{{ transaction.sender.name }} </TableCell>
-              <TableCell class="text-xs md:text-sm lg:text-sm">{{ transaction.receiver.name }} </TableCell>
-              <TableCell class="text-xs md:text-sm lg:text-sm">{{ transaction.vendor.name }} </TableCell>
-              <TableCell class="text-xs md:text-sm lg:text-sm">{{ transaction.total_Unit }}</TableCell>
-              <TableCell class="text-xs md:text-sm lg:text-sm">₦{{ transaction.total_price }} </TableCell>
+            <TableRow v-for="transaction in filteredList" :key="transaction._id">
+              <TableCell class="text-xs md:text-sm lg:text-sm">{{ transaction.user.email }} </TableCell>
+              <TableCell class="text-xs md:text-sm lg:text-sm">{{ transaction.shippingAddress }} </TableCell>
+              <TableCell class="text-xs md:text-sm lg:text-sm">{{ transaction.vendor.companyName }} </TableCell>
+              <TableCell class="text-xs md:text-sm lg:text-sm">{{ transaction.items.length }}</TableCell>
+              <TableCell class="text-xs md:text-sm lg:text-sm">₦{{ transaction.totalAmount }} </TableCell>
               <TableCell>
                 <div
                   :class="statusBg(transaction.status)"
@@ -218,7 +218,7 @@
                   {{ transaction.status }}
                 </div>
               </TableCell>
-              <TableCell class="text-xs md:text-sm lg:text-sm">{{ transaction.id }} </TableCell>
+              <TableCell class="text-xs md:text-sm lg:text-sm">{{ transaction._id }} </TableCell>
               <TableCell>
                 <Sheet>
                   <SheetTrigger>
@@ -245,7 +245,7 @@
                       <SheetDescription>
                         Payout ID.
                       </SheetDescription>
-                      <h3 class="text-2xl font-medium">{{ transaction.id }}</h3>
+                      <h3 class="text-2xl font-medium">{{ transaction._id }}</h3>
                     </SheetHeader>
                     <Card Content class="rounded-lg my-4 hover:shadow-xl px-2 md:px-0">
                       <CardContent class="flex flex-col md:flex-row items-start md:items-center justify-between px-2 sm:px-6 py-4">
@@ -256,11 +256,11 @@
                                 Payout Date
                               </p>
                               <Badge variant="outline" class="text-muted-foreground w-full">
-                                {{ formatDate(transaction.created_at) }} - {{ formatDate(transaction.completed_date) }}
+                                {{ formatDate(transaction.createdAt) }} - {{ formatDate(transaction.updatedAt) }}
                               </Badge>
                             </div>
                             <p class="text-lg my-2 md:my-0 text-primary font-bold text-[#000000]">
-                              {{ formatDate(transaction.created_at) }}
+                              {{ formatDate(transaction.createdAt) }}
                             </p>
                           </div>
                         </span>
@@ -274,61 +274,61 @@
                         <div class="flex flex-col md:flex-row md:items-center justify-between w-full">
                           <div class="flex items-center gap-4">
                             <h2 class="font-bold md:text-lg">Order</h2>
-                            <Badge class="bg-[#E9F4D1] text-primary">{{ transaction.product_count }}</Badge>
+                            <Badge class="bg-[#E9F4D1] text-primary">{{ transaction.items.length }}</Badge>
                           </div>
-                          <h1 class="font-bold text-xl">₦{{ transaction.total_price }}</h1>
+                          <h1 class="font-bold text-xl">₦{{ transaction.totalAmount }}</h1>
                         </div>
                       </CardHeader>
                       <CardContent class="px-4">
-                        <div class="bg-[#F6F6F6] rounded-lg mb-4 flex flex-col items-center hover:shadow-md" v-for="(item, newkey) in transaction.products" :key="newkey">
+                        <div class="bg-[#F6F6F6] rounded-lg mb-4 flex flex-col items-center hover:shadow-md" v-for="(item, newkey) in transaction.items" :key="newkey">
                           <div class="bg-white border flex items-center justify-between w-full py-2 px-2 rounded-lg">
                             <span class="flex gap-2 items-center"><div
                                 class="inline-block text-[#F8F9FF] w-14 h-14"
                               >
-                                <img :src='item.image' class="w-full h-full rounded-sm"/>
+                                <!-- <img :src='item.image' class="w-full h-full rounded-sm"/> -->
                               </div>
                               <div class="flex flex-col">
                                 <p class="md:text-lg text-primary font-semibold">
-                                  {{ item.name }}
+                                  {{ item.productId }}
                                 </p>
                                 <p class="text-sm text-muted-foreground text-[#000000]">
-                                  ₦{{ item.amount }}
+                                  ₦{{ item.price }}
                                 </p>
                               </div>
                             </span>
                             <div class="flex items-center gap-4">
-                              <Badge variant="outline">100ml</Badge>
+                              <Badge variant="outline">{{ item.quantity }}</Badge>
                             </div>
                           </div>
-                          <div class="w-full flex items-center justify-between py-3 px-4">
+                          <!-- <div class="w-full flex items-center justify-between py-3 px-4">
                             <h3 class="text-xs font-semibold text-muted-foreground">Unit x{{ item.unit }}</h3>
                             <h2 class="text-md text-primary font-semibold">₦{{ item.unit_price }}</h2>
-                          </div>
+                          </div> -->
                         </div>
                         <div class="rounded-lg overflow-hidden flex flex-col mt-6">
                           <div class="bg-[#F6F6F6] flex items-center justify-between w-full px-4 py-2">
                             <div class="flex items-center gap-4">
                               <h2 class="text-xs font-semibold text-muted-foreground">Total Value</h2>
                             </div>
-                            <h1 class="text-md text-primary font-semibold">₦{{ transaction.total_price.toLocaleString() }}</h1>
+                            <h1 class="text-md text-primary font-semibold">₦{{ transaction.totalAmount.toLocaleString() }}</h1>
                           </div>
                           <div class="bg-[#F6F6F6] flex items-center justify-between w-full px-4 py-2 my-1">
                             <div class="flex items-center gap-4">
                               <h2 class="text-xs font-semibold text-muted-foreground">Delivery Charge</h2>
                             </div>
-                            <h1 class="text-md text-primary font-semibold">₦{{ transaction.delivery_charge.toLocaleString() }}</h1>
+                            <!-- <h1 class="text-md text-primary font-semibold">₦{{ transaction.delivery_charge.toLocaleString() }}</h1> -->
                           </div>
                           <div class="bg-[#F6F6F6] flex items-center justify-between w-full px-4 py-2">
                             <div class="flex items-center gap-4">
                               <h2 class="text-xs font-semibold text-muted-foreground">Discount</h2>
                             </div>
-                            <h1 class="text-md text-primary font-semibold">₦{{ transaction.discount.toLocaleString() }}</h1>
+                            <!-- <h1 class="text-md text-primary font-semibold">₦{{ transaction.discount.toLocaleString() }}</h1> -->
                           </div>
                           <div class="bg-[#02072199] flex items-center justify-between w-full px-4 py-2">
                             <div class="flex items-center gap-4">
                               <h2 class="text-xs font-semibold text-[#F8F9FFB2]">Payout Value</h2>
                             </div>
-                            <h1 class="text-md font-semibold text-white">₦{{ transaction.payment_price.toLocaleString() }}</h1>
+                            <h1 class="text-md font-semibold text-white">₦{{ transaction.totalAmount.toLocaleString() }}</h1>
                           </div>
                         </div>
                       </CardContent>
@@ -362,15 +362,15 @@
                         <TabsContent value="receiver" class="">
                           <div class="rounded-lg overflow-hidden flex flex-col mt-6">
                             <div class="w-full mb-4 px-4">
-                              <h1 class="text-xl font-bold">{{ transaction.receiver.name }}</h1>
+                              <!-- <h1 class="text-xl font-bold">{{ transaction.receiver.name }}</h1> -->
                             </div>
                             <div class="bg-[#F6F6F6] flex items-center justify-between w-full px-4 py-2">
                               <div class="flex items-center gap-4">
                                 <h2 class="text-xs font-semibold text-muted-foreground">Address</h2>
                               </div>
-                              <h1 class="text-xs text-primary font-semibold">₦{{ transaction.receiver.address }}</h1>
+                              <h1 class="text-xs text-primary font-semibold">₦{{ transaction.shippingAddress }}</h1>
                             </div>
-                            <div class="bg-[#F6F6F6] flex items-center justify-between w-full px-4 py-2 my-1">
+                            <!-- <div class="bg-[#F6F6F6] flex items-center justify-between w-full px-4 py-2 my-1">
                               <div class="flex items-center gap-4">
                                 <h2 class="text-xs font-semibold text-muted-foreground">Phone Number</h2>
                               </div>
@@ -381,15 +381,15 @@
                                 <h2 class="text-xs font-semibold text-muted-foreground">Email</h2>
                               </div>
                               <h1 class="text-xs text-primary font-semibold">{{ transaction.receiver.email }}</h1>
-                            </div>
+                            </div> -->
                           </div>
                         </TabsContent>
                         <TabsContent value="sender">
                           <div class="rounded-lg overflow-hidden flex flex-col mt-6">
                             <div class="w-full mb-4 px-4">
-                              <h1 class="text-xl font-bold">{{ transaction.sender.name }}</h1>
+                              <!-- <h1 class="text-xl font-bold">{{ transaction.sender.name }}</h1> -->
                             </div>
-                            <div class="bg-[#F6F6F6] flex items-center justify-between w-full px-4 py-2">
+                            <!-- <div class="bg-[#F6F6F6] flex items-center justify-between w-full px-4 py-2">
                               <div class="flex items-center gap-4">
                                 <h2 class="text-xs font-semibold text-muted-foreground">Address</h2>
                               </div>
@@ -400,37 +400,37 @@
                                 <h2 class="text-xs font-semibold text-muted-foreground">Phone Number</h2>
                               </div>
                               <h1 class="text-xs text-primary font-semibold">{{ transaction.sender.phone }}</h1>
-                            </div>
+                            </div> -->
                             <div class="bg-[#F6F6F6] flex items-center justify-between w-full px-4 py-2">
                               <div class="flex items-center gap-4">
                                 <h2 class="text-xs font-semibold text-muted-foreground">Email</h2>
                               </div>
-                              <h1 class="text-xs text-primary font-semibold">{{ transaction.sender.email }}</h1>
+                              <h1 class="text-xs text-primary font-semibold">{{ transaction.user.email }}</h1>
                             </div>
                           </div>
                         </TabsContent>
                         <TabsContent value="vendor">
                           <div class="rounded-lg overflow-hidden flex flex-col mt-6">
                             <div class="w-full mb-4 px-4">
-                              <h1 class="text-xl font-bold">{{ transaction.vendor.name }}</h1>
+                              <h1 class="text-xl font-bold">{{ transaction.vendor.companyName }}</h1>
                             </div>
-                            <div class="bg-[#F6F6F6] flex items-center justify-between w-full px-4 py-2">
+                            <!-- <div class="bg-[#F6F6F6] flex items-center justify-between w-full px-4 py-2">
                               <div class="flex items-center gap-4">
                                 <h2 class="text-xs font-semibold text-muted-foreground">Address</h2>
                               </div>
                               <h1 class="text-xs text-primary font-semibold">₦{{ transaction.vendor.address }}</h1>
-                            </div>
-                            <div class="bg-[#F6F6F6] flex items-center justify-between w-full px-4 py-2 my-1">
+                            </div> -->
+                            <!-- <div class="bg-[#F6F6F6] flex items-center justify-between w-full px-4 py-2 my-1">
                               <div class="flex items-center gap-4">
                                 <h2 class="text-xs font-semibold text-muted-foreground">Phone Number</h2>
                               </div>
                               <h1 class="text-xs text-primary font-semibold">{{ transaction.vendor.phone }}</h1>
-                            </div>
+                            </div> -->
                             <div class="bg-[#F6F6F6] flex items-center justify-between w-full px-4 py-2">
                               <div class="flex items-center gap-4">
                                 <h2 class="text-xs font-semibold text-muted-foreground">Email</h2>
                               </div>
-                              <h1 class="text-xs text-primary font-semibold">{{ transaction.vendor.email }}</h1>
+                              <h1 class="text-xs text-primary font-semibold">{{ transaction.vendor.companyEmail }}</h1>
                             </div>
                           </div>
                         </TabsContent>
@@ -490,9 +490,13 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useVendorTransactionStore } from '@/stores/vendor/vendor-transactions'
 import ProxyNav from '../ProxyNav.vue'
+import type { Order } from '@/stores/vendor/vendor-transactions'
 
 // const open = ref<boolean>(false)
 // const id = ref<string>('0')
+const orders = computed(()=>{
+  return useVendorTransactionStore().orders;
+})
 
 const statusBg = (status: string) => {
   switch (status) {
@@ -546,166 +550,9 @@ interface Transaction {
   receiver: Party
 }
 
-const transactions = ref<Transaction[]>([
-  {
-    id: "tx_001",
-    completed_date: "2025-09-01",
-    created_at: "2025-08-28",
-    payout: 4500,
-    total_Unit: 15,
-    total_price: 5000,
-    product_count: 3,
-    status: "overdue",
-    delivery_charge: 500,
-    payment_price: 4700,
-    discount: 300,
-    vendor: {
-      id: "v_001",
-      name: "Ruby’s Furniture Co.",
-      phone: "+2348011122233",
-      address: "12 Adeola St, Ikeja, Lagos",
-      email: "sales@rubysfurniture.com",
-    },
-    sender: {
-      id: "s_001",
-      name: "Express Logistics",
-      phone: "+2348098877665",
-      address: "Plot 4, Mainland Way, Lagos",
-      email: "dispatch@expresslogistics.ng",
-    },
-    receiver: {
-      id: "r_001",
-      name: "Chika Johnson",
-      phone: "+2348023344556",
-      address: "Flat 3B, Allen Ave, Lagos",
-      email: "chika.j@example.com",
-    },
-    products: [
-      { name: "Furniture", amount: 2, unit: 5, unit_price: 800, image: "https://res.cloudinary.com/drykej1am/image/upload/v1721874426/weesh/categories/AWFAGiROM7oxB4ZJWhnaAYkP.jpg" },
-      { name: "Cooking Oil", amount: 1, unit: 3, unit_price: 1200, image: "https://res.cloudinary.com/drykej1am/image/upload/v1721875177/weesh/categories/I9IP1OFoxLzZQpA9Sl12fb_g.jpg" },
-      { name: "Sugar Pack", amount: 2, unit: 7, unit_price: 300, image: "https://res.cloudinary.com/drykej1am/image/upload/v1721875177/weesh/categories/I9IP1OFoxLzZQpA9Sl12fb_g.jpg" },
-    ],
-  },
-  {
-    id: "tx_002",
-    created_at: "2025-09-05",
-    completed_date: '2025-09-01',
-    payout: 2300,
-    total_Unit: 8,
-    total_price: 2500,
-    product_count: 2,
-    status: "delivered",
-    delivery_charge: 200,
-    payment_price: 2300,
-    discount: 0,
-    vendor: {
-      id: "v_002",
-      name: "Neat Supplies Ltd.",
-      phone: "+2348056677889",
-      address: "7 Unity Close, Surulere, Lagos",
-      email: "orders@neatsupplies.com",
-    },
-    sender: {
-      id: "s_002",
-      name: "Swift Dispatch",
-      phone: "+2348082233445",
-      address: "Opebi Road, Ikeja, Lagos",
-      email: "support@swiftdispatch.ng",
-    },
-    receiver: {
-      id: "r_002",
-      name: "Adeyemi Folarin",
-      phone: "+2348091112233",
-      address: "19 Oregun St, Lagos",
-      email: "adeyemi.f@example.com",
-    },
-    products: [
-      { name: "Detergent", amount: 1, unit: 3, unit_price: 400, image: "https://res.cloudinary.com/drykej1am/image/upload/v1721875177/weesh/categories/I9IP1OFoxLzZQpA9Sl12fb_g.jpg" },
-      { name: "Furniture", amount: 5, unit: 5, unit_price: 300, image: "https://res.cloudinary.com/drykej1am/image/upload/v1721874426/weesh/categories/AWFAGiROM7oxB4ZJWhnaAYkP.jpg" },
-    ],
-  },
-  {
-    id: "tx_003",
-    completed_date: "2025-09-08",
-    created_at: "2025-09-07",
-    payout: 10000,
-    total_Unit: 20,
-    total_price: 11000,
-    product_count: 4,
-    status: "new",
-    delivery_charge: 1000,
-    payment_price: 10500,
-    discount: 500,
-    vendor: {
-      id: "v_003",
-      name: "Tech Essentials Hub",
-      phone: "+2348012334455",
-      address: "Mall 3, Ikeja City Mall, Lagos",
-      email: "contact@techhub.ng",
-    },
-    sender: {
-      id: "s_003",
-      name: "Lynx Couriers",
-      phone: "+2348095566778",
-      address: "Iyana Ipaja, Lagos",
-      email: "info@lynxcouriers.com",
-    },
-    receiver: {
-      id: "r_003",
-      name: "Oluwatobi Akin",
-      phone: "+2348029988776",
-      address: "14 Elegushi Road, Lekki, Lagos",
-      email: "tobi.akin@example.com",
-    },
-    products: [
-      { name: "Laptop Bag", amount: 2, unit: 2, unit_price: 2500, image: "https://res.cloudinary.com/drykej1am/image/upload/v1721874850/weesh/categories/WW18ndBhpeKoy2scWXeVqHBv.jpg" },
-      { name: "Furniture", amount: 3, unit: 3, unit_price: 500, image: "https://res.cloudinary.com/drykej1am/image/upload/v1721874426/weesh/categories/AWFAGiROM7oxB4ZJWhnaAYkP.jpg" },
-      { name: "Keyboard", amount: 2, unit: 2, unit_price: 1500, image: "https://res.cloudinary.com/drykej1am/image/upload/v1721874850/weesh/categories/WW18ndBhpeKoy2scWXeVqHBv.jpg" },
-      { name: "USB Cable", amount: 5, unit: 5, unit_price: 200, image: "https://res.cloudinary.com/drykej1am/image/upload/v1721874850/weesh/categories/WW18ndBhpeKoy2scWXeVqHBv.jpg" },
-    ],
-  },
-  {
-    id: "tx_004",
-    completed_date: "2025-09-10",
-    created_at: "2025-09-09",
-    payout: 5200,
-    total_Unit: 10,
-    total_price: 5700,
-    product_count: 3,
-    status: "outbound",
-    delivery_charge: 500,
-    payment_price: 5200,
-    discount: 500,
-    vendor: {
-      id: "v_004",
-      name: "FreshMart Groceries",
-      phone: "+2348076543210",
-      address: "22 Bode Thomas St, Surulere, Lagos",
-      email: "support@freshmart.ng",
-    },
-    sender: {
-      id: "s_004",
-      name: "QuickMove Logistics",
-      phone: "+2348094433221",
-      address: "Ojodu Berger, Lagos",
-      email: "hello@quickmove.ng",
-    },
-    receiver: {
-      id: "r_004",
-      name: "Ngozi Okafor",
-      phone: "+2348021133445",
-      address: "10 Marina Rd, Lagos Island, Lagos",
-      email: "ngozi.okafor@example.com",
-    },
-    products: [
-      { name: "Rice Bag", amount: 1, unit: 5, unit_price: 1200, image: "https://res.cloudinary.com/drykej1am/image/upload/v1721874850/weesh/categories/WW18ndBhpeKoy2scWXeVqHBv.jpg" },
-      { name: "Groundnut Oil", amount: 2, unit: 3, unit_price: 900, image: "https://res.cloudinary.com/drykej1am/image/upload/v1721875177/weesh/categories/I9IP1OFoxLzZQpA9Sl12fb_g.jpg" },
-      { name: "Salt Pack", amount: 5, unit: 2, unit_price: 200, image: "https://res.cloudinary.com/drykej1am/image/upload/v1721875177/weesh/categories/I9IP1OFoxLzZQpA9Sl12fb_g.jpg" },
-    ],
-  },
-])
+const transactions = ref<Transaction[]>([])
 
-const filteredList = ref<Transaction[]>(transactions.value)
+const filteredList = ref<Order[] | null>(orders.value)
 const analytics = computed(()=>{
   return useVendorTransactionStore().analytics
 })
@@ -740,7 +587,7 @@ function filterByStatus(status: string) {
 const selectedStatus = ref("all")
 function onStatusChange(value: string) {
   selectedStatus.value = value
-  filteredList.value = filterByStatus(value)
+  // filteredList.value = filterByStatus(value)
 }
 
 
@@ -792,6 +639,7 @@ function formatDate(dateStr: string | null): string | null {
 
 onMounted(()=>{
   useVendorTransactionStore().fetchAllTransactions('Analytics')
+  useVendorTransactionStore().fetchAllOrders('Orders')
 })
 
 </script>
