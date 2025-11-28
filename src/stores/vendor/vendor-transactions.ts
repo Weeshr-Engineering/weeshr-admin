@@ -168,7 +168,7 @@ export const useVendorTransactionStore = defineStore({
       try {
         // Set loading to true
         // useGeneralStore().setLoading(true)
-        const response = await axios.get(`/api/v1/admin/market/orders?per_page=5`, {
+        const response = await axios.get(`/api/v1/admin/market/orders?per_page=25`, {
         params: {
           page: page || 1,
           // limit: params?.limit || 10,
@@ -177,7 +177,7 @@ export const useVendorTransactionStore = defineStore({
           // status: params?.status || 'all'
         }
       })
-        console.log(response)
+        // console.log(response)
         if (response.status === 200 || response.status === 201) {
           this.orders = response.data.data.data;
           this.currentPage = response.data.data.currentPage

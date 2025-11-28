@@ -133,7 +133,6 @@ const fetchBankData = async (msg: string) => {
 
     if (response.status === 200 || response.status === 201) {
       // Update the users data with the response
-      // console.log(response)
       bankDetails.value = response.data.data;
       // bankDetails.value = [{
       //   _id: '345',
@@ -483,6 +482,7 @@ watch([bankCode, accountNumber, payoutFrequency], ([newBank, newAcc, newFreq]) =
           description: `${bankName.value?.name} added successfully.`,
           variant: 'success'
         })
+        fetchBankData('Success')
       }
       // Handle success
     } catch (err: any) {
@@ -591,9 +591,17 @@ const saveUserData = async () => {
     })
 
     try {
-      const userId = useSuperAdminStore().id
+      const user = JSON.parse(localStorage.getItem('user') || '')
+      if(!user) {
+        toast({
+          title: 'Success',
+          description: `Error getting user data.`,
+          variant: 'destructive'
+        })
+        return
+      }
       const response = await axios.patch(
-        `/api/v1/admin/market/vendor/user/${userId}/change-password`,
+        `/api/v1/admin/market/vendor/user/${user.id}/change-password`,
         {
           newPassword: newPassword.value
         }
@@ -1041,8 +1049,7 @@ onMounted(async () => {
                 </div>
               </div>
 
-              <VendorBankDetails :bankDetails="bankDetails" :cbnBankCodes="cbnBankCodes" :frequency="frequency" :refresh="fetchBankData"/>
-
+              <VendorBankDetails :bankDetails="bankDetails" :cbnBankCodes="cbnBankCodes" :frequency="frequency" :refresh="fetchBankData" :id="id || ''"/>
 
               <div v-if="bankDetails.length === 0" class="h-[60dvh]">
                 <Card class="h-full">

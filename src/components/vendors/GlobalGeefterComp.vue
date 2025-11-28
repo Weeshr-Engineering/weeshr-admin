@@ -129,7 +129,7 @@
             </Select>
           </div>
           <!-- <Search class="mt-3 lg:mt-0" /> -->
-          <button class="bg-[#020721] px-4 py-2 rounded-xl w-50 h-12">
+          <button v-if="orders?.length !== 0" @click="handleExport" class="bg-[#020721] px-4 py-2 rounded-xl w-50 h-12">
             <div class="text-base text-[#F8F9FF] text-center flex items-center">
               Download Report
               <svg
@@ -219,7 +219,7 @@
                 </div>
               </TableCell>
               <TableCell class="text-xs md:text-sm lg:text-sm">{{ transaction._id }} </TableCell>
-              <TableCell>
+              <TableCell @click="()=>fetchOrderByID(transaction._id)">
                 <Sheet>
                   <SheetTrigger>
                     <svg
@@ -279,17 +279,17 @@
                           <h1 class="font-bold text-xl">₦{{ transaction.totalAmount }}</h1>
                         </div>
                       </CardHeader>
-                      <CardContent class="px-4">
-                        <div class="bg-[#F6F6F6] rounded-lg mb-4 flex flex-col items-center hover:shadow-md" v-for="(item, newkey) in transaction.items" :key="newkey">
+                      <CardContent class="px-4" v-if="order">
+                        <div class="bg-[#F6F6F6] rounded-lg mb-4 flex flex-col items-center hover:shadow-md" v-for="(item, newkey) in order.items" :key="newkey">
                           <div class="bg-white border flex items-center justify-between w-full py-2 px-2 rounded-lg">
                             <span class="flex gap-2 items-center"><div
                                 class="inline-block text-[#F8F9FF] w-14 h-14"
                               >
-                                <!-- <img :src='item.image' class="w-full h-full rounded-sm"/> -->
+                                <img :src='item.productId.image.secure_url' class="w-full h-full rounded-sm"/>
                               </div>
                               <div class="flex flex-col">
                                 <p class="md:text-lg text-primary font-semibold">
-                                  {{ item.productId }}
+                                  {{ item.productId.name}}
                                 </p>
                                 <p class="text-sm text-muted-foreground text-[#000000]">
                                   ₦{{ item.price }}
@@ -300,10 +300,10 @@
                               <Badge variant="outline">{{ item.quantity }}</Badge>
                             </div>
                           </div>
-                          <!-- <div class="w-full flex items-center justify-between py-3 px-4">
-                            <h3 class="text-xs font-semibold text-muted-foreground">Unit x{{ item.unit }}</h3>
-                            <h2 class="text-md text-primary font-semibold">₦{{ item.unit_price }}</h2>
-                          </div> -->
+                          <div class="w-full flex items-center justify-end py-3 px-4">
+                            <!-- <h3 class="text-xs font-semibold text-muted-foreground">Unit x{{ item.unit }}</h3> -->
+                            <h2 class="text-md text-primary font-semibold">₦{{ item.price }}</h2>
+                          </div>
                         </div>
                         <div class="rounded-lg overflow-hidden flex flex-col mt-6">
                           <div class="bg-[#F6F6F6] flex items-center justify-between w-full px-4 py-2">
@@ -475,10 +475,10 @@ import {
   TableHead
 } from '@/components/ui/table'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { Button } from '@/components/ui/button'
 import { Icon } from '@iconify/vue'
-import Search from '@/components/UseSearch.vue'
+// import Search from '@/components/UseSearch.vue'
 import {
   Sheet,
   SheetContent,
@@ -506,17 +506,22 @@ import {
   SelectTrigger,
 } from '@/components/ui/select'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { useVendorTransactionStore } from '@/stores/vendor/vendor-transactions'
+import { useGeeftrStore } from '@/stores/vendor/vendor-gifter'
 import ProxyNav from '../ProxyNav.vue'
-import type { Order } from '@/stores/vendor/vendor-transactions'
+import type { Order } from '@/stores/vendor/vendor-gifter'
+import exportToExcel from '@/composables/excelExport'
+import { toast } from '../ui/toast'
+import axios from 'axios'
+import { catchErr } from '@/composables/catchError'
 
-// const open = ref<boolean>(false)
-// const id = ref<string>('0')
-
-const transactionList = useVendorTransactionStore()
+const transactionList = useGeeftrStore()
 
 const orders = computed(()=>{
   return transactionList.orders;
+})
+
+const order = computed(()=>{
+  return transactionList.order;
 })
 
 const currentPage = computed(()=>{
@@ -526,6 +531,55 @@ const totalPages = computed(()=>{
   return transactionList.totalPages
 })
 
+const fetchOrderByID = async(id: string)=>{
+  transactionList.order = null;
+  toast({
+    title: 'Loading Data',
+    description: 'Fetching data...',
+    duration: 0 // Set duration to 0 to make it indefinite until manually closed
+  })
+
+  try {
+    // Set loading to true
+    // useGeneralStore().setLoading(true)
+    const response = await axios.get(`/api/v1/admin/market/orders/${id}`)
+
+    if (response.status === 200 || response.status === 201) {
+      transactionList.order = response.data.data;
+      toast({
+        title: 'Success',
+        description: `Success`,
+        variant: 'success'
+      })
+    }
+    // set Loading to false
+    // useGeneralStore().setLoading(false)
+  } catch (error: any) {
+    catchErr(error)
+    if (error.response.status === 401) {
+      // sessionStorage.removeItem('token')
+      // Clear token from superAdminStore
+      // superAdminStore.setToken('')
+
+      setTimeout(() => {
+        // router.push({ name: 'super-admin-login' })
+      }, 3000)
+
+      toast({
+        title: 'Unauthorized',
+        description: 'You are not authorized to perform this action. Redirecting to home page...',
+        variant: 'destructive'
+      })
+      // Redirect after 3 seconds
+    } else {
+      toast({
+        title: error.response.data.message || 'An error occurred',
+        variant: 'destructive'
+      })
+    }
+  }
+  // await transactionList.fetchOrderById('Success', id)
+}
 
 const paginationItems = computed(() => {
   const pages = [];
@@ -589,11 +643,17 @@ interface Transaction {
 
 const transactions = ref<Transaction[]>([])
 
-const filteredList = computed(()=>{
-  return orders.value
-})
+const filteredList = ref<Order[] | null>(orders.value)
+watch(
+  orders,
+  (newVal) => {
+    filteredList.value = newVal
+  },
+  { immediate: true }
+)
+
 const analytics = computed(()=>{
-  return useVendorTransactionStore().analytics
+  return useGeeftrStore().analytics
 })
 
 // Keep track of sort directions per field
@@ -628,12 +688,7 @@ function filterByStatus(status: string) {
 const selectedStatus = ref("all")
 function onStatusChange(value: string) {
   selectedStatus.value = value
-  const data = filterByStatus(value)
-  if(data){
-    transactionList.orders = data
-  }else{
-    transactionList.orders = null
-  }
+  filteredList.value = filterByStatus(value) || null
 }
 
 
@@ -683,9 +738,31 @@ function formatDate(dateStr: string | null): string | null {
   }).format(date);
 }
 
+const handleExport= async()=>{
+  try {
+    toast({
+      title: 'Loading Data',
+      description: 'Exporting data...',
+      variant: 'loading' // Set duration to 0 to make it indefinite until manually closed
+    })
+    await exportToExcel(orders.value)
+    toast({
+      title: 'Loading Data',
+      description: 'Export success',
+      variant: 'success'
+    })
+  } catch (error) {
+   toast({
+      title: 'Loading Data',
+      description: 'Error with export',
+      variant: 'destructive' // Set duration to 0 to make it indefinite until manually closed
+    }) 
+  }
+}
+
 onMounted(()=>{
-  // useVendorTransactionStore().fetchAllTransactions('Analytics')
-  useVendorTransactionStore().fetchAllOrders('Orders')
+  // useGeeftrStore().fetchAllTransactions('Analytics')
+  useGeeftrStore().fetchAllOrders('Orders')
 })
 
 </script>

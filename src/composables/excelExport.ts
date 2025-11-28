@@ -2,7 +2,7 @@ import * as XLSX from "xlsx";
 import { useToast } from '@/components/ui/toast'
 
 // Export to Excel function
-const exportToExcel = (value: any) => {
+const exportToExcel = async (value: any) => {
     const { toast } = useToast();
 
     toast({

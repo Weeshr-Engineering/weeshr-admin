@@ -17,6 +17,7 @@ const props = defineProps<{
   cbnBankCodes: { code: string; name: string }[]
   frequency: string[],
   refresh: (msg: string)=> void;
+  id: string
 }>()
 
 // Editing state - track which bank is being edited and store individual edit data
@@ -111,10 +112,12 @@ const deleteBankData = async (msg: string, _id: string) => {
     // VendorListStore.loadingControl(true)
     try {
       const response = await axios.post(
-        '/api/v1/admin/market/banks',
+        '/api/v1/admin/market/banks/verify',
         {
           "bankCode": code,
           "accountNumber": accNum,
+          // 'bankName': bankName,
+          // 'vendorId': props.id
         }
       )
 
@@ -150,8 +153,8 @@ const saveEdit = async (bankId: string) => {
     })
     // VendorListStore.loadingControl(true)
     try {
-      const response = await axios.post(
-        `/api/v1/admin//market/banks/${bankId}`,
+      const response = await axios.put(
+        `/api/v1/admin/market/banks/${bankId}`,
         {
           "bankName": editedBanks[bankId].bankName,
           // "bankCode": bankCode.value,
@@ -168,6 +171,7 @@ const saveEdit = async (bankId: string) => {
           description: `${editedBanks[bankId].bankName} updated successfully.`,
           variant: 'success'
         })
+        props.refresh('Success')
       }
       // Handle success
     } catch (err: any) {
@@ -229,7 +233,7 @@ const isEditing = (id: string) => editingBankId.value === id
       </h3>
 
       <!-- Verified Badge -->
-      <span
+      <!-- <span
         class="px-3 py-1 text-xs rounded-full"
         :class="
           verifiedMap[bank._id]
@@ -238,7 +242,7 @@ const isEditing = (id: string) => editingBankId.value === id
         "
       >
         {{ verifiedMap[bank._id] ? 'Verified' : 'Pending' }}
-      </span>
+      </span> -->
 
       <!-- Actions Dropdown -->
       <DropdownMenu>

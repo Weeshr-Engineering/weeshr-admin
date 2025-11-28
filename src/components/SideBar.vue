@@ -216,7 +216,7 @@ const openNotificationsBoard = () => {
         </a>
       </li>
 
-      <li v-if="!superAdminStore.isVendor" :class="{ 'dashboard-active': isActive('/global/transaction') }">
+      <!-- <li v-if="!superAdminStore.isVendor" :class="{ 'dashboard-active': isActive('/global/transaction') }">
         <a @click="$router.push({ name: 'geeftrTransaction' })">
           <div class="icon-grid">
             <Icon icon="gridicons:money" width="17" height="17" class="icons-sidebar" />
@@ -224,7 +224,7 @@ const openNotificationsBoard = () => {
 
           <span class="nav-text">Global Transactions</span>
         </a>
-      </li>
+      </li> -->
       
       <li v-if="ability.can('read', 'admin-board-notifications') && !superAdminStore.isVendor">
         <a @click.prevent="openNotificationsBoard">
