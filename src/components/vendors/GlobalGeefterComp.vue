@@ -128,7 +128,7 @@
               </SelectContent>
             </Select>
           </div>
-          <Search class="mt-3 lg:mt-0" />
+          <!-- <Search class="mt-3 lg:mt-0" /> -->
           <button class="bg-[#020721] px-4 py-2 rounded-xl w-50 h-12">
             <div class="text-base text-[#F8F9FF] text-center flex items-center">
               Download Report
@@ -368,7 +368,7 @@
                               <div class="flex items-center gap-4">
                                 <h2 class="text-xs font-semibold text-muted-foreground">Address</h2>
                               </div>
-                              <h1 class="text-xs text-primary font-semibold">₦{{ transaction.shippingAddress }}</h1>
+                              <h1 class="text-xs text-primary font-semibold">{{ transaction.shippingAddress }}</h1>
                             </div>
                             <!-- <div class="bg-[#F6F6F6] flex items-center justify-between w-full px-4 py-2 my-1">
                               <div class="flex items-center gap-4">
@@ -443,16 +443,24 @@
           </TableBody>
         </Table>
       </div>
-      <div class="flex gap-2 max-w-full flex-wrap justify-end mt-8 mr-4 items-center text-[15px]">
-        <Button variant="secondary"> <Icon icon="radix-icons:chevron-left" /> </Button>
-        <Button variant="secondary" class="bg-[#020721] text-gray-400"> 1 </Button>
-        <Button variant="outline"> 2 </Button>
-        <Button variant="outline"> &#8230; </Button>
-        <Button variant="outline"> 4 </Button>
-        <Button variant="outline"> 5 </Button>
-        <Button variant="outline"> <Icon icon="radix-icons:chevron-right" /> </Button>
-        <a href="#"><p class="text-[blue]">See all</p></a>
-      </div>
+      <div class="flex gap-2 max-w-full flex-wrap justify-end mt-8 mr-4 items-center text-[15px]" v-if="transactionList.orders">
+          <Pagination :total="totalPages" :sibling-count="1" show-edges :default-page="1" @change="transactionList.handlePageChange">
+            <PaginationList class="flex items-center gap-1">
+              <PaginationFirst @click="transactionList.handlePageChange(1)" />
+              <PaginationPrev @click="transactionList.handlePageChange(Math.max(currentPage - 1, 1))" />
+              <template v-for="(item, index) in paginationItems" :key="index">
+                <PaginationListItem v-if="item.type === 'page'" :value="item.value" as-child>
+                  <Button class="w-10 h-10 p-0" :variant="item.value === currentPage ? 'default' : 'outline'" @click="transactionList.handlePageChange(item.value)">
+                    {{ item.value }}
+                  </Button>
+                </PaginationListItem>
+                <PaginationEllipsis v-else :index="index" />
+              </template>
+              <PaginationNext @click="transactionList.handlePageChange(Math.min(currentPage + 1, totalPages))" />
+              <PaginationLast @click="transactionList.handlePageChange(totalPages)" />
+            </PaginationList>
+          </Pagination>
+        </div>
     </Card>
     <DashboardFooter />
   </div>
@@ -481,6 +489,16 @@ import {
 import { Badge } from '@/components/ui/badge'
 import MainNav from '../MainNav.vue'
 import {
+  Pagination,
+  PaginationEllipsis,
+  PaginationFirst,
+  PaginationLast,
+  PaginationList,
+  PaginationListItem,
+  PaginationNext,
+  PaginationPrev,
+} from '@/components/ui/pagination';
+import {
   Select,
   SelectContent,
   SelectGroup,
@@ -494,9 +512,28 @@ import type { Order } from '@/stores/vendor/vendor-transactions'
 
 // const open = ref<boolean>(false)
 // const id = ref<string>('0')
+
+const transactionList = useVendorTransactionStore()
+
 const orders = computed(()=>{
-  return useVendorTransactionStore().orders;
+  return transactionList.orders;
 })
+
+const currentPage = computed(()=>{
+  return transactionList.currentPage
+});
+const totalPages = computed(()=>{
+  return transactionList.totalPages
+})
+
+
+const paginationItems = computed(() => {
+  const pages = [];
+  for (let i = 1; i <= totalPages.value; i++) {
+    pages.push({ type: 'page', value: i });
+  }
+  return pages;
+});
 
 const statusBg = (status: string) => {
   switch (status) {
@@ -552,7 +589,9 @@ interface Transaction {
 
 const transactions = ref<Transaction[]>([])
 
-const filteredList = ref<Order[] | null>(orders.value)
+const filteredList = computed(()=>{
+  return orders.value
+})
 const analytics = computed(()=>{
   return useVendorTransactionStore().analytics
 })
@@ -578,16 +617,23 @@ function sortByDate() {
 }
 
 function filterByStatus(status: string) {
-  if (status.toLowerCase() === "all") return transactions.value
-  return transactions.value.filter(
+  if (status.toLowerCase() === "all") return orders.value
+  if(orders.value){
+    return orders?.value.filter(
     (tx) => tx.status.toLowerCase() === status.toLowerCase()
   )
+  }
 }
 
 const selectedStatus = ref("all")
 function onStatusChange(value: string) {
   selectedStatus.value = value
-  // filteredList.value = filterByStatus(value)
+  const data = filterByStatus(value)
+  if(data){
+    transactionList.orders = data
+  }else{
+    transactionList.orders = null
+  }
 }
 
 
@@ -638,7 +684,7 @@ function formatDate(dateStr: string | null): string | null {
 }
 
 onMounted(()=>{
-  useVendorTransactionStore().fetchAllTransactions('Analytics')
+  // useVendorTransactionStore().fetchAllTransactions('Analytics')
   useVendorTransactionStore().fetchAllOrders('Orders')
 })
 

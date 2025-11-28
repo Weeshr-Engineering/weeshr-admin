@@ -69,6 +69,7 @@ interface VendorTransactionStore {
   totalpage: any[],
   detailLoading: boolean,
   totalPages: number,
+  page: number,
   activityLog: any[],
   analytics: VendorAnalytics | null,
   orders: Order[] | null
@@ -106,7 +107,8 @@ export const useVendorTransactionStore = defineStore({
     totalPages: 1,
     activityLog: [],
     analytics: null,
-    orders: null
+    orders: null,
+    page: 1
   }),
   actions: {
     async fetchAnalytics(msg: string, id: string){
@@ -156,7 +158,7 @@ export const useVendorTransactionStore = defineStore({
         }
       }
     },
-    async fetchAllOrders(msg: string){
+    async fetchAllOrders(msg: string, page = 1){
       toast({
         title: 'Loading Data',
         description: 'Fetching data...',
@@ -166,10 +168,20 @@ export const useVendorTransactionStore = defineStore({
       try {
         // Set loading to true
         // useGeneralStore().setLoading(true)
-        const response = await axios.get(`/api/v1/admin/market/orders`)
-        // console.log(response)
+        const response = await axios.get(`/api/v1/admin/market/orders?per_page=5`, {
+        params: {
+          page: page || 1,
+          // limit: params?.limit || 10,
+          // search: params?.search || '',
+          // sortBy: params?.sortBy || 'name',
+          // status: params?.status || 'all'
+        }
+      })
+        console.log(response)
         if (response.status === 200 || response.status === 201) {
           this.orders = response.data.data.data;
+          this.currentPage = response.data.data.currentPage
+          this.totalPages = response.data.data.totalPages
           toast({
             title: 'Success',
             description: `${msg}`,
@@ -340,11 +352,18 @@ export const useVendorTransactionStore = defineStore({
         // Handle other errors
       }
     },
-    handlePageChange(newPage: number) {
-      if (newPage > 0 && newPage <= this.totalPages) {
-        this.currentPage = newPage;
-      }
-    },
+    handlePageChange (newPage: number){
+    if (newPage > 0 && newPage <= this.totalPages) {
+      this.currentPage = newPage;
+      this.page = newPage
+      this.fetchAllOrders('success', this.page)
+      toast({
+        description: `Loading page ${newPage}`,
+        duration: 0, // Set duration to 0 to make it indefinite until manually closed
+        variant: 'loading'
+      })
+    }
+  },
     sheetControl(value: boolean) {
       if (value) {
         this.sheetOpen = value

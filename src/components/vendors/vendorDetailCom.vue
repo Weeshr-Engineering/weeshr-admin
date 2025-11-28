@@ -591,23 +591,24 @@ const saveUserData = async () => {
     })
 
     try {
-      // const response = await axios.put(
-      //   `/api/v1/admin/market/invites/${id}`,
-      //   {
-      //     password: newPassword.value
-      //   }
-      // )
+      const userId = useSuperAdminStore().id
+      const response = await axios.patch(
+        `/api/v1/admin/market/vendor/user/${userId}/change-password`,
+        {
+          newPassword: newPassword.value
+        }
+      )
 
-      // // Check if response status is 200 or 201
-      // if (response.status === 200 || response.status === 201) {
-      //   // Show success toast
-      //   fetchVendorsData('Success')
-      //   toast({
-      //     title: 'Success',
-      //     description: `Edit successfully.`,
-      //     variant: 'success'
-      //   })
-      // }
+      // Check if response status is 200 or 201
+      if (response.status === 200 || response.status === 201) {
+        // Show success toast
+        fetchVendorsData('Success')
+        toast({
+          title: 'Success',
+          description: `Edit successfully.`,
+          variant: 'success'
+        })
+      }
       showPassword.value= false
       newPassword.value = ''
       // Handle success
