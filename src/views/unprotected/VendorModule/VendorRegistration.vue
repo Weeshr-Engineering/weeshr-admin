@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onBeforeMount } from 'vue'
 
 import { Button } from '@/components/ui/button'
 import { useForm } from 'vee-validate'
@@ -150,6 +150,68 @@ const onSubmit = form.handleSubmit(async () => {
   }
   
   loading.value = false
+})
+
+const fetchVendorsData = async (msg: string) => {
+  toast({
+    title: 'Loading Data',
+    description: 'Validating....',
+    variant: 'loading',
+    duration: 0 // Set duration to 0 to make it indefinite until manually closed
+  })
+
+  try {
+    // Set loading to true
+    // useGeneralStore().setLoading(true)
+    const response = await axios.get(`/api/v1/market/invites/${id}`)
+
+    if (response.status === 200 || response.status === 201) {
+      if(response.data.data !== null){
+        toast({
+          title: 'Success',
+          description: `Invite already accepted please login!`,
+          variant: 'success'
+        })  
+        router.push('/')
+        return;
+      }
+      toast({
+        title: 'Success',
+        description: `Success- ${msg}`,
+        variant: 'success'
+      })
+    }
+    // set Loading to false
+    // useGeneralStore().setLoading(false)
+  } catch (error: any) {
+    catchErr(error)
+    // console.log(error)
+    if (error.response.status === 401) {
+      // sessionStorage.removeItem('token')
+      // Clear token from superAdminStore
+      // superAdminStore.setToken('')
+
+      setTimeout(() => {
+        // router.push({ name: 'super-admin-login' })
+      }, 3000)
+
+      toast({
+        title: 'Unauthorized',
+        description: 'You are not authorized to perform this action. Redirecting to home page...',
+        variant: 'destructive'
+      })
+      // Redirect after 3 seconds
+    } else {
+      toast({
+        description: error.response.data.message || 'An error occurred',
+        variant: 'destructive'
+      })
+    }
+  }
+}
+
+onBeforeMount(()=>{
+  fetchVendorsData('Success')
 })
 </script>
 

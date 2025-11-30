@@ -14,6 +14,31 @@ import { catchErr } from "@/composables/catchError";
 // interface Role {
 //   [key: string]: any; // Assuming the structure of Role is dynamic
 // }
+interface OrderItem {
+  "productId": string,
+  "quantity": number,
+  "price": number
+}
+export interface Order {
+  "_id": string,
+  "userId": string,
+  "vendorId": string,
+  "items": OrderItem[],
+  "status": string,
+  "paymentStatus": string,
+  "totalAmount": number,
+  "payoutMethod": string,
+  "shippingAddress": string,
+  "createdAt": string,
+  "updatedAt": string,
+  "vendor": {
+      "companyName": string,
+      "companyEmail": string
+  },
+  "user": {
+      "email": string
+  }
+}
 
 export interface vendorProfile {
   _id: string
@@ -44,8 +69,10 @@ interface VendorTransactionStore {
   totalpage: any[],
   detailLoading: boolean,
   totalPages: number,
+  page: number,
   activityLog: any[],
   analytics: VendorAnalytics | null,
+  orders: Order[] | null
 }
 
 export interface VendorAnalytics {
@@ -79,7 +106,9 @@ export const useVendorTransactionStore = defineStore({
     detailLoading: false,
     totalPages: 1,
     activityLog: [],
-    analytics: null
+    analytics: null,
+    orders: null,
+    page: 1
   }),
   actions: {
     async fetchAnalytics(msg: string, id: string){
@@ -96,6 +125,63 @@ export const useVendorTransactionStore = defineStore({
 
         if (response.status === 200 || response.status === 201) {
           this.analytics = response.data.data;
+          toast({
+            title: 'Success',
+            description: `${msg}`,
+            variant: 'success'
+          })
+        }
+        // set Loading to false
+        // useGeneralStore().setLoading(false)
+      } catch (error: any) {
+        catchErr(error)
+        if (error.response.status === 401) {
+          // sessionStorage.removeItem('token')
+          // Clear token from superAdminStore
+          // superAdminStore.setToken('')
+
+          setTimeout(() => {
+            // router.push({ name: 'super-admin-login' })
+          }, 3000)
+
+          toast({
+            title: 'Unauthorized',
+            description: 'You are not authorized to perform this action. Redirecting to home page...',
+            variant: 'destructive'
+          })
+          // Redirect after 3 seconds
+        } else {
+          toast({
+            title: error.response.data.message || 'An error occurred',
+            variant: 'destructive'
+          })
+        }
+      }
+    },
+    async fetchAllOrders(msg: string, page = 1){
+      toast({
+        title: 'Loading Data',
+        description: 'Fetching data...',
+        duration: 0 // Set duration to 0 to make it indefinite until manually closed
+      })
+
+      try {
+        // Set loading to true
+        // useGeneralStore().setLoading(true)
+        const response = await axios.get(`/api/v1/admin/market/orders?per_page=25`, {
+        params: {
+          page: page || 1,
+          // limit: params?.limit || 10,
+          // search: params?.search || '',
+          // sortBy: params?.sortBy || 'name',
+          // status: params?.status || 'all'
+        }
+      })
+        // console.log(response)
+        if (response.status === 200 || response.status === 201) {
+          this.orders = response.data.data.data;
+          this.currentPage = response.data.data.currentPage
+          this.totalPages = response.data.data.totalPages
           toast({
             title: 'Success',
             description: `${msg}`,
@@ -266,11 +352,18 @@ export const useVendorTransactionStore = defineStore({
         // Handle other errors
       }
     },
-    handlePageChange(newPage: number) {
-      if (newPage > 0 && newPage <= this.totalPages) {
-        this.currentPage = newPage;
-      }
-    },
+    handlePageChange (newPage: number){
+    if (newPage > 0 && newPage <= this.totalPages) {
+      this.currentPage = newPage;
+      this.page = newPage
+      this.fetchAllOrders('success', this.page)
+      toast({
+        description: `Loading page ${newPage}`,
+        duration: 0, // Set duration to 0 to make it indefinite until manually closed
+        variant: 'loading'
+      })
+    }
+  },
     sheetControl(value: boolean) {
       if (value) {
         this.sheetOpen = value

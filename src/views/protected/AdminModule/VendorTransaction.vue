@@ -257,7 +257,7 @@
           <h1 class="text-2xl font-semibold animate-pulse">No Transaction yet</h1>
         </div>
       </div>
-      <div class="hidden gap-2 max-w-full flex-wrap justify-end mt-8 mr-4 items-center text-[15px]">
+      <!-- <div class="hidden gap-2 max-w-full flex-wrap justify-end mt-8 mr-4 items-center text-[15px]">
         <Button variant="secondary"> <Icon icon="radix-icons:chevron-left" /> </Button>
         <Button variant="secondary" class="bg-[#020721] text-gray-400"> 1 </Button>
         <Button variant="outline"> 2 </Button>
@@ -266,7 +266,7 @@
         <Button variant="outline"> 5 </Button>
         <Button variant="outline"> <Icon icon="radix-icons:chevron-right" /> </Button>
         <a href="#"><p class="text-[blue]">See all</p></a>
-      </div>
+      </div> -->
     </Card>
     <DashboardFooter />
   </div>

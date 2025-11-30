@@ -128,8 +128,8 @@
               </SelectContent>
             </Select>
           </div>
-          <Search class="mt-3 lg:mt-0" />
-          <button class="bg-[#020721] px-4 py-2 rounded-xl w-50 h-12">
+          <!-- <Search class="mt-3 lg:mt-0" /> -->
+          <button v-if="orders?.length !== 0" @click="handleExport" class="bg-[#020721] px-4 py-2 rounded-xl w-50 h-12">
             <div class="text-base text-[#F8F9FF] text-center flex items-center">
               Download Report
               <svg
@@ -158,13 +158,13 @@
             >
               <TableHead @click="sortByDate">
                 <div class="flex items-center">
-                  Sender
+                  Sender Email
                   <!-- <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" /> -->
                 </div>
               </TableHead>
               <TableHead @click="sortByDate">
                 <div class="flex items-center">
-                  Receiver
+                  Receiver Address
                   <!-- <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" /> -->
                 </div>
               </TableHead>
@@ -204,12 +204,12 @@
             </TableRow>
           </TableHeader>
           <TableBody>
-            <TableRow v-for="transaction in filteredList" :key="transaction.id">
-              <TableCell class="text-xs md:text-sm lg:text-sm">{{ transaction.sender.name }} </TableCell>
-              <TableCell class="text-xs md:text-sm lg:text-sm">{{ transaction.receiver.name }} </TableCell>
-              <TableCell class="text-xs md:text-sm lg:text-sm">{{ transaction.vendor.name }} </TableCell>
-              <TableCell class="text-xs md:text-sm lg:text-sm">{{ transaction.total_Unit }}</TableCell>
-              <TableCell class="text-xs md:text-sm lg:text-sm">₦{{ transaction.total_price }} </TableCell>
+            <TableRow v-for="transaction in filteredList" :key="transaction._id">
+              <TableCell class="text-xs md:text-sm lg:text-sm">{{ transaction.user.email }} </TableCell>
+              <TableCell class="text-xs md:text-sm lg:text-sm">{{ transaction.shippingAddress }} </TableCell>
+              <TableCell class="text-xs md:text-sm lg:text-sm">{{ transaction.vendor.companyName }} </TableCell>
+              <TableCell class="text-xs md:text-sm lg:text-sm">{{ transaction.items.length }}</TableCell>
+              <TableCell class="text-xs md:text-sm lg:text-sm">₦{{ transaction.totalAmount }} </TableCell>
               <TableCell>
                 <div
                   :class="statusBg(transaction.status)"
@@ -218,8 +218,8 @@
                   {{ transaction.status }}
                 </div>
               </TableCell>
-              <TableCell class="text-xs md:text-sm lg:text-sm">{{ transaction.id }} </TableCell>
-              <TableCell>
+              <TableCell class="text-xs md:text-sm lg:text-sm">{{ transaction._id }} </TableCell>
+              <TableCell @click="()=>fetchOrderByID(transaction._id)">
                 <Sheet>
                   <SheetTrigger>
                     <svg
@@ -245,7 +245,7 @@
                       <SheetDescription>
                         Payout ID.
                       </SheetDescription>
-                      <h3 class="text-2xl font-medium">{{ transaction.id }}</h3>
+                      <h3 class="text-2xl font-medium">{{ transaction._id }}</h3>
                     </SheetHeader>
                     <Card Content class="rounded-lg my-4 hover:shadow-xl px-2 md:px-0">
                       <CardContent class="flex flex-col md:flex-row items-start md:items-center justify-between px-2 sm:px-6 py-4">
@@ -256,11 +256,11 @@
                                 Payout Date
                               </p>
                               <Badge variant="outline" class="text-muted-foreground w-full">
-                                {{ formatDate(transaction.created_at) }} - {{ formatDate(transaction.completed_date) }}
+                                {{ formatDate(transaction.createdAt) }} - {{ formatDate(transaction.updatedAt) }}
                               </Badge>
                             </div>
                             <p class="text-lg my-2 md:my-0 text-primary font-bold text-[#000000]">
-                              {{ formatDate(transaction.created_at) }}
+                              {{ formatDate(transaction.createdAt) }}
                             </p>
                           </div>
                         </span>
@@ -274,35 +274,35 @@
                         <div class="flex flex-col md:flex-row md:items-center justify-between w-full">
                           <div class="flex items-center gap-4">
                             <h2 class="font-bold md:text-lg">Order</h2>
-                            <Badge class="bg-[#E9F4D1] text-primary">{{ transaction.product_count }}</Badge>
+                            <Badge class="bg-[#E9F4D1] text-primary">{{ transaction.items.length }}</Badge>
                           </div>
-                          <h1 class="font-bold text-xl">₦{{ transaction.total_price }}</h1>
+                          <h1 class="font-bold text-xl">₦{{ transaction.totalAmount }}</h1>
                         </div>
                       </CardHeader>
-                      <CardContent class="px-4">
-                        <div class="bg-[#F6F6F6] rounded-lg mb-4 flex flex-col items-center hover:shadow-md" v-for="(item, newkey) in transaction.products" :key="newkey">
+                      <CardContent class="px-4" v-if="order">
+                        <div class="bg-[#F6F6F6] rounded-lg mb-4 flex flex-col items-center hover:shadow-md" v-for="(item, newkey) in order.items" :key="newkey">
                           <div class="bg-white border flex items-center justify-between w-full py-2 px-2 rounded-lg">
                             <span class="flex gap-2 items-center"><div
                                 class="inline-block text-[#F8F9FF] w-14 h-14"
                               >
-                                <img :src='item.image' class="w-full h-full rounded-sm"/>
+                                <img :src='item.productId.image.secure_url' class="w-full h-full rounded-sm"/>
                               </div>
                               <div class="flex flex-col">
                                 <p class="md:text-lg text-primary font-semibold">
-                                  {{ item.name }}
+                                  {{ item.productId.name}}
                                 </p>
                                 <p class="text-sm text-muted-foreground text-[#000000]">
-                                  ₦{{ item.amount }}
+                                  ₦{{ item.price }}
                                 </p>
                               </div>
                             </span>
                             <div class="flex items-center gap-4">
-                              <Badge variant="outline">100ml</Badge>
+                              <Badge variant="outline">{{ item.quantity }}</Badge>
                             </div>
                           </div>
-                          <div class="w-full flex items-center justify-between py-3 px-4">
-                            <h3 class="text-xs font-semibold text-muted-foreground">Unit x{{ item.unit }}</h3>
-                            <h2 class="text-md text-primary font-semibold">₦{{ item.unit_price }}</h2>
+                          <div class="w-full flex items-center justify-end py-3 px-4">
+                            <!-- <h3 class="text-xs font-semibold text-muted-foreground">Unit x{{ item.unit }}</h3> -->
+                            <h2 class="text-md text-primary font-semibold">₦{{ item.price }}</h2>
                           </div>
                         </div>
                         <div class="rounded-lg overflow-hidden flex flex-col mt-6">
@@ -310,25 +310,25 @@
                             <div class="flex items-center gap-4">
                               <h2 class="text-xs font-semibold text-muted-foreground">Total Value</h2>
                             </div>
-                            <h1 class="text-md text-primary font-semibold">₦{{ transaction.total_price.toLocaleString() }}</h1>
+                            <h1 class="text-md text-primary font-semibold">₦{{ transaction.totalAmount.toLocaleString() }}</h1>
                           </div>
                           <div class="bg-[#F6F6F6] flex items-center justify-between w-full px-4 py-2 my-1">
                             <div class="flex items-center gap-4">
                               <h2 class="text-xs font-semibold text-muted-foreground">Delivery Charge</h2>
                             </div>
-                            <h1 class="text-md text-primary font-semibold">₦{{ transaction.delivery_charge.toLocaleString() }}</h1>
+                            <!-- <h1 class="text-md text-primary font-semibold">₦{{ transaction.delivery_charge.toLocaleString() }}</h1> -->
                           </div>
                           <div class="bg-[#F6F6F6] flex items-center justify-between w-full px-4 py-2">
                             <div class="flex items-center gap-4">
                               <h2 class="text-xs font-semibold text-muted-foreground">Discount</h2>
                             </div>
-                            <h1 class="text-md text-primary font-semibold">₦{{ transaction.discount.toLocaleString() }}</h1>
+                            <!-- <h1 class="text-md text-primary font-semibold">₦{{ transaction.discount.toLocaleString() }}</h1> -->
                           </div>
                           <div class="bg-[#02072199] flex items-center justify-between w-full px-4 py-2">
                             <div class="flex items-center gap-4">
                               <h2 class="text-xs font-semibold text-[#F8F9FFB2]">Payout Value</h2>
                             </div>
-                            <h1 class="text-md font-semibold text-white">₦{{ transaction.payment_price.toLocaleString() }}</h1>
+                            <h1 class="text-md font-semibold text-white">₦{{ transaction.totalAmount.toLocaleString() }}</h1>
                           </div>
                         </div>
                       </CardContent>
@@ -362,15 +362,15 @@
                         <TabsContent value="receiver" class="">
                           <div class="rounded-lg overflow-hidden flex flex-col mt-6">
                             <div class="w-full mb-4 px-4">
-                              <h1 class="text-xl font-bold">{{ transaction.receiver.name }}</h1>
+                              <!-- <h1 class="text-xl font-bold">{{ transaction.receiver.name }}</h1> -->
                             </div>
                             <div class="bg-[#F6F6F6] flex items-center justify-between w-full px-4 py-2">
                               <div class="flex items-center gap-4">
                                 <h2 class="text-xs font-semibold text-muted-foreground">Address</h2>
                               </div>
-                              <h1 class="text-xs text-primary font-semibold">₦{{ transaction.receiver.address }}</h1>
+                              <h1 class="text-xs text-primary font-semibold">{{ transaction.shippingAddress }}</h1>
                             </div>
-                            <div class="bg-[#F6F6F6] flex items-center justify-between w-full px-4 py-2 my-1">
+                            <!-- <div class="bg-[#F6F6F6] flex items-center justify-between w-full px-4 py-2 my-1">
                               <div class="flex items-center gap-4">
                                 <h2 class="text-xs font-semibold text-muted-foreground">Phone Number</h2>
                               </div>
@@ -381,15 +381,15 @@
                                 <h2 class="text-xs font-semibold text-muted-foreground">Email</h2>
                               </div>
                               <h1 class="text-xs text-primary font-semibold">{{ transaction.receiver.email }}</h1>
-                            </div>
+                            </div> -->
                           </div>
                         </TabsContent>
                         <TabsContent value="sender">
                           <div class="rounded-lg overflow-hidden flex flex-col mt-6">
                             <div class="w-full mb-4 px-4">
-                              <h1 class="text-xl font-bold">{{ transaction.sender.name }}</h1>
+                              <!-- <h1 class="text-xl font-bold">{{ transaction.sender.name }}</h1> -->
                             </div>
-                            <div class="bg-[#F6F6F6] flex items-center justify-between w-full px-4 py-2">
+                            <!-- <div class="bg-[#F6F6F6] flex items-center justify-between w-full px-4 py-2">
                               <div class="flex items-center gap-4">
                                 <h2 class="text-xs font-semibold text-muted-foreground">Address</h2>
                               </div>
@@ -400,37 +400,37 @@
                                 <h2 class="text-xs font-semibold text-muted-foreground">Phone Number</h2>
                               </div>
                               <h1 class="text-xs text-primary font-semibold">{{ transaction.sender.phone }}</h1>
-                            </div>
+                            </div> -->
                             <div class="bg-[#F6F6F6] flex items-center justify-between w-full px-4 py-2">
                               <div class="flex items-center gap-4">
                                 <h2 class="text-xs font-semibold text-muted-foreground">Email</h2>
                               </div>
-                              <h1 class="text-xs text-primary font-semibold">{{ transaction.sender.email }}</h1>
+                              <h1 class="text-xs text-primary font-semibold">{{ transaction.user.email }}</h1>
                             </div>
                           </div>
                         </TabsContent>
                         <TabsContent value="vendor">
                           <div class="rounded-lg overflow-hidden flex flex-col mt-6">
                             <div class="w-full mb-4 px-4">
-                              <h1 class="text-xl font-bold">{{ transaction.vendor.name }}</h1>
+                              <h1 class="text-xl font-bold">{{ transaction.vendor.companyName }}</h1>
                             </div>
-                            <div class="bg-[#F6F6F6] flex items-center justify-between w-full px-4 py-2">
+                            <!-- <div class="bg-[#F6F6F6] flex items-center justify-between w-full px-4 py-2">
                               <div class="flex items-center gap-4">
                                 <h2 class="text-xs font-semibold text-muted-foreground">Address</h2>
                               </div>
                               <h1 class="text-xs text-primary font-semibold">₦{{ transaction.vendor.address }}</h1>
-                            </div>
-                            <div class="bg-[#F6F6F6] flex items-center justify-between w-full px-4 py-2 my-1">
+                            </div> -->
+                            <!-- <div class="bg-[#F6F6F6] flex items-center justify-between w-full px-4 py-2 my-1">
                               <div class="flex items-center gap-4">
                                 <h2 class="text-xs font-semibold text-muted-foreground">Phone Number</h2>
                               </div>
                               <h1 class="text-xs text-primary font-semibold">{{ transaction.vendor.phone }}</h1>
-                            </div>
+                            </div> -->
                             <div class="bg-[#F6F6F6] flex items-center justify-between w-full px-4 py-2">
                               <div class="flex items-center gap-4">
                                 <h2 class="text-xs font-semibold text-muted-foreground">Email</h2>
                               </div>
-                              <h1 class="text-xs text-primary font-semibold">{{ transaction.vendor.email }}</h1>
+                              <h1 class="text-xs text-primary font-semibold">{{ transaction.vendor.companyEmail }}</h1>
                             </div>
                           </div>
                         </TabsContent>
@@ -443,16 +443,24 @@
           </TableBody>
         </Table>
       </div>
-      <div class="flex gap-2 max-w-full flex-wrap justify-end mt-8 mr-4 items-center text-[15px]">
-        <Button variant="secondary"> <Icon icon="radix-icons:chevron-left" /> </Button>
-        <Button variant="secondary" class="bg-[#020721] text-gray-400"> 1 </Button>
-        <Button variant="outline"> 2 </Button>
-        <Button variant="outline"> &#8230; </Button>
-        <Button variant="outline"> 4 </Button>
-        <Button variant="outline"> 5 </Button>
-        <Button variant="outline"> <Icon icon="radix-icons:chevron-right" /> </Button>
-        <a href="#"><p class="text-[blue]">See all</p></a>
-      </div>
+      <div class="flex gap-2 max-w-full flex-wrap justify-end mt-8 mr-4 items-center text-[15px]" v-if="transactionList.orders">
+          <Pagination :total="totalPages" :sibling-count="1" show-edges :default-page="1" @change="transactionList.handlePageChange">
+            <PaginationList class="flex items-center gap-1">
+              <PaginationFirst @click="transactionList.handlePageChange(1)" />
+              <PaginationPrev @click="transactionList.handlePageChange(Math.max(currentPage - 1, 1))" />
+              <template v-for="(item, index) in paginationItems" :key="index">
+                <PaginationListItem v-if="item.type === 'page'" :value="item.value" as-child>
+                  <Button class="w-10 h-10 p-0" :variant="item.value === currentPage ? 'default' : 'outline'" @click="transactionList.handlePageChange(item.value)">
+                    {{ item.value }}
+                  </Button>
+                </PaginationListItem>
+                <PaginationEllipsis v-else :index="index" />
+              </template>
+              <PaginationNext @click="transactionList.handlePageChange(Math.min(currentPage + 1, totalPages))" />
+              <PaginationLast @click="transactionList.handlePageChange(totalPages)" />
+            </PaginationList>
+          </Pagination>
+        </div>
     </Card>
     <DashboardFooter />
   </div>
@@ -467,10 +475,10 @@ import {
   TableHead
 } from '@/components/ui/table'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { Button } from '@/components/ui/button'
 import { Icon } from '@iconify/vue'
-import Search from '@/components/UseSearch.vue'
+// import Search from '@/components/UseSearch.vue'
 import {
   Sheet,
   SheetContent,
@@ -481,6 +489,16 @@ import {
 import { Badge } from '@/components/ui/badge'
 import MainNav from '../MainNav.vue'
 import {
+  Pagination,
+  PaginationEllipsis,
+  PaginationFirst,
+  PaginationLast,
+  PaginationList,
+  PaginationListItem,
+  PaginationNext,
+  PaginationPrev,
+} from '@/components/ui/pagination';
+import {
   Select,
   SelectContent,
   SelectGroup,
@@ -488,11 +506,88 @@ import {
   SelectTrigger,
 } from '@/components/ui/select'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { useVendorTransactionStore } from '@/stores/vendor/vendor-transactions'
+import { useGeeftrStore } from '@/stores/vendor/vendor-gifter'
 import ProxyNav from '../ProxyNav.vue'
+import type { Order } from '@/stores/vendor/vendor-gifter'
+import exportToExcel from '@/composables/excelExport'
+import { toast } from '../ui/toast'
+import axios from 'axios'
+import { catchErr } from '@/composables/catchError'
 
-// const open = ref<boolean>(false)
-// const id = ref<string>('0')
+const transactionList = useGeeftrStore()
+
+const orders = computed(()=>{
+  return transactionList.orders;
+})
+
+const order = computed(()=>{
+  return transactionList.order;
+})
+
+const currentPage = computed(()=>{
+  return transactionList.currentPage
+});
+const totalPages = computed(()=>{
+  return transactionList.totalPages
+})
+
+const fetchOrderByID = async(id: string)=>{
+  transactionList.order = null;
+  toast({
+    title: 'Loading Data',
+    description: 'Fetching data...',
+    duration: 0 // Set duration to 0 to make it indefinite until manually closed
+  })
+
+  try {
+    // Set loading to true
+    // useGeneralStore().setLoading(true)
+    const response = await axios.get(`/api/v1/admin/market/orders/${id}`)
+
+    if (response.status === 200 || response.status === 201) {
+      transactionList.order = response.data.data;
+      toast({
+        title: 'Success',
+        description: `Success`,
+        variant: 'success'
+      })
+    }
+    // set Loading to false
+    // useGeneralStore().setLoading(false)
+  } catch (error: any) {
+    catchErr(error)
+    if (error.response.status === 401) {
+      // sessionStorage.removeItem('token')
+      // Clear token from superAdminStore
+      // superAdminStore.setToken('')
+
+      setTimeout(() => {
+        // router.push({ name: 'super-admin-login' })
+      }, 3000)
+
+      toast({
+        title: 'Unauthorized',
+        description: 'You are not authorized to perform this action. Redirecting to home page...',
+        variant: 'destructive'
+      })
+      // Redirect after 3 seconds
+    } else {
+      toast({
+        title: error.response.data.message || 'An error occurred',
+        variant: 'destructive'
+      })
+    }
+  }
+  // await transactionList.fetchOrderById('Success', id)
+}
+
+const paginationItems = computed(() => {
+  const pages = [];
+  for (let i = 1; i <= totalPages.value; i++) {
+    pages.push({ type: 'page', value: i });
+  }
+  return pages;
+});
 
 const statusBg = (status: string) => {
   switch (status) {
@@ -546,168 +641,19 @@ interface Transaction {
   receiver: Party
 }
 
-const transactions = ref<Transaction[]>([
-  {
-    id: "tx_001",
-    completed_date: "2025-09-01",
-    created_at: "2025-08-28",
-    payout: 4500,
-    total_Unit: 15,
-    total_price: 5000,
-    product_count: 3,
-    status: "overdue",
-    delivery_charge: 500,
-    payment_price: 4700,
-    discount: 300,
-    vendor: {
-      id: "v_001",
-      name: "Ruby’s Furniture Co.",
-      phone: "+2348011122233",
-      address: "12 Adeola St, Ikeja, Lagos",
-      email: "sales@rubysfurniture.com",
-    },
-    sender: {
-      id: "s_001",
-      name: "Express Logistics",
-      phone: "+2348098877665",
-      address: "Plot 4, Mainland Way, Lagos",
-      email: "dispatch@expresslogistics.ng",
-    },
-    receiver: {
-      id: "r_001",
-      name: "Chika Johnson",
-      phone: "+2348023344556",
-      address: "Flat 3B, Allen Ave, Lagos",
-      email: "chika.j@example.com",
-    },
-    products: [
-      { name: "Furniture", amount: 2, unit: 5, unit_price: 800, image: "https://res.cloudinary.com/drykej1am/image/upload/v1721874426/weesh/categories/AWFAGiROM7oxB4ZJWhnaAYkP.jpg" },
-      { name: "Cooking Oil", amount: 1, unit: 3, unit_price: 1200, image: "https://res.cloudinary.com/drykej1am/image/upload/v1721875177/weesh/categories/I9IP1OFoxLzZQpA9Sl12fb_g.jpg" },
-      { name: "Sugar Pack", amount: 2, unit: 7, unit_price: 300, image: "https://res.cloudinary.com/drykej1am/image/upload/v1721875177/weesh/categories/I9IP1OFoxLzZQpA9Sl12fb_g.jpg" },
-    ],
-  },
-  {
-    id: "tx_002",
-    created_at: "2025-09-05",
-    completed_date: '2025-09-01',
-    payout: 2300,
-    total_Unit: 8,
-    total_price: 2500,
-    product_count: 2,
-    status: "delivered",
-    delivery_charge: 200,
-    payment_price: 2300,
-    discount: 0,
-    vendor: {
-      id: "v_002",
-      name: "Neat Supplies Ltd.",
-      phone: "+2348056677889",
-      address: "7 Unity Close, Surulere, Lagos",
-      email: "orders@neatsupplies.com",
-    },
-    sender: {
-      id: "s_002",
-      name: "Swift Dispatch",
-      phone: "+2348082233445",
-      address: "Opebi Road, Ikeja, Lagos",
-      email: "support@swiftdispatch.ng",
-    },
-    receiver: {
-      id: "r_002",
-      name: "Adeyemi Folarin",
-      phone: "+2348091112233",
-      address: "19 Oregun St, Lagos",
-      email: "adeyemi.f@example.com",
-    },
-    products: [
-      { name: "Detergent", amount: 1, unit: 3, unit_price: 400, image: "https://res.cloudinary.com/drykej1am/image/upload/v1721875177/weesh/categories/I9IP1OFoxLzZQpA9Sl12fb_g.jpg" },
-      { name: "Furniture", amount: 5, unit: 5, unit_price: 300, image: "https://res.cloudinary.com/drykej1am/image/upload/v1721874426/weesh/categories/AWFAGiROM7oxB4ZJWhnaAYkP.jpg" },
-    ],
-  },
-  {
-    id: "tx_003",
-    completed_date: "2025-09-08",
-    created_at: "2025-09-07",
-    payout: 10000,
-    total_Unit: 20,
-    total_price: 11000,
-    product_count: 4,
-    status: "new",
-    delivery_charge: 1000,
-    payment_price: 10500,
-    discount: 500,
-    vendor: {
-      id: "v_003",
-      name: "Tech Essentials Hub",
-      phone: "+2348012334455",
-      address: "Mall 3, Ikeja City Mall, Lagos",
-      email: "contact@techhub.ng",
-    },
-    sender: {
-      id: "s_003",
-      name: "Lynx Couriers",
-      phone: "+2348095566778",
-      address: "Iyana Ipaja, Lagos",
-      email: "info@lynxcouriers.com",
-    },
-    receiver: {
-      id: "r_003",
-      name: "Oluwatobi Akin",
-      phone: "+2348029988776",
-      address: "14 Elegushi Road, Lekki, Lagos",
-      email: "tobi.akin@example.com",
-    },
-    products: [
-      { name: "Laptop Bag", amount: 2, unit: 2, unit_price: 2500, image: "https://res.cloudinary.com/drykej1am/image/upload/v1721874850/weesh/categories/WW18ndBhpeKoy2scWXeVqHBv.jpg" },
-      { name: "Furniture", amount: 3, unit: 3, unit_price: 500, image: "https://res.cloudinary.com/drykej1am/image/upload/v1721874426/weesh/categories/AWFAGiROM7oxB4ZJWhnaAYkP.jpg" },
-      { name: "Keyboard", amount: 2, unit: 2, unit_price: 1500, image: "https://res.cloudinary.com/drykej1am/image/upload/v1721874850/weesh/categories/WW18ndBhpeKoy2scWXeVqHBv.jpg" },
-      { name: "USB Cable", amount: 5, unit: 5, unit_price: 200, image: "https://res.cloudinary.com/drykej1am/image/upload/v1721874850/weesh/categories/WW18ndBhpeKoy2scWXeVqHBv.jpg" },
-    ],
-  },
-  {
-    id: "tx_004",
-    completed_date: "2025-09-10",
-    created_at: "2025-09-09",
-    payout: 5200,
-    total_Unit: 10,
-    total_price: 5700,
-    product_count: 3,
-    status: "outbound",
-    delivery_charge: 500,
-    payment_price: 5200,
-    discount: 500,
-    vendor: {
-      id: "v_004",
-      name: "FreshMart Groceries",
-      phone: "+2348076543210",
-      address: "22 Bode Thomas St, Surulere, Lagos",
-      email: "support@freshmart.ng",
-    },
-    sender: {
-      id: "s_004",
-      name: "QuickMove Logistics",
-      phone: "+2348094433221",
-      address: "Ojodu Berger, Lagos",
-      email: "hello@quickmove.ng",
-    },
-    receiver: {
-      id: "r_004",
-      name: "Ngozi Okafor",
-      phone: "+2348021133445",
-      address: "10 Marina Rd, Lagos Island, Lagos",
-      email: "ngozi.okafor@example.com",
-    },
-    products: [
-      { name: "Rice Bag", amount: 1, unit: 5, unit_price: 1200, image: "https://res.cloudinary.com/drykej1am/image/upload/v1721874850/weesh/categories/WW18ndBhpeKoy2scWXeVqHBv.jpg" },
-      { name: "Groundnut Oil", amount: 2, unit: 3, unit_price: 900, image: "https://res.cloudinary.com/drykej1am/image/upload/v1721875177/weesh/categories/I9IP1OFoxLzZQpA9Sl12fb_g.jpg" },
-      { name: "Salt Pack", amount: 5, unit: 2, unit_price: 200, image: "https://res.cloudinary.com/drykej1am/image/upload/v1721875177/weesh/categories/I9IP1OFoxLzZQpA9Sl12fb_g.jpg" },
-    ],
-  },
-])
+const transactions = ref<Transaction[]>([])
 
-const filteredList = ref<Transaction[]>(transactions.value)
+const filteredList = ref<Order[] | null>(orders.value)
+watch(
+  orders,
+  (newVal) => {
+    filteredList.value = newVal
+  },
+  { immediate: true }
+)
+
 const analytics = computed(()=>{
-  return useVendorTransactionStore().analytics
+  return useGeeftrStore().analytics
 })
 
 // Keep track of sort directions per field
@@ -731,16 +677,18 @@ function sortByDate() {
 }
 
 function filterByStatus(status: string) {
-  if (status.toLowerCase() === "all") return transactions.value
-  return transactions.value.filter(
+  if (status.toLowerCase() === "all") return orders.value
+  if(orders.value){
+    return orders?.value.filter(
     (tx) => tx.status.toLowerCase() === status.toLowerCase()
   )
+  }
 }
 
 const selectedStatus = ref("all")
 function onStatusChange(value: string) {
   selectedStatus.value = value
-  filteredList.value = filterByStatus(value)
+  filteredList.value = filterByStatus(value) || null
 }
 
 
@@ -790,8 +738,31 @@ function formatDate(dateStr: string | null): string | null {
   }).format(date);
 }
 
+const handleExport= async()=>{
+  try {
+    toast({
+      title: 'Loading Data',
+      description: 'Exporting data...',
+      variant: 'loading' // Set duration to 0 to make it indefinite until manually closed
+    })
+    await exportToExcel(orders.value)
+    toast({
+      title: 'Loading Data',
+      description: 'Export success',
+      variant: 'success'
+    })
+  } catch (error) {
+   toast({
+      title: 'Loading Data',
+      description: 'Error with export',
+      variant: 'destructive' // Set duration to 0 to make it indefinite until manually closed
+    }) 
+  }
+}
+
 onMounted(()=>{
-  useVendorTransactionStore().fetchAllTransactions('Analytics')
+  // useGeeftrStore().fetchAllTransactions('Analytics')
+  useGeeftrStore().fetchAllOrders('Orders')
 })
 
 </script>
