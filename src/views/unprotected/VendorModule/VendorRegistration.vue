@@ -164,9 +164,9 @@ const fetchVendorsData = async (msg: string) => {
     // Set loading to true
     // useGeneralStore().setLoading(true)
     const response = await axios.get(`/api/v1/market/invites/${id}`)
-
+    console.log(response)
     if (response.status === 200 || response.status === 201) {
-      if(response.data.data !== null){
+      if(response.data.data.acceptedAt !== null){
         toast({
           title: 'Success',
           description: `Invite already accepted please login!`,
