@@ -121,12 +121,12 @@
     <!-- Delivery Details -->
     <div class="grid grid-cols-12 gap-2 md:gap-8 my-2 md:my-4">
       <div class="col-span-12 md:col-span-6">
-        <Label class="px-2">Average Delivery Timeframe (minutes)</Label>
+        <Label class="px-2">Average Delivery Timeframe (Days)</Label>
         <Input 
           v-model.number="opsFormData.averageDeliveryMins" 
           type="number" 
           class=""
-          placeholder="Enter minutes"
+          placeholder="Enter days"
         />
       </div>
       <div class="col-span-12 md:col-span-4">
