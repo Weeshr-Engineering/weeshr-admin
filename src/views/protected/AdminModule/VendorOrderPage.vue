@@ -494,10 +494,7 @@
                     {{ superAdminStore.vendor.companyEmail }}
                   </p>
                 </div>
-                <div v-if="superAdminStore.vendor?.address">
-                  <p class="text-xs text-muted-foreground">Address</p>
-                  <p class="text-xs text-[#020721]">{{ superAdminStore.vendor.address }}</p>
-                </div>
+              
               </div>
             </div>
           </div>
