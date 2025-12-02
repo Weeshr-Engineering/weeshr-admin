@@ -1,3 +1,5 @@
+// orderStore.ts
+
 import { defineStore } from 'pinia';
 import axios from 'axios';
 import { useToast } from '@/components/ui/toast';
@@ -70,14 +72,44 @@ export const useOrderStore = defineStore('order', {
       const { toast } = useToast();
       try {
         this.loading = true;
-        const response = await axios.get(`/api/v1/market/orders/vendor/${vendorId}`);
+        // Fixed endpoint to match API spec
+        const response = await axios.get(`/api/v1/admin/market/orders/vendor/${vendorId}`);
         
         if (response.status === 200 || response.status === 201) {
-          this.orders = response.data.data || response.data;
+          const ordersData = response.data.data || response.data;
+          
+          // Transform orders to match the component's expected structure
+          this.orders = Array.isArray(ordersData) ? ordersData.map((order: any) => {
+            // Transform items
+            if (order.items && Array.isArray(order.items)) {
+              order.items = order.items.map((item: any) => ({
+                _id: item.productId?._id || item._id,
+                name: item.productId?.name || item.name || 'Product',
+                price: item.price || 0,
+                quantity: item.quantity || 1,
+                image: item.productId?.image || item.image || null,
+                productId: item.productId?._id
+              }));
+            }
+            
+            // Transform shipping address if it's a string
+            if (typeof order.shippingAddress === 'string') {
+              order.shippingAddress = {
+                address: order.shippingAddress,
+                recipientName: order.customerName || null,
+                phone: order.customerPhone || null,
+                city: null,
+                state: null
+              };
+            }
+            
+            return order;
+          }) : [];
+          
           this.error = null;
         } else {
           toast({
-            description: response.data.message,
+            description: response.data.message || 'Failed to fetch orders',
             variant: 'destructive'
           });
         }
@@ -92,49 +124,125 @@ export const useOrderStore = defineStore('order', {
       }
     },
 
-    async fetchOrderById(orderId: string) {
-      const { toast } = useToast();
-      try {
-        this.loading = true;
-        const response = await axios.get(`/api/v1/admin/market/orders/${orderId}`);
-        
-        if (response.status === 200 || response.status === 201) {
-          this.currentOrder = response.data.data || response.data;
-          this.error = null;
-        } else {
-          toast({
-            description: response.data.message,
-            variant: 'destructive'
-          });
-        }
-      } catch (error: any) {
-        this.error = error.message || 'An unexpected error occurred';
+    // orderStore.ts - fix fetchOrderById method
+async fetchOrderById(orderId: string) {
+  const { toast } = useToast();
+  try {
+    this.loading = true;
+    const response = await axios.get(`/api/v1/admin/market/orders/${orderId}`);
+    
+    if (response.status === 200 || response.status === 201) {
+      // According to Postman response, data is in response.data.data
+      const orderData = response.data.data || response.data;
+      
+      if (!orderData) {
         toast({
-          description: error.response?.data?.message || 'Failed to fetch order',
+          description: 'Order not found',
           variant: 'destructive'
         });
-      } finally {
-        this.loading = false;
+        return;
       }
-    },
+
+      // Transform the data to match your component's expected structure
+      const transformedOrder = {
+        _id: orderData._id,
+        userId: orderData.userId,
+        vendorId: orderData.vendorId,
+        
+        // Transform items array - note: Postman shows productId as an object
+        items: Array.isArray(orderData.items) ? orderData.items.map((item: any) => ({
+          _id: item._id || item.productId?._id,
+          productId: item.productId?._id,
+          name: item.productId?.name || 'Product',
+          price: item.price || item.productId?.amount || 0,
+          quantity: item.quantity || 1,
+          image: item.productId?.image || null,
+          amount: item.productId?.amount || 0
+        })) : [],
+        
+        // Status fields
+        status: orderData.status || 'new',
+        paymentStatus: orderData.paymentStatus || 'pending',
+        
+        // Amount fields
+        totalAmount: orderData.totalAmount || 0,
+        amount: orderData.amount || orderData.totalAmount || 0,
+        
+        // Shipping information
+        shippingAddress: typeof orderData.shippingAddress === 'string' 
+          ? {
+              address: orderData.shippingAddress,
+              recipientName: null, // Not in Postman response
+              phone: null, // Not in Postman response
+              city: null,
+              state: null
+            }
+          : orderData.shippingAddress,
+        
+        // Customer information - note: these fields aren't in Postman response
+        // You might need to add them to your API response
+        customerName: orderData.customerName || null,
+        customerPhone: orderData.customerPhone || null,
+        customerEmail: orderData.customerEmail || null,
+        
+        // Additional fields
+        payoutMethod: orderData.payoutMethod,
+        deliveryCharge: orderData.deliveryCharge || 0,
+        discount: orderData.discount || 0,
+        isDeleted: orderData.isDeleted || false,
+        createdAt: orderData.createdAt,
+        updatedAt: orderData.updatedAt,
+        __v: orderData.__v
+      };
+
+      this.currentOrder = transformedOrder;
+      this.error = null;
+      
+      // Also update the order in the orders list if it exists
+      const orderIndex = this.orders.findIndex(o => o._id === orderId);
+      if (orderIndex !== -1) {
+        this.orders[orderIndex] = { ...this.orders[orderIndex], ...transformedOrder };
+      }
+      
+      return transformedOrder;
+    } else {
+      toast({
+        description: response.data.message || 'Failed to fetch order',
+        variant: 'destructive'
+      });
+    }
+  } catch (error: any) {
+    this.error = error.message || 'An unexpected error occurred';
+    toast({
+      description: error.response?.data?.message || 'Failed to fetch order',
+      variant: 'destructive'
+    });
+    throw error;
+  } finally {
+    this.loading = false;
+  }
+},
 
     async updateOrderStatus(orderId: string, status: string) {
       const { toast } = useToast();
       try {
         this.loading = true;
-        const response = await axios.patch(`/api/v1/market/orders/${orderId}/status`, { status });
+        const response = await axios.put(
+          `/api/v1/admin/market/orders/${orderId}/status`, 
+          { status }
+        );
         
         if (response.status === 200 || response.status === 201) {
           // Update local state
           const orderIndex = this.orders.findIndex(order => order._id === orderId);
           if (orderIndex !== -1) {
             this.orders[orderIndex].status = status;
-            this.orders[orderIndex].updatedAt = new Date();
+            this.orders[orderIndex].updatedAt = new Date().toISOString();
           }
           
           if (this.currentOrder && this.currentOrder._id === orderId) {
             this.currentOrder.status = status;
-            this.currentOrder.updatedAt = new Date();
+            this.currentOrder.updatedAt = new Date().toISOString();
           }
 
           this.error = null;
@@ -146,7 +254,7 @@ export const useOrderStore = defineStore('order', {
           return response.data.data || response.data;
         } else {
           toast({
-            description: response.data.message,
+            description: response.data.message || 'Failed to update order status',
             variant: 'destructive'
           });
         }
@@ -166,14 +274,17 @@ export const useOrderStore = defineStore('order', {
       const { toast } = useToast();
       try {
         this.loading = true;
-        const response = await axios.get(`/api/v1/market/orders/vendor/${vendorId}/analytics/status`);
+        // Fixed endpoint - removed double slash
+        const response = await axios.get(
+          `/api/v1/admin/market/orders/vendor/${vendorId}/analytics/status`
+        );
         
         if (response.status === 200 || response.status === 201) {
           this.analytics = response.data.data || response.data;
           this.error = null;
         } else {
           toast({
-            description: response.data.message,
+            description: response.data.message || 'Failed to fetch analytics',
             variant: 'destructive'
           });
         }
@@ -181,6 +292,32 @@ export const useOrderStore = defineStore('order', {
         this.error = error.message || 'An unexpected error occurred';
         toast({
           description: error.response?.data?.message || 'Failed to fetch analytics',
+          variant: 'destructive'
+        });
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    async fetchAllOrders() {
+      const { toast } = useToast();
+      try {
+        this.loading = true;
+        const response = await axios.get('/api/v1/admin/market/orders');
+        
+        if (response.status === 200 || response.status === 201) {
+          this.orders = response.data.data || response.data;
+          this.error = null;
+        } else {
+          toast({
+            description: response.data.message || 'Failed to fetch orders',
+            variant: 'destructive'
+          });
+        }
+      } catch (error: any) {
+        this.error = error.message || 'An unexpected error occurred';
+        toast({
+          description: error.response?.data?.message || 'Failed to fetch orders',
           variant: 'destructive'
         });
       } finally {
@@ -209,7 +346,7 @@ export const useOrderStore = defineStore('order', {
           });
         } else {
           toast({
-            description: response.data.message,
+            description: response.data.message || 'Failed to delete order',
             variant: 'destructive'
           });
         }
@@ -229,7 +366,8 @@ export const useOrderStore = defineStore('order', {
       const { toast } = useToast();
       try {
         this.loading = true;
-        const response = await axios.get(`/api/v1/market/orders/vendor/${vendorId}`, {
+        // Fixed endpoint
+        const response = await axios.get(`/api/v1/admin/market/orders/vendor/${vendorId}`, {
           params: { search: searchTerm }
         });
         
@@ -238,7 +376,7 @@ export const useOrderStore = defineStore('order', {
           this.error = null;
         } else {
           toast({
-            description: response.data.message,
+            description: response.data.message || 'Failed to search orders',
             variant: 'destructive'
           });
         }
