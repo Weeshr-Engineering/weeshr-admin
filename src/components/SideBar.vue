@@ -184,15 +184,15 @@ const openNotificationsBoard = () => {
         </a>
       </li>
 
-      <!-- <li :class="{ 'dashboard-active': isActive('/analytics') }">
-        <a @click="$router.push({ name: 'AdminAnalytics' })">
+      <li v-if="bank && !superAdminStore.isVendor" :class="{ 'dashboard-active': isActive('/vendor/payout') }">
+        <a @click="$router.push({ name: 'vendorPayout' })">
           <div class="icon-grid">
-            <Icon icon="carbon:text-link-analysis" width="17" height="17" class="icons-sidebar" />
+            <Icon icon="fluent:building-bank-16-filled" width="17" height="17" class="icons-sidebar" />
           </div>
 
-          <span class="nav-text"> Analytics </span>
+          <span class="nav-text"> Vendor Payout </span>
         </a>
-      </li> -->
+      </li>
  
      
 

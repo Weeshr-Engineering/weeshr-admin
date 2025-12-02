@@ -134,39 +134,6 @@ const fetchBankData = async (msg: string) => {
     if (response.status === 200 || response.status === 201) {
       // Update the users data with the response
       bankDetails.value = response.data.data;
-      // bankDetails.value = [{
-      //   _id: '345',
-      //    vendorId: id!,
-      //   bankName: 'Access',
-      //   bankCode: '123',
-      //   accountName: 'Ruby',
-      //   accountNumber: '12345667776',
-      //   recipientCode: '21212',
-      //   payoutFrequency: 'weekly',
-      //   isDefault: true,
-      //   isDeleted: false,
-      //   // deletedAt?: ;
-      //   // createdAt?: Date | undefined;
-      //   // updatedAt?: Date | undefined;
-      // }, {
-      //   _id: '2323',
-      //    vendorId: id!,
-      //   bankName: 'First Bank',
-      //   bankCode: '203',
-      //   accountName: 'Ruby',
-      //   accountNumber: '12343467776',
-      //   recipientCode: '21212',
-      //   payoutFrequency: 'weekly',
-      //   isDefault: true,
-      //   isDeleted: false,
-      //   // deletedAt?: ;
-      //   // createdAt?: Date | undefined;
-      //   // updatedAt?: Date | undefined;
-      // }]
-      // const responseData = response.data.data[0]
-      // const phoneData = response.data.data[0].phoneNumber.normalizedNumber
-      // const data = { ...responseData, phone: phoneData }
-      // Show success toast
       toast({
         title: 'Success',
         description: `Success- ${msg}`,
@@ -533,6 +500,7 @@ watch([bankCode, accountNumber, payoutFrequency], ([newBank, newAcc, newFreq]) =
           description: `${bankName.value?.name} added successfully.`,
           variant: 'success'
         })
+        await useSuperAdminStore().fetchUsersData('Success')
       }
       // Handle success
     } catch (err: any) {

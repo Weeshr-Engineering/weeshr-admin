@@ -43,7 +43,10 @@ const formSchema = toTypedSchema(
       .string({
         required_error: 'Please enter your password '
       })
-      .min(9),
+      .min(9)
+      .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+      .regex(/\d/, 'Password must contain at least one number')
+      .regex(/[^A-Za-z0-9]/, 'Password must contain at least one symbol'),
     
     confirmPassword: z
       .string({
@@ -70,7 +73,15 @@ const onConfirmPasswordInput = (event: Event) => {
   confirmPasswordValue.value = target.value
 }
 
-const saveDetails = async (password: string) => {
+const onSubmit = form.handleSubmit(async () => {
+  loading.value = true
+
+  // Ensure userEmail and password have values
+  if (form.values.password && form.values.confirmPassword) {
+    const { password } = form.values
+
+    // Set the username and password in the store
+    // setPassword(password) 
     toast({
       title: 'Loading Data',
       description: 'Processing...',
@@ -97,33 +108,6 @@ const saveDetails = async (password: string) => {
           variant: 'success'
         })
       }
-      // Handle success
-    } catch (err: any) {
-      //   VendorListStore.loadingControl(false)
-      // console.log(err)
-      catchErr(err)
-      // Handle other errors
-    }
-  }
-
-const onSubmit = form.handleSubmit(async () => {
-  loading.value = true
-
-  // Ensure userEmail and password have values
-  if (form.values.password && form.values.confirmPassword) {
-    const { password } = form.values
-
-    // Set the username and password in the store
-    // setPassword(password)
-
-
-    try {
-      await saveDetails(password)
-      
-      // toast({
-      //   description: 'Form submitted successfully!',
-      //   variant: 'default'
-      // })
 
       // Reset form after successful submission
       form.resetForm()
@@ -132,6 +116,7 @@ const onSubmit = form.handleSubmit(async () => {
       router.push('/')
 
     } catch (error: any) {
+      catchErr(error)
       loading.value = false
       
       return toast({

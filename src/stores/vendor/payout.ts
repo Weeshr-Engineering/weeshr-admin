@@ -55,7 +55,7 @@ export const usePayoutStore = defineStore('payout', {
         })
         this.loading = true
         // useGeneralStore().setLoadingToTrue()
-        const response = await axios.get(`/api/v1/admin/payouts/users/list?per_page=${20}&page=${page}`)
+        const response = await axios.get(`/api/v1/admin/market/payouts?per_page=${30}&page=${page}`)
         if (response.status === 200 || response.status === 201) {
           toast({
             title: 'Success',
@@ -63,10 +63,11 @@ export const usePayoutStore = defineStore('payout', {
             variant: 'success'
           })
           const data = response.data.data
-          this.payout = data.data;
-          this.perPage = response.data.data.perPage
-          this.currentPage = response.data.data.currentPage
-          this.totalPages = response.data.data.totalPages    
+        //   console.log(response)
+          this.payout = data;
+          this.perPage = response.data.perPage
+          this.currentPage = response.data.currentPage
+          this.totalPages = response.data.totalPages    
         }
       } catch (error) {
         // console.log(error)
