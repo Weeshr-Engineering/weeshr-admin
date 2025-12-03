@@ -1,67 +1,77 @@
 <template>
   <div class="flex-col flex bg-[#f0f8ff] h-full px-4 sm:px-10 pb-10">
-    <VendorNav class="mx-6" headingText="Orders"/>
+    <VendorNav class="mx-6" headingText="Order" />
 
     <div class="w-full grid gap-4 md:grid-cols-2 md:gap-6 lg:grid-cols-5 pt-6">
       <Card
-        class="h-[150px] rounded-[24px] transition-transform transform hover:scale-105 bg-[#DF6C50]  border-transparent"
+        class="h-[150px] rounded-[24px] transition-transform transform hover:scale-105 bg-[#DF6C50] border-transparent"
       >
         <div class="h-[130px] pt-4 relative rounded-tr-[24px] rounded-tl-[24px]">
           <CardContent class="flex items-center justify-between space-y-0">
             <p class="text-l font-medium text-[#ffffff]">Overdue</p>
-            <div >
+            <div>
               <SquareArrowOutUpRight width="24px" height="24px" color="#ffffff" />
             </div>
             <p class="text-2xl lg:text-3xl font-medium text-[#FFFFFF] absolute bottom-2 left-5">
-              {{ orderStore.analytics.overdue }}
+              {{ orderStore.analytics.overdue || 0 }}
             </p>
           </CardContent>
         </div>
       </Card>
 
       <Card
-        class="h-[150px] rounded-[24px] transition-transform transform hover:scale-105 bg-[#3A8EE5]  border-transparent"
+        class="h-[150px] rounded-[24px] transition-transform transform hover:scale-105 bg-[#3A8EE5] border-transparent"
       >
         <div class="h-[130px] pt-4 relative rounded-tr-[24px] rounded-tl-[24px]">
           <CardContent class="flex items-center justify-between space-y-0">
             <p class="text-l font-medium text-[#ffffff]">New</p>
-            <div >
-              <RefreshCcw  width="24px" height="24px" color="#3A8EE5"   class="bg-[white] rounded-sm"/>
+            <div>
+              <RefreshCcw
+                width="24px"
+                height="24px"
+                color="#3A8EE5"
+                class="bg-[white] rounded-sm"
+              />
             </div>
             <p class="text-2xl lg:text-3xl font-medium text-[#FFFFFF] absolute bottom-2 left-5">
-              {{ orderStore.analytics.new }}
+              {{ orderStore.analytics.new || 0 }}
             </p>
           </CardContent>
         </div>
       </Card>
 
       <Card
-        class="h-[150px] rounded-[24px] transition-transform transform hover:scale-105 bg-[#6A70FF]  border-transparent"
+        class="h-[150px] rounded-[24px] transition-transform transform hover:scale-105 bg-[#6A70FF] border-transparent"
       >
         <div class="h-[130px] pt-4 relative rounded-tr-[24px] rounded-tl-[24px]">
           <CardContent class="flex items-center justify-between space-y-0">
             <p class="text-l font-medium text-[#ffffff]">Processing</p>
-            <div >
-              <SlidersVertical  width="24px" height="24px" color="#3A8EE5"   class="bg-[white] rounded-sm"/>
+            <div>
+              <SlidersVertical
+                width="24px"
+                height="24px"
+                color="#3A8EE5"
+                class="bg-[white] rounded-sm"
+              />
             </div>
             <p class="text-2xl lg:text-3xl font-medium text-[#FFFFFF] absolute bottom-2 left-5">
-              {{ orderStore.analytics.processing }}
+              {{ orderStore.analytics.processing || 0 }}
             </p>
           </CardContent>
         </div>
       </Card>
 
       <Card
-        class="h-[150px] rounded-[24px] transition-transform transform hover:scale-105 bg-[#EE9F39]  border-transparent"
+        class="h-[150px] rounded-[24px] transition-transform transform hover:scale-105 bg-[#EE9F39] border-transparent"
       >
         <div class="h-[130px] pt-4 relative rounded-tr-[24px] rounded-tl-[24px]">
           <CardContent class="flex items-center justify-between space-y-0">
             <p class="text-l font-medium text-[#ffffff]">Outbound</p>
-            <div >
+            <div>
               <Truck width="24px" height="24px" color="#ffffff" />
             </div>
             <p class="text-2xl lg:text-3xl font-medium text-[#FFFFFF] absolute bottom-2 left-5">
-              {{ orderStore.analytics.outbound }}
+              {{ orderStore.analytics.outbound || 0 }}
             </p>
           </CardContent>
         </div>
@@ -74,10 +84,10 @@
           <CardContent class="flex items-center justify-between space-y-0">
             <p class="text-l font-medium text-[#FFFFFF]">Delivered</p>
             <div class="weeshr-icon2 rounded-[7px]">
-              <Check width="24px" height="24px" color="#00C37F"  />
+              <Check width="24px" height="24px" color="#00C37F" />
             </div>
             <p class="text-2xl lg:text-3xl font-medium text-[#FFFFFF] absolute bottom-2 left-5">
-              {{ orderStore.analytics.delivered }}
+              {{ orderStore.analytics.delivered || 0 }}
             </p>
           </CardContent>
         </div>
@@ -89,10 +99,8 @@
     >
       <div class="flex flex-col sm:flex-row items-center justify-between py-4">
         <div class="text-xl sm:text-xl font-bold tracking-tight text-[#020721] mb-2 sm:mb-0">
-         Order Sheet
-          <p class="text-xs sm:text-sm font-normal text-[#02072199]">
-            Details of all orders
-          </p>
+          Order Sheet
+          <p class="text-xs sm:text-sm font-normal text-[#02072199]">Details of all orders</p>
         </div>
         <div class="flex items-center flex-col md:flex-row gap-4">
           <Search @search="handleSearch" class="mt-3 lg:mt-0" />
@@ -128,6 +136,15 @@
         <button @click="clearError" class="ml-2 text-blue-600 underline">Try Again</button>
       </div>
 
+      <!-- Empty State -->
+      <div
+        v-else-if="orderStore.filteredOrders.length === 0"
+        class="text-center py-8 text-gray-500"
+      >
+        <p class="text-lg font-medium">No orders found</p>
+        <p class="text-sm">Orders will appear here once customers make purchases</p>
+      </div>
+
       <!-- Orders Table -->
       <div v-else class="overflow-auto bg-white rounded-lg shadow">
         <Table class="lg:w-full w-[800px]">
@@ -136,34 +153,22 @@
               class="text-xs sm:text-sm md:text-base text-[#02072199] font-semibold bg-gray-200"
             >
               <TableHead>
-                <div class="flex items-center">
-                  Order Date
-                </div>
+                <div class="flex items-center">Order Date</div>
               </TableHead>
               <TableHead>
-                <div class="flex items-center">
-                  Total Amount
-                </div>
+                <div class="flex items-center">Total Amount</div>
               </TableHead>
               <TableHead>
-                <div class="flex items-center">
-                  Item Count
-                </div>
-              </TableHead>
-              <TableHead @click="sortByProductCount">
-                <div class="flex items-center">
-                  Price
-                  <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
-                </div>
+                <div class="flex items-center">Item Count</div>
               </TableHead>
               <TableHead>
-                <div class="flex items-center">
-                  Status
-                  <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
-                </div>
+                <div class="flex items-center">Payment Status</div>
+              </TableHead>
+              <TableHead>
+                <div class="flex items-center">Status</div>
               </TableHead>
               <TableHead>Order ID</TableHead>
-              <TableHead></TableHead>
+              <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -177,8 +182,8 @@
               <TableCell class="text-xs md:text-sm lg:text-sm">
                 {{ order.items?.length || 0 }}
               </TableCell>
-              <TableCell class="text-xs md:text-sm lg:text-sm">
-                {{ order.items?.length || 0 }}
+              <TableCell class="text-xs md:text-sm lg:text-sm capitalize">
+                {{ order.paymentStatus || 'pending' }}
               </TableCell>
               <TableCell>
                 <div
@@ -188,144 +193,29 @@
                   {{ order.status }}
                 </div>
               </TableCell>
-              <TableCell class="text-xs md:text-sm lg:text-sm">{{ order._id }}</TableCell>
+              <TableCell class="text-xs md:text-sm lg:text-sm">
+                {{ order._id?.substring(0, 8) }}...
+              </TableCell>
               <TableCell>
-                <Sheet>
-                  <SheetTrigger>
-                    <svg
-                      width="20"
-                      height="50"
-                      viewBox="0 0 20 50"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M7 31L12.5118 26.0606C13.1627 25.4773 13.1627 24.5227 12.5118 23.9394L7 19"
-                        stroke="#54586D"
-                        stroke-opacity="0.8"
-                        stroke-width="2"
-                        stroke-miterlimit="10"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      />
-                    </svg>
-                  </SheetTrigger>
-                  <SheetContent length="mid_low" class="flex flex-col space-y-0 overflow-y-scroll">
-                    <SheetHeader class="flex flex-col items-start px-4">
-                      <SheetDescription>
-                        Order ID.
-                      </SheetDescription>
-                      <h3 class="text-2xl font-medium">{{ order._id }}</h3>
-                    </SheetHeader>
-                    <Card Content class="rounded-lg my-4 hover:shadow-xl px-2 md:px-0">
-                      <CardContent class="flex flex-col md:flex-row items-start md:items-center justify-between px-2 sm:px-6 py-4">
-                        <span class="flex gap-2 items-center">
-                          <div class="flex flex-col items-start gap-2">
-                            <div class="flex flex-col items-start md:flex-row gap-4">
-                              <p class="text-sm text-muted-foreground text-nowrap text-center text-[#000000]">
-                               Initiated Date
-                              </p>
-                            </div>
-                            <p class="text-lg my-2 md:my-0 text-primary font-bold text-[#000000]">
-                              {{ formatDate(order.createdAt) }}
-                            </p>
-                          </div>
-                        </span>
-                      <div class="flex items-center gap-4 bg-success">
-                        <Badge variant="outline" :class="statusBg(order.status)" class="text-xs text-white">{{ order.status }}</Badge>
-                      </div>
-                      </CardContent>
-                    </Card>
-                    <Card Content class="rounded-lg px-0">
-                      <CardHeader>
-                        <div class="flex flex-col md:flex-row md:items-center justify-between w-full">
-                          <div class="flex items-center gap-4">
-                            <h2 class="font-bold md:text-lg">Orders</h2>
-                            <Badge class="bg-[#E9F4D1] text-primary">{{ order.items?.length || 0 }}</Badge>
-                          </div>
-                          <h1 class="font-bold text-xl">₦{{ order.totalAmount?.toLocaleString() || '0' }}</h1>
-                        </div>
-                      </CardHeader>
-                      <CardContent class="px-4">
-                        <div 
-                          class="bg-[#F6F6F6] rounded-lg mb-4 flex flex-col items-center hover:shadow-md" 
-                          v-for="(item, index) in order.items" 
-                          :key="index"
-                        >
-                          <div class="bg-white border flex items-center justify-between w-full py-2 px-2 rounded-lg">
-                            <span class="flex gap-2 items-center">
-                              <div class="inline-block text-[#F8F9FF] w-14 h-14">
-                                <img :src="item.image || 'https://res.cloudinary.com/drykej1am/image/upload/v1721874426/weesh/categories/AWFAGiROM7oxB4ZJWhnaAYkP.jpg'" class="w-full h-full rounded-sm"/>
-                              </div>
-                              <div class="flex flex-col">
-                                <p class="md:text-lg text-primary font-semibold">
-                                  {{ item.name || 'Product' }}
-                                </p>
-                                <p class="text-sm text-muted-foreground text-[#000000]">
-                                  ₦{{ item.price?.toLocaleString() || '0' }}
-                                </p>
-                              </div>
-                            </span>
-                            <div class="flex items-center gap-4">
-                              <Badge variant="outline">100ml</Badge>
-                            </div>
-                          </div>
-                          <div class="w-full flex items-center justify-between py-3 px-4">
-                            <h3 class="text-xs font-semibold text-muted-foreground">Unit x{{ item.quantity || 1 }}</h3>
-                            <h2 class="text-md text-primary font-semibold">
-                              ₦{{ ((item.price || 0) * (item.quantity || 1)).toLocaleString() }}
-                            </h2>
-                          </div>
-                        </div>
-                        <div class="rounded-lg overflow-hidden flex flex-col mt-6">
-                          <div class="bg-[#F6F6F6] flex items-center justify-between w-full px-4 py-2">
-                            <div class="flex items-center gap-4">
-                              <h2 class="text-xs font-semibold text-muted-foreground">Total Value</h2>
-                            </div>
-                            <h1 class="text-md text-primary font-semibold">
-                              ₦{{ order.totalAmount?.toLocaleString() || '0' }}
-                            </h1>
-                          </div>
-                          <div class="bg-[#F6F6F6] flex items-center justify-between w-full px-4 py-2 my-1">
-                            <div class="flex items-center gap-4">
-                              <h2 class="text-xs font-semibold text-muted-foreground">Delivery Charge</h2>
-                            </div>
-                            <h1 class="text-md text-primary font-semibold">
-                              ₦{{ (order.deliveryCharge || 0).toLocaleString() }}
-                            </h1>
-                          </div>
-                          <div class="bg-[#F6F6F6] flex items-center justify-between w-full px-4 py-2">
-                            <div class="flex items-center gap-4">
-                              <h2 class="text-xs font-semibold text-muted-foreground">Discount</h2>
-                            </div>
-                            <h1 class="text-md text-primary font-semibold">
-                              ₦{{ (order.discount || 0).toLocaleString() }}
-                            </h1>
-                          </div>
-                          <div class="bg-[#02072199] flex items-center justify-between w-full px-4 py-2">
-                            <div class="flex items-center gap-4">
-                              <h2 class="text-xs font-semibold text-[#F8F9FFB2]">Payout Value</h2>
-                            </div>
-                            <h1 class="text-md font-semibold text-white">
-                              ₦{{ ((order.totalAmount || 0) - (order.discount || 0)).toLocaleString() }}
-                            </h1>
-                          </div>
-                        </div>
-                        <CardContent class="px-4 flex justify-end mt-6">
-                          <Button 
-                            @click="updateOrderStatus(order._id, 'processing')"
-                            class="bg-[#6A70FF] px-4 py-2 rounded-xl w-fit h-12"
-                          >
-                            <div class="text-base text-[#F8F9FF] text-center flex items-center">
-                              Start Process
-                              <CircleChevronRight class="ml-2"/>
-                            </div>
-                          </Button>
-                        </CardContent>
-                      </CardContent>
-                    </Card>
-                  </SheetContent>
-                </Sheet>
+                <button @click="openOrderDetails(order._id)" class="p-1 hover:bg-gray-100 rounded">
+                  <svg
+                    width="20"
+                    height="24"
+                    viewBox="0 0 20 50"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M7 31L12.5118 26.0606C13.1627 25.4773 13.1627 24.5227 12.5118 23.9394L7 19"
+                      stroke="#54586D"
+                      stroke-opacity="0.8"
+                      stroke-width="2"
+                      stroke-miterlimit="10"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </button>
               </TableCell>
             </TableRow>
           </TableBody>
@@ -343,12 +233,283 @@
       </div>
     </Card>
     <DashboardFooter />
+
+    <!-- Order Details Sheet -->
+    <Sheet :open="isSheetOpen" @update:open="handleSheetOpenChange">
+      <SheetContent
+        length="mid_low"
+        class="flex flex-col space-y-0 overflow-y-scroll pb-6 w-full sm:max-w-lg"
+      >
+        <SheetHeader class="flex flex-col items-start px-4 pt-4">
+          <SheetDescription class="text-xs text-muted-foreground"> Order Number </SheetDescription>
+
+          <!-- Loading state for sheet -->
+          <div v-if="isSheetLoading" class="w-full py-8 text-center">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+            <p class="mt-2 text-sm text-muted-foreground">Loading order details...</p>
+          </div>
+
+          <!-- Error state -->
+          <div v-else-if="orderStore.error && isSheetOpen" class="text-red-500 text-center py-4">
+            {{ orderStore.error }}
+            <Button @click="openOrderDetails(selectedOrderId!)" variant="outline" class="ml-2"
+              >Retry</Button
+            >
+          </div>
+
+          <!-- Order details content -->
+          <div v-else-if="currentOrderForDisplay">
+            <h3 class="text-xl font-bold truncate">{{ currentOrderForDisplay._id }}</h3>
+            <div class="flex items-center justify-between w-full mt-3">
+              <div>
+                <p class="text-xs text-muted-foreground">Initiated Date</p>
+                <p class="text-sm font-medium mt-1">
+                  {{ formatDate(currentOrderForDisplay.createdAt) }}
+                </p>
+              </div>
+              <Badge
+                variant="outline"
+                :class="statusBg(currentOrderForDisplay.status)"
+                class="text-xs text-white px-3 py-1 capitalize"
+              >
+                {{ currentOrderForDisplay.status }}
+              </Badge>
+            </div>
+          </div>
+        </SheetHeader>
+
+        <!-- Order Items Section - only show if we have data -->
+        <div v-if="currentOrderForDisplay && !isSheetLoading" class="px-4 mt-6">
+          <div class="flex items-center gap-2 mb-4">
+            <h3 class="text-base font-semibold">Order</h3>
+            <Badge class="bg-[#E9F4d1] text-primary text-xs">{{
+              currentOrderForDisplay.items?.length || 0
+            }}</Badge>
+            <span class="ml-auto text-lg font-bold"
+              >₦{{ currentOrderForDisplay.totalAmount?.toLocaleString() || '0' }}</span
+            >
+          </div>
+
+          <!-- Order Items List -->
+          <div
+            v-if="currentOrderForDisplay.items && currentOrderForDisplay.items.length > 0"
+            class="space-y-3"
+          >
+            <div
+              v-for="(item, index) in currentOrderForDisplay.items"
+              :key="index"
+              class="flex items-center gap-3 pb-3 border-b last:border-b-0"
+            >
+              <img
+                :src="getProductImage(item)"
+                class="w-12 h-12 rounded-md object-cover"
+                @error="handleImageError($event, item)"
+              />
+              <div class="flex-1">
+                <p class="text-sm font-medium text-[#020721]">{{ item.name || 'Product' }}</p>
+                <p class="text-xs text-muted-foreground">
+                  ₦{{ (item.price || item.amount || 0)?.toLocaleString() || '0' }}
+                </p>
+              </div>
+              <span class="text-sm text-muted-foreground">{{ item.quantity || 1 }}x</span>
+            </div>
+          </div>
+          <div v-else class="text-center py-4 text-muted-foreground">
+            No items found in this order
+          </div>
+
+          <!-- Order Summary -->
+          <div class="mt-6 space-y-2">
+            <div class="flex justify-between text-sm">
+              <span class="text-muted-foreground">Total Value</span>
+              <span class="font-medium"
+                >₦{{ currentOrderForDisplay.totalAmount?.toLocaleString() || '0' }}</span
+              >
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-muted-foreground">Delivery Charge</span>
+              <span class="font-medium"
+                >₦{{ (currentOrderForDisplay.deliveryCharge || 2500).toLocaleString() }}</span
+              >
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-muted-foreground">Discount</span>
+              <span class="font-medium">{{
+                currentOrderForDisplay.discount
+                  ? '₦' + currentOrderForDisplay.discount.toLocaleString()
+                  : 'N/A'
+              }}</span>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div
+            v-if="
+              currentOrderForDisplay.status === 'new' || currentOrderForDisplay.status === 'pending'
+            "
+            class="flex justify-center mt-6"
+          >
+            <Button
+              class="bg-[#6A70FF] hover:bg-[#5a60ef] text-white rounded-xl h-11 px-6 gap-2"
+              @click="handleStartProcess(currentOrderForDisplay._id)"
+              :disabled="orderStore.loading"
+            >
+              Start Process
+              <CircleChevronRight class="w-5 h-5" />
+            </Button>
+          </div>
+
+          <div v-else-if="currentOrderForDisplay.status === 'processing'" class="flex gap-3 mt-6">
+            <Button
+              variant="outline"
+              class="flex-1 border-2 border-[#020721] text-[#020721] hover:bg-gray-50 rounded-xl h-11 gap-2"
+              @click="handleMarkOutbound(currentOrderForDisplay._id)"
+              :disabled="orderStore.loading"
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M19 11H7.83L12.71 6.12C13.1 5.73 13.1 5.09 12.71 4.7C12.32 4.31 11.69 4.31 11.3 4.7L4.71 11.29C4.32 11.68 4.32 12.31 4.71 12.7L11.3 19.29C11.69 19.68 12.32 19.68 12.71 19.29C13.1 18.9 13.1 18.27 12.71 17.88L7.83 13H19C19.55 13 20 12.55 20 12C20 11.45 19.55 11 19 11Z"
+                  fill="currentColor"
+                />
+              </svg>
+              Mark Outbound
+            </Button>
+            <Button
+              class="flex-1 bg-[#00C37F] hover:bg-[#00a86b] text-white rounded-xl h-11 gap-2"
+              @click="handleMarkDelivered(currentOrderForDisplay._id)"
+              :disabled="orderStore.loading"
+            >
+              Mark Delivered
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M9 16.17L4.83 12L3.41 13.41L9 19L21 7L19.59 5.59L9 16.17Z"
+                  fill="currentColor"
+                />
+              </svg>
+            </Button>
+          </div>
+
+          <div
+            v-else-if="currentOrderForDisplay.status === 'outbound'"
+            class="flex justify-center mt-6"
+          >
+            <Button
+              class="bg-[#00C37F] hover:bg-[#00a86b] text-white rounded-xl h-11 px-6 gap-2"
+              @click="handleMarkDelivered(currentOrderForDisplay._id)"
+              :disabled="orderStore.loading"
+            >
+              Mark Delivered
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M9 16.17L4.83 12L3.41 13.41L9 19L21 7L19.59 5.59L9 16.17Z"
+                  fill="currentColor"
+                />
+              </svg>
+            </Button>
+          </div>
+
+          <div
+            v-else-if="
+              currentOrderForDisplay.status === 'delivered' ||
+              currentOrderForDisplay.status === 'cancelled'
+            "
+            class="flex justify-center mt-6"
+          >
+            <p class="text-sm text-muted-foreground">Order {{ currentOrderForDisplay.status }}</p>
+          </div>
+        </div>
+
+        <!-- Receiver and Sender Information -->
+        <div v-if="currentOrderForDisplay && !isSheetLoading" class="px-4 mt-6 space-y-4">
+          <div class="grid grid-cols-2 gap-4">
+            <!-- Receiver -->
+            <div>
+              <h4 class="text-sm font-semibold text-[#020721] mb-3">Receiver</h4>
+              <div class="space-y-2">
+                <p class="text-sm font-medium text-[#020721]">
+                  {{
+                    currentOrderForDisplay.shippingAddress?.recipientName ||
+                    currentOrderForDisplay.customerName ||
+                    'N/A'
+                  }}
+                </p>
+                <div
+                  v-if="
+                    currentOrderForDisplay.shippingAddress?.phone ||
+                    currentOrderForDisplay.customerPhone
+                  "
+                >
+                  <p class="text-xs text-muted-foreground">Phone Number</p>
+                  <p class="text-xs text-[#020721]">
+                    {{
+                      currentOrderForDisplay.shippingAddress?.phone ||
+                      currentOrderForDisplay.customerPhone ||
+                      'N/A'
+                    }}
+                  </p>
+                </div>
+                <div v-if="currentOrderForDisplay.customerEmail">
+                  <p class="text-xs text-muted-foreground">Email</p>
+                  <p class="text-xs text-[#020721] break-all">
+                    {{ currentOrderForDisplay.customerEmail }}
+                  </p>
+                </div>
+                <div v-if="currentOrderForDisplay.shippingAddress?.address">
+                  <p class="text-xs text-muted-foreground">Address</p>
+                  <p class="text-xs text-[#020721]">
+                    {{ currentOrderForDisplay.shippingAddress.address }}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Sender -->
+            <div>
+              <h4 class="text-sm font-semibold text-[#020721] mb-3">Sender</h4>
+              <div class="space-y-2">
+                <p class="text-sm font-medium text-[#020721]">
+                  {{ superAdminStore.vendor?.companyName || 'Your Store' }}
+                </p>
+                <div v-if="superAdminStore.vendor?.companyEmail">
+                  <p class="text-xs text-muted-foreground">Email</p>
+                  <p class="text-xs text-[#020721] break-all">
+                    {{ superAdminStore.vendor.companyEmail }}
+                  </p>
+                </div>
+              
+              </div>
+            </div>
+          </div>
+        </div>
+      </SheetContent>
+    </Sheet>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { onMounted } from 'vue';
-import { useOrderStore } from '@/stores/order-store/orderStore';
+import { onMounted, computed, ref, watch } from 'vue'
+import { useOrderStore } from '@/stores/order-store/orderStore'
+import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
+import { useProductsStore } from '@/stores/vendor/product'
+import type { Product } from '@/stores/vendor/product'
 
 import {
   Table,
@@ -357,97 +518,304 @@ import {
   TableHeader,
   TableCell,
   TableHead
-} from '@/components/ui/table';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Icon } from '@iconify/vue';
-import Search from '@/components/UseSearch.vue';
+} from '@/components/ui/table'
+import { Card, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Icon } from '@iconify/vue'
+import Search from '@/components/UseSearch.vue'
+import { Sheet, SheetContent, SheetDescription, SheetHeader } from '@/components/ui/sheet'
+import { Badge } from '@/components/ui/badge'
+import VendorNav from '@/components/VendorNav.vue'
+import DashboardFooter from '@/components/DashboardFooter.vue'
 import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import { Badge } from '@/components/ui/badge';
-import VendorNav from '@/components/VendorNav.vue';
-import DashboardFooter from '@/components/DashboardFooter.vue';
-import { Check, SquareArrowOutUpRight, RefreshCcw, SlidersVertical, Truck, CircleChevronRight } from 'lucide-vue-next';
+  Check,
+  SquareArrowOutUpRight,
+  RefreshCcw,
+  SlidersVertical,
+  Truck,
+  CircleChevronRight
+} from 'lucide-vue-next'
 
-// Store
-const orderStore = useOrderStore();
+// Stores
+const orderStore = useOrderStore()
+const superAdminStore = useSuperAdminStore()
+const productsStore = useProductsStore()
 
-// Mock vendor ID - replace with actual vendor ID from auth store
-const vendorId = 'vendor123';
+// Ref for sheet state
+const isSheetOpen = ref(false)
+const selectedOrderId = ref<string | null>(null)
+const sheetOrderData = ref<any>(null)
+const isSheetLoading = ref(false)
+
+// Cache for product images to avoid repeated API calls
+const productImageCache = ref<Record<string, string>>({})
+
+// Get vendor ID from super admin store
+const vendorId = computed(() => superAdminStore.vendorId)
 
 // Lifecycle
 onMounted(() => {
-  loadOrders();
-});
+  if (vendorId.value) {
+    loadOrders()
+    if (!superAdminStore.vendor) {
+      superAdminStore.fetchUsersData('Vendor data loaded', vendorId.value)
+    }
+  } else {
+    console.error('Vendor ID not found. Please log in as a vendor.')
+    orderStore.error = 'Vendor ID not found. Please log in as a vendor.'
+  }
+})
+
+// Watch for currentOrder changes
+watch(
+  () => orderStore.currentOrder,
+  (newOrder) => {
+    if (newOrder && selectedOrderId.value === newOrder._id) {
+      sheetOrderData.value = newOrder
+      isSheetLoading.value = false
+    }
+  }
+)
 
 // Methods
 const loadOrders = async () => {
-  await Promise.all([
-    orderStore.fetchVendorOrders(vendorId),
-    orderStore.fetchVendorAnalytics(vendorId)
-  ]);
-};
+  if (!vendorId.value) {
+    orderStore.error = 'Vendor ID not found'
+    return
+  }
+  try {
+    await Promise.all([
+      orderStore.fetchVendorOrders(vendorId.value),
+      orderStore.fetchVendorAnalytics(vendorId.value)
+    ])
+  } catch (error) {
+    console.error('Failed to load orders:', error)
+  }
+}
 
 const handleSearch = (searchTerm: string) => {
-  orderStore.setFilters({ search: searchTerm });
-};
+  orderStore.setFilters({ search: searchTerm })
+}
+
+const openOrderDetails = async (orderId: string) => {
+  selectedOrderId.value = orderId
+  isSheetOpen.value = true
+  isSheetLoading.value = true
+
+  try {
+    // Check if we already have the order in the store
+    const existingOrder = orderStore.orders.find((o) => o._id === orderId)
+
+    if (existingOrder) {
+      // Use existing order initially for fast display
+      sheetOrderData.value = existingOrder
+    }
+
+    // Always fetch fresh data from API
+    await orderStore.fetchOrderById(orderId)
+  } catch (error) {
+    console.error('Failed to load order details:', error)
+    isSheetLoading.value = false
+  }
+}
+
+const handleSheetOpenChange = (open: boolean) => {
+  isSheetOpen.value = open
+  if (!open) {
+    // Reset when sheet closes
+    setTimeout(() => {
+      selectedOrderId.value = null
+      sheetOrderData.value = null
+      orderStore.clearCurrentOrder()
+    }, 300)
+  }
+}
+
+const handleStartProcess = async (orderId: string) => {
+  await updateOrderStatus(orderId, 'processing')
+}
+
+const handleMarkOutbound = async (orderId: string) => {
+  await updateOrderStatus(orderId, 'outbound')
+}
+
+const handleMarkDelivered = async (orderId: string) => {
+  await updateOrderStatus(orderId, 'delivered')
+}
 
 const updateOrderStatus = async (orderId: string, newStatus: string) => {
+  if (!vendorId.value) return
+
   try {
-    await orderStore.updateOrderStatus(orderId, newStatus);
+    await orderStore.updateOrderStatus(orderId, newStatus)
     // Refresh analytics to get updated counts
-    await orderStore.fetchVendorAnalytics(vendorId);
+    await orderStore.fetchVendorAnalytics(vendorId.value)
+
+    // Refresh the current order if it's the one we're viewing
+    if (selectedOrderId.value === orderId) {
+      await orderStore.fetchOrderById(orderId)
+    }
   } catch (error) {
-    console.error('Failed to update order status:', error);
+    console.error('Failed to update order status:', error)
   }
-};
+}
 
 const downloadReport = () => {
-  // Implement download report functionality
-};
+  // Implement CSV/PDF download functionality
+  const orders = orderStore.filteredOrders
+  const csvContent = [
+    ['Order ID', 'Date', 'Total Amount', 'Items', 'Status', 'Payment Status'],
+    ...orders.map((order) => [
+      order._id,
+      formatDate(order.createdAt),
+      order.totalAmount,
+      order.items?.length || 0,
+      order.status,
+      order.paymentStatus
+    ])
+  ]
+    .map((row) => row.join(','))
+    .join('\n')
+
+  const blob = new Blob([csvContent], { type: 'text/csv' })
+  const url = window.URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `orders-report-${new Date().toISOString().split('T')[0]}.csv`
+  a.click()
+  window.URL.revokeObjectURL(url)
+}
 
 const clearError = () => {
-  orderStore.clearError();
-  loadOrders();
-};
+  orderStore.clearError()
+  loadOrders()
+}
 
 const statusBg = (status: string) => {
-  switch (status) {
+  switch (status?.toLowerCase()) {
     case 'failed':
-      return 'bg-[#E45044]';
-    case 'pending':
-      return 'bg-[#EE9F39]';
-    case 'processing':
-      return 'bg-[#6A70FF]';
-    case 'outbound':
-      return 'bg-[#EE9F39]';
-    case 'delivered':
-      return 'bg-[#00C37F]';
-    case 'overdue':
-      return 'bg-[#E45044]';
     case 'cancelled':
-      return 'bg-[#E45044]';
+      return 'bg-[#E45044]'
+    case 'pending':
+    case 'new':
+      return 'bg-[#EE9F39]'
+    case 'processing':
+      return 'bg-[#6A70FF]'
+    case 'outbound':
+    case 'shipped':
+      return 'bg-[#3A8EE5]'
+    case 'delivered':
+    case 'completed':
+      return 'bg-[#00C37F]'
+    case 'overdue':
+      return 'bg-[#DF6C50]'
     default:
-      return 'bg-gray-500';
+      return 'bg-gray-500'
   }
-};
+}
 
 const formatDate = (dateStr: string | Date | undefined) => {
-  if (!dateStr) return 'N/A';
-  const date = new Date(dateStr);
-  return new Intl.DateTimeFormat('en-GB', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  }).format(date);
-};
+  if (!dateStr) return 'N/A'
+  try {
+    const date = new Date(dateStr)
+    if (isNaN(date.getTime())) return 'Invalid Date'
+    return new Intl.DateTimeFormat('en-GB', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    }).format(date)
+  } catch (error) {
+    return 'Invalid Date'
+  }
+}
 
-const sortByProductCount = () => {
-  // Implement sorting logic if needed
-};
+// Add a computed property to get the current order for display
+const currentOrderForDisplay = computed(() => {
+  return sheetOrderData.value || orderStore.currentOrder
+})
+
+// Get product image - using the same approach as in ProductPage
+const getProductImage = (item: any): string => {
+  // First, check if the item already has an image
+  if (item.image) {
+    return item.image
+  }
+  
+  // Get product ID from the item
+  const productId = item.productId || item._id
+  if (!productId) {
+    return getPlaceholderImage()
+  }
+  
+  // Check cache first
+  if (productImageCache.value[productId]) {
+    return productImageCache.value[productId]
+  }
+  
+  // Check if product exists in products store
+  const productInStore = productsStore.products.find(
+    (p: Product) => p._id === productId
+  )
+  
+  if (productInStore?.image) {
+    // Cache the image URL
+    productImageCache.value[productId] = productInStore.image
+    return productInStore.image
+  }
+  
+  // Try to fetch the product if not in store
+  if (productId && !productImageCache.value[productId]) {
+    fetchProductImage(productId)
+  }
+  
+  return getPlaceholderImage()
+}
+
+// Fetch product image by ID
+const fetchProductImage = async (productId: string) => {
+  try {
+    const product = await productsStore.fetchProductById(productId)
+    if (product?.image) {
+      productImageCache.value[productId] = product.image
+    }
+  } catch (error) {
+    console.error('Error fetching product image:', error)
+  }
+}
+
+// Get placeholder image (simple SVG)
+const getPlaceholderImage = (): string => {
+  return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4IiByeD0iNCIgZmlsbD0iI0YwRjBGMSIvPgo8Y2lyY2xlIGN4PSIyNCIgY3k9IjE5IiByPSI1IiBmaWxsPSIjQzVDNUM1Ii8+CjxwYXRoIGQ9Ik0xMiAzMEMxMiAzNS41MjI4IDE2LjQ3NzIgNDAgMjIgNDBIMjZDMzEuNTIyOCA0MCAzNiAzNS41MjI4IDM2IDMwQzM2IDI0LjQ3NzIgMzEuNTIyOCAyMCAyNiAyMEgyMkMxNi40NzcyIDIwIDEyIDI0LjQ3NzIgMTIgMzBaIiBmaWxsPSIjQzVDNUM1Ii8+Cjwvc3ZnPgo='
+}
+
+// Handle image error
+const handleImageError = (event: Event, item: any) => {
+  const target = event.target as HTMLImageElement
+  target.src = getPlaceholderImage()
+  
+  // Try to fetch the product image if it failed
+  const productId = item.productId || item._id
+  if (productId && !productImageCache.value[productId]) {
+    fetchProductImage(productId)
+  }
+}
+
+// Pre-fetch products when component mounts
+onMounted(async () => {
+  if (vendorId.value) {
+    // Pre-fetch products to have them available for order items
+    await productsStore.fetchProducts({ vendorId: vendorId.value })
+  }
+})
 </script>
+
+<style scoped>
+.cardShadow1 {
+  box-shadow: 0px 20px 35px 0px #00c37f24;
+}
+.weeshr-icon2 {
+  width: 32px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.2);
+}
+</style>
