@@ -42,7 +42,7 @@
                     Do you want to reject all selected cash requests?
                   </DialogDescription>
                   <div class='flex gap-4'>
-                    <textarea class="w-full" v-model="reason" name="reason" placeholder="Reason" id=""></textarea>
+                    <textarea class="w-full px-2" v-model="reason" name="reason" placeholder="Reason" id=""></textarea>
                     <DialogClose>
                       <Button variant="destructive" class="rounded-md" @click='rejectRequest'>
                         Reject
@@ -80,6 +80,7 @@ import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTrigger } 
 import axios from "@/services/ApiService";
 import { toast } from '@/components/ui/toast'
 import { catchErr } from '@/composables/catchError'
+import { useVendorPayoutStore } from '@/stores/vendor/payout'
 
 interface Props {
   openApprovalModal: boolean
@@ -88,6 +89,7 @@ interface Props {
 }
 
 const props = defineProps<Props>()
+const payoutStore = useVendorPayoutStore()
 const reason = ref('')
 const emit = defineEmits<{
   (event: 'update:openApprovalModal', value: boolean): void
@@ -109,7 +111,7 @@ const rejectRequest = async()=>{
           "/api/v1/admin/market/payouts/reject",
           {
             payoutIds: props.requests,
-            reason,
+            reason: reason.value,
             adminId: admin.id
           }
         )
@@ -119,6 +121,7 @@ const rejectRequest = async()=>{
             description: response.data.message,
             variant: 'success'
           })
+          await payoutStore.getPayout(payoutStore.currentPage, 'Success')
           closeModal()
         }
       } catch (error: any) {
@@ -147,6 +150,7 @@ const rejectRequest = async()=>{
             description: response.data.message,
             variant: 'success'
           })
+          await payoutStore.getPayout(payoutStore.currentPage, 'Success')
           closeModal()
         }
       } catch (error: any) {

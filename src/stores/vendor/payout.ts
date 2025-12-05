@@ -3,31 +3,93 @@ import axios from "@/services/ApiService";
 import { toast } from "@/components/ui/toast";
 import router from '@/router'
 
-interface User {
-  firstName: string,
-  lastName: string,
-  userName: string,
-  _id: string
-}
-interface Wallet {
-  account_name: string,
-  account_number: string,
-  balance: number,
-  currency: string,
-  id: string
-}
-interface Item {
-  amount: number,
-  status: 'REQUESTED' | 'PENDING' | 'APPROVED' | 'DISBURSED' | 'REJECTED',
-  user: User,
-  wallet: Wallet,
-  wallet_id: string,
-  _id: string,
-  createdAt: string
+export interface Payout {
+  _id: string;
+  vendorId: Vendor;
+  payoutAmount: number;
+  payoutDate: string;
+  unitCount: number;
+  productCount: number;
+  orderId: Order;
+  status: string;
+  transactionId: string | null;
+  note: string | null;
+  isDeleted: boolean;
+  deletedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
 }
 
-interface PayoutStore {
-  payout: Item[],
+export interface Vendor {
+  _id: string;
+  logo: CloudinaryImage | null;
+  cover: any; // or null if always null
+  rcNumber: number;
+  companyName: string;
+  companyType: string;
+  companyEmail: string;
+  companyAddress: string;
+  companyState: string;
+  status: string;
+  isDeleted: boolean;
+  deletedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
+
+export interface CloudinaryImage {
+  public_id: string;
+  version: number;
+  signature: string;
+  width: number;
+  height: number;
+  format: string;
+  resource_type: string;
+  created_at: string;
+  bytes: number;
+  type: string;
+  url: string;
+  secure_url: string;
+  asset_id: string;
+  version_id: string;
+  tags: string[];
+  etag: string;
+  placeholder: boolean;
+  folder: string;
+  original_filename: string;
+  api_key: string;
+}
+
+export interface Order {
+  _id: string;
+  userId: string;
+  vendorId: string;
+  items: OrderItem[];
+  status: string;
+  paymentStatus: string;
+  totalAmount: number;
+  payoutMethod: string;
+  shippingAddress: string;
+  phoneNumber: string;
+  recieverName: string;
+  recieverInputAddress: boolean;
+  isDeleted: boolean;
+  deletedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
+
+export interface OrderItem {
+  productId: string;
+  quantity: number;
+  price: number;
+}
+
+interface VendorPayoutStore {
+  payout: Payout[],
   loading: boolean,
   perPage: number,
   currentPage: number,
@@ -35,8 +97,8 @@ interface PayoutStore {
   page: number,
 }
 
-export const usePayoutStore = defineStore('payout', {
-  state: (): PayoutStore => ({
+export const useVendorPayoutStore = defineStore('vendor-payout', {
+  state: (): VendorPayoutStore => ({
     payout: [],
     loading: false,
     perPage: 0,
@@ -63,7 +125,8 @@ export const usePayoutStore = defineStore('payout', {
             variant: 'success'
           })
           const data = response.data.data
-        //   console.log(response)
+          this.payout = response.data
+            // console.log(response)
           this.payout = data;
           this.perPage = response.data.perPage
           this.currentPage = response.data.currentPage

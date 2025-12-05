@@ -40,7 +40,7 @@
                   class="bg-primary"
                   :class="createStyle"
                   v-if="ability.can('create', 'wallet-payouts')"
-                  :disabled="stageGroup.length === 0"
+                  :disabled="selectedRequests.length === 0 || !canDisburse"
                   >Disburse Selection</Button
                 >
               </DialogTrigger>
@@ -74,13 +74,6 @@
               >
                 <TableHead>Select</TableHead>
                 <TableHead>Recipient </TableHead>
-                <TableHead>Username </TableHead>
-                <TableHead>
-                  <div class="flex items-center">
-                    Wallet Balance
-                    <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
-                  </div>
-                </TableHead>
                 <TableHead>
                   <div class="flex items-center">
                     Requested Amount
@@ -121,16 +114,10 @@
                   </div>
                 </TableCell>
                 <TableCell class="text-xs md:text-sm lg:text-sm"
-                  >{{ item?.wallet?.account_name }}
-                </TableCell>
-                <TableCell class="text-xs md:text-sm lg:text-sm">{{
-                  item.user?.userName
-                }}</TableCell>
-                <TableCell class="text-xs md:text-sm lg:text-sm">
-                  {{ item.wallet.currency }} {{ item.wallet?.balance.toLocaleString() }}
+                  >{{ item?.vendorId.companyName }}
                 </TableCell>
                 <TableCell class="text-xs md:text-sm lg:text-sm"
-                  >{{ item.wallet.currency }} {{ item.amount.toLocaleString() }}
+                  >₦ {{ item.payoutAmount.toLocaleString() }}
                 </TableCell>
                 <TableCell class="text-xs md:text-sm lg:text-sm">
                   {{ item.createdAt.split('T')[0] }}
@@ -164,33 +151,33 @@
                 <TableCell>
                   <Badge
                     class="text-white rounded-full bg-gray-500"
-                    v-if="item.status === 'REQUESTED'"
+                    v-if="item.status.toUpperCase() === 'REQUESTED'"
                     >{{ item.status }}</Badge
                   >
                   <Badge
                     class="text-white rounded-full bg-yellow-400"
-                    v-if="item.status === 'PENDING'"
+                    v-if="item.status.toUpperCase() === 'PENDING'"
                     >{{ item.status }}</Badge
                   >
                   <Badge
                     class="text-white rounded-full bg-[#00C37F]"
-                    v-if="item.status === 'DISBURSED'"
+                    v-if="item.status.toUpperCase() === 'DISBURSED'"
                     >{{ item.status }}</Badge
                   >
                   <Badge
                     class="text-white rounded-full bg-red-500"
-                    v-if="item.status === 'REJECTED'"
+                    v-if="item.status.toUpperCase() === 'REJECTED'"
                     >{{ item.status }}</Badge
                   >
                   <Badge
                     class="text-white rounded-full bg-[#020721]"
-                    v-if="item.status === 'APPROVED'"
+                    v-if="item.status.toUpperCase() === 'APPROVED'"
                   >
                     {{ item.status }}
                   </Badge></TableCell
                 >
                 <TableCell
-                  v-if="createRole && (item.status === 'REQUESTED' || item.status === 'PENDING')"
+                  v-if="createRole && (item.status.toUpperCase() === 'REQUESTED' || item.status.toUpperCase() === 'PENDING')"
                 >
                   <svg
                     @click="singleRequest(item._id, payout, stage, key)"
@@ -300,7 +287,8 @@ import { Badge } from '@/components/ui/badge'
 import { ability, defineAbilities, verifyAbilities } from '@/lib/ability'
 import axios from '@/services/ApiService'
 import { toast } from '@/components/ui/toast'
-import { usePayoutStore } from '@/stores/vendor/payout'
+// import { usePayoutStore } from '@/stores/vendor/payout'
+import { useVendorPayoutStore, type Payout } from '@/stores/vendor/payout'
 import VendorPaymentApproval from '../VendorPaymentApproval.vue'
 import {
   Dialog,
@@ -353,7 +341,7 @@ interface SelectedPayout extends SelectedReq {
   error: string | null
 }
 
-const store = usePayoutStore()
+const store = useVendorPayoutStore()
 store.getPayout(store.page, 'Page: '+store.page)
 const modal = ref(false)
 const canDisburse = ref<boolean>(false)
@@ -392,11 +380,6 @@ const paginationItems = computed(() => {
   return pages
 })
 
-interface Item {
-  _id: string
-  status: 'REQUESTED' | 'PENDING' | 'APPROVED' | 'DISBURSED' | 'REJECTED'
-  [key: string]: any // Other properties of the item
-}
 interface Stage {
   id: number
   name: string
@@ -404,7 +387,7 @@ interface Stage {
   _id: string
 }
 
-function updateStageArray(id: string, sourceArray: Item[], stageArray: Stage[], key: number): void {
+function updateStageArray(id: string, sourceArray: Payout[], stageArray: Stage[], key: number): void {
   // Find the item in the source array using the provided id
   const item = sourceArray.find((obj) => obj._id === id)
 
@@ -418,16 +401,16 @@ function updateStageArray(id: string, sourceArray: Item[], stageArray: Stage[], 
     const tempObj = {
       id: key,
       _id: id,
-      name: item.wallet?.account_name,
-      amount: parseInt(item.amount)
+      name: item.vendorId.companyName,
+      amount: item.payoutAmount
     }
     stageArray.push(tempObj)
-    if (item.status === 'APPROVED') {
+    // if (item.status.toUpperCase() === 'APPROVED') {
       selectedRequests.value.push({
         id: id,
-        recipient: item.wallet?.account_name
+        recipient: item.vendorId.companyName
       })
-    }
+    // }
   } else {
     // If the checkbox is unchecked, remove the item from the stage array
     const index = stageArray.findIndex((obj) => obj._id === id)
@@ -436,13 +419,14 @@ function updateStageArray(id: string, sourceArray: Item[], stageArray: Stage[], 
       selectedRequests.value.splice(index, 1)
     }
   }
+
   const allApproved = stageArray.every((stagedId) => {
-    const stagedItem = sourceArray.find((item) => item.id === stagedId)
-    return stagedItem?.status === 'APPROVED'
+    const stagedItem = sourceArray.find((item) => item._id === stagedId._id)
+    return stagedItem?.status.toUpperCase() === 'APPROVED'
   })
   const allPending = stageArray.every((stagedId) => {
-    const stagedItem = sourceArray.find((item) => item.id === stagedId)
-    return stagedItem?.status === 'REQUESTED'
+    const stagedItem = sourceArray.find((item) => item._id === stagedId._id)
+    return stagedItem?.status.toUpperCase() === 'REQUESTED' || stagedItem?.status.toUpperCase() === 'PENDING'
   })
   canApprove.value = allPending
   canDisburse.value = allApproved
@@ -494,7 +478,7 @@ const approveGroup = () => {
   }
 }
 
-const singleRequest = (id: string, sourceArray: Item[], stageArray: Stage[], key: number) => {
+const singleRequest = (id: string, sourceArray: Payout[], stageArray: Stage[], key: number) => {
   const item = sourceArray.find((obj) => obj._id === id)
   selectedRequests.value = []
 
@@ -507,14 +491,14 @@ const singleRequest = (id: string, sourceArray: Item[], stageArray: Stage[], key
   }
   const tempObj: Stage = {
     _id: id,
-    name: item.wallet?.account_name,
-    amount: parseInt(item.amount),
+    name: item.vendorId.companyName,
+    amount: item.payoutAmount,
     id: key
   }
   stageArray.splice(0, stageArray.length, tempObj)
   selectedRequests.value.push({
     id: id,
-    recipient: item.wallet?.account_name
+    recipient: item.vendorId.companyName
   })
   if (createRole) {
     modal.value = !modal.value
