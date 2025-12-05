@@ -90,6 +90,7 @@ export interface OrderItem {
 
 interface VendorPayoutStore {
   payout: Payout[],
+  vendorPayout: Payout[],
   loading: boolean,
   perPage: number,
   currentPage: number,
@@ -100,6 +101,7 @@ interface VendorPayoutStore {
 export const useVendorPayoutStore = defineStore('vendor-payout', {
   state: (): VendorPayoutStore => ({
     payout: [],
+    vendorPayout: [],
     loading: false,
     perPage: 0,
     currentPage: 0,
@@ -136,6 +138,60 @@ export const useVendorPayoutStore = defineStore('vendor-payout', {
         // console.log(error)
         this.catchErr(error)
         this.loading = false;
+      }
+    },
+    async fetchTransactions (msg: string, id: string){
+      toast({
+        title: 'Loading Data',
+        description: 'Fetching data...',
+        duration: 0 // Set duration to 0 to make it indefinite until manually closed
+      })
+
+      try {
+        // Set loading to true
+        // useGeneralStore().setLoading(true)
+        const response = await axios.get(`/api/v1/admin/market/payouts/vendor/${id}`)
+
+        if (response.status === 200 || response.status === 201) {
+          // Update the users data with the response
+          // products.value = response.data.data.data;
+          // console.log(response)
+          this.vendorPayout = response.data.data;
+          // const responseData = response.data.data[0]
+          // const phoneData = response.data.data[0].phoneNumber.normalizedNumber
+          // const data = { ...responseData, phone: phoneData }
+          // Show success toast
+          toast({
+            title: 'Success',
+            description: `${msg}`,
+            variant: 'success'
+          })
+        }
+        // set Loading to false
+        // useGeneralStore().setLoading(false)
+      } catch (error: any) {
+        // catchErr(error)
+        if (error.response.status === 401) {
+          // sessionStorage.removeItem('token')
+          // Clear token from superAdminStore
+          // superAdminStore.setToken('')
+
+          setTimeout(() => {
+            // router.push({ name: 'super-admin-login' })
+          }, 3000)
+
+          toast({
+            title: 'Unauthorized',
+            description: 'You are not authorized to perform this action. Redirecting to home page...',
+            variant: 'destructive'
+          })
+          // Redirect after 3 seconds
+        } else {
+          toast({
+            title: error.response.data.message || 'An error occurred',
+            variant: 'destructive'
+          })
+        }
       }
     },
     handlePageChange(newPage: number) {

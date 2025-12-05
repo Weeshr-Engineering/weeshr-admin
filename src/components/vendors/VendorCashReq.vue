@@ -122,32 +122,6 @@
                 <TableCell class="text-xs md:text-sm lg:text-sm">
                   {{ item.createdAt.split('T')[0] }}
                 </TableCell>
-                <!-- <TableCell> -->
-                <!-- <Dialog v-if="item.status === 'APPROVED'">
-                        <DialogTrigger>
-                          <Button :disabled="stageGroup.length > 1"  :class='stageGroup.length > 1 ? "bg-gray-400 cursor-not-allowed" : "bg-[#00C37F]"' class='text-white'> Disburse </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                          <DialogDescription>
-                            Do you want to reject all selected cash requests?
-                          </DialogDescription>
-                          <div class='flex gap-4'>
-                            <DialogClose>
-                              <Button v-if="item.status === 'APPROVED'"  :class='stageGroup.length > 1 ? "bg-gray-400 cursor-not-allowed" : "bg-[#00C37F]"' class='text-white' @click='()=> disburse(item._id)'> Disburse </Button>
-                            </DialogClose>
-                            <DialogClose variant="">
-                              <Button variant="outline" class="rounded-md">
-                                Cancel
-                              </Button>
-                            </DialogClose>
-                          </div>
-                        </DialogContent>
-                      </Dialog> -->
-                <!-- <div v-if="item.status === 'PENDING'" >Pending</div> -->
-                <!-- <div v-if="item.status !== 'APPROVED'">Unavailable</div>
-                    </TableCell> -->
-                <!-- <TableCell class="text-xs md:text-sm lg:text-sm"> 02<span class='font-bold'>D</span>03:<span class='font-bold'>H</span>55:<span class='font-bold'>M</span> </TableCell> -->
-                <!-- <TableCell class="text-xs md:text-sm lg:text-sm"> {{ item.tat[0].toString().padStart(2, '0') }}<span class='font-bold'>D</span>{{ item.tat[1].toString().padStart(2, '0') }}:<span class='font-bold'>H</span>{{ item.tat[2].toString().padStart(2, '0') }}:<span class='font-bold'>M</span> </TableCell> -->
                 <TableCell>
                   <Badge
                     class="text-white rounded-full bg-gray-500"
