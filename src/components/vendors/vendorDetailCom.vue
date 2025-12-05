@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button'
 import axios from '@/services/ApiService'
 import { toast } from '@/components/ui/toast'
 import { defineAbilities } from '@/lib/ability'
-import { cbnBankCodes } from './bankcodes'
 import { Input } from '@/components/ui/input'
 import {
   Select,
@@ -40,12 +39,19 @@ defineAbilities()
 const props = defineProps({
   id: String,
 })
+
+interface Banks {
+  id: string,
+  code: string,
+  name: string
+}
 const id = props.id
 const router = useRouter()
 const isVendor = ref<boolean>(useSuperAdminStore().isVendor);
 const sheetOpen = ref(false)
 const logo = ref<File | null>(null)
 const bankDetails = ref<Bank[]>([])
+const banks = ref<Banks[]>([])
 
 interface VendorData {
     "_id": "691ed372e1081bcda7fd759d",
@@ -197,6 +203,58 @@ const fetchVendorsData = async (msg: string) => {
       // const phoneData = response.data.data[0].phoneNumber.normalizedNumber
       // const data = { ...responseData, phone: phoneData }
       // Show success toast
+      toast({
+        title: 'Success',
+        description: `Success- ${msg}`,
+        variant: 'success'
+      })
+    }
+    // set Loading to false
+    // useGeneralStore().setLoading(false)
+  } catch (error: any) {
+    catchErr(error)
+    // console.log(error)
+    if (error.response.status === 401) {
+      // sessionStorage.removeItem('token')
+      // Clear token from superAdminStore
+      // superAdminStore.setToken('')
+
+      setTimeout(() => {
+        // router.push({ name: 'super-admin-login' })
+      }, 3000)
+
+      toast({
+        title: 'Unauthorized',
+        description: 'You are not authorized to perform this action. Redirecting to home page...',
+        variant: 'destructive'
+      })
+      // Redirect after 3 seconds
+    } else {
+      toast({
+        title: error.response.data.message || 'An error occurred',
+        variant: 'destructive'
+      })
+    }
+  }
+}
+
+const fetchBanks = async (msg: string) => {
+  toast({
+    title: 'Loading Data',
+    description: 'Fetching data...',
+    variant: 'loading',
+    duration: 0 // Set duration to 0 to make it indefinite until manually closed
+  })
+
+  try {
+    // Set loading to true
+    // useGeneralStore().setLoading(true)
+    const response = await axios.get(`/api/v1/admin/banks/list/all`)
+
+    if (response.status === 200 || response.status === 201) {
+      // Update the users data with the response
+      // console.log(response)
+      banks.value = response.data.banks
       toast({
         title: 'Success',
         description: `Success- ${msg}`,
@@ -391,7 +449,7 @@ const frequency = ref(['DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY'])
 // 🔹 Form state
 const bankCode = ref('')
 const bankName = computed(() =>
-  cbnBankCodes.find(bank => bank.code === bankCode.value)
+  banks.value.find(bank => bank.code === bankCode.value)
 );
 // const bankCode = ref(cbnBankCodes[])
 const accountNumber = ref("");
@@ -636,6 +694,7 @@ const saveUserData = async () => {
 
 onMounted(async () => {
   fetchBankData('data fetched')
+  fetchBanks('Success')
   // fetchData('success')
   await useSuperAdminStore().fetchUsersData('Success', id)
   fetchVendorsData('Success')
@@ -993,7 +1052,7 @@ onMounted(async () => {
                                 </SelectTrigger>
                               <SelectContent>
                                 <SelectItem
-                                  v-for="(bank) in cbnBankCodes"
+                                  v-for="(bank) in banks"
                                   :value="bank.code"
                                   :key="bank.code"
                                   class="flex justify-center items-center gap-2"
@@ -1017,7 +1076,7 @@ onMounted(async () => {
                 </div>
               </div>
 
-              <VendorBankDetails :bankDetails="bankDetails" :cbnBankCodes="cbnBankCodes" :frequency="frequency" :refresh="fetchBankData" :id="id || ''"/>
+              <VendorBankDetails :bankDetails="bankDetails" :cbnBankCodes="banks" :frequency="frequency" :refresh="fetchBankData" :id="id || ''"/>
 
               <div v-if="bankDetails.length === 0" class="h-[60dvh]">
                 <Card class="h-full">
