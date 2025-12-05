@@ -249,7 +249,7 @@ const fetchBanks = async (msg: string) => {
   try {
     // Set loading to true
     // useGeneralStore().setLoading(true)
-    const response = await axios.get(`/api/v1/admin/banks/list/all`)
+    const response = await axios.get(`/api/v1/banks/list/all`)
 
     if (response.status === 200 || response.status === 201) {
       // Update the users data with the response
