@@ -103,6 +103,126 @@
           <p class="text-xs sm:text-sm font-normal text-[#02072199]">Details of all orders</p>
         </div>
         <div class="flex items-center flex-col md:flex-row gap-4">
+          <!-- Status Filter Dropdown -->
+          <div class="relative" data-status-filter>
+            <Button 
+              variant="outline" 
+              class="flex items-center gap-2 w-full sm:w-auto bg-[#EEEFF5]"
+              @click.stop="showStatusFilter = !showStatusFilter"
+            >
+              <ListFilter class="w-4 h-4"/>
+              {{ getStatusFilterDisplay() }}
+              <Icon icon="mdi:chevron-down" class="w-4 h-4" />
+            </Button>
+
+            <!-- Status Filter Dropdown Menu -->
+            <Transition
+              enter-active-class="transition ease-out duration-100"
+              enter-from-class="transform opacity-0 scale-95"
+              enter-to-class="transform opacity-100 scale-100"
+              leave-active-class="transition ease-in duration-75"
+              leave-from-class="transform opacity-100 scale-100"
+              leave-to-class="transform opacity-0 scale-95"
+            >
+              <div 
+                v-if="showStatusFilter"
+                @click.stop
+                class="absolute left-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden z-50"
+              >
+                <button
+                  @click="applyStatusFilter('all')"
+                  :class="[
+                    'w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center gap-3 border-b border-gray-100 transition-colors',
+                    statusFilter === 'all' ? 'bg-blue-50 text-blue-600' : 'text-gray-700'
+                  ]"
+                >
+                  <div class="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center">
+                    <Icon v-if="statusFilter === 'all'" icon="mdi:check" class="w-4 h-4 text-blue-600" />
+                  </div>
+                  <span class="text-sm font-medium">All Status</span>
+                </button>
+                
+                <button
+                  @click="applyStatusFilter('new')"
+                  :class="[
+                    'w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center gap-3 border-b border-gray-100 transition-colors',
+                    statusFilter === 'new' ? 'bg-blue-50 text-blue-600' : 'text-gray-700'
+                  ]"
+                >
+                  <div class="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center">
+                    <Icon v-if="statusFilter === 'new'" icon="mdi:check" class="w-4 h-4 text-blue-600" />
+                  </div>
+                  <span class="text-sm font-medium">New</span>
+                </button>
+
+                <button
+                  @click="applyStatusFilter('processing')"
+                  :class="[
+                    'w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center gap-3 border-b border-gray-100 transition-colors',
+                    statusFilter === 'processing' ? 'bg-purple-50 text-purple-600' : 'text-gray-700'
+                  ]"
+                >
+                  <div class="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center">
+                    <Icon v-if="statusFilter === 'processing'" icon="mdi:check" class="w-4 h-4 text-purple-600" />
+                  </div>
+                  <span class="text-sm font-medium">Processing</span>
+                </button>
+
+                <button
+                  @click="applyStatusFilter('outbound')"
+                  :class="[
+                    'w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center gap-3 border-b border-gray-100 transition-colors',
+                    statusFilter === 'outbound' ? 'bg-orange-50 text-orange-600' : 'text-gray-700'
+                  ]"
+                >
+                  <div class="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center">
+                    <Icon v-if="statusFilter === 'outbound'" icon="mdi:check" class="w-4 h-4 text-orange-600" />
+                  </div>
+                  <span class="text-sm font-medium">Outbound</span>
+                </button>
+
+                <button
+                  @click="applyStatusFilter('delivered')"
+                  :class="[
+                    'w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center gap-3 border-b border-gray-100 transition-colors',
+                    statusFilter === 'delivered' ? 'bg-green-50 text-green-600' : 'text-gray-700'
+                  ]"
+                >
+                  <div class="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center">
+                    <Icon v-if="statusFilter === 'delivered'" icon="mdi:check" class="w-4 h-4 text-green-600" />
+                  </div>
+                  <span class="text-sm font-medium">Delivered</span>
+                </button>
+
+                <button
+                  @click="applyStatusFilter('overdue')"
+                  :class="[
+                    'w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center gap-3 border-b border-gray-100 transition-colors',
+                    statusFilter === 'overdue' ? 'bg-red-50 text-red-600' : 'text-gray-700'
+                  ]"
+                >
+                  <div class="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center">
+                    <Icon v-if="statusFilter === 'overdue'" icon="mdi:check" class="w-4 h-4 text-red-600" />
+                  </div>
+                  <span class="text-sm font-medium">Overdue</span>
+                </button>
+
+                <button
+                  @click="applyStatusFilter('cancelled')"
+                  :class="[
+                    'w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center gap-3 transition-colors',
+                    statusFilter === 'cancelled' ? 'bg-gray-50 text-gray-600' : 'text-gray-700'
+                  ]"
+                >
+                  <div class="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center">
+                    <Icon v-if="statusFilter === 'cancelled'" icon="mdi:check" class="w-4 h-4 text-gray-600" />
+                  </div>
+                  <span class="text-sm font-medium">Cancelled</span>
+                </button>
+              </div>
+            </Transition>
+          </div>
+
           <Search @search="handleSearch" class="mt-3 lg:mt-0" />
           <button class="bg-[#020721] px-4 py-2 rounded-xl w-50 h-12" @click="downloadReport">
             <div class="text-base text-[#F8F9FF] text-center flex items-center">
@@ -324,13 +444,13 @@
               <span class="text-muted-foreground">Total Value</span>
               <span class="font-medium"
                 >₦{{ currentOrderForDisplay.totalAmount?.toLocaleString() || '0' }}</span
-              >
+            >
             </div>
             <div class="flex justify-between text-sm">
               <span class="text-muted-foreground">Delivery Charge</span>
               <span class="font-medium"
                 >₦{{ (currentOrderForDisplay.deliveryCharge || 2500).toLocaleString() }}</span
-              >
+            >
             </div>
             <div class="flex justify-between text-sm">
               <span class="text-muted-foreground">Discount</span>
@@ -494,7 +614,6 @@
                     {{ superAdminStore.vendor.companyEmail }}
                   </p>
                 </div>
-              
               </div>
             </div>
           </div>
@@ -505,7 +624,7 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, computed, ref, watch } from 'vue'
+import { onMounted, computed, ref, watch, onBeforeUnmount } from 'vue'
 import { useOrderStore } from '@/stores/order-store/orderStore'
 import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
 import { useProductsStore } from '@/stores/vendor/product'
@@ -533,7 +652,8 @@ import {
   RefreshCcw,
   SlidersVertical,
   Truck,
-  CircleChevronRight
+  CircleChevronRight,
+  ListFilter
 } from 'lucide-vue-next'
 
 // Stores
@@ -546,6 +666,10 @@ const isSheetOpen = ref(false)
 const selectedOrderId = ref<string | null>(null)
 const sheetOrderData = ref<any>(null)
 const isSheetLoading = ref(false)
+
+// Status filter state
+const statusFilter = ref('all')
+const showStatusFilter = ref(false)
 
 // Cache for product images to avoid repeated API calls
 const productImageCache = ref<Record<string, string>>({})
@@ -564,6 +688,14 @@ onMounted(() => {
     console.error('Vendor ID not found. Please log in as a vendor.')
     orderStore.error = 'Vendor ID not found. Please log in as a vendor.'
   }
+  
+  // Add event listener for closing dropdown
+  document.addEventListener('click', closeDropdownOnClickOutside)
+})
+
+onBeforeUnmount(() => {
+  // Remove event listener
+  document.removeEventListener('click', closeDropdownOnClickOutside)
 })
 
 // Watch for currentOrder changes
@@ -595,6 +727,45 @@ const loadOrders = async () => {
 
 const handleSearch = (searchTerm: string) => {
   orderStore.setFilters({ search: searchTerm })
+}
+
+// Apply status filter
+const applyStatusFilter = (status: string) => {
+  statusFilter.value = status
+  showStatusFilter.value = false
+  
+  if (status === 'all') {
+    orderStore.setFilters({ status: undefined })
+  } else {
+    orderStore.setFilters({ status })
+  }
+  
+  if (vendorId.value) {
+    loadOrders()
+  }
+}
+
+// Get display name for status filter
+const getStatusFilterDisplay = () => {
+  switch (statusFilter.value) {
+    case 'all': return 'All'
+    case 'new': return 'New'
+    case 'processing': return 'Processing'
+    case 'outbound': return 'Outbound'
+    case 'delivered': return 'Delivered'
+    case 'overdue': return 'Overdue'
+    case 'cancelled': return 'Cancelled'
+    default: return 'All'
+  }
+}
+
+// Close dropdown when clicking outside
+const closeDropdownOnClickOutside = (event: MouseEvent) => {
+  const target = event.target as HTMLElement
+  const statusFilterDropdown = document.querySelector('[data-status-filter]')
+  if (statusFilterDropdown && !statusFilterDropdown.contains(target)) {
+    showStatusFilter.value = false
+  }
 }
 
 const openOrderDetails = async (orderId: string) => {
