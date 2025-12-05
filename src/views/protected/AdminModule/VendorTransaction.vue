@@ -77,61 +77,89 @@
       </div>
 
       <div class="overflow-auto bg-white rounded-lg shadow">
-        <Table v-if="transactions.length !== 0" class="lg:w-full w-[800px]">
+        <Table v-if="payouts && payouts.length !== 0" class="lg:w-full w-[800px]">
           <TableHeader>
             <TableRow
               class="text-xs sm:text-sm md:text-base text-[#02072199] font-semibold bg-gray-200"
             >
-              <TableHead @click="sortByDate">
-                <div class="flex items-center">
-                  Date
-                  <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
-                </div>
-              </TableHead>
-              <TableHead @click="sortByPayout">
-                <div class="flex items-center">
-                  Payout
-                  <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
-                </div>
-              </TableHead>
-              <TableHead @click="sortByUnit">
-                <div class="flex items-center">
-                  Unit Count
-                  <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
-                </div>
-              </TableHead>
-              <TableHead @click="sortByProductCount">
-                <div class="flex items-center">
-                  Product Count
-                  <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
-                </div>
-              </TableHead>
+                <TableHead>Recipient </TableHead>
+                <TableHead>Recipient Phone </TableHead>
+                <TableHead>Recipient Address</TableHead>
+                <TableHead>
+                  <div class="flex items-center">
+                    Requested Amount
+                    <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
+                  </div>
+                </TableHead>
+                <TableHead>
+                  <div class="flex items-center">
+                    Resquest Date
+                    <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
+                  </div>
+                </TableHead>
+                <!-- <TableHead>
+                      <div class="flex items-center">
+                        Disbursals
+                        <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
+                      </div>
+                    </TableHead> -->
 
-              <TableHead>
-                <div class="flex items-center">
-                  Status
-                  <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
-                </div>
-              </TableHead>
+                <TableHead>
+                  <div class="flex items-center">
+                    Status
+                    <Icon icon="fluent:chevron-up-down-20-regular" class="ml-1" />
+                  </div>
+                </TableHead>
               <TableHead>Transaction ID</TableHead>
               <TableHead></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            <TableRow v-for="transaction in transactions" :key="transaction._id">
-              <TableCell class="text-xs md:text-sm lg:text-sm">{{ transaction.createdAt }} </TableCell>
-              <TableCell class="text-xs md:text-sm lg:text-sm">₦{{ transaction.payoutAmount }}</TableCell>
-              <TableCell class="text-xs md:text-sm lg:text-sm">{{ transaction.unitCount }} </TableCell>
-              <TableCell class="text-xs md:text-sm lg:text-sm">{{ transaction.productCount }} </TableCell>
-              <TableCell>
-                <div
-                  :class="statusBg(transaction.status)"
-                  class="rounded-[10px] w-fit px-2 py-0.5 text-white text-sm capitalize"
+            <TableRow v-for="(item) in payouts" :key="item._id" class="text-nowrap">
+                <TableCell class="text-xs md:text-sm lg:text-sm"
+                  >{{ item.orderId.recieverName }}
+                </TableCell>
+                <TableCell class="text-xs md:text-sm lg:text-sm"
+                  >{{ item.orderId.phoneNumber }}
+                </TableCell>
+                <TableCell class="text-xs md:text-sm lg:text-sm"
+                  >{{ item.orderId.shippingAddress }}
+                </TableCell>
+                <TableCell class="text-xs md:text-sm lg:text-sm"
+                  >₦ {{ item.payoutAmount.toLocaleString() }}
+                </TableCell>
+                <TableCell class="text-xs md:text-sm lg:text-sm">
+                  {{ item.createdAt.split('T')[0] }}
+                </TableCell>
+                <TableCell>
+                  <Badge
+                    class="text-white rounded-full bg-gray-500"
+                    v-if="item.status.toUpperCase() === 'REQUESTED'"
+                    >{{ item.status }}</Badge
+                  >
+                  <Badge
+                    class="text-white rounded-full bg-yellow-400"
+                    v-if="item.status.toUpperCase() === 'PENDING'"
+                    >{{ item.status }}</Badge
+                  >
+                  <Badge
+                    class="text-white rounded-full bg-[#00C37F]"
+                    v-if="item.status.toUpperCase() === 'DISBURSED'"
+                    >{{ item.status }}</Badge
+                  >
+                  <Badge
+                    class="text-white rounded-full bg-red-500"
+                    v-if="item.status.toUpperCase() === 'REJECTED'"
+                    >{{ item.status }}</Badge
+                  >
+                  <Badge
+                    class="text-white rounded-full bg-[#020721]"
+                    v-if="item.status.toUpperCase() === 'APPROVED'"
+                  >
+                    {{ item.status }}
+                  </Badge></TableCell
                 >
-                  {{ transaction.status }}
-                </div>
-              </TableCell>
-              <TableCell class="text-xs md:text-sm lg:text-sm">{{ transaction.transactionId}} </TableCell>
+              <TableCell class="text-xs md:text-sm lg:text-sm">{{ item._id}} </TableCell>
               <TableCell>
                 <Sheet>
                   <SheetTrigger>
@@ -158,7 +186,7 @@
                       <SheetDescription>
                         Payout ID.
                       </SheetDescription>
-                      <h3 class="text-2xl font-medium">{{ transaction.transactionId }}</h3>
+                      <h3 class="text-2xl font-medium">{{ item.transactionId }}</h3>
                     </SheetHeader>
                     <Card Content class="rounded-lg my-4 hover:shadow-xl px-2 md:px-0">
                       <CardContent class="flex flex-col md:flex-row items-start md:items-center justify-between px-2 sm:px-6 py-4">
@@ -169,16 +197,16 @@
                                 Payout Date
                               </p>
                               <Badge variant="outline" class="text-muted-foreground w-full">
-                                {{ transaction.createdAt }} - {{ transaction.payoutDate }}<!-- {{ transaction.createdAt && formatDate(transaction.createdAt) }} - {{ formatDate(transaction.createdAt) }} -->
+                                {{ formatDate(item.createdAt) }} - {{ formatDate(item.payoutDate) }}<!-- {{ transaction.createdAt && formatDate(transaction.createdAt) }} - {{ formatDate(transaction.createdAt) }} -->
                               </Badge>
                             </div>
                             <p class="text-lg my-2 md:my-0 text-primary font-bold text-[#000000]">
-                              <!-- {{ formatDate(transaction?.createdAt) }} -->{{ transaction.createdAt }}
+                              <!-- {{ formatDate(transaction?.createdAt) }} -->{{ formatDate(item.createdAt) }}
                             </p>
                           </div>
                         </span>
                       <div class="flex items-center gap-4 bg-success">
-                        <Badge variant="outline" :class="statusBg(transaction.status)" class="text-xs text-white">{{ transaction.status }}</Badge>
+                        <Badge variant="outline" :class="statusBg(item.status)" class="text-xs text-white">{{ item.status }}</Badge>
                       </div>
                       </CardContent>
                     </Card>
@@ -187,13 +215,13 @@
                         <div class="flex flex-col md:flex-row md:items-center justify-between w-full">
                           <div class="flex items-center gap-4">
                             <h2 class="font-bold md:text-lg">Transaction Summary</h2>
-                            <Badge class="bg-[#E9F4D1] text-primary">{{ transaction.productCount }}</Badge>
+                            <Badge class="bg-[#E9F4D1] text-primary">{{ item.productCount }}</Badge>
                           </div>
-                          <h1 class="font-bold text-xl">₦{{ transaction.payoutAmount }}</h1>
+                          <h1 class="font-bold text-xl">₦{{ item.payoutAmount }}</h1>
                         </div>
                       </CardHeader>
-                      <!-- <CardContent class="px-4">
-                        <div class="bg-[#F6F6F6] rounded-lg mb-4 flex flex-col items-center hover:shadow-md" v-for="(item, newkey) in orders" :key="newkey">
+                      <CardContent class="px-4">
+                        <!-- <div class="bg-[#F6F6F6] rounded-lg mb-4 flex flex-col items-center hover:shadow-md">
                           <div class="bg-white border flex items-center justify-between w-full py-2 px-2 rounded-lg">
                             <span class="flex gap-2 items-center"><div
                                 class="inline-block text-[#F8F9FF] w-14 h-14"
@@ -214,37 +242,137 @@
                             </div>
                           </div>
                           <div class="w-full flex items-center justify-between py-3 px-4">
-                            <h3 class="text-xs font-semibold text-muted-foreground">Unit x{{ item.unit }}</h3>
-                            <h2 class="text-md text-primary font-semibold">₦{{ item.unit_price }}</h2>
+                            <h3 class="text-xs font-semibold text-muted-foreground">Unit x{{ item.productCount }}</h3>
+                            <h2 class="text-md text-primary font-semibold">₦{{ item.payoutAmount }}</h2>
                           </div>
-                        </div>
+                        </div> -->
                         <div class="rounded-lg overflow-hidden flex flex-col mt-6">
                           <div class="bg-[#F6F6F6] flex items-center justify-between w-full px-4 py-2">
                             <div class="flex items-center gap-4">
                               <h2 class="text-xs font-semibold text-muted-foreground">Total Value</h2>
                             </div>
-                            <h1 class="text-md text-primary font-semibold">₦{{ transaction.payoutAmount.toLocaleString() }}</h1>
+                            <h1 class="text-md text-primary font-semibold">₦{{ item.payoutAmount.toLocaleString() }}</h1>
                           </div>
-                          <div class="bg-[#F6F6F6] flex items-center justify-between w-full px-4 py-2 my-1">
+                          <!-- <div class="bg-[#F6F6F6] flex items-center justify-between w-full px-4 py-2 my-1">
                             <div class="flex items-center gap-4">
                               <h2 class="text-xs font-semibold text-muted-foreground">Delivery Charge</h2>
                             </div>
-                            <h1 class="text-md text-primary font-semibold">₦{{ transaction. }}</h1>
-                          </div>
-                          <div class="bg-[#F6F6F6] flex items-center justify-between w-full px-4 py-2">
+                            <h1 class="text-md text-primary font-semibold">₦{{ item. }}</h1>
+                          </div> -->
+                          <!-- <div class="bg-[#F6F6F6] flex items-center justify-between w-full px-4 py-2">
                             <div class="flex items-center gap-4">
                               <h2 class="text-xs font-semibold text-muted-foreground">Discount</h2>
                             </div>
                             <h1 class="text-md text-primary font-semibold">₦{{ transaction.discount.toLocaleString() }}</h1>
-                          </div>
-                          <div class="bg-[#02072199] flex items-center justify-between w-full px-4 py-2">
+                          </div> -->
+                          <!-- <div class="bg-[#02072199] flex items-center justify-between w-full px-4 py-2">
                             <div class="flex items-center gap-4">
                               <h2 class="text-xs font-semibold text-[#F8F9FFB2]">Payout Value</h2>
                             </div>
-                            <h1 class="text-md font-semibold text-white">₦{{ transaction.payoutAmount.toLocaleString() }}</h1>
-                          </div>
+                            <h1 class="text-md font-semibold text-white">₦{{ tran.payoutAmount.toLocaleString() }}</h1>
+                          </div> -->
                         </div>
-                      </CardContent> -->
+                        <Card class="px-2 py-4 w-full rounded-xl shadow-md">
+                          <Tabs default-value="receiver" class="space-y-2">
+                            <TabsList class="w-full bg-transparent">
+                              <TabsTrigger
+                                value="receiver"
+                                class="text-[#000000] data-[state=active]:border-[#6A70FF]"
+                              >
+                                Receiver
+                              </TabsTrigger>
+                              <!-- <TabsTrigger
+                                value="sender"
+                                class="text-[#000000] data-[state=active]:border-[#6A70FF]"
+                              >
+                                Sender
+                              </TabsTrigger>
+                              <TabsTrigger
+                                value="vendor"
+                                class="text-[#000000] data-[state=active]:border-[#6A70FF]"
+                              >
+                                Vendor
+                              </TabsTrigger> -->
+                            </TabsList>
+
+                            <TabsContent value="receiver" class="">
+                              <div class="rounded-lg overflow-hidden flex flex-col mt-6">
+                                <div class="w-full mb-4 px-4">
+                                  <!-- <h1 class="text-xl font-bold">{{ transaction.receiver.name }}</h1> -->
+                                </div>
+                                <div class="bg-[#F6F6F6] flex items-center justify-between w-full px-4 py-2">
+                                  <div class="flex items-center gap-4">
+                                    <h2 class="text-xs font-semibold text-muted-foreground">Address</h2>
+                                  </div>
+                                  <h1 class="text-xs text-primary font-semibold">{{ item.orderId.shippingAddress }}</h1>
+                                </div>
+                                <div class="bg-[#F6F6F6] flex items-center justify-between w-full px-4 py-2 my-1">
+                                  <div class="flex items-center gap-4">
+                                    <h2 class="text-xs font-semibold text-muted-foreground">Phone Number</h2>
+                                  </div>
+                                  <h1 class="text-xs text-primary font-semibold">{{ item.orderId.phoneNumber }}</h1>
+                                </div>
+                                <div class="bg-[#F6F6F6] flex items-center justify-between w-full px-4 py-2">
+                                  <div class="flex items-center gap-4">
+                                    <h2 class="text-xs font-semibold text-muted-foreground">Shipping Address</h2>
+                                  </div>
+                                  <h1 class="text-xs text-primary font-semibold">{{ item.orderId.shippingAddress }}</h1>
+                                </div>
+                              </div>
+                            </TabsContent>
+                            <!-- <TabsContent value="sender">
+                              <div class="rounded-lg overflow-hidden flex flex-col mt-6">
+                                <div class="w-full mb-4 px-4">
+                                  <h1 class="text-xl font-bold">{{ item.orderId. }}</h1>
+                                </div>
+                                <div class="bg-[#F6F6F6] flex items-center justify-between w-full px-4 py-2">
+                                  <div class="flex items-center gap-4">
+                                    <h2 class="text-xs font-semibold text-muted-foreground">Address</h2>
+                                  </div>
+                                  <h1 class="text-xs text-primary font-semibold">₦{{ transaction.sender.address }}</h1>
+                                </div>
+                                <div class="bg-[#F6F6F6] flex items-center justify-between w-full px-4 py-2 my-1">
+                                  <div class="flex items-center gap-4">
+                                    <h2 class="text-xs font-semibold text-muted-foreground">Phone Number</h2>
+                                  </div>
+                                  <h1 class="text-xs text-primary font-semibold">{{ transaction.sender.phone }}</h1>
+                                </div>
+                                <div class="bg-[#F6F6F6] flex items-center justify-between w-full px-4 py-2">
+                                  <div class="flex items-center gap-4">
+                                    <h2 class="text-xs font-semibold text-muted-foreground">Email</h2>
+                                  </div>
+                                  <h1 class="text-xs text-primary font-semibold">{{ item. }}</h1>
+                                </div>
+                              </div>
+                            </TabsContent> -->
+                            <!-- <TabsContent value="vendor">
+                              <div class="rounded-lg overflow-hidden flex flex-col mt-6">
+                                <div class="w-full mb-4 px-4">
+                                  <h1 class="text-xl font-bold">{{ transaction.vendor.companyName }}</h1>
+                                </div>
+                                <div class="bg-[#F6F6F6] flex items-center justify-between w-full px-4 py-2">
+                                  <div class="flex items-center gap-4">
+                                    <h2 class="text-xs font-semibold text-muted-foreground">Address</h2>
+                                  </div>
+                                  <h1 class="text-xs text-primary font-semibold">₦{{ transaction.vendor.address }}</h1>
+                                </div>
+                                <div class="bg-[#F6F6F6] flex items-center justify-between w-full px-4 py-2 my-1">
+                                  <div class="flex items-center gap-4">
+                                    <h2 class="text-xs font-semibold text-muted-foreground">Phone Number</h2>
+                                  </div>
+                                  <h1 class="text-xs text-primary font-semibold">{{ transaction.vendor.phone }}</h1>
+                                </div>
+                                <div class="bg-[#F6F6F6] flex items-center justify-between w-full px-4 py-2">
+                                  <div class="flex items-center gap-4">
+                                    <h2 class="text-xs font-semibold text-muted-foreground">Email</h2>
+                                  </div>
+                                  <h1 class="text-xs text-primary font-semibold">{{ transaction.vendor.companyEmail }}</h1>
+                                </div>
+                              </div>
+                            </TabsContent> -->
+                          </Tabs>
+                        </Card>
+                      </CardContent>
                     </Card>
                   </SheetContent>
                 </Sheet>
@@ -282,7 +410,6 @@ import {
 } from '@/components/ui/table'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { computed, onMounted, ref } from 'vue'
-import { Button } from '@/components/ui/button'
 import { Icon } from '@iconify/vue'
 import Search from '@/components/UseSearch.vue'
 import {
@@ -292,13 +419,12 @@ import {
   SheetHeader,
   SheetTrigger,
 } from "@/components/ui/sheet"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import VendorNav from '@/components/VendorNav.vue'
-import axios from 'axios'
-import { catchErr } from '@/composables/catchError'
-import { toast } from '@/components/ui/toast'
 import { useVendorTransactionStore } from '@/stores/vendor/vendor-transactions'
 import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
+import { useVendorPayoutStore } from '@/stores/vendor/payout'
 import ProxyNav from '@/components/ProxyNav.vue'
 
 // const open = ref<boolean>(false)
@@ -317,6 +443,22 @@ const statusBg = (status: string) => {
       return ''
   }
 }
+
+const formatDate = (dateStr: string | Date | undefined) => {
+  if (!dateStr) return 'N/A'
+  try {
+    const date = new Date(dateStr)
+    if (isNaN(date.getTime())) return 'Invalid Date'
+    return new Intl.DateTimeFormat('en-GB', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    }).format(date)
+  } catch (error) {
+    return 'Invalid Date'
+  }
+}
+
 
 const analytic = computed(()=>{
   return useVendorTransactionStore().analytics
@@ -349,42 +491,6 @@ export interface VendorPayout {
   deletedAt?: Date | null;
 }
 
-enum OrderStatus {
-  NEW = "new",
-  PROCESSING = "processing",
-  OVERDUE = "overdue",
-  OUTBOUND = "outbound",
-  DELIVERED = "delivered",
-}
-
-enum PaymentStatus {
-  PENDING = "pending",
-  PAID = "paid",
-  FAILED = "failed",
-}
-
-export interface OrderItem {
-  productId: string;
-  quantity: number;
-  price: number;
-}
-
-interface Order {
-  userId: string;
-  vendorId: string;
-  items: OrderItem[];
-  status: OrderStatus;
-  paymentStatus: PaymentStatus;
-  totalAmount: number;
-  payoutMethod?: string | null;
-  shippingAddress?: string | null;
-  isDeleted: boolean;
-  deletedAt?: Date | null;
-  createdAt?: string;
-  updatedAt?: Date;
-}
-
-
 // interface Products {
 //   name: string;
 //   amount: number;
@@ -409,106 +515,9 @@ interface Order {
 // }
 
 const transactions= ref<VendorPayout[]>([]);
-const orders = ref<Order[]>([])
-
-const fetchTransactions = async (msg: string) => {
-  toast({
-    title: 'Loading Data',
-    description: 'Fetching data...',
-    duration: 0 // Set duration to 0 to make it indefinite until manually closed
-  })
-
-  try {
-    // Set loading to true
-    // useGeneralStore().setLoading(true)
-    const response = await axios.get(`/api/v1/admin/market/payouts/vendor/${id}`)
-
-    if (response.status === 200 || response.status === 201) {
-      // Update the users data with the response
-      // products.value = response.data.data.data;
-      // console.log(response.data.data)
-      // const responseData = response.data.data[0]
-      // const phoneData = response.data.data[0].phoneNumber.normalizedNumber
-      // const data = { ...responseData, phone: phoneData }
-      // Show success toast
-      toast({
-        title: 'Success',
-        description: `${msg}`,
-        variant: 'success'
-      })
-    }
-    // set Loading to false
-    // useGeneralStore().setLoading(false)
-  } catch (error: any) {
-    // catchErr(error)
-    if (error.response.status === 401) {
-      // sessionStorage.removeItem('token')
-      // Clear token from superAdminStore
-      // superAdminStore.setToken('')
-
-      setTimeout(() => {
-        // router.push({ name: 'super-admin-login' })
-      }, 3000)
-
-      toast({
-        title: 'Unauthorized',
-        description: 'You are not authorized to perform this action. Redirecting to home page...',
-        variant: 'destructive'
-      })
-      // Redirect after 3 seconds
-    } else {
-      toast({
-        title: error.response.data.message || 'An error occurred',
-        variant: 'destructive'
-      })
-    }
-  }
-}
-
-// const fetchAnalytics = async (msg: string) => {
-//   toast({
-//     title: 'Loading Data',
-//     description: 'Fetching data...',
-//     duration: 0 // Set duration to 0 to make it indefinite until manually closed
-//   })
-
-//   try {
-//     const response = await axios.get(`/api/v1/admin/market/orders/vendor/${id}/analytics/status`)
-
-//     if (response.status === 200 || response.status === 201) {
-//       // console.log(response.data.data)
-//       // const responseData = response.data.data[0]
-//       toast({
-//         title: 'Success',
-//         description: `${msg}`,
-//         variant: 'success'
-//       })
-//     }
-//   } catch (error: any) {
-//     // catchErr(error)
-//     if (error.response.status === 401) {
-//       // sessionStorage.removeItem('token')
-//       // Clear token from superAdminStore
-//       // superAdminStore.setToken('')
-
-//       setTimeout(() => {
-//         // router.push({ name: 'super-admin-login' })
-//       }, 3000)
-
-//       toast({
-//         title: 'Unauthorized',
-//         description: 'You are not authorized to perform this action. Redirecting to home page...',
-//         variant: 'destructive'
-//       })
-//       // Redirect after 3 seconds
-//     } else {
-//       toast({
-//         title: error.response.data.message || 'An error occurred',
-//         variant: 'destructive'
-//       })
-//     }
-//   }
-// }
+const payouts = computed(()=>{
+  return useVendorPayoutStore().vendorPayout;
+})
 
 // Keep track of sort directions per field
 const sortState: Record<string, "asc" | "desc"> = {
@@ -579,7 +588,7 @@ function sortByProductCount() {
 // }
 
 onMounted(async () => {
-  // fetchTransactions('Products are available')
+  useVendorPayoutStore().fetchTransactions('Success', id)
   await useVendorTransactionStore().fetchAnalytics('Analytics', id)
   // fetchAnalytics('Products are available')
 })
