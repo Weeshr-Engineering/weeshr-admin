@@ -130,8 +130,8 @@
         />
       </div>
       <div class="col-span-12 md:col-span-4">
-        <Label class="px-2">Max. Delivery Cost</Label>
-        <Input class="ghost" value="0.00" v-model="opsFormData.maxDeliveryCost"/>
+        <Label class="px-2">Max. Delivery Cost (₦)</Label>
+        <Input class="ghost" v-model="opsFormData.maxDeliveryCost"/>
       </div>
       <div class="col-span-12 md:col-span-6">
         <Label class="px-2">Link to Return Policy</Label>
@@ -421,10 +421,11 @@ const fetchVendorData = async (): Promise<VendorData |  undefined> => {
   })
   // Simulate API call - replace with actual API endpoint
   const data = response.data.data;
+  // console.log(data)
   opsFormData.value = {
     averageDeliveryMins: data.averageDeliveryMins,
     policyPageUrl: data.policyPageUrl,
-    maxDeliveryCost: data.maxDeliveryCost
+    maxDeliveryCost: data.maxDeliveryCost || 0
   }
   return data
   } catch (error: any) {
@@ -487,7 +488,8 @@ const saveChanges = async () => {
     deliveryCoverage: vendorData.deliveryCoverage,
     deliveryType: vendorData.deliveryType,
     averageDeliveryMins: opsFormData.value.averageDeliveryMins || vendorData.averageDeliveryMins,
-    policyPageUrl: opsFormData.value.policyPageUrl || vendorData.policyPageUrl
+    policyPageUrl: opsFormData.value.policyPageUrl || vendorData.policyPageUrl,
+    maxDeliveryCost: opsFormData.value.maxDeliveryCost || vendorData.maxDeliveryCost
   }
   
   await patchVendorData(updateData)
