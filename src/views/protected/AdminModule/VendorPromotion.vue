@@ -25,7 +25,7 @@
             <p class="text-l font-medium text-[#ffffff]">Scheduled</p>
             <Archive width="24px" height="24px" color="#ffffff" />
             <p class="text-2xl md:text-xl xl:text-3xl font-medium text-[#ffffff] absolute bottom-2 left-5">
-              {{ promotionsStore.scheduledCount }}
+              <span>{{ promotionsStore.scheduledCount }}</span>
             </p>
           </CardContent>
         </div>
@@ -37,7 +37,7 @@
             <p class="text-l font-medium text-[#ffffff]">Draft</p>
             <ScrollText width="24px" height="24px" color="#ffffff" />
             <p class="text-2xl md:text-xl xl:text-3xl font-medium text-[#ffffff] absolute bottom-2 left-5">
-              {{ promotionsStore.draftCount }}
+              <span>{{ promotionsStore.draftCount }}</span>
             </p>
           </CardContent>
         </div>
@@ -49,7 +49,7 @@
             <p class="text-l font-medium text-[#ffffff]">Expired</p>
             <CalendarDays width="24px" height="24px" color="#ffffff" />
             <p class="text-2xl md:text-xl xl:text-3xl font-medium text-[#ffffff] absolute bottom-2 left-5">
-              {{ promotionsStore.expiredCount }}
+              <span>{{ promotionsStore.expiredCount }}</span>
             </p>
           </CardContent>
         </div>
@@ -58,16 +58,17 @@
 
     <!-- Main Content Card -->
     <Card class="container px-4 pt-6 pb-10 mx-auto sm:px-6 lg:px-8 bg-[#FFFFFF] rounded-2xl mt-14 mb-4">
-      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between py-4 gap-4">
-        <div class="text-xl sm:text-xl font-bold tracking-tight text-[#020721]">
+      <div class="flex flex-col sm:flex-row items-center justify-between py-4">
+        <div class="text-xl sm:text-xl font-bold tracking-tight text-[#020721] mb-2 sm:mb-0">
           History
           <p class="text-xs sm:text-sm font-normal text-[#02072199]">
-            Details of all promotions
+            Details of all promotions ({{ promotionsStore.promotions.length }} found)
           </p>
         </div>
-        <div class="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+        <div class="flex items-center flex-col md:flex-row gap-4">
           <Search class="mt-3 lg:mt-0" @search="handleSearch" :value="searchQuery" />
           
+          <!-- Create Promotion Button -->
           <button 
             @click="openCreateSheet"
             class="bg-[#020721] px-4 py-2 rounded-xl w-50 h-12"
@@ -95,13 +96,13 @@
             <SheetContent length="mid_low" class="flex flex-col space-y-0 overflow-y-scroll">
               <SheetHeader class="flex flex-col items-start px-4 pb-4 border-b">
                 <SheetDescription class="text-xs text-muted-foreground">
-                  {{ isEditMode ? 'Editing' : currentStep === 1 ? 'Draft' : currentStep === 2 ? 'Draft/Code' : 'Draft/Code' }}
+                  {{ isEditMode ? 'Editing' : 'Draft' }}
                 </SheetDescription>
                 <h3 class="text-2xl font-medium text-[#020721]">
                   {{ isEditMode ? 'Edit Promotion' : 'New Promotion' }}
                 </h3>
                 <p class="text-sm text-muted-foreground">
-                  {{ isEditMode ? 'Last Updated' : 'Created' }}
+                  {{ isEditMode ? 'Last Updated' : 'Created Date' }}
                 </p>
                 <p class="text-sm font-medium text-[#020721]">
                   {{ new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) }}
@@ -110,25 +111,25 @@
 
               <!-- Promotion Creation Tabs -->
               <div class="px-4 py-4">
-                <div class="text-sm font-medium text-[#020721] mb-3">Promotion Creation</div>
+                <div class="text-sm font-medium text-[#020721] mb-3">Promotion Status</div>
                 <div class="flex gap-2">
                   <button 
-                    @click="promotionStatus = 'scheduled'"
-                    :class="promotionStatus === 'scheduled' ? 'bg-[#020721] text-white' : 'bg-white text-[#02072199]'"
+                    @click="formData.status = 'scheduled'"
+                    :class="formData.status === 'scheduled' ? 'bg-[#020721] text-white' : 'bg-white text-[#02072199]'"
                     class="px-4 py-2 rounded-lg text-sm font-medium border border-gray-200"
                   >
                     Schedule
                   </button>
                   <button 
-                    @click="promotionStatus = 'draft'"
-                    :class="promotionStatus === 'draft' ? 'bg-[#020721] text-white' : 'bg-white text-[#02072199]'"
+                    @click="formData.status = 'draft'"
+                    :class="formData.status === 'draft' ? 'bg-[#020721] text-white' : 'bg-white text-[#02072199]'"
                     class="px-4 py-2 rounded-lg text-sm font-medium border border-gray-200"
                   >
                     Draft
                   </button>
                   <button 
-                    @click="promotionStatus = 'active'"
-                    :class="promotionStatus === 'active' ? 'bg-[#020721] text-white' : 'bg-white text-[#02072199]'"
+                    @click="formData.status = 'active'"
+                    :class="formData.status === 'active' ? 'bg-[#020721] text-white' : 'bg-white text-[#02072199]'"
                     class="px-4 py-2 rounded-lg text-sm font-medium border border-gray-200"
                   >
                     Active
@@ -167,7 +168,7 @@
                       v-model="formData.description"
                       maxlength="90"
                       rows="3"
-                      placeholder="Enter promotion description"
+                      placeholder="Enter promotion description (max 90 characters)"
                       class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#020721] resize-none"
                     ></textarea>
                     <span class="absolute bottom-2 right-2 text-xs text-muted-foreground">
@@ -230,7 +231,8 @@
                   <input 
                     v-model="formData.discountValue"
                     type="number" 
-                    placeholder="20"
+                    min="0"
+                    :placeholder="formData.promotionType === 'percentage_off' ? '20' : '5000'"
                     class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#020721]"
                   />
                   <p class="text-xs text-[#8B8D97] mt-1">
@@ -239,30 +241,33 @@
                 </div>
 
                 <div>
-                  <label class="text-sm font-medium text-[#020721] mb-2 block">Minimum Purchase Amount</label>
+                  <label class="text-sm font-medium text-[#020721] mb-2 block">Minimum Purchase Amount (₦)</label>
                   <input 
                     v-model="formData.minPurchaseAmount"
                     type="number" 
+                    min="0"
                     placeholder="5000"
                     class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#020721]"
                   />
                 </div>
 
                 <div>
-                  <label class="text-sm font-medium text-[#020721] mb-2 block">Maximum Discount Cap</label>
+                  <label class="text-sm font-medium text-[#020721] mb-2 block">Maximum Discount Cap (₦)</label>
                   <input 
                     v-model="formData.maxDiscountCap"
                     type="number" 
+                    min="0"
                     placeholder="2000"
                     class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#020721]"
                   />
                 </div>
 
                 <div>
-                  <label class="text-sm font-medium text-[#020721] mb-2 block">Limit Total Uses</label>
+                  <label class="text-sm font-medium text-[#020721] mb-2 block">Total Usage Limit</label>
                   <input 
                     v-model="formData.totalUsageLimit"
                     type="number" 
+                    min="0"
                     placeholder="500"
                     class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#020721]"
                   />
@@ -273,6 +278,7 @@
                   <input 
                     v-model="formData.limitPerCustomer"
                     type="number" 
+                    min="0"
                     placeholder="3"
                     class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#020721]"
                   />
@@ -304,60 +310,43 @@
                     Select Eligible Products <span class="text-red-500">*</span>
                   </label>
                   
-                  <!-- Product Search -->
-                  <div class="mb-4">
-                    <input 
-                      v-model="productSearch"
-                      @input="debouncedSearchProducts"
-                      type="text" 
-                      placeholder="Search products..."
-                      class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#020721]"
-                    />
-                  </div>
-
-                  <!-- Loading State -->
-                  <div v-if="promotionsStore.productsLoading" class="flex justify-center py-4">
-                    <Icon icon="eos-icons:loading" class="w-6 h-6 text-[#020721]" />
-                  </div>
-
-                  <!-- Products List -->
-                  <div v-else class="space-y-2 max-h-60 overflow-y-auto">
-                    <div v-for="product in promotionsStore.formattedProducts" :key="product.id" 
-                         class="flex items-center gap-3 p-2 border border-gray-200 rounded-lg hover:bg-gray-50">
+                  <div class="space-y-2 max-h-60 overflow-y-auto border border-gray-200 rounded-lg p-3">
+                    <div 
+                      v-for="product in eligibleProducts" 
+                      :key="product._id" 
+                      class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg"
+                    >
                       <input 
                         type="checkbox" 
-                        :id="product.id"
+                        :id="product._id"
                         v-model="formData.productIds"
-                        :value="product.id"
+                        :value="product._id"
                         class="w-4 h-4"
                       />
-                      <img :src="product.image" :alt="product.name" class="w-10 h-10 rounded object-cover" />
+                      <img 
+                        v-if="product.image" 
+                        :src="product.image" 
+                        :alt="product.name" 
+                        class="w-10 h-10 rounded object-cover" 
+                      />
+                      <div v-else class="w-10 h-10 rounded bg-gray-200 flex items-center justify-center">
+                        <Icon icon="mdi:package-variant" class="w-6 h-6 text-gray-400" />
+                      </div>
                       <div class="flex-1">
                         <div class="text-sm font-medium text-[#020721]">{{ product.name }}</div>
-                        <div class="text-xs text-muted-foreground">₦{{ product.price.toLocaleString() }}</div>
-                        <div class="text-xs text-muted-foreground">{{ product.sku }}</div>
+                        <div class="text-xs text-muted-foreground">₦{{ (product.amount || 0).toLocaleString() }}</div>
                       </div>
-                      <div class="text-xs text-muted-foreground">{{ product.size }}</div>
-                    </div>
-                    
-                    <!-- No Products Message -->
-                    <div v-if="promotionsStore.formattedProducts.length === 0" class="text-center py-4 text-sm text-gray-500">
-                      No products found
+                      <div class="text-xs text-muted-foreground">{{ product.size || 'N/A' }}</div>
                     </div>
                   </div>
-                  
-                  <p v-if="formData.appliesTo === 'selected_products' && formData.productIds.length === 0" class="text-xs text-red-500 mt-2">
-                    Please select at least one product
-                  </p>
-                  
-                  <p v-else-if="formData.productIds.length > 0" class="text-xs text-green-500 mt-2">
+                  <p class="text-xs text-[#8B8D97] mt-2">
                     {{ formData.productIds.length }} product(s) selected
                   </p>
                 </div>
               </div>
 
               <!-- Navigation Buttons -->
-              <div class="px-4 py-4 mt-auto flex items-center justify-between">
+              <div class="px-4 py-4 mt-auto flex items-center justify-between border-t">
                 <button 
                   v-if="currentStep > 1"
                   @click="currentStep--"
@@ -373,8 +362,10 @@
                   :disabled="promotionsStore.loading"
                   class="flex items-center gap-2 px-6 py-2 bg-[#5B68DF] text-white rounded-lg text-sm font-medium hover:bg-[#4a56cc] disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <span v-if="promotionsStore.loading && currentStep === 3">{{ isEditMode ? 'Updating...' : 'Creating...' }}</span>
-                  <span v-else>{{ currentStep === 3 ? (isEditMode ? 'Update Promotion' : 'Create Promotion') : 'Next' }}</span>
+                  <span v-if="promotionsStore.loading && currentStep === 3">
+                    {{ isEditMode ? 'Updating...' : 'Creating...' }}
+                  </span>
+                  <span v-else>{{ currentStep === 3 ? (isEditMode ? 'Update' : 'Create') : 'Next' }}</span>
                   <Icon v-if="!promotionsStore.loading" icon="radix-icons:chevron-right" />
                 </button>
               </div>
@@ -392,7 +383,7 @@
                   {{ selectedPromotion?.name }}
                 </h3>
                 <p class="text-sm text-muted-foreground">
-                  {{ selectedPromotion?.createdAt ? new Date(selectedPromotion.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : '' }}
+                  {{ selectedPromotion?.createdAt ? formatDate(selectedPromotion.createdAt) : '' }}
                 </p>
               </SheetHeader>
 
@@ -401,13 +392,23 @@
                 <div>
                   <div class="flex items-center justify-between mb-4">
                     <h4 class="text-sm font-semibold text-[#020721]">Details</h4>
-                    <button 
-                      @click="editPromotion"
-                      class="flex items-center gap-2 px-3 py-1.5 border border-gray-200 rounded-lg text-sm hover:bg-gray-50"
-                    >
-                      <Icon icon="mdi:pencil" class="w-4 h-4" />
-                      Edit
-                    </button>
+                    <div class="flex gap-2">
+                      <button 
+                        v-if="selectedPromotion.status === 'draft'"
+                        @click="publishSelectedPromotion"
+                        class="flex items-center gap-2 px-3 py-1.5 bg-[#00C37F] text-white rounded-lg text-sm hover:bg-[#00b070]"
+                      >
+                        <Icon icon="mdi:publish" class="w-4 h-4" />
+                        Publish
+                      </button>
+                      <button 
+                        @click="editPromotion"
+                        class="flex items-center gap-2 px-3 py-1.5 border border-gray-200 rounded-lg text-sm hover:bg-gray-50"
+                      >
+                        <Icon icon="mdi:pencil" class="w-4 h-4" />
+                        Edit
+                      </button>
+                    </div>
                   </div>
 
                   <!-- Promotion Info Grid -->
@@ -417,9 +418,9 @@
                       <p class="text-sm font-medium text-[#020721]">{{ selectedPromotion.name }}</p>
                     </div>
 
-                    <div>
+                    <div v-if="selectedPromotion.description">
                       <p class="text-xs text-[#8B8D97] mb-1">Description</p>
-                      <p class="text-sm text-[#020721]">{{ selectedPromotion.description || 'No description' }}</p>
+                      <p class="text-sm text-[#020721]">{{ selectedPromotion.description }}</p>
                     </div>
 
                     <div>
@@ -428,13 +429,13 @@
                     </div>
 
                     <div>
-                      <p class="text-xs text-[#8B8D97] mb-1">Promo Code</p>
-                      <p class="text-sm font-medium text-[#020721]">{{ selectedPromotion.promoCode || 'N/A' }}</p>
-                    </div>
-
-                    <div>
                       <p class="text-xs text-[#8B8D97] mb-1">Discount Value</p>
                       <p class="text-sm font-medium text-[#020721]">{{ promotionsStore.formatDiscountValue(selectedPromotion) }}</p>
+                    </div>
+
+                    <div v-if="selectedPromotion.promoCode">
+                      <p class="text-xs text-[#8B8D97] mb-1">Promo Code</p>
+                      <p class="text-sm font-medium text-[#020721]">{{ selectedPromotion.promoCode }}</p>
                     </div>
 
                     <div>
@@ -442,7 +443,7 @@
                       <p class="text-sm font-medium text-[#020721]">{{ promotionsStore.formatAppliesTo(selectedPromotion) }}</p>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-3">
+                    <div class="grid grid-cols-2 gap-4">
                       <div>
                         <p class="text-xs text-[#8B8D97] mb-1">Start Date</p>
                         <p class="text-sm font-medium text-[#020721]">{{ formatDate(selectedPromotion.startDate) }}</p>
@@ -451,11 +452,6 @@
                         <p class="text-xs text-[#8B8D97] mb-1">End Date</p>
                         <p class="text-sm font-medium text-[#020721]">{{ formatDate(selectedPromotion.endDate) }}</p>
                       </div>
-                    </div>
-
-                    <div>
-                      <p class="text-xs text-[#8B8D97] mb-1">Usage Count</p>
-                      <p class="text-sm font-medium text-[#020721]">{{ promotionsStore.formatUsageCount(selectedPromotion) }}</p>
                     </div>
 
                     <div v-if="selectedPromotion.minimumPurchaseAmount">
@@ -468,14 +464,14 @@
                       <p class="text-sm font-medium text-[#020721]">₦{{ selectedPromotion.maximumDiscountCap.toLocaleString() }}</p>
                     </div>
 
-                    <!-- Selected Products -->
-                    <div v-if="selectedPromotion.appliesTo === 'selected_products' && selectedPromotion.productIds?.length">
-                      <p class="text-xs text-[#8B8D97] mb-1">Selected Products</p>
-                      <div class="space-y-1">
-                        <p v-for="productId in selectedPromotion.productIds" :key="productId" class="text-sm text-[#020721]">
-                          {{ productId }}
-                        </p>
-                      </div>
+                    <div>
+                      <p class="text-xs text-[#8B8D97] mb-1">Usage Count</p>
+                      <p class="text-sm font-medium text-[#020721]">{{ promotionsStore.formatUsageCount(selectedPromotion) }}</p>
+                    </div>
+
+                    <div v-if="selectedPromotion.limitPerCustomer">
+                      <p class="text-xs text-[#8B8D97] mb-1">Limit Per Customer</p>
+                      <p class="text-sm font-medium text-[#020721]">{{ selectedPromotion.limitPerCustomer }}</p>
                     </div>
                   </div>
                 </div>
@@ -483,15 +479,8 @@
                 <!-- Action Buttons -->
                 <div class="flex gap-2 pb-4">
                   <button 
-                    v-if="selectedPromotion.status === 'draft'"
-                    @click="publishSelectedPromotion"
-                    class="flex-1 px-4 py-2 bg-[#00C37F] text-white rounded-lg text-sm hover:bg-[#00C37F]/90"
-                  >
-                    Publish
-                  </button>
-                  <button 
-                    @click="deleteSelectedPromotion"
-                    class="flex-1 px-4 py-2 bg-red-500 text-white rounded-lg text-sm hover:bg-red-600"
+                    @click="openDeleteModal(selectedPromotion)"
+                    class="flex-1 px-4 py-2 bg-white border border-red-300 text-red-600 rounded-lg text-sm hover:bg-red-50"
                   >
                     Delete
                   </button>
@@ -507,6 +496,18 @@
         <Icon icon="eos-icons:loading" class="w-8 h-8 text-[#020721]" />
       </div>
 
+      <!-- Empty State -->
+      <div v-else-if="!promotionsStore.loading && promotionsStore.promotions.length === 0" class="flex flex-col items-center justify-center py-10">
+        <Icon icon="mdi:tag-off-outline" class="w-16 h-16 text-gray-300 mb-4" />
+        <p class="text-gray-500 text-sm">No promotions found</p>
+        <button 
+          @click="openCreateSheet"
+          class="mt-4 px-4 py-2 bg-[#020721] text-white rounded-lg text-sm hover:bg-[#020721]/90"
+        >
+          Create Your First Promotion
+        </button>
+      </div>
+
       <!-- Table -->
       <div v-else class="overflow-auto bg-white rounded-lg">
         <Table class="lg:w-full w-[800px]">
@@ -514,12 +515,12 @@
             <TableRow class="text-xs sm:text-sm text-[#8B8D97] font-medium border-b border-gray-200">
               <TableHead class="font-medium cursor-pointer hover:bg-gray-50" @click="sortBy('name')">
                 <div class="flex items-center gap-1">
-                  Promotion Name
+                  Name
                   <Icon icon="fluent:chevron-up-down-20-regular" class="w-4 h-4" />
                 </div>
               </TableHead>
               <TableHead class="font-medium">Type</TableHead>
-              <TableHead class="font-medium">Discount Value</TableHead>
+              <TableHead class="font-medium">Discount</TableHead>
               <TableHead class="font-medium">Applies To</TableHead>
               <TableHead class="font-medium cursor-pointer hover:bg-gray-50" @click="sortBy('startDate')">
                 <div class="flex items-center gap-1">
@@ -528,14 +529,18 @@
                 </div>
               </TableHead>
               <TableHead class="font-medium">End Date</TableHead>
-              <TableHead class="font-medium">Usage Count</TableHead>
+              <TableHead class="font-medium">Usage</TableHead>
               <TableHead class="font-medium">Status</TableHead>
               <TableHead class="font-medium">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            <TableRow v-for="promo in promotionsStore.promotions" :key="promo._id" class="border-b border-gray-100 hover:bg-gray-50">
-              <TableCell class="text-sm font-medium text-[#020721]">{{ promo.name }}</TableCell>
+            <TableRow 
+              v-for="promo in promotionsStore.promotions" 
+              :key="promo._id" 
+              class="border-b border-gray-100 hover:bg-gray-50"
+            >
+              <TableCell class="text-sm font-medium text-[#020721]">{{ promo.name || 'N/A' }}</TableCell>
               <TableCell class="text-sm text-[#8B8D97]">{{ promotionsStore.formatPromotionType(promo.promotionType) }}</TableCell>
               <TableCell class="text-sm font-medium text-[#020721]">{{ promotionsStore.formatDiscountValue(promo) }}</TableCell>
               <TableCell class="text-sm text-[#8B8D97]">{{ promotionsStore.formatAppliesTo(promo) }}</TableCell>
@@ -556,47 +561,84 @@
                   <button 
                     @click.stop="showActionsMenu = showActionsMenu === promo._id ? null : promo._id"
                     class="text-gray-400 hover:text-gray-600 p-1 rounded hover:bg-gray-100 transition-colors"
+                    title="Promotion Actions"
                   >
-                    <Icon icon="heroicons:ellipsis-vertical" class="w-5 h-5" />
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 20 20"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M10 10.8333C10.4602 10.8333 10.8333 10.4602 10.8333 10C10.8333 9.53976 10.4602 9.16667 10 9.16667C9.53976 9.16667 9.16667 9.53976 9.16667 10C9.16667 10.4602 9.53976 10.8333 10 10.8333Z"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                      <path
+                        d="M10 5C10.4602 5 10.8333 4.6269 10.8333 4.16667C10.8333 3.70643 10.4602 3.33333 10 3.33333C9.53976 3.33333 9.16667 3.70643 9.16667 4.16667C9.16667 4.6269 9.53976 5 10 5Z"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                      <path
+                        d="M10 16.6667C10.4602 16.6667 10.8333 16.2936 10.8333 15.8333C10.8333 15.3731 10.4602 15 10 15C9.53976 15 9.16667 15.3731 9.16667 15.8333C9.16667 16.2936 9.53976 16.6667 10 16.6667Z"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
                   </button>
-                  
-                  <div 
-                    v-if="showActionsMenu === promo._id"
-                    class="absolute right-0 mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-10"
-                    @click.stop
+
+                  <!-- Actions Dropdown Menu -->
+                  <Transition
+                    enter-active-class="transition ease-out duration-100"
+                    enter-from-class="transform opacity-0 scale-95"
+                    enter-to-class="transform opacity-100 scale-100"
+                    leave-active-class="transition ease-in duration-75"
+                    leave-from-class="transform opacity-100 scale-100"
+                    leave-to-class="transform opacity-0 scale-95"
                   >
-                    <div class="py-1">
-                      <button 
-                        @click="viewPromotionDetails(promo._id)"
-                        class="w-full text-left px-4 py-2 text-sm text-[#020721] hover:bg-gray-50 flex items-center gap-2"
+                    <div 
+                      v-if="showActionsMenu === promo._id"
+                      @click.stop
+                      class="absolute right-0 mt-2 w-32 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden z-50"
+                    >
+                      <button
+                        @click="viewPromotionDetails(promo._id); showActionsMenu = null"
+                        class="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center gap-2 text-sm text-gray-700 transition-colors"
                       >
-                        <Icon icon="heroicons:eye" class="w-4 h-4" />
-                        View Details
+                        <Icon icon="mdi:eye-outline" class="w-4 h-4" />
+                        View
                       </button>
-                      <button 
-                        @click="editPromotionFromTable(promo._id)"
-                        class="w-full text-left px-4 py-2 text-sm text-[#020721] hover:bg-gray-50 flex items-center gap-2"
+                      <button
+                        @click="editPromotionFromList(promo); showActionsMenu = null"
+                        class="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center gap-2 text-sm text-gray-700 transition-colors"
                       >
-                        <Icon icon="heroicons:pencil-square" class="w-4 h-4" />
+                        <Icon icon="mdi:pencil-outline" class="w-4 h-4" />
                         Edit
                       </button>
-                      <button 
+                      <button
                         v-if="promo.status === 'draft'"
-                        @click="publishPromotion(promo._id)"
-                        class="w-full text-left px-4 py-2 text-sm text-green-600 hover:bg-gray-50 flex items-center gap-2"
+                        @click="publishPromotionFromList(promo); showActionsMenu = null"
+                        class="w-full px-4 py-2 text-left hover:bg-green-50 flex items-center gap-2 text-sm text-green-600 transition-colors border-t border-gray-100"
                       >
-                        <Icon icon="heroicons:check-circle" class="w-4 h-4" />
+                        <Icon icon="mdi:publish" class="w-4 h-4" />
                         Publish
                       </button>
-                      <button 
-                        @click="deletePromotion(promo._id)"
-                        class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-50 flex items-center gap-2"
+                      <button
+                        @click="openDeleteModal(promo)"
+                        class="w-full px-4 py-2 text-left hover:bg-red-50 flex items-center gap-2 text-sm text-red-600 transition-colors border-t border-gray-100"
                       >
-                        <Icon icon="heroicons:trash" class="w-4 h-4" />
+                        <Icon icon="mdi:delete-outline" class="w-4 h-4" />
                         Delete
                       </button>
                     </div>
-                  </div>
+                  </Transition>
                 </div>
               </TableCell>
             </TableRow>
@@ -605,7 +647,7 @@
       </div>
 
       <!-- Pagination -->
-      <div v-if="promotionsStore.pagination.totalPages > 1" class="flex gap-2 max-w-full flex-wrap justify-end mt-8 mr-4 items-center text-[15px]">
+      <div class="flex gap-2 max-w-full flex-wrap justify-end mt-8 mr-4 items-center text-[15px]">
         <Button 
           variant="secondary" 
           @click="changePage(promotionsStore.pagination.currentPage - 1)"
@@ -629,13 +671,57 @@
         > 
           <Icon icon="radix-icons:chevron-right" /> 
         </Button>
+        <a href="#"><p class="text-[blue]">See all</p></a>
       </div>
     </Card>
     <DashboardFooter />
+
+    <!-- Delete Confirmation Dialog -->
+    <Dialog v-model:open="deleteModalOpen">
+      <DialogContent class="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle class="flex items-center gap-2">
+            <Icon icon="mdi:alert-circle-outline" class="w-6 h-6 text-red-500" />
+            Confirm Deletion
+          </DialogTitle>
+          <DialogDescription>
+            Are you sure you want to delete the promotion "
+            <span class="font-semibold text-[#020721]">{{ promotionToDelete?.name }}</span>"?
+            This action cannot be undone and will permanently remove the promotion.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter class="flex flex-col sm:flex-row gap-2 sm:gap-0">
+          <Button 
+            variant="outline" 
+            @click="deleteModalOpen = false"
+            class="w-full sm:w-auto"
+          >
+            Cancel
+          </Button>
+          <Button 
+            variant="destructive" 
+            @click="confirmDeletePromotion"
+            :disabled="promotionsStore.loading"
+            class="w-full sm:w-auto"
+          >
+            <Icon icon="mdi:delete" class="w-4 h-4 mr-2" />
+            {{ promotionsStore.loading ? 'Deleting...' : 'Delete Promotion' }}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   </div>
 </template>
 
-<script lang="ts" setup>
+<script setup lang="ts">
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import VendorNav from '@/components/VendorNav.vue'
+import DashboardFooter from '@/components/DashboardFooter.vue'
+import Search from '@/components/UseSearch.vue'
+import { Card, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Icon } from '@iconify/vue'
+import { Check, Archive, CalendarDays, ScrollText } from 'lucide-vue-next'
 import {
   Table,
   TableRow,
@@ -644,44 +730,56 @@ import {
   TableCell,
   TableHead
 } from '@/components/ui/table'
-import { Card, CardContent } from '@/components/ui/card'
-import { ref, computed, onMounted, watch } from 'vue'
-import { Button } from '@/components/ui/button'
-import { Icon } from '@iconify/vue'
-import Search from '@/components/UseSearch.vue'
-import VendorNav from '@/components/VendorNav.vue'
-import { Archive, CalendarDays, Check, ScrollText } from 'lucide-vue-next'
-import DashboardFooter from '@/components/DashboardFooter.vue'
 import {
   Sheet,
   SheetContent,
   SheetDescription,
   SheetHeader,
 } from "@/components/ui/sheet"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import { usePromotionsStore } from '@/stores/vendor-store/vendor-promotion'
+import { useProductsStore } from '@/stores/vendor/product'
 import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
 import { useToast } from '@/components/ui/toast'
-import { debounce } from 'lodash'
+import type { Promotion } from '@/stores/vendor-store/vendor-promotion'
 
 const promotionsStore = usePromotionsStore()
+const productsStore = useProductsStore()
 const superAdminStore = useSuperAdminStore()
 const { toast } = useToast()
 
 // Get vendorId from superadmin store
 const vendorId = computed(() => superAdminStore.vendorId)
 
-// UI State
+// Sheet states
 const sheetOpen = ref(false)
 const viewSheetOpen = ref(false)
 const currentStep = ref(1)
-const isEditMode = ref(false)
-const showActionsMenu = ref<string | null>(null)
 const searchQuery = ref('')
-const promotionStatus = ref<'active' | 'scheduled' | 'draft'>('draft')
-const productSearch = ref('')
 
-// Selected promotion for viewing/editing
-const selectedPromotion = ref<any>(null)
+// Edit mode
+const isEditMode = ref(false)
+const editingPromotionId = ref<string | null>(null)
+
+// Delete modal state
+const deleteModalOpen = ref(false)
+const promotionToDelete = ref<Promotion | null>(null)
+
+// Actions dropdown state
+const showActionsMenu = ref<string | null>(null)
+
+// Selected promotion for viewing
+const selectedPromotion = ref<Promotion | null>(null)
+
+// Eligible products (fetch from products store)
+const eligibleProducts = ref<any[]>([])
 
 // Form data
 const formData = ref({
@@ -696,51 +794,75 @@ const formData = ref({
   maxDiscountCap: '',
   totalUsageLimit: '',
   limitPerCustomer: '',
-  appliesTo: 'all_products' as 'all_products' | 'selected_products',
-  productIds: [] as string[]
+  appliesTo: 'all_products' as 'all_products' | 'selected_products' | 'selected_categories',
+  productIds: [] as string[],
+  status: 'draft' as 'active' | 'scheduled' | 'draft' | 'expired'
 })
 
-// Debounced search for products
-const debouncedSearchProducts = debounce(async () => {
-  if (currentStep.value === 3 && formData.value.appliesTo === 'selected_products') {
-    await promotionsStore.fetchVendorProducts(productSearch.value)
-  }
-}, 500)
-
-// Watch current step to fetch products when needed
-watch(() => currentStep.value, async (newStep) => {
-  if (newStep === 3 && formData.value.appliesTo === 'selected_products' && vendorId.value) {
-    await fetchProducts()
-  }
-})
-
-// Watch appliesTo to fetch products when changed
-watch(() => formData.value.appliesTo, async (newValue) => {
-  if (newValue === 'selected_products' && currentStep.value === 3 && vendorId.value) {
-    await fetchProducts()
-  }
-})
-
-// Fetch products from vendor
-const fetchProducts = async () => {
-  if (vendorId.value) {
-    await promotionsStore.fetchVendorProducts(productSearch.value)
+// Status background color
+const statusBg = (status: string) => {
+  switch (status) {
+    case 'expired':
+      return 'bg-[#DF6C50]'
+    case 'scheduled':
+      return 'bg-[#6A70FF]'
+    case 'active':
+      return 'bg-[#00C37F]'
+    case 'draft':
+      return 'bg-[#3A8EE5]'
+    default:
+      return 'bg-gray-400'
   }
 }
 
-// Open create promotion sheet
+// Open create sheet
 const openCreateSheet = () => {
   isEditMode.value = false
+  editingPromotionId.value = null
   resetForm()
   sheetOpen.value = true
 }
 
 // Handle next button click
 const handleNext = async () => {
-  if (currentStep.value < 3) {
+  // Validate step 1
+  if (currentStep.value === 1) {
+    if (!formData.value.name || !formData.value.promotionType) {
+      toast({
+        description: 'Please fill all required fields',
+        variant: 'destructive'
+      })
+      return
+    }
     currentStep.value++
-  } else {
-    if (isEditMode.value && selectedPromotion.value) {
+    return
+  }
+
+  // Validate step 2
+  if (currentStep.value === 2) {
+    if (!formData.value.discountValue) {
+      toast({
+        description: 'Please enter discount value',
+        variant: 'destructive'
+      })
+      return
+    }
+    currentStep.value++
+    return
+  }
+
+  // Step 3 - Create or update promotion
+  if (currentStep.value === 3) {
+    // Validate selected products if applies to selected products
+    if (formData.value.appliesTo === 'selected_products' && formData.value.productIds.length === 0) {
+      toast({
+        description: 'Please select at least one product',
+        variant: 'destructive'
+      })
+      return
+    }
+
+    if (isEditMode.value && editingPromotionId.value) {
       await updatePromotion()
     } else {
       await createPromotion()
@@ -750,24 +872,6 @@ const handleNext = async () => {
 
 // Create promotion
 const createPromotion = async () => {
-  // Validate required fields
-  if (!formData.value.name || !formData.value.promotionType || !formData.value.discountValue) {
-    toast({
-      description: 'Please fill all required fields',
-      variant: 'destructive'
-    })
-    return
-  }
-
-  // Validate selected products if applies to selected products
-  if (formData.value.appliesTo === 'selected_products' && formData.value.productIds.length === 0) {
-    toast({
-      description: 'Please select at least one product',
-      variant: 'destructive'
-    })
-    return
-  }
-
   const promotionData: any = {
     name: formData.value.name,
     promotionType: formData.value.promotionType,
@@ -775,7 +879,7 @@ const createPromotion = async () => {
     appliesTo: formData.value.appliesTo,
     startDate: formData.value.startDate,
     endDate: formData.value.endDate,
-    status: promotionStatus.value
+    status: formData.value.status
   }
 
   // Add optional fields only if they have values
@@ -805,31 +909,17 @@ const createPromotion = async () => {
   
   if (result) {
     // Refresh promotions and counts after creation
-    await refreshData()
+    await promotionsStore.fetchPromotions({ vendorId: vendorId.value })
+    await promotionsStore.fetchPromotionStatusCounts(vendorId.value)
     
     resetForm()
     sheetOpen.value = false
-    
-    toast({
-      title: "Success!",
-      description: "Promotion created successfully",
-      variant: "default"
-    })
   }
 }
 
 // Update promotion
 const updatePromotion = async () => {
-  if (!selectedPromotion.value) return
-
-  // Validate required fields
-  if (!formData.value.name || !formData.value.promotionType || !formData.value.discountValue) {
-    toast({
-      description: 'Please fill all required fields',
-      variant: 'destructive'
-    })
-    return
-  }
+  if (!editingPromotionId.value) return
 
   const promotionData: any = {
     name: formData.value.name,
@@ -838,7 +928,7 @@ const updatePromotion = async () => {
     appliesTo: formData.value.appliesTo,
     startDate: formData.value.startDate,
     endDate: formData.value.endDate,
-    status: promotionStatus.value
+    status: formData.value.status
   }
 
   // Add optional fields
@@ -860,168 +950,26 @@ const updatePromotion = async () => {
   if (formData.value.limitPerCustomer) {
     promotionData.limitPerCustomer = Number(formData.value.limitPerCustomer)
   }
-
-  // Only include productIds if appliesTo is selected_products
-  if (formData.value.appliesTo === 'selected_products') {
+  if (formData.value.appliesTo === 'selected_products' && formData.value.productIds.length > 0) {
     promotionData.productIds = formData.value.productIds
-  } else {
-    promotionData.productIds = []
   }
 
-  const result = await promotionsStore.updatePromotion(selectedPromotion.value._id, promotionData)
+  const result = await promotionsStore.updatePromotion(editingPromotionId.value, promotionData)
   
   if (result) {
-    await refreshData()
+    await promotionsStore.fetchPromotions({ vendorId: vendorId.value })
+    await promotionsStore.fetchPromotionStatusCounts(vendorId.value)
     
     resetForm()
     sheetOpen.value = false
-    viewSheetOpen.value = false
-    
-    toast({
-      title: "Success!",
-      description: "Promotion updated successfully",
-      variant: "default"
-    })
-  }
-}
-
-// View promotion details
-const viewPromotionDetails = async (id: string) => {
-  const promotion = await promotionsStore.fetchPromotionById(id)
-  if (promotion) {
-    selectedPromotion.value = promotion
-    viewSheetOpen.value = true
-    showActionsMenu.value = null
-  }
-}
-
-// Edit promotion from view sheet
-const editPromotion = () => {
-  if (!selectedPromotion.value) return
-  
-  isEditMode.value = true
-  currentStep.value = 1
-  
-  // Populate form with promotion data
-  formData.value = {
-    name: selectedPromotion.value.name,
-    description: selectedPromotion.value.description || '',
-    promotionType: selectedPromotion.value.promotionType,
-    promoCode: selectedPromotion.value.promoCode || '',
-    startDate: selectedPromotion.value.startDate.split('T')[0],
-    endDate: selectedPromotion.value.endDate.split('T')[0],
-    discountValue: selectedPromotion.value.discountValue.toString(),
-    minPurchaseAmount: selectedPromotion.value.minimumPurchaseAmount?.toString() || '',
-    maxDiscountCap: selectedPromotion.value.maximumDiscountCap?.toString() || '',
-    totalUsageLimit: selectedPromotion.value.totalUsageLimit?.toString() || '',
-    limitPerCustomer: selectedPromotion.value.limitPerCustomer?.toString() || '',
-    appliesTo: selectedPromotion.value.appliesTo,
-    productIds: selectedPromotion.value.productIds || []
-  }
-  
-  promotionStatus.value = selectedPromotion.value.status as any
-  
-  viewSheetOpen.value = false
-  sheetOpen.value = true
-  
-  // Fetch products if editing selected products
-  if (formData.value.appliesTo === 'selected_products') {
-    fetchProducts()
-  }
-}
-
-// Edit promotion from table
-const editPromotionFromTable = async (id: string) => {
-  const promotion = await promotionsStore.fetchPromotionById(id)
-  if (promotion) {
-    selectedPromotion.value = promotion
-    editPromotion()
-  }
-}
-
-// Publish promotion from view sheet
-const publishSelectedPromotion = async () => {
-  if (!selectedPromotion.value) return
-  
-  const result = await promotionsStore.publishPromotion(selectedPromotion.value._id)
-  if (result) {
-    viewSheetOpen.value = false
-    await refreshData()
-    
-    toast({
-      title: "Success!",
-      description: "Promotion published successfully",
-      variant: "default"
-    })
-  }
-}
-
-// Publish promotion from table
-const publishPromotion = async (id: string) => {
-  const result = await promotionsStore.publishPromotion(id)
-  if (result) {
-    showActionsMenu.value = null
-    await refreshData()
-    
-    toast({
-      title: "Success!",
-      description: "Promotion published successfully",
-      variant: "default"
-    })
-  }
-}
-
-// Delete promotion from view sheet
-const deleteSelectedPromotion = async () => {
-  if (!selectedPromotion.value) return
-  
-  if (confirm('Are you sure you want to delete this promotion?')) {
-    const result = await promotionsStore.deletePromotion(selectedPromotion.value._id)
-    if (result) {
-      viewSheetOpen.value = false
-      await refreshData()
-      
-      toast({
-        title: "Success!",
-        description: "Promotion deleted successfully",
-        variant: "default"
-      })
-    }
-  }
-}
-
-// Delete promotion from table
-const deletePromotion = async (id: string) => {
-  if (confirm('Are you sure you want to delete this promotion?')) {
-    const result = await promotionsStore.deletePromotion(id)
-    if (result) {
-      showActionsMenu.value = null
-      await refreshData()
-      
-      toast({
-        title: "Success!",
-        description: "Promotion deleted successfully",
-        variant: "default"
-      })
-    }
-  }
-}
-
-// Refresh data
-const refreshData = async () => {
-  if (vendorId.value) {
-    await promotionsStore.fetchPromotions({ vendorId: vendorId.value })
-    await promotionsStore.fetchPromotionStatusCounts(vendorId.value)
   }
 }
 
 // Reset form
 const resetForm = () => {
   currentStep.value = 1
-  promotionStatus.value = 'draft'
   isEditMode.value = false
-  selectedPromotion.value = null
-  productSearch.value = ''
+  editingPromotionId.value = null
   formData.value = {
     name: '',
     description: '',
@@ -1035,13 +983,14 @@ const resetForm = () => {
     totalUsageLimit: '',
     limitPerCustomer: '',
     appliesTo: 'all_products',
-    productIds: []
+    productIds: [],
+    status: 'draft'
   }
 }
 
 // Format date
 const formatDate = (dateStr: string) => {
-  if (!dateStr) return ''
+  if (!dateStr) return 'N/A'
   const date = new Date(dateStr)
   return new Intl.DateTimeFormat('en-GB', {
     day: 'numeric',
@@ -1108,26 +1057,170 @@ const visiblePages = computed(() => {
   return pages
 })
 
-// Status background color
-const statusBg = (status: string) => {
-  switch (status) {
-    case 'expired':
-      return 'bg-[#DF6C50]'
-    case 'scheduled':
-      return 'bg-[#6A70FF]'
-    case 'active':
-      return 'bg-[#00C37F]'
-    case 'draft':
-      return 'bg-[#3A8EE5]'
-    default:
-      return 'bg-gray-400'
+// View promotion details
+const viewPromotionDetails = async (id: string) => {
+  const promotion = await promotionsStore.fetchPromotionById(id)
+  if (promotion) {
+    selectedPromotion.value = promotion
+    viewSheetOpen.value = true
   }
 }
 
-// Fetch promotions and counts on mount
-onMounted(async () => {
-  if (vendorId.value) {
-    await refreshData()
+// Edit promotion from view sheet
+const editPromotion = () => {
+  if (!selectedPromotion.value) return
+  
+  isEditMode.value = true
+  editingPromotionId.value = selectedPromotion.value._id
+  
+  formData.value = {
+    name: selectedPromotion.value.name,
+    description: selectedPromotion.value.description || '',
+    promotionType: selectedPromotion.value.promotionType,
+    promoCode: selectedPromotion.value.promoCode || '',
+    startDate: selectedPromotion.value.startDate?.split('T')[0] || '',
+    endDate: selectedPromotion.value.endDate?.split('T')[0] || '',
+    discountValue: selectedPromotion.value.discountValue?.toString() || '',
+    minPurchaseAmount: selectedPromotion.value.minimumPurchaseAmount?.toString() || '',
+    maxDiscountCap: selectedPromotion.value.maximumDiscountCap?.toString() || '',
+    totalUsageLimit: selectedPromotion.value.totalUsageLimit?.toString() || '',
+    limitPerCustomer: selectedPromotion.value.limitPerCustomer?.toString() || '',
+    appliesTo: selectedPromotion.value.appliesTo,
+    productIds: selectedPromotion.value.productIds || [],
+    status: selectedPromotion.value.status
   }
+  
+  viewSheetOpen.value = false
+  sheetOpen.value = true
+  currentStep.value = 1
+}
+
+// Edit promotion from dropdown menu
+const editPromotionFromList = async (promotion: Promotion) => {
+  isEditMode.value = true
+  editingPromotionId.value = promotion._id
+  
+  const fullPromotion = await promotionsStore.fetchPromotionById(promotion._id)
+  
+  formData.value = {
+    name: fullPromotion.name,
+    description: fullPromotion.description || '',
+    promotionType: fullPromotion.promotionType,
+    promoCode: fullPromotion.promoCode || '',
+    startDate: fullPromotion.startDate?.split('T')[0] || '',
+    endDate: fullPromotion.endDate?.split('T')[0] || '',
+    discountValue: fullPromotion.discountValue?.toString() || '',
+    minPurchaseAmount: fullPromotion.minimumPurchaseAmount?.toString() || '',
+    maxDiscountCap: fullPromotion.maximumDiscountCap?.toString() || '',
+    totalUsageLimit: fullPromotion.totalUsageLimit?.toString() || '',
+    limitPerCustomer: fullPromotion.limitPerCustomer?.toString() || '',
+    appliesTo: fullPromotion.appliesTo,
+    productIds: fullPromotion.productIds || [],
+    status: fullPromotion.status
+  }
+  
+  sheetOpen.value = true
+  currentStep.value = 1
+  showActionsMenu.value = null
+}
+
+// Publish promotion from list
+const publishPromotionFromList = async (promotion: Promotion) => {
+  await promotionsStore.publishPromotion(promotion._id)
+  await promotionsStore.fetchPromotions({ vendorId: vendorId.value })
+  await promotionsStore.fetchPromotionStatusCounts(vendorId.value)
+}
+
+// Publish selected promotion
+const publishSelectedPromotion = async () => {
+  if (!selectedPromotion.value) return
+  
+  await promotionsStore.publishPromotion(selectedPromotion.value._id)
+  await promotionsStore.fetchPromotions({ vendorId: vendorId.value })
+  await promotionsStore.fetchPromotionStatusCounts(vendorId.value)
+  
+  viewSheetOpen.value = false
+}
+
+// Open delete confirmation modal
+const openDeleteModal = (promotion: Promotion) => {
+  promotionToDelete.value = promotion
+  deleteModalOpen.value = true
+  showActionsMenu.value = null
+}
+
+// Confirm delete promotion
+const confirmDeletePromotion = async () => {
+  if (!promotionToDelete.value) return
+
+  try {
+    await promotionsStore.deletePromotion(promotionToDelete.value._id)
+    
+    // Close view sheet if it's open for the deleted promotion
+    if (selectedPromotion.value?._id === promotionToDelete.value._id) {
+      viewSheetOpen.value = false
+      selectedPromotion.value = null
+    }
+    
+    // Close the modal
+    deleteModalOpen.value = false
+    promotionToDelete.value = null
+  } catch (error: any) {
+    console.error('Delete promotion error:', error)
+  }
+}
+
+// Close actions menu when clicking outside
+const closeActionsMenuOnClickOutside = (event: MouseEvent) => {
+  const target = event.target as HTMLElement
+  if (!target.closest('.relative')) {
+    showActionsMenu.value = null
+  }
+}
+
+// Fetch products and promotions on mount
+onMounted(async () => {
+  // console.log('Mounting VendorPromotion component')
+  // console.log('VendorId:', vendorId.value)
+  
+  await promotionsStore.fetchPromotions({ vendorId: vendorId.value })
+  await promotionsStore.fetchPromotionStatusCounts(vendorId.value)
+  
+  // console.log('Promotions after fetch:', promotionsStore.promotions)
+  // console.log('Promotions count:', promotionsStore.promotions.length)
+  
+  // Fetch products for selection - get all products without limit
+  await productsStore.fetchProducts({ vendorId: vendorId.value, limit: 1000, status: 'all' })
+  
+  // Map products to use _id as the identifier
+  eligibleProducts.value = productsStore.products.map(product => ({
+    _id: product._id, // Use _id instead of id
+    name: product.name,
+    amount: product.amount || 0,
+    size: product.size || '',
+    image: product.image || ''
+  }))
+  
+  // console.log('Loaded promotions:', promotionsStore.promotions) // Debug log
+  // console.log('Eligible products:', eligibleProducts.value) // Debug log
+  
+  // Add click outside listener
+  document.addEventListener('click', closeActionsMenuOnClickOutside)
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener('click', closeActionsMenuOnClickOutside)
 })
 </script>
+
+<style scoped>
+.cardShadow1 {
+  box-shadow:
+    0px 31px 30px -23px #dddcdc,
+    inset 0px -23px 20px -23px rgba(0, 0, 0, 0.25);
+}
+
+.weeshr-icon2 {
+  background-color: white;
+}
+</style>

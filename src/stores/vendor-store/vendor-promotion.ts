@@ -4,6 +4,31 @@ import axios from 'axios'
 import { useToast } from '@/components/ui/toast'
 import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
 
+// Create a clean axios instance for promotions (without /admin baseURL)
+const promotionsAxios = axios.create({
+  baseURL: '', // No baseURL - we'll use full paths
+})
+
+// Get auth token from localStorage
+const getAuthToken = () => {
+  return localStorage.getItem('token') || 
+         localStorage.getItem('authToken') || 
+         localStorage.getItem('access_token') ||
+         localStorage.getItem('accessToken') ||
+         localStorage.getItem('user_token')
+}
+
+// Get auth headers for API requests
+const getAuthHeaders = () => {
+  const token = getAuthToken()
+  return token ? {
+    'Authorization': `Bearer ${token}`,
+    'Content-Type': 'application/json'
+  } : {
+    'Content-Type': 'application/json'
+  }
+}
+
 export interface Promotion {
   _id: string
   vendorId: string
@@ -44,20 +69,6 @@ interface StatusCountResponse {
   no_of_expired: number
 }
 
-interface Product {
-  _id: string
-  name: string
-  price: number
-  description?: string
-  images?: string[]
-  sku?: string
-  status?: string
-  stockQuantity?: number
-  size?: string
-  weight?: string
-  category?: string
-}
-
 export const usePromotionsStore = defineStore('promotions', {
   state: () => ({
     promotions: [] as Promotion[],
@@ -74,9 +85,7 @@ export const usePromotionsStore = defineStore('promotions', {
     activeCount: 0,
     scheduledCount: 0,
     draftCount: 0,
-    expiredCount: 0,
-    products: [] as Product[],
-    productsLoading: false
+    expiredCount: 0
   }),
 
   actions: {
@@ -98,34 +107,92 @@ export const usePromotionsStore = defineStore('promotions', {
       try {
         const vendorId = params?.vendorId || this.getVendorId()
         
-        const response = await axios.get('/api/v1/admin/market/promotions/', {
-          params: {
-            vendorId: vendorId,
-            page: params?.page || 1,
-            perPage: params?.perPage || 25,
-            search: params?.search || '',
-            sortBy: params?.sortBy || 'startDate',
-            status: params?.status || 'all'
-          }
+        // console.log('Fetching promotions with vendorId:', vendorId) // Debug log
+        
+        // Build query params object
+        const queryParams: any = {
+          page: params?.page || 1,
+          perPage: params?.perPage || 25,
+          sortBy: params?.sortBy || 'startDate'
+        }
+        
+        // Add vendorId if it exists
+        if (vendorId) {
+          queryParams.vendorId = vendorId
+        }
+        
+        // Add search if provided
+        if (params?.search) {
+          queryParams.search = params.search
+        }
+        
+        // Add status if not 'all'
+        if (params?.status && params.status !== 'all') {
+          queryParams.status = params.status
+        }
+        
+        // console.log('Request params:', queryParams) // Debug log
+        
+        const response = await promotionsAxios.get('/api/v1/admin/market/promotions', {
+          headers: getAuthHeaders(),
+          params: queryParams
         })
 
-        const data = response.data.data
-        const promotions = (data.data || data.promotions || [])
+        // console.log('Promotions API Response:', response.data) // Debug log
+        // console.log('Response status:', response.status) // Debug log
+        // console.log('Full response:', response) // Debug log
+
+        // Handle different response structures
+        let data = response.data
+        let promotions = []
+        
+        // Check if response has data property
+        if (data.data) {
+          // Structure: { data: { data: [...] } } or { data: { promotions: [...] } }
+          if (data.data.data) {
+            promotions = data.data.data
+            data = data.data
+          } else if (data.data.promotions) {
+            promotions = data.data.promotions
+            data = data.data
+          } else if (Array.isArray(data.data)) {
+            promotions = data.data
+          } else {
+            promotions = [data.data]
+          }
+        } else if (data.promotions) {
+          // Structure: { promotions: [...] }
+          promotions = data.promotions
+        } else if (Array.isArray(data)) {
+          // Structure: [...]
+          promotions = data
+        } else {
+          console.warn('Unexpected response structure:', data)
+          promotions = []
+        }
+        
+        // console.log('Parsed promotions:', promotions) // Debug log
+        // console.log('Number of promotions:', promotions.length) // Debug log
         
         this.promotions = promotions
         
+        // Handle pagination - check multiple possible locations
         this.pagination = {
-          currentPage: data.currentPage || 1,
-          perPage: data.perPage || 25,
-          totalPages: data.totalPages || 1,
-          totalItems: data.totalItems || data.total || promotions.length || 0,
-          from: data.from || 1,
-          to: data.to || promotions.length || 0
+          currentPage: data.currentPage || response.data.currentPage || 1,
+          perPage: data.perPage || response.data.perPage || 25,
+          totalPages: data.totalPages || response.data.totalPages || 1,
+          totalItems: data.totalItems || data.total || response.data.totalItems || response.data.total || promotions.length || 0,
+          from: data.from || response.data.from || 1,
+          to: data.to || response.data.to || promotions.length || 0
         }
+        
+        // console.log('Pagination:', this.pagination) // Debug log
 
         return this.promotions
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error fetching promotions:', error)
+        console.error('Error response:', error.response?.data) // Debug log
+        console.error('Request config:', error.config) // Debug log
         this.promotions = []
         throw error
       } finally {
@@ -138,7 +205,8 @@ export const usePromotionsStore = defineStore('promotions', {
       try {
         const finalVendorId = vendorId || this.getVendorId()
         
-        const response = await axios.get('/api/v1/admin/market/promotions/status/counts', {
+        const response = await promotionsAxios.get('/api/v1/admin/market/promotions/status/counts', {
+          headers: getAuthHeaders(),
           params: finalVendorId ? { vendorId: finalVendorId } : undefined
         })
         
@@ -171,7 +239,9 @@ export const usePromotionsStore = defineStore('promotions', {
     // Fetch a single promotion by ID
     async fetchPromotionById(id: string) {
       try {
-        const response = await axios.get(`/api/v1/admin/market/promotions/${id}`)
+        const response = await promotionsAxios.get(`/api/v1/admin/market/promotions/${id}`, {
+          headers: getAuthHeaders()
+        })
         
         if (response.status === 200) {
           this.currentPromotion = response.data.data
@@ -198,7 +268,9 @@ export const usePromotionsStore = defineStore('promotions', {
           vendorId: vendorId
         }
         
-        const response = await axios.post('/api/v1/admin/market/promotions', dataWithVendorId)
+        const response = await promotionsAxios.post('/api/v1/admin/market/promotions', dataWithVendorId, {
+          headers: getAuthHeaders()
+        })
         
         if (response.status === 200 || response.status === 201) {
           const newPromotion = response.data.data
@@ -228,7 +300,7 @@ export const usePromotionsStore = defineStore('promotions', {
       }
     },
 
-    // Update an existing promotion - Using PATCH
+    // Update an existing promotion
     async updatePromotion(id: string, promotionData: any) {
       this.loading = true
       const { toast } = useToast()
@@ -242,9 +314,11 @@ export const usePromotionsStore = defineStore('promotions', {
           vendorId: vendorId
         }
         
-        const response = await axios.patch(`/api/v1/admin/market/promotions/${id}`, dataWithVendorId)
+        const response = await promotionsAxios.patch(`/api/v1/admin/market/promotions/${id}`, dataWithVendorId, {
+          headers: getAuthHeaders()
+        })
         
-        if (response.status === 200) {
+        if (response.status === 200 || response.status === 201) {
           const updatedPromotion = response.data.data
           
           toast({
@@ -286,37 +360,24 @@ export const usePromotionsStore = defineStore('promotions', {
       }
     },
 
-    // Update promotion products - Using PATCH
+    // Update promotion products
     async updatePromotionProducts(id: string, productIds: string[]) {
       this.loading = true
       const { toast } = useToast()
       
       try {
-        const response = await axios.patch(`/api/v1/admin/market/promotions/${id}/products`, { 
-          productIds 
+        const response = await promotionsAxios.patch(`/api/v1/admin/market/promotions/${id}/products`, { productIds }, {
+          headers: getAuthHeaders()
         })
         
-        if (response.status === 200) {
-          const updatedPromotion = response.data.data
-          
+        if (response.status === 200 || response.status === 201) {
           toast({
             title: "Success!",
             description: response.data.message || 'Products updated successfully!',
             variant: "default"
           })
           
-          // Update the promotion in the list
-          const index = this.promotions.findIndex(p => p._id === id)
-          if (index !== -1) {
-            this.promotions[index] = updatedPromotion
-          }
-          
-          // Update current promotion if it's the one being viewed
-          if (this.currentPromotion?._id === id) {
-            this.currentPromotion = updatedPromotion
-          }
-          
-          return updatedPromotion
+          return response.data.data
         }
       } catch (error: any) {
         console.error('Update promotion products error:', error)
@@ -338,9 +399,11 @@ export const usePromotionsStore = defineStore('promotions', {
       const { toast } = useToast()
       
       try {
-        const response = await axios.post(`/api/v1/admin/market/promotions/${id}/publish`, {})
+        const response = await promotionsAxios.post(`/api/v1/admin/market/promotions/${id}/publish`, {}, {
+          headers: getAuthHeaders()
+        })
         
-        if (response.status === 200) {
+        if (response.status === 200 || response.status === 201) {
           const publishedPromotion = response.data.data
           
           toast({
@@ -384,7 +447,8 @@ export const usePromotionsStore = defineStore('promotions', {
         const vendorId = this.getVendorId()
         const promotionToDelete = this.promotions.find(p => p._id === id)
         
-        await axios.delete(`/api/v1/admin/market/promotions/${id}`, {
+        await promotionsAxios.delete(`/api/v1/admin/market/promotions/${id}`, {
+          headers: getAuthHeaders(),
           data: {
             vendorId: vendorId
           }
@@ -436,61 +500,6 @@ export const usePromotionsStore = defineStore('promotions', {
       status: 'active' | 'scheduled' | 'draft' | 'expired'
     ) {
       return this.updatePromotion(id, { status })
-    },
-
-    // Fetch vendor products for promotion selection
-    async fetchVendorProducts(search?: string) {
-      this.productsLoading = true
-      try {
-        const vendorId = this.getVendorId()
-        
-        const response = await axios.get('/api/v1/admin/market/products', {
-          params: {
-            vendorId: vendorId,
-            search: search || '',
-            limit: 100,
-            status: 'active',
-            page: 1
-          }
-        })
-
-        if (response.status === 200) {
-          const data = response.data.data
-          this.products = data.data || data.products || []
-          return this.products
-        }
-        
-        return []
-      } catch (error) {
-        console.error('Error fetching vendor products:', error)
-        return []
-      } finally {
-        this.productsLoading = false
-      }
-    },
-
-    // Get product details for selected product IDs
-    async getProductDetails(productIds: string[]) {
-      try {
-        const vendorId = this.getVendorId()
-        const response = await axios.get('/api/v1/admin/market/products', {
-          params: {
-            vendorId: vendorId,
-            ids: productIds.join(','),
-            limit: productIds.length
-          }
-        })
-
-        if (response.status === 200) {
-          const data = response.data.data
-          return data.data || data.products || []
-        }
-        
-        return []
-      } catch (error) {
-        console.error('Error fetching product details:', error)
-        return []
-      }
     },
 
     // Helper: Update counts after creating a promotion
@@ -647,11 +656,6 @@ export const usePromotionsStore = defineStore('promotions', {
       this.currentPromotion = null
     },
 
-    // Clear products
-    clearProducts() {
-      this.products = []
-    },
-
     // Reset store state
     resetStore() {
       this.$patch({
@@ -669,9 +673,7 @@ export const usePromotionsStore = defineStore('promotions', {
         activeCount: 0,
         scheduledCount: 0,
         draftCount: 0,
-        expiredCount: 0,
-        products: [],
-        productsLoading: false
+        expiredCount: 0
       })
     }
   },
@@ -706,22 +708,6 @@ export const usePromotionsStore = defineStore('promotions', {
 
     // Get loading state
     isLoading: (state) => state.loading,
-
-    // Get products loading state
-    isProductsLoading: (state) => state.productsLoading,
-
-    // Get formatted products for display
-    formattedProducts: (state) => {
-      return state.products.map(product => ({
-        id: product._id,
-        name: product.name,
-        price: product.price || 0,
-        size: product.size || 'N/A',
-        image: product.images?.[0] || 'https://via.placeholder.com/150',
-        description: product.description || '',
-        sku: product.sku || 'N/A'
-      }))
-    },
 
     // Get current page promotions (for client-side pagination if needed)
     currentPagePromotions: (state) => (page: number, perPage: number = 25) => {
