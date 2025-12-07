@@ -341,16 +341,7 @@
           </TableBody>
         </Table>
       </div>
-      <div class="flex gap-2 max-w-full flex-wrap justify-end mt-8 mr-4 items-center text-[15px]">
-        <Button variant="secondary"> <Icon icon="radix-icons:chevron-left" /> </Button>
-        <Button variant="secondary" class="bg-[#020721] text-gray-400"> 1 </Button>
-        <Button variant="outline"> 2 </Button>
-        <Button variant="outline"> &#8230; </Button>
-        <Button variant="outline"> 4 </Button>
-        <Button variant="outline"> 5 </Button>
-        <Button variant="outline"> <Icon icon="radix-icons:chevron-right" /> </Button>
-        <a href="#"><p class="text-[blue]">See all</p></a>
-      </div>
+   
     </Card>
     <DashboardFooter />
 
@@ -444,13 +435,13 @@
               <span class="text-muted-foreground">Total Value</span>
               <span class="font-medium"
                 >₦{{ currentOrderForDisplay.totalAmount?.toLocaleString() || '0' }}</span
-            >
+              >
             </div>
             <div class="flex justify-between text-sm">
               <span class="text-muted-foreground">Delivery Charge</span>
               <span class="font-medium"
                 >₦{{ (currentOrderForDisplay.deliveryCharge || 2500).toLocaleString() }}</span
-            >
+              >
             </div>
             <div class="flex justify-between text-sm">
               <span class="text-muted-foreground">Discount</span>
@@ -614,6 +605,7 @@
                     {{ superAdminStore.vendor.companyEmail }}
                   </p>
                 </div>
+              
               </div>
             </div>
           </div>
