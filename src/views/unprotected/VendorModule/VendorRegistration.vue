@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import * as z from 'zod'
-import { Loader2, Building2,  Ticket } from 'lucide-vue-next'
+import { Loader2, Building2,  Ticket, Eye, EyeOff, } from 'lucide-vue-next'
 import { FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -13,6 +13,9 @@ import { toast } from '@/components/ui/toast'
 import axios from 'axios'
 import { catchErr } from '@/composables/catchError'
 import { useRoute, useRouter } from 'vue-router'
+
+const showPassword = ref(false);
+const showConfirmPassword = ref(false);
 
 const currentYear = ref(new Date().getFullYear())
 const router = useRouter()
@@ -43,10 +46,7 @@ const formSchema = toTypedSchema(
       .string({
         required_error: 'Please enter your password '
       })
-      .min(9)
-      .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
-      .regex(/\d/, 'Password must contain at least one number')
-      .regex(/[^A-Za-z0-9]/, 'Password must contain at least one symbol'),
+      .min(9),
     
     confirmPassword: z
       .string({
@@ -73,15 +73,7 @@ const onConfirmPasswordInput = (event: Event) => {
   confirmPasswordValue.value = target.value
 }
 
-const onSubmit = form.handleSubmit(async () => {
-  loading.value = true
-
-  // Ensure userEmail and password have values
-  if (form.values.password && form.values.confirmPassword) {
-    const { password } = form.values
-
-    // Set the username and password in the store
-    // setPassword(password) 
+const saveDetails = async (password: string) => {
     toast({
       title: 'Loading Data',
       description: 'Processing...',
@@ -108,6 +100,33 @@ const onSubmit = form.handleSubmit(async () => {
           variant: 'success'
         })
       }
+      // Handle success
+    } catch (err: any) {
+      //   VendorListStore.loadingControl(false)
+      // console.log(err)
+      catchErr(err)
+      // Handle other errors
+    }
+  }
+
+const onSubmit = form.handleSubmit(async () => {
+  loading.value = true
+
+  // Ensure userEmail and password have values
+  if (form.values.password && form.values.confirmPassword) {
+    const { password } = form.values
+
+    // Set the username and password in the store
+    // setPassword(password)
+
+
+    try {
+      await saveDetails(password)
+      
+      // toast({
+      //   description: 'Form submitted successfully!',
+      //   variant: 'default'
+      // })
 
       // Reset form after successful submission
       form.resetForm()
@@ -116,7 +135,6 @@ const onSubmit = form.handleSubmit(async () => {
       router.push('/')
 
     } catch (error: any) {
-      catchErr(error)
       loading.value = false
       
       return toast({
@@ -301,49 +319,75 @@ onBeforeMount(()=>{
                     </FormItem>
                   </FormField> -->
                   
-                  <FormField v-slot="{ componentField }" name="password">
-                    <FormItem>
-                      <FormControl>
-                        <div class="relative">
-                          <div class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                              <Ticket class="w-4 h-6 text-[#4145A7]" />
-                          </div>
-                          <Input
-                            id="password"
-                            type="password"
-                            placeholder="Your password"
-                            class="focus-visible:ring-[#BAEF23] pl-10 pr-3"
-                            v-bind="componentField"
-                            @input="onPasswordInput"
-                          />
-                        
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  </FormField>
-                  
-                  <FormField v-slot="{ componentField }" name="confirmPassword">
-                    <FormItem>
-                      <FormControl>
-                        <div class="relative">
-                          <div class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                              <Ticket class="w-4 h-6 text-[#4145A7]" />
-                          </div>
-                          <Input
-                            id="confirmPassword"
-                            type="password"
-                            placeholder="Confirm password"
-                            class="focus-visible:ring-[#BAEF23] pl-10 pr-3"
-                            v-bind="componentField"
-                            @input="onConfirmPasswordInput"
-                          />
-                         
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  </FormField>
+                <FormField v-slot="{ componentField }" name="password">
+  <FormItem>
+    <FormControl>
+      <div class="relative">
+        <!-- left icon -->
+        <div class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+          <Ticket class="w-4 h-6 text-[#4145A7]" />
+        </div>
+
+        <!-- input -->
+        <Input
+          id="password"
+          :type="showPassword ? 'text' : 'password'"
+          placeholder="Your password"
+          class="focus-visible:ring-[#BAEF23] pl-10 pr-10"
+          v-bind="componentField"
+          @input="onPasswordInput"
+        />
+
+        <!-- toggle icon -->
+        <button
+          type="button"
+          @click="showPassword = !showPassword"
+          class="absolute inset-y-0 right-2 flex items-center text-gray-400 hover:text-white"
+        >
+          <Eye v-if="!showPassword" class="w-5 h-5" />
+          <EyeOff v-else class="w-5 h-5" />
+        </button>
+      </div>
+    </FormControl>
+    <FormMessage />
+  </FormItem>
+</FormField>
+
+
+<FormField v-slot="{ componentField }" name="confirmPassword">
+  <FormItem>
+    <FormControl>
+      <div class="relative">
+        <!-- left icon -->
+        <div class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+          <Ticket class="w-4 h-6 text-[#4145A7]" />
+        </div>
+
+        <!-- input -->
+        <Input
+          id="confirmPassword"
+          :type="showConfirmPassword ? 'text' : 'password'"
+          placeholder="Confirm password"
+          class="focus-visible:ring-[#BAEF23] pl-10 pr-10"
+          v-bind="componentField"
+          @input="onConfirmPasswordInput"
+        />
+
+        <!-- toggle icon -->
+        <button
+          type="button"
+          @click="showConfirmPassword = !showConfirmPassword"
+          class="absolute inset-y-0 right-2 flex items-center text-gray-400 hover:text-white"
+        >
+          <Eye v-if="!showConfirmPassword" class="w-5 h-5" />
+          <EyeOff v-else class="w-5 h-5" />
+        </button>
+      </div>
+    </FormControl>
+    <FormMessage />
+  </FormItem>
+</FormField>
+
                 </form>
               </CardContent>
              <CardFooter>

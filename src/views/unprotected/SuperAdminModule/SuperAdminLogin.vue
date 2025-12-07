@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input'
 import { toast } from '@/components/ui/toast'
 import { useRoute, useRouter } from 'vue-router'
 import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
+import { Eye, EyeOff } from 'lucide-vue-next'
 import axios from '@/services/ApiService'
 // import { ability } from '@/lib/ability'
 // import { useAbilityStore } from '@/stores/permissions/permission-store'
@@ -38,7 +39,7 @@ const currentYear = ref(new Date().getFullYear())
 const updateYear = () => {
   currentYear.value = new Date().getFullYear()
 }
-
+const showPassword = ref(false)
 const { setToken, setPassword, setuserEmail, setLocalStorage } = useSuperAdminStore()
 const route = useRoute()
 const router = useRouter()
@@ -291,20 +292,34 @@ const onSubmit = form.handleSubmit(async () => {
                     </FormItem>
                   </FormField>
                   <FormField v-slot="{ componentField }" name="password">
-                    <FormItem>
-                      <FormLabel class="font-normal text-white font-outfit">Password</FormLabel>
-                      <FormControl>
-                        <Input
-                          id="password"
-                          type="password"
-                          class="focus-visible:ring-[#BAEF23]"
-                          v-bind="componentField"
-                        />
-                      </FormControl>
+  <FormItem>
+    <FormLabel class="font-normal text-white font-outfit">Password</FormLabel>
 
-                      <FormMessage />
-                    </FormItem>
-                  </FormField>
+    <FormControl>
+      <div class="relative">
+        <Input
+          id="password"
+          :type="showPassword ? 'text' : 'password'"
+          class="focus-visible:ring-[#BAEF23] pr-10"
+          v-bind="componentField"
+        />
+
+        <!-- Toggle icon -->
+        <button
+          type="button"
+          @click="showPassword = !showPassword"
+          class="absolute inset-y-0 right-2 flex items-center text-gray-400 hover:text-gray-600 "
+        >
+          <Eye v-if="!showPassword" class="w-5 h-5" />
+          <EyeOff v-else class="w-5 h-5" />
+        </button>
+      </div>
+    </FormControl>
+
+    <FormMessage />
+  </FormItem>
+</FormField>
+
                 </form>
               </CardContent>
               <CardFooter>
