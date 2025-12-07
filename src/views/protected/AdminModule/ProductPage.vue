@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
-import MainNav from '@/components/MainNav.vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import VendorNav from '@/components/VendorNav.vue'
 import DashboardFooter from '@/components/DashboardFooter.vue'
 import Search from '@/components/UseSearch.vue'
 import { Card, CardContent } from '@/components/ui/card'
@@ -1318,8 +1318,7 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="flex-col flex bg-[#f0f8ff] h-full px-4 sm:px-10 pb-10">
-    <MainNav class="mx-6" headingText="Products" />
-
+    <VendorNav class="mx-6" headingText="Products" />
     <!-- Stats Cards -->
     <div class="w-full grid gap-4 md:grid-cols-2 md:gap-6 lg:grid-cols-4 pt-6">
       <Card class="h-[150px] rounded-[24px] bg-[#00C37F] cardShadow1 border-transparent transition-transform transform hover:scale-105">
@@ -1642,7 +1641,7 @@ onBeforeUnmount(() => {
                 : 'bg-white border border-gray-300 text-[#020721] hover:bg-gray-50' // Default state
         ]"
     >
-        Publishss
+        Publish
     </button>
 </div>
 
@@ -2265,7 +2264,7 @@ onBeforeUnmount(() => {
                     <div 
                       v-if="showActionsMenu === product._id"
                       @click.stop
-                      class="absolute right-0 mt-2 w-32 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden z-50"
+                      class="absolute -top-16 right-0 mt-2 w-32 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden z-50"
                     >
                       <button
                         @click="viewProductDetails(product._id); showActionsMenu = null"
