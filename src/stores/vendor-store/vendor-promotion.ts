@@ -3,31 +3,31 @@ import { defineStore } from 'pinia'
 import axios from 'axios'
 import { useToast } from '@/components/ui/toast'
 import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
-
 // Create a clean axios instance for promotions (without /admin baseURL)
-const promotionsAxios = axios.create({
-  baseURL: '', // No baseURL - we'll use full paths
-})
+// const axios = axios.create({
+//   baseURL: '', // No baseURL - we'll use full paths
+// })
 
 // Get auth token from localStorage
-const getAuthToken = () => {
-  return localStorage.getItem('token') || 
-         localStorage.getItem('authToken') || 
-         localStorage.getItem('access_token') ||
-         localStorage.getItem('accessToken') ||
-         localStorage.getItem('user_token')
-}
+// const getAuthToken = () => {
+//   return localStorage.getItem('token') || 
+//          localStorage.getItem('authToken') || 
+//          localStorage.getItem('access_token') ||
+//          localStorage.getItem('accessToken') ||
+//          localStorage.getItem('user_token')
+// }
 
-// Get auth headers for API requests
-const getAuthHeaders = () => {
-  const token = getAuthToken()
-  return token ? {
-    'Authorization': `Bearer ${token}`,
-    'Content-Type': 'application/json'
-  } : {
-    'Content-Type': 'application/json'
-  }
-}
+// // Get auth headers for API requests
+// const getAuthHeaders = () => {
+//   const token = getAuthToken()
+//   return token ? {
+//     'Authorization': `Bearer ${token}`,
+//     'Content-Type': 'application/json'
+//   } : {
+//     'Content-Type': 'application/json'
+//   }
+// }
+
 
 export interface Promotion {
   _id: string
@@ -37,7 +37,7 @@ export interface Promotion {
   promotionType: 'percentage_off' | 'fixed_amount_off' | 'bogo'
   promoCode: string
   discountValue: number
-  appliesTo: 'all_products' | 'selected_products' | 'selected_categories'
+  appliesTo: 'all_products' | 'selected_products' 
   productIds?: string[]
   categoryIds?: string[]
   minimumPurchaseAmount?: number
@@ -88,6 +88,8 @@ export const usePromotionsStore = defineStore('promotions', {
     expiredCount: 0
   }),
 
+
+
   actions: {
     getVendorId(): string {
       const superAdminStore = useSuperAdminStore()
@@ -133,8 +135,8 @@ export const usePromotionsStore = defineStore('promotions', {
         
         // console.log('Request params:', queryParams) // Debug log
         
-        const response = await promotionsAxios.get('/api/v1/admin/market/promotions', {
-          headers: getAuthHeaders(),
+        const response = await axios.get('/api/v1/admin/market/promotions', {
+          // ,
           params: queryParams
         })
 
@@ -205,8 +207,8 @@ export const usePromotionsStore = defineStore('promotions', {
       try {
         const finalVendorId = vendorId || this.getVendorId()
         
-        const response = await promotionsAxios.get('/api/v1/admin/market/promotions/status/counts', {
-          headers: getAuthHeaders(),
+        const response = await axios.get('/api/v1/admin/market/promotions/status/counts', {
+          // ,
           params: finalVendorId ? { vendorId: finalVendorId } : undefined
         })
         
@@ -239,8 +241,7 @@ export const usePromotionsStore = defineStore('promotions', {
     // Fetch a single promotion by ID
     async fetchPromotionById(id: string) {
       try {
-        const response = await promotionsAxios.get(`/api/v1/admin/market/promotions/${id}`, {
-          headers: getAuthHeaders()
+        const response = await axios.get(`/api/v1/admin/market/promotions/${id}`, {
         })
         
         if (response.status === 200) {
@@ -268,8 +269,8 @@ export const usePromotionsStore = defineStore('promotions', {
           vendorId: vendorId
         }
         
-        const response = await promotionsAxios.post('/api/v1/admin/market/promotions', dataWithVendorId, {
-          headers: getAuthHeaders()
+        const response = await axios.post('/api/v1/admin/market/promotions', dataWithVendorId, {
+          
         })
         
         if (response.status === 200 || response.status === 201) {
@@ -314,8 +315,8 @@ export const usePromotionsStore = defineStore('promotions', {
           vendorId: vendorId
         }
         
-        const response = await promotionsAxios.patch(`/api/v1/admin/market/promotions/${id}`, dataWithVendorId, {
-          headers: getAuthHeaders()
+        const response = await axios.patch(`/api/v1/admin/market/promotions/${id}`, dataWithVendorId, {
+          
         })
         
         if (response.status === 200 || response.status === 201) {
@@ -366,8 +367,8 @@ export const usePromotionsStore = defineStore('promotions', {
       const { toast } = useToast()
       
       try {
-        const response = await promotionsAxios.patch(`/api/v1/admin/market/promotions/${id}/products`, { productIds }, {
-          headers: getAuthHeaders()
+        const response = await axios.patch(`/api/v1/admin/market/promotions/${id}/products`, { productIds }, {
+          
         })
         
         if (response.status === 200 || response.status === 201) {
@@ -399,8 +400,8 @@ export const usePromotionsStore = defineStore('promotions', {
       const { toast } = useToast()
       
       try {
-        const response = await promotionsAxios.post(`/api/v1/admin/market/promotions/${id}/publish`, {}, {
-          headers: getAuthHeaders()
+        const response = await axios.post(`/api/v1/admin/market/promotions/${id}/publish`, {}, {
+          
         })
         
         if (response.status === 200 || response.status === 201) {
@@ -447,8 +448,8 @@ export const usePromotionsStore = defineStore('promotions', {
         const vendorId = this.getVendorId()
         const promotionToDelete = this.promotions.find(p => p._id === id)
         
-        await promotionsAxios.delete(`/api/v1/admin/market/promotions/${id}`, {
-          headers: getAuthHeaders(),
+        await axios.delete(`/api/v1/admin/market/promotions/${id}`, {
+          
           data: {
             vendorId: vendorId
           }

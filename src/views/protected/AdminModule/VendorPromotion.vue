@@ -647,7 +647,7 @@
       </div>
 
       <!-- Pagination -->
-      <div class="flex gap-2 max-w-full flex-wrap justify-end mt-8 mr-4 items-center text-[15px]">
+      <!-- <div class="flex gap-2 max-w-full flex-wrap justify-end mt-8 mr-4 items-center text-[15px]">
         <Button 
           variant="secondary" 
           @click="changePage(promotionsStore.pagination.currentPage - 1)"
@@ -672,7 +672,7 @@
           <Icon icon="radix-icons:chevron-right" /> 
         </Button>
         <a href="#"><p class="text-[blue]">See all</p></a>
-      </div>
+      </div> -->
     </Card>
     <DashboardFooter />
 
@@ -750,6 +750,7 @@ import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
 import { useToast } from '@/components/ui/toast'
 import type { Promotion } from '@/stores/vendor-store/vendor-promotion'
 
+
 const promotionsStore = usePromotionsStore()
 const productsStore = useProductsStore()
 const superAdminStore = useSuperAdminStore()
@@ -794,7 +795,7 @@ const formData = ref({
   maxDiscountCap: '',
   totalUsageLimit: '',
   limitPerCustomer: '',
-  appliesTo: 'all_products' as 'all_products' | 'selected_products' | 'selected_categories',
+  appliesTo: 'all_products' as 'all_products' | 'selected_products',
   productIds: [] as string[],
   status: 'draft' as 'active' | 'scheduled' | 'draft' | 'expired'
 })
@@ -905,15 +906,26 @@ const createPromotion = async () => {
     promotionData.productIds = formData.value.productIds
   }
 
-  const result = await promotionsStore.createPromotion(promotionData)
-  
-  if (result) {
-    // Refresh promotions and counts after creation
-    await promotionsStore.fetchPromotions({ vendorId: vendorId.value })
-    await promotionsStore.fetchPromotionStatusCounts(vendorId.value)
+  // console.log('Creating promotion with data:', promotionData) // Debug
+
+  try {
+    const result = await promotionsStore.createPromotion(promotionData)
     
-    resetForm()
-    sheetOpen.value = false
+    // console.log('Promotion created:', result) // Debug
+    
+    if (result) {
+      // Refresh promotions and counts after creation
+      // console.log('Refreshing promotions list...') // Debug
+      await promotionsStore.fetchPromotions({ vendorId: vendorId.value })
+      await promotionsStore.fetchPromotionStatusCounts(vendorId.value)
+      
+      // console.log('Promotions after refresh:', promotionsStore.promotions) // Debug
+      
+      resetForm()
+      sheetOpen.value = false
+    }
+  } catch (error) {
+    console.error('Failed to create promotion:', error)
   }
 }
 
@@ -1017,45 +1029,45 @@ const sortBy = (field: string) => {
 }
 
 // Change page
-const changePage = (page: number | string) => {
-  if (typeof page === 'number' && page >= 1 && page <= promotionsStore.pagination.totalPages) {
-    promotionsStore.fetchPromotions({ 
-      vendorId: vendorId.value,
-      page 
-    })
-  }
-}
+// const changePage = (page: number | string) => {
+//   if (typeof page === 'number' && page >= 1 && page <= promotionsStore.pagination.totalPages) {
+//     promotionsStore.fetchPromotions({ 
+//       vendorId: vendorId.value,
+//       page 
+//     })
+//   }
+// }
 
-// Computed visible pages for pagination
-const visiblePages = computed(() => {
-  const current = promotionsStore.pagination.currentPage
-  const total = promotionsStore.pagination.totalPages
-  const pages: (number | string)[] = []
+// // Computed visible pages for pagination
+// const visiblePages = computed(() => {
+//   const current = promotionsStore.pagination.currentPage
+//   const total = promotionsStore.pagination.totalPages
+//   const pages: (number | string)[] = []
 
-  if (total <= 5) {
-    for (let i = 1; i <= total; i++) {
-      pages.push(i)
-    }
-  } else {
-    pages.push(1)
+//   if (total <= 5) {
+//     for (let i = 1; i <= total; i++) {
+//       pages.push(i)
+//     }
+//   } else {
+//     pages.push(1)
     
-    if (current > 3) {
-      pages.push('...')
-    }
+//     if (current > 3) {
+//       pages.push('...')
+//     }
     
-    for (let i = Math.max(2, current - 1); i <= Math.min(total - 1, current + 1); i++) {
-      pages.push(i)
-    }
+//     for (let i = Math.max(2, current - 1); i <= Math.min(total - 1, current + 1); i++) {
+//       pages.push(i)
+//     }
     
-    if (current < total - 2) {
-      pages.push('...')
-    }
+//     if (current < total - 2) {
+//       pages.push('...')
+//     }
     
-    pages.push(total)
-  }
+//     pages.push(total)
+//   }
 
-  return pages
-})
+//   return pages
+// })
 
 // View promotion details
 const viewPromotionDetails = async (id: string) => {
@@ -1180,29 +1192,25 @@ const closeActionsMenuOnClickOutside = (event: MouseEvent) => {
 
 // Fetch products and promotions on mount
 onMounted(async () => {
-  // console.log('Mounting VendorPromotion component')
-  // console.log('VendorId:', vendorId.value)
   
-  await promotionsStore.fetchPromotions({ vendorId: vendorId.value })
-  await promotionsStore.fetchPromotionStatusCounts(vendorId.value)
+
   
   // console.log('Promotions after fetch:', promotionsStore.promotions)
   // console.log('Promotions count:', promotionsStore.promotions.length)
   
   // Fetch products for selection - get all products without limit
   await productsStore.fetchProducts({ vendorId: vendorId.value, limit: 1000, status: 'all' })
-  
   // Map products to use _id as the identifier
   eligibleProducts.value = productsStore.products.map(product => ({
-    _id: product._id, // Use _id instead of id
+    _id: product._id, 
     name: product.name,
     amount: product.amount || 0,
     size: product.size || '',
     image: product.image || ''
   }))
-  
+    promotionsStore.fetchPromotions({ vendorId: vendorId.value })
+    promotionsStore.fetchPromotionStatusCounts(vendorId.value)
   // console.log('Loaded promotions:', promotionsStore.promotions) // Debug log
-  // console.log('Eligible products:', eligibleProducts.value) // Debug log
   
   // Add click outside listener
   document.addEventListener('click', closeActionsMenuOnClickOutside)
