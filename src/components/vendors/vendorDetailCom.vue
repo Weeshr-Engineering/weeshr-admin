@@ -59,7 +59,7 @@ interface VendorData {
     "lastName": string,
     "email": string,
     "phoneNumber": {
-        "countryCode": string,
+        "countryCode": string, 
         "phoneNumber": string,
         "normalizedNumber": string|null
     },
@@ -249,12 +249,12 @@ const fetchBanks = async (msg: string) => {
   try {
     // Set loading to true
     // useGeneralStore().setLoading(true)
-    const response = await axios.get(`/api/v1/banks/list/all`)
+    const response = await axios.get(`/api/v1/admin/market/banks/list/all`)
 
     if (response.status === 200 || response.status === 201) {
       // Update the users data with the response
       // console.log(response)
-      banks.value = response.data.banks
+      banks.value = response.data.data.banks
       toast({
         title: 'Success',
         description: `Success- ${msg}`,
@@ -445,6 +445,21 @@ const editProfile = async (values: string) => {
 // })
 
 const frequency = ref(['DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY'])
+interface CompanyType {
+  name: string, value: string
+}
+const companyTypes: CompanyType[] = [
+  { name: "Sole Proprietorship", value: "Sole Proprietorship" },
+  { name: "Business", value: "BUSINESS" },
+  { name: "Company", value: "COMPANY" },
+  { name: "Partnership", value: "Partnership" },
+  { name: "Limited Liability Company (LLC)", value: "Limited Liability Company (LLC)" },
+  { name: "Corporation", value: "Corporation" },
+  { name: "S Corporation", value: "S Corporation" },
+  { name: "Nonprofit Organization", value: "Nonprofit Organization" },
+  { name: "Cooperative", value: "Cooperative" }
+]
+
 
 // 🔹 Form state
 const bankCode = ref('')
@@ -891,7 +906,7 @@ onMounted(async () => {
             >
               Financial
             </TabsTrigger>
-            <div v-if="!useSuperAdminStore().isVendor" class="p-4 w-1/3 flex items-center justify-end">
+            <div v-if="!useSuperAdminStore().isVendor" class="p-4 w-full md:w-1/3 flex items-center justify-end">
               <Button class="my-4" @click="handleProxy">
                 Open Proxy Portal
               </Button>
@@ -933,7 +948,26 @@ onMounted(async () => {
               <div class="grid md:grid-cols-8 gap-2 md:gap-8">
                 <div class="md:col-span-3">
                   <Label class="px-2">Company Type</Label>
-                  <Input v-model="companyFormData.companyType" :placeholder="vendor?.companyType" class="ghost" :disabled="!isEditCompany" />
+                  <Select
+                    v-model="companyFormData.companyType"
+                    id="gender"
+                    class="bg-gray-900 w-auto mt-3 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+                  >
+                      <SelectTrigger class="" :disabled="!isEditCompany">
+                        <SelectValue :placeholder="vendor?.companyType || 'Select company type'" />
+                      </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem
+                        v-for="(company) in companyTypes"
+                        :value="company.value"
+                        :key="company.name"
+                        class="flex justify-center items-center gap-2"
+                      >                   
+                       {{ company.name }}   
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <!-- <Input v-model="companyFormData.companyType" :placeholder="vendor?.companyType" class="ghost" :disabled="!isEditCompany" /> -->
                 </div>
                 <div class="md:col-span-5 ">
                   <Label class="px-2">Company Email</Label>
