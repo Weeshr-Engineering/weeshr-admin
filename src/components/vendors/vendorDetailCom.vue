@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button'
 import axios from '@/services/ApiService'
 import { toast } from '@/components/ui/toast'
 import { defineAbilities } from '@/lib/ability'
-import { cbnBankCodes } from './bankcodes'
 import { Input } from '@/components/ui/input'
 import {
   Select,
@@ -40,12 +39,19 @@ defineAbilities()
 const props = defineProps({
   id: String,
 })
+
+interface Banks {
+  id: string,
+  code: string,
+  name: string
+}
 const id = props.id
 const router = useRouter()
 const isVendor = ref<boolean>(useSuperAdminStore().isVendor);
 const sheetOpen = ref(false)
 const logo = ref<File | null>(null)
 const bankDetails = ref<Bank[]>([])
+const banks = ref<Banks[]>([])
 
 interface VendorData {
     "_id": "691ed372e1081bcda7fd759d",
@@ -53,7 +59,7 @@ interface VendorData {
     "lastName": string,
     "email": string,
     "phoneNumber": {
-        "countryCode": string,
+        "countryCode": string, 
         "phoneNumber": string,
         "normalizedNumber": string|null
     },
@@ -197,6 +203,58 @@ const fetchVendorsData = async (msg: string) => {
       // const phoneData = response.data.data[0].phoneNumber.normalizedNumber
       // const data = { ...responseData, phone: phoneData }
       // Show success toast
+      toast({
+        title: 'Success',
+        description: `Success- ${msg}`,
+        variant: 'success'
+      })
+    }
+    // set Loading to false
+    // useGeneralStore().setLoading(false)
+  } catch (error: any) {
+    catchErr(error)
+    // console.log(error)
+    if (error.response.status === 401) {
+      // sessionStorage.removeItem('token')
+      // Clear token from superAdminStore
+      // superAdminStore.setToken('')
+
+      setTimeout(() => {
+        // router.push({ name: 'super-admin-login' })
+      }, 3000)
+
+      toast({
+        title: 'Unauthorized',
+        description: 'You are not authorized to perform this action. Redirecting to home page...',
+        variant: 'destructive'
+      })
+      // Redirect after 3 seconds
+    } else {
+      toast({
+        title: error.response.data.message || 'An error occurred',
+        variant: 'destructive'
+      })
+    }
+  }
+}
+
+const fetchBanks = async (msg: string) => {
+  toast({
+    title: 'Loading Data',
+    description: 'Fetching data...',
+    variant: 'loading',
+    duration: 0 // Set duration to 0 to make it indefinite until manually closed
+  })
+
+  try {
+    // Set loading to true
+    // useGeneralStore().setLoading(true)
+    const response = await axios.get(`/api/v1/admin/market/banks/list/all`)
+
+    if (response.status === 200 || response.status === 201) {
+      // Update the users data with the response
+      // console.log(response)
+      banks.value = response.data.data.banks
       toast({
         title: 'Success',
         description: `Success- ${msg}`,
@@ -387,11 +445,26 @@ const editProfile = async (values: string) => {
 // })
 
 const frequency = ref(['DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY'])
+interface CompanyType {
+  name: string, value: string
+}
+const companyTypes: CompanyType[] = [
+  { name: "Sole Proprietorship", value: "Sole Proprietorship" },
+  { name: "Business", value: "BUSINESS" },
+  { name: "Company", value: "COMPANY" },
+  { name: "Partnership", value: "Partnership" },
+  { name: "Limited Liability Company (LLC)", value: "Limited Liability Company (LLC)" },
+  { name: "Corporation", value: "Corporation" },
+  { name: "S Corporation", value: "S Corporation" },
+  { name: "Nonprofit Organization", value: "Nonprofit Organization" },
+  { name: "Cooperative", value: "Cooperative" }
+]
+
 
 // 🔹 Form state
 const bankCode = ref('')
 const bankName = computed(() =>
-  cbnBankCodes.find(bank => bank.code === bankCode.value)
+  banks.value.find(bank => bank.code === bankCode.value)
 );
 // const bankCode = ref(cbnBankCodes[])
 const accountNumber = ref("");
@@ -636,6 +709,7 @@ const saveUserData = async () => {
 
 onMounted(async () => {
   fetchBankData('data fetched')
+  fetchBanks('Success')
   // fetchData('success')
   await useSuperAdminStore().fetchUsersData('Success', id)
   fetchVendorsData('Success')
@@ -832,7 +906,7 @@ onMounted(async () => {
             >
               Financial
             </TabsTrigger>
-            <div v-if="!useSuperAdminStore().isVendor" class="p-4 w-1/3 flex items-center justify-end">
+            <div v-if="!useSuperAdminStore().isVendor" class="p-4 w-full md:w-1/3 flex items-center justify-end">
               <Button class="my-4" @click="handleProxy">
                 Open Proxy Portal
               </Button>
@@ -874,7 +948,26 @@ onMounted(async () => {
               <div class="grid md:grid-cols-8 gap-2 md:gap-8">
                 <div class="md:col-span-3">
                   <Label class="px-2">Company Type</Label>
-                  <Input v-model="companyFormData.companyType" :placeholder="vendor?.companyType" class="ghost" :disabled="!isEditCompany" />
+                  <Select
+                    v-model="companyFormData.companyType"
+                    id="gender"
+                    class="bg-gray-900 w-auto mt-3 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+                  >
+                      <SelectTrigger class="" :disabled="!isEditCompany">
+                        <SelectValue :placeholder="vendor?.companyType || 'Select company type'" />
+                      </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem
+                        v-for="(company) in companyTypes"
+                        :value="company.value"
+                        :key="company.name"
+                        class="flex justify-center items-center gap-2"
+                      >                   
+                       {{ company.name }}   
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <!-- <Input v-model="companyFormData.companyType" :placeholder="vendor?.companyType" class="ghost" :disabled="!isEditCompany" /> -->
                 </div>
                 <div class="md:col-span-5 ">
                   <Label class="px-2">Company Email</Label>
@@ -993,7 +1086,7 @@ onMounted(async () => {
                                 </SelectTrigger>
                               <SelectContent>
                                 <SelectItem
-                                  v-for="(bank) in cbnBankCodes"
+                                  v-for="(bank) in banks"
                                   :value="bank.code"
                                   :key="bank.code"
                                   class="flex justify-center items-center gap-2"
@@ -1017,7 +1110,7 @@ onMounted(async () => {
                 </div>
               </div>
 
-              <VendorBankDetails :bankDetails="bankDetails" :cbnBankCodes="cbnBankCodes" :frequency="frequency" :refresh="fetchBankData" :id="id || ''"/>
+              <VendorBankDetails :bankDetails="bankDetails" :cbnBankCodes="banks" :frequency="frequency" :refresh="fetchBankData" :id="id || ''"/>
 
               <div v-if="bankDetails.length === 0" class="h-[60dvh]">
                 <Card class="h-full">

@@ -35,12 +35,13 @@
               >Approve Selection</Button
             >
             <Dialog>
-              <DialogTrigger :disabled="stageGroup.length === 0 || canDisburse">
+              <DialogTrigger :disabled="selectedRequests.length === 0 || !canDisburse">
                 <Button
                   class="bg-primary"
                   :class="createStyle"
                   v-if="ability.can('create', 'wallet-payouts')"
                   :disabled="selectedRequests.length === 0 || !canDisburse"
+                  :readonly="selectedRequests.length === 0 || !canDisburse"
                   >Disburse Selection</Button
                 >
               </DialogTrigger>
@@ -181,7 +182,7 @@
           <h1 class="text-2xl font-semibold animate-pulse">No Requests Yet</h1>
         </div>
         <div
-          class="flex gap-2 max-w-full flex-wrap justify-end mt-8 mr-4 items-center text-[15px]"
+          class="hidden flex gap-2 max-w-full flex-wrap justify-end mt-8 mr-4 items-center text-[15px]"
           v-if="payout.length !== 0"
         >
           <Pagination
@@ -255,7 +256,7 @@ import DashboardFooter from '@/components/DashboardFooter.vue'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Icon } from '@iconify/vue'
-import { ref, computed } from 'vue'
+import { ref, computed, readonly } from 'vue'
 import Search from '@/components/UseSearch.vue'
 import { Badge } from '@/components/ui/badge'
 import { ability, defineAbilities, verifyAbilities } from '@/lib/ability'
@@ -417,7 +418,7 @@ const disburse = async () => {
   })
   try {
     const response = await axios.post(`/api/v1/admin/market/payouts/disburse`, {
-      ids: reqIDs.value
+      payoutIds: reqIDs.value
     })
 
     const data = response.data.data.data

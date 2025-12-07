@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import MainNav from '@/components/MainNav.vue'
 import DashboardFooter from '@/components/DashboardFooter.vue'
 import Search from '@/components/UseSearch.vue'
@@ -35,6 +35,7 @@ import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
 import { useToast } from '@/components/ui/toast'
 import type { Product } from '@/stores/vendor/product'
 import axios from 'axios'
+import { useRoute } from 'vue-router'
 
 const productsStore = useProductsStore()
 const superAdminStore = useSuperAdminStore()
@@ -83,6 +84,26 @@ const selectedProducts = ref<number[]>([])
 const selectedProduct = ref<Product | null>(null)
 const bulkUploadFile = ref<File | null>(null)
 const bulkProductsList = ref<any[]>([])
+
+const route = useRoute()
+
+onMounted(() => {
+  const open = route.query.open
+  if (open === 'true') {
+    openSingleProductMode()
+  }
+})
+
+// Optional: Run when query param changes
+watch(
+  () => route.query.open,
+  (newVal) => {
+    if (newVal === 'true') {
+      openSingleProductMode()
+    }
+  }
+)
+
 
 // Actions dropdown state
 const showActionsMenu = ref<string | null>(null)

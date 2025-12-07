@@ -58,6 +58,21 @@ import { Button } from '@/components/ui/button'
 import { useVendorListStore } from '@/stores/vendor/vendor-list'
 // import { useGeneralStore } from '@/stores/general-use'
 
+interface CompanyType {
+  name: string, value: string
+}
+
+const companyTypes: CompanyType[] = [
+  { name: "Sole Proprietorship", value: "Sole Proprietorship" },
+  { name: "Business", value: "BUSINESS" },
+  { name: "Company", value: "COMPANY" },
+  { name: "Partnership", value: "Partnership" },
+  { name: "Limited Liability Company (LLC)", value: "Limited Liability Company (LLC)" },
+  { name: "Corporation", value: "Corporation" },
+  { name: "S Corporation", value: "S Corporation" },
+  { name: "Nonprofit Organization", value: "Nonprofit Organization" },
+  { name: "Cooperative", value: "Cooperative" }
+]
 const formSchema = toTypedSchema(
   z.object({
     rcNumber: z.number(),
@@ -308,8 +323,14 @@ onMounted(async () => {
                         <SelectValue placeholder="Select Company Type" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="COMPANY">Company</SelectItem>
-                        <SelectItem value="BUSINESS">Business</SelectItem>
+                        <SelectItem
+                          v-for="(company) in companyTypes"
+                          :value="company.value"
+                          :key="company.name"
+                          class="flex justify-center items-center gap-2"
+                        >                   
+                        {{ company.name }}   
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                   </FormControl>

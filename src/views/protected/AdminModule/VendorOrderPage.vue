@@ -535,6 +535,7 @@ import {
   Truck,
   CircleChevronRight
 } from 'lucide-vue-next'
+import { useRoute } from 'vue-router'
 
 // Stores
 const orderStore = useOrderStore()
@@ -552,6 +553,25 @@ const productImageCache = ref<Record<string, string>>({})
 
 // Get vendor ID from super admin store
 const vendorId = computed(() => superAdminStore.vendorId)
+
+const route = useRoute()
+
+onMounted(() => {
+  const id = route.query.id as string | undefined
+  if (id) {
+    openOrderDetails(id)
+  }
+})
+
+// Optional: Run when query param changes
+watch(
+  () => route.query.id,
+  (newId) => {
+    if (typeof newId === 'string') {
+      openOrderDetails(newId)
+    }
+  }
+)
 
 // Lifecycle
 onMounted(() => {
