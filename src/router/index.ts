@@ -41,6 +41,7 @@ import GlobalTransaction from '@/views/protected/VendorModule/GlobalTransaction.
 import GlobalGeeftr from '@/views/protected/VendorModule/GlobalGeeftr.vue'
 import VendorRegistration from '@/views/unprotected/VendorModule/VendorRegistration.vue'
 import VendorsDetailsPage from '@/components/vendors/vendorsDetailsPage.vue'
+import VendorPayout from '@/views/protected/AdminModule/VendorPayout.vue'
 
 const routes = [
   // dashboard,
@@ -99,37 +100,37 @@ const routes = [
     path: '/user/vendors',
     name: 'vendors',
     component: VendorListAdmin,
-    // meta: { requiresAuth: true }
+    meta: { requiresAuth: true }
   },
   {
     path: '/vendors/transaction',
     name: 'vendorTransaction',
     component: VendorTransaction,
-    // meta: { requiresAuth: true }
+    meta: { requiresAuth: true }
   },
   {
     path: '/user/vendors/:id',
     name: 'vendorDetails',
     component: VendorDetails,
-    // meta: { requiresAuth: true }
+    meta: { requiresAuth: true }
   },
   {
     path: '/details',
     name: 'vendorDetailsPage',
     component: VendorsDetailsPage,
-    // meta: { requiresAuth: true }
+    meta: { requiresAuth: true }
   },
   {
     path: '/geeftr',
     name: 'GlobalGeeftr',
     component: GlobalGeeftr,
-    // meta: { requiresAuth: true }
+    meta: { requiresAuth: true }
   },
   {
     path: '/global/transaction',
     name: 'geeftrTransaction',
     component: GlobalTransaction,
-    // meta: { requiresAuth: true }
+    meta: { requiresAuth: true }
   },
   {
     path: '/user/admin',
@@ -169,6 +170,12 @@ const routes = [
     path: '/weeshes',
     name: 'weeshes',
     component: WeeshesPage,
+  },
+  {
+    path: '/vendor/payout',
+    name: 'vendorPayout',
+    component: VendorPayout,
+    // meta: { requiresAuth: true }
   },
   {
     path: '/weeshes/details/:Id',

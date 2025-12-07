@@ -90,7 +90,7 @@ interface Order {
   shippingAddress?: string,
   isDeleted: boolean,
   deletedAt?: Date | null,
-  createdAt?: Date | null,
+  createdAt?: Date | string,
   updatedAt?: Date | null
 }
 
@@ -276,6 +276,44 @@ const fetchAnalytics = async (msg: string) => {
   }
 }
 
+const statusBg = (status: string) => {
+  switch (status?.toLowerCase()) {
+    case 'failed':
+    case 'cancelled':
+      return 'bg-[#E45044]'
+    case 'pending':
+    case 'new':
+      return 'bg-[#EE9F39]'
+    case 'processing':
+      return 'bg-[#6A70FF]'
+    case 'outbound':
+    case 'shipped':
+      return 'bg-[#3A8EE5]'
+    case 'delivered':
+    case 'completed':
+      return 'bg-[#00C37F]'
+    case 'overdue':
+      return 'bg-[#DF6C50]'
+    default:
+      return 'bg-gray-500'
+  }
+}
+
+const formatDate = (dateStr: string | Date | undefined) => {
+  if (!dateStr) return 'N/A'
+  try {
+    const date = new Date(dateStr)
+    if (isNaN(date.getTime())) return 'Invalid Date'
+    return new Intl.DateTimeFormat('en-GB', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    }).format(date)
+  } catch (error) {
+    return 'Invalid Date'
+  }
+}
+
 
 onMounted(() => {
   fetchOrders('data fetched')
@@ -311,8 +349,8 @@ onMounted(() => {
       <VendorsCards
         type="products"
         :loading="loading"
-        :value=0
-        :subvalue=0
+        :value='analytics?.productAnalytics.total_products || 0'
+        :subvalue='analytics?.productAnalytics.no_of_published || 0'
       />
     </div>
 
@@ -332,46 +370,59 @@ onMounted(() => {
               <TableRow
                 class="text-xs sm:text-sm md:text-base text-[#02072199] font-semibold bg-gray-200"
               >
-                <TableHead> Order ID </TableHead>
-                <TableHead>Item Count</TableHead>
-                <!-- <TableHead>Receiver</TableHead> -->
-                <TableHead>Status</TableHead>
-                <TableHead></TableHead>
+                <TableHead>
+                <div class="flex items-center">Order Date</div>
+              </TableHead>
+              <TableHead>
+                <div class="flex items-center">Total Amount</div>
+              </TableHead>
+              <TableHead>
+                <div class="flex items-center">Item Count</div>
+              </TableHead>
+              <TableHead>
+                <div class="flex items-center">Payment Status</div>
+              </TableHead>
+              <TableHead>
+                <div class="flex items-center">Status</div>
+              </TableHead>
+              <TableHead>Order ID</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              <TableRow v-for="order in orders" :key="order._id">
-                <TableCell class="font-medium">0000{{ order._id }}</TableCell>
-                <TableCell>{{ order.items.length }}</TableCell>
-                <!-- <TableCell>{{ order.vendorId }}</TableCell> -->
-                <TableCell>
-                  <button
-                    :class="{ 'bg-[#DF6C50]': order.status === 'Overdue', 'bg-[#6A70FF]': order.status === 'Processing', 'bg-[#00C37F]': order.status === 'Delivered', 'bg-[#3A8EE5]': order.status === 'New', 'bg-[#EE9F39]': order.status === 'Outbound' }"
-                    class="px-4 py-2 text-sm text-white rounded-md"
-                  >
-                    {{ order.status }}
-                  </button>
-                </TableCell>
-                <TableCell>
-                  <svg
-                    width="20"
-                    height="50"
-                    viewBox="0 0 20 50"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M7 31L12.5118 26.0606C13.1627 25.4773 13.1627 24.5227 12.5118 23.9394L7 19"
-                      stroke="#54586D"
-                      stroke-opacity="0.8"
-                      stroke-width="2"
-                      stroke-miterlimit="10"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                  </svg>
-                </TableCell>
-              </TableRow>
+              <template v-for="order in orders" :key="order._id">
+                <router-link :to="`/order?id=${order._id}`" custom v-slot="{ navigate }">
+                  <TableRow @click="navigate" class="cursor-pointer hover:bg-muted/30">
+                    <TableCell class="text-xs md:text-sm lg:text-sm">
+                      {{ formatDate(order.createdAt) }}
+                    </TableCell>
+
+                    <TableCell class="text-xs md:text-sm lg:text-sm">
+                      ₦{{ order.totalAmount?.toLocaleString() || '0' }}
+                    </TableCell>
+
+                    <TableCell class="text-xs md:text-sm lg:text-sm">
+                      {{ order.items?.length || 0 }}
+                    </TableCell>
+
+                    <TableCell class="text-xs md:text-sm lg:text-sm capitalize">
+                      {{ order.paymentStatus || 'pending' }}
+                    </TableCell>
+
+                    <TableCell>
+                      <div
+                        :class="statusBg(order.status)"
+                        class="rounded-[10px] w-fit px-2 py-0.5 text-white text-sm capitalize"
+                      >
+                        {{ order.status }}
+                      </div>
+                    </TableCell>
+
+                    <TableCell class="text-xs md:text-sm lg:text-sm">
+                      {{ order._id?.substring(0, 8) }}...
+                    </TableCell>
+                  </TableRow>
+                </router-link>
+              </template>
             </TableBody>
           </Table>
           <div v-else class="flex h-full flex-col gap-4 items-center justify-center px-2 sm:px-4 py-4">
@@ -380,9 +431,9 @@ onMounted(() => {
           </div>
         </div>
         <div class="w-full md:flex flex-col md:flex-row items-end justify-center gap-4" v-if="orders.length !== 0">
-          <PagePagination :page-total="1" :page-current="1" @pagination="()=> console.log('trigger page change')" />
+          <!-- <PagePagination :page-total="1" :page-current="1" @pagination="()=> console.log('trigger page change')" /> -->
           <div class="h-10 w-full md:w-fit flex items-center justify-center text-blue-500">
-            <a href="/order">See all</a>
+            <router-link to="/order">See all</router-link>
           </div>
         </div>
       </Card>
@@ -397,30 +448,32 @@ onMounted(() => {
 
           <div v-if="products.length !== 0" class="overflow-y-scroll bg-white pb-4 flex flex-col space-y-2 h-[50dvh]">
             <Card Content class="border rounded-lg hover:shadow-xl" v-for="(product, key) in products" :key="key">
-              <CardContent
-                class="flex items-center justify-between px-2 sm:px-4 py-4"
-              >
-                <span class="flex gap-2 items-center"><div
-                  class="inline-block text-[#F8F9FF] w-14 h-14"
+              <router-link to="/product">
+                <CardContent
+                  class="flex items-center justify-between px-2 sm:px-4 py-4"
                 >
-                  <img :src='product.image.secure_url' class="w-full h-full rounded-sm"/>
+                  <span class="flex gap-2 items-center"><div
+                    class="inline-block text-[#F8F9FF] w-14 h-14"
+                  >
+                    <img :src='product.image.secure_url' class="w-full h-full rounded-sm"/>
+                  </div>
+                  <div class="flex flex-col items-start justify-between">
+                    <p class="text-sm text-muted-foreground text-center text-[#000000]">
+                      {{product.name}}
+                    </p>
+                    <p class="text-sm text-muted-foreground text-center text-[#000000]">
+                      ₦ {{product.amount}}
+                    </p>
+                  </div>
+                </span>
+                <div class="flex items-center gap-4">
+                  <Badge variant="outline">QTY - {{ product.qty }}</Badge>
                 </div>
-                <div class="flex flex-col items-start justify-between">
-                  <p class="text-sm text-muted-foreground text-center text-[#000000]">
-                    {{product.name}}
-                  </p>
-                  <p class="text-sm text-muted-foreground text-center text-[#000000]">
-                    ₦ {{product.amount}}
-                  </p>
-                </div>
-              </span>
-              <div class="flex items-center gap-4">
-                <Badge variant="outline">QTY - {{ product.qty }}</Badge>
-              </div>
-              </CardContent>
+                </CardContent>
+              </router-link>
             </Card>
             <div class="text-center text-blue-500 absolute bottom-4 w-full place-self-center">
-              <a href="/product">See all</a>
+              <router-link to="/product">See all</router-link>
             </div>
           </div>
           <div v-else class="h-full flex items-center justify-center">

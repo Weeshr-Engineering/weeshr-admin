@@ -2,7 +2,7 @@
     <div class="py-5 ml-auto">
       <!-- <Sheet>
         <SheetTrigger as-child> -->
-         <router-link to="/product"> <button class="bg-[#020721] px-4 py-2 rounded-xl w-50 h-12">
+         <router-link to="/product?open=true"> <button class="bg-[#020721] px-4 py-2 rounded-xl w-50 h-12">
             <div class="text-base text-[#F8F9FF] text-center flex items-center">
               Add
               <svg

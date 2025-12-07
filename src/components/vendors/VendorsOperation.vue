@@ -44,7 +44,7 @@
           class="bg-gray-900 w-auto mt-3 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
         >
             <SelectTrigger class="">
-              <SelectValue placeholder="Weekly" />
+              <SelectValue :placeholder="vendorData.deliveryCoverage || 'Local'" />
             </SelectTrigger>
           <SelectContent>
             <SelectItem
@@ -121,18 +121,18 @@
     <!-- Delivery Details -->
     <div class="grid grid-cols-12 gap-2 md:gap-8 my-2 md:my-4">
       <div class="col-span-12 md:col-span-6">
-        <Label class="px-2">Average Delivery Timeframe (minutes)</Label>
+        <Label class="px-2">Average Delivery Timeframe (Days)</Label>
         <Input 
           v-model.number="opsFormData.averageDeliveryMins" 
           type="number" 
           class=""
-          placeholder="Enter minutes"
+          placeholder="Enter days"
         />
       </div>
-      <!-- <div class="col-span-12 md:col-span-4">
-        <Label class="px-2">Max. Delivery Cost</Label>
-        <Input class="ghost" value="0.00"/>
-      </div> -->
+      <div class="col-span-12 md:col-span-4">
+        <Label class="px-2">Max. Delivery Cost (₦)</Label>
+        <Input class="ghost" v-model="opsFormData.maxDeliveryCost"/>
+      </div>
       <div class="col-span-12 md:col-span-6">
         <Label class="px-2">Link to Return Policy</Label>
         <Input 
@@ -254,7 +254,8 @@ interface VendorData {
   categories: Category[]
   deliveryCoverage: string
   deliveryType: string
-  averageDeliveryMins: number
+  averageDeliveryMins: number;
+  maxDeliveryCost: number,
   policyPageUrl: string
   isActive: boolean
   createdAt: string
@@ -282,6 +283,7 @@ const vendorData = reactive<VendorData>({
   deliveryCoverage: '',
   deliveryType: '',
   averageDeliveryMins: 0,
+  maxDeliveryCost: 0,
   policyPageUrl: '',
   isActive: true,
   createdAt: '',
@@ -297,7 +299,8 @@ const props = defineProps({
 const id = props.id
 const opsFormData = ref({
   averageDeliveryMins: vendorData.averageDeliveryMins,
-  policyPageUrl: vendorData.policyPageUrl
+  policyPageUrl: vendorData.policyPageUrl,
+  maxDeliveryCost: vendorData.maxDeliveryCost
 });
 
 // Static data
@@ -388,7 +391,9 @@ const createConfig = async ():  Promise<VendorData | undefined>=>{
       deliveryCoverage: vendorData.deliveryCoverage || "Regional",
       deliveryType: vendorData.deliveryType || "self-managed",
       averageDeliveryMins: vendorData.averageDeliveryMins,
+      maxDeliveryCost: vendorData.maxDeliveryCost || 0,
       policyPageUrl: vendorData.policyPageUrl || 'https://example.com'
+
     }
       try {
          return (await axios.post(`/api/v1/admin/market/vendor/operations`, updateData)).data.data;
@@ -408,7 +413,6 @@ const fetchVendorData = async (): Promise<VendorData |  undefined> => {
       duration: 0 // Set duration to 0 to make it indefinite until manually closed
     })
     const response = await axios.get(`/api/v1/market/vendor/operations/${id}`)
-  // console.log(response)
   toast({
     title: 'Loading Data',
     description: 'Success!',
@@ -417,9 +421,11 @@ const fetchVendorData = async (): Promise<VendorData |  undefined> => {
   })
   // Simulate API call - replace with actual API endpoint
   const data = response.data.data;
+  // console.log(data)
   opsFormData.value = {
     averageDeliveryMins: data.averageDeliveryMins,
-    policyPageUrl: data.policyPageUrl
+    policyPageUrl: data.policyPageUrl,
+    maxDeliveryCost: data.maxDeliveryCost || 0
   }
   return data
   } catch (error: any) {
@@ -482,7 +488,8 @@ const saveChanges = async () => {
     deliveryCoverage: vendorData.deliveryCoverage,
     deliveryType: vendorData.deliveryType,
     averageDeliveryMins: opsFormData.value.averageDeliveryMins || vendorData.averageDeliveryMins,
-    policyPageUrl: opsFormData.value.policyPageUrl || vendorData.policyPageUrl
+    policyPageUrl: opsFormData.value.policyPageUrl || vendorData.policyPageUrl,
+    maxDeliveryCost: opsFormData.value.maxDeliveryCost || vendorData.maxDeliveryCost
   }
   
   await patchVendorData(updateData)

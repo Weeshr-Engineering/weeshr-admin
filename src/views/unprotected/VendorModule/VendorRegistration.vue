@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import * as z from 'zod'
-import { Loader2, Building2,  Ticket } from 'lucide-vue-next'
+import { Loader2, Building2,  Ticket, Eye, EyeOff, } from 'lucide-vue-next'
 import { FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -13,6 +13,9 @@ import { toast } from '@/components/ui/toast'
 import axios from 'axios'
 import { catchErr } from '@/composables/catchError'
 import { useRoute, useRouter } from 'vue-router'
+
+const showPassword = ref(false);
+const showConfirmPassword = ref(false);
 
 const currentYear = ref(new Date().getFullYear())
 const router = useRouter()
@@ -316,49 +319,75 @@ onBeforeMount(()=>{
                     </FormItem>
                   </FormField> -->
                   
-                  <FormField v-slot="{ componentField }" name="password">
-                    <FormItem>
-                      <FormControl>
-                        <div class="relative">
-                          <div class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                              <Ticket class="w-4 h-6 text-[#4145A7]" />
-                          </div>
-                          <Input
-                            id="password"
-                            type="password"
-                            placeholder="Your password"
-                            class="focus-visible:ring-[#BAEF23] pl-10 pr-3"
-                            v-bind="componentField"
-                            @input="onPasswordInput"
-                          />
-                        
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  </FormField>
-                  
-                  <FormField v-slot="{ componentField }" name="confirmPassword">
-                    <FormItem>
-                      <FormControl>
-                        <div class="relative">
-                          <div class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                              <Ticket class="w-4 h-6 text-[#4145A7]" />
-                          </div>
-                          <Input
-                            id="confirmPassword"
-                            type="password"
-                            placeholder="Confirm password"
-                            class="focus-visible:ring-[#BAEF23] pl-10 pr-3"
-                            v-bind="componentField"
-                            @input="onConfirmPasswordInput"
-                          />
-                         
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  </FormField>
+                <FormField v-slot="{ componentField }" name="password">
+  <FormItem>
+    <FormControl>
+      <div class="relative">
+        <!-- left icon -->
+        <div class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+          <Ticket class="w-4 h-6 text-[#4145A7]" />
+        </div>
+
+        <!-- input -->
+        <Input
+          id="password"
+          :type="showPassword ? 'text' : 'password'"
+          placeholder="Your password"
+          class="focus-visible:ring-[#BAEF23] pl-10 pr-10"
+          v-bind="componentField"
+          @input="onPasswordInput"
+        />
+
+        <!-- toggle icon -->
+        <button
+          type="button"
+          @click="showPassword = !showPassword"
+          class="absolute inset-y-0 right-2 flex items-center text-gray-400 hover:text-white"
+        >
+          <Eye v-if="!showPassword" class="w-5 h-5" />
+          <EyeOff v-else class="w-5 h-5" />
+        </button>
+      </div>
+    </FormControl>
+    <FormMessage />
+  </FormItem>
+</FormField>
+
+
+<FormField v-slot="{ componentField }" name="confirmPassword">
+  <FormItem>
+    <FormControl>
+      <div class="relative">
+        <!-- left icon -->
+        <div class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+          <Ticket class="w-4 h-6 text-[#4145A7]" />
+        </div>
+
+        <!-- input -->
+        <Input
+          id="confirmPassword"
+          :type="showConfirmPassword ? 'text' : 'password'"
+          placeholder="Confirm password"
+          class="focus-visible:ring-[#BAEF23] pl-10 pr-10"
+          v-bind="componentField"
+          @input="onConfirmPasswordInput"
+        />
+
+        <!-- toggle icon -->
+        <button
+          type="button"
+          @click="showConfirmPassword = !showConfirmPassword"
+          class="absolute inset-y-0 right-2 flex items-center text-gray-400 hover:text-white"
+        >
+          <Eye v-if="!showConfirmPassword" class="w-5 h-5" />
+          <EyeOff v-else class="w-5 h-5" />
+        </button>
+      </div>
+    </FormControl>
+    <FormMessage />
+  </FormItem>
+</FormField>
+
                 </form>
               </CardContent>
              <CardFooter>

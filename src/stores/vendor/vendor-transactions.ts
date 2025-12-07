@@ -92,6 +92,13 @@ export interface VendorAnalytics {
     totalPayoutCount: number;
     recentPayouts: any[]; // Same here — type it when you know the shape
   };
+  productAnalytics: {
+    "total_products": number,
+    "no_of_published": number,
+    "no_of_drafted": number,
+    "no_of_archived": number,
+    "no_of_out_of_stock": number
+  }
 }
 
 export const useVendorTransactionStore = defineStore({
