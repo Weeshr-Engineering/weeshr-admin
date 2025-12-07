@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import VendorNav from '@/components/VendorNav.vue'
 import DashboardFooter from '@/components/DashboardFooter.vue'
 import Search from '@/components/UseSearch.vue'
@@ -445,7 +445,6 @@ const uploadBulkProduct = async (product: any, productIndex: number, status: str
     
   } catch (error: any) {
     console.error('Bulk upload error:', error)
-    const errorMessage = error.response?.data?.message || `Error uploading ${product.name}`
     throw error
   }
 }
@@ -1277,27 +1276,27 @@ const formatTatForDisplay = (tat: string) => {
 }
 
 // Keep this for backward compatibility
-const formatTatDate = (dateString: string) => {
-  if (!dateString) return 'N/A'
+// const formatTatDate = (dateString: string) => {
+//   if (!dateString) return 'N/A'
   
-  // If it's a simple format like "2 Days", return as is
-  if (!dateString.includes('T') && !dateString.includes('-')) {
-    return dateString
-  }
+//   // If it's a simple format like "2 Days", return as is
+//   if (!dateString.includes('T') && !dateString.includes('-')) {
+//     return dateString
+//   }
   
-  // If it's in ISO format, extract just the date
-  if (dateString.includes('T')) {
-    const dateOnly = dateString.split('T')[0]
-    return dateOnly
-  }
+//   // If it's in ISO format, extract just the date
+//   if (dateString.includes('T')) {
+//     const dateOnly = dateString.split('T')[0]
+//     return dateOnly
+//   }
   
-  // If it's in YYYY-MM-DD format
-  if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
-    return dateString
-  }
+//   // If it's in YYYY-MM-DD format
+//   if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
+//     return dateString
+//   }
   
-  return dateString
-}
+//   return dateString
+// }
 
 // Fetch products, counts, and categories on mount
 onMounted(async () => {
