@@ -45,6 +45,11 @@ interface Banks {
   code: string,
   name: string
 }
+
+interface VerifiedBank {
+  accountNumber: string,
+  accountName: string,
+}
 const id = props.id
 const router = useRouter()
 const isVendor = ref<boolean>(useSuperAdminStore().isVendor);
@@ -52,6 +57,7 @@ const sheetOpen = ref(false)
 const logo = ref<File | null>(null)
 const bankDetails = ref<Bank[]>([])
 const banks = ref<Banks[]>([])
+const verifyBank = ref<VerifiedBank | null>()
 
 interface VendorData {
     "_id": "691ed372e1081bcda7fd759d",
@@ -254,7 +260,7 @@ const fetchBanks = async (msg: string) => {
     if (response.status === 200 || response.status === 201) {
       // Update the users data with the response
       // console.log(response)
-      banks.value = response.data.data.banks
+      banks.value = response.data.data.data
       toast({
         title: 'Success',
         description: `Success- ${msg}`,
@@ -699,6 +705,52 @@ const saveUserData = async () => {
     }
   }
 
+  const verifyDetails = async (accNum: string, code: string) => {
+    toast({
+      title: 'Loading Data',
+      description: 'Verifying bank details...',
+      variant: 'loading',
+      duration: 0 // Set duration to 0 to make it indefinite until manually closed
+    })
+    if(!code || accNum === ''){
+      toast({
+        description: 'Incomplete data',
+        variant: 'destructive'
+      })
+      return;
+    }
+    // VendorListStore.loadingControl(true)
+    try {
+      const response = await axios.post(
+        '/api/v1/admin/market/banks/verify',
+        {
+          "bankCode": code,
+          "accountNumber": accNum,
+          // 'bankName': bankName,
+          // 'vendorId': props.id
+        }
+      )
+
+      // Check if response status is 200 or 201
+      if (response.status === 200 || response.status === 201) {
+        // Show success toast
+        // console.log(response)
+        verifyBank.value = response.data.data;
+        toast({
+          title: 'Success',
+          description: `Verification successfully.`,
+          variant: 'success'
+        })
+      }
+      // Handle success
+    } catch (err: any) {
+      //   VendorListStore.loadingControl(false)
+      catchErr(err)
+      // console.log(err)
+      // Handle other errors
+    }
+  }
+
   // const fetchBioData = async()=>{
   //  await fetchVendorsData('Success')
   // //  fetchData('Success')
@@ -1101,10 +1153,33 @@ onMounted(async () => {
                             <Input v-model="accountNumber" class="" placeholder="XXXXXXXXXX"/>
                           </div>
                         </div>
-                        <Button @click="()=> saveBankDetails()" class="border-2 border-[#020721] w-full px-4 md:px-8 py-2 flex items-center gap-2">
-                          Save
+                        <div v-if="verifyBank" class="rounded-lg overflow-hidden flex flex-col mt-6">
+                          <div class="bg-[#F6F6F6] flex items-center justify-between w-full px-4 py-2">
+                            <div class="flex items-center gap-4">
+                              <h2 class="text-xs font-semibold text-muted-foreground">Account Name</h2>
+                            </div>
+                            <h1 class="text-md text-primary font-semibold">{{ verifyBank.accountName }}</h1>
+                          </div>
+                          <!-- <div class="bg-[#F6F6F6] flex items-center justify-between w-full px-4 py-2 my-1">
+                            <div class="flex items-center gap-4">
+                              <h2 class="text-xs font-semibold text-muted-foreground">Delivery Charge</h2>
+                            </div>
+                            <h1 class="text-md text-primary font-semibold">₦{{ transaction.delivery_charge.toLocaleString() }}</h1>
+                          </div> -->
+                        </div>
+                        <div v-if="verifyBank" class="grid grid-cols-2 gap-4">
+                          <Button @click="()=> saveBankDetails()" class="border-2 border-[#020721] w-full px-4 md:px-8 py-2 flex items-center gap-2">
+                            Save
+                          </Button>
+                          <Button @click="()=> verifyBank = null" class="border-2 border-[#020721] w-full px-4 md:px-8 py-2 flex items-center gap-2" variant="outline">
+                            Cancel
+                          </Button>
+                        </div>
+                        <Button v-else @click="()=> verifyDetails(accountNumber, bankCode)" class="border-2 border-[#020721] w-full px-4 md:px-8 py-2 flex items-center gap-2">
+                          Verify
                         </Button>
                       </div>
+                      
                     </SheetContent>
                   </Sheet>
                 </div>
