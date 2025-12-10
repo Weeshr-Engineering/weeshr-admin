@@ -54,7 +54,7 @@
                   <DialogClose>
                     <Button
                       @click="disburse"
-                      :disabled="stageGroup.length === 0 || canDisburse !== false"
+                      :disabled="selectedRequests.length === 0 || !canDisburse"
                       >Disburse Selection</Button
                     >
                     <!-- <Button v-if="item.status === 'APPROVED'"  :class='stageGroup.length > 1 ? "bg-gray-400 cursor-not-allowed" : "bg-[#00C37F]"' class='text-white' @click='()=> disburse(item._id)'> Disburse </Button> -->
@@ -127,28 +127,28 @@
                   <Badge
                     class="text-white rounded-full bg-gray-500"
                     v-if="item.status.toUpperCase() === 'REQUESTED'"
-                    >{{ item.status }}</Badge
+                    >{{ item.status.toUpperCase() }}</Badge
                   >
                   <Badge
                     class="text-white rounded-full bg-yellow-400"
                     v-if="item.status.toUpperCase() === 'PENDING'"
-                    >{{ item.status }}</Badge
+                    >{{ item.status.toUpperCase() }}</Badge
                   >
                   <Badge
-                    class="text-white rounded-full bg-[#00C37F]"
+                    class="text-white rounded-full bg-[#020721]"
                     v-if="item.status.toUpperCase() === 'DISBURSED'"
-                    >{{ item.status }}</Badge
+                    >{{ item.status.toUpperCase() }}</Badge
                   >
                   <Badge
                     class="text-white rounded-full bg-red-500"
                     v-if="item.status.toUpperCase() === 'REJECTED'"
-                    >{{ item.status }}</Badge
+                    >{{ item.status.toUpperCase() }}</Badge
                   >
                   <Badge
-                    class="text-white rounded-full bg-[#020721]"
+                    class="text-white rounded-full bg-[#00C37F]"
                     v-if="item.status.toUpperCase() === 'APPROVED'"
                   >
-                    {{ item.status }}
+                    {{ item.status.toUpperCase() }}
                   </Badge></TableCell
                 >
                 <TableCell

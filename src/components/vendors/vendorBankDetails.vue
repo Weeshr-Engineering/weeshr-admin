@@ -95,49 +95,49 @@ const deleteBankData = async (msg: string, _id: string) => {
   }
 }
 
-  const verifyDetails = async (accNum: string, code: string) => {
-    toast({
-      title: 'Loading Data',
-      description: 'Verifying bank details...',
-      variant: 'loading',
-      duration: 0 // Set duration to 0 to make it indefinite until manually closed
-    })
-    if(!code || accNum === ''){
-      toast({
-        description: 'Incomplete data',
-        variant: 'destructive'
-      })
-      return;
-    }
-    // VendorListStore.loadingControl(true)
-    try {
-      const response = await axios.post(
-        '/api/v1/admin/market/banks/verify',
-        {
-          "bankCode": code,
-          "accountNumber": accNum,
-          // 'bankName': bankName,
-          // 'vendorId': props.id
-        }
-      )
+  // const verifyDetails = async (accNum: string, code: string) => {
+  //   toast({
+  //     title: 'Loading Data',
+  //     description: 'Verifying bank details...',
+  //     variant: 'loading',
+  //     duration: 0 // Set duration to 0 to make it indefinite until manually closed
+  //   })
+  //   if(!code || accNum === ''){
+  //     toast({
+  //       description: 'Incomplete data',
+  //       variant: 'destructive'
+  //     })
+  //     return;
+  //   }
+  //   // VendorListStore.loadingControl(true)
+  //   try {
+  //     const response = await axios.post(
+  //       '/api/v1/admin/market/banks/verify',
+  //       {
+  //         "bankCode": code,
+  //         "accountNumber": accNum,
+  //         // 'bankName': bankName,
+  //         // 'vendorId': props.id
+  //       }
+  //     )
 
-      // Check if response status is 200 or 201
-      if (response.status === 200 || response.status === 201) {
-        // Show success toast
-        toast({
-          title: 'Success',
-          description: `Verification successfully.`,
-          variant: 'success'
-        })
-      }
-      // Handle success
-    } catch (err: any) {
-      //   VendorListStore.loadingControl(false)
-      catchErr(err)
-      // console.log(err)
-      // Handle other errors
-    }
-  }
+  //     // Check if response status is 200 or 201
+  //     if (response.status === 200 || response.status === 201) {
+  //       // Show success toast
+  //       toast({
+  //         title: 'Success',
+  //         description: `Verification successfully.`,
+  //         variant: 'success'
+  //       })
+  //     }
+  //     // Handle success
+  //   } catch (err: any) {
+  //     //   VendorListStore.loadingControl(false)
+  //     catchErr(err)
+  //     // console.log(err)
+  //     // Handle other errors
+  //   }
+  // }
 
 const cancelEdit = () => {
   editingBankId.value = null
@@ -212,7 +212,7 @@ const handleAction = (action: string, bank: Bank) => {
       break
 
     case 'verify':
-      verifyDetails(bank.accountName, bank.bankCode)
+      // verifyDetails(bank.accountName, bank.bankCode)
       // verifiedMap.value[bank._id] = true
       break
   }
@@ -225,10 +225,10 @@ const isEditing = (id: string) => editingBankId.value === id
   <div 
     v-for="bank in bankDetails"
     :key="bank._id"
-    class="bg-white dark:bg-gray-800 border rounded-xl p-6 shadow-sm hover:shadow-md transition-all mb-6"
+    class="bg-white border rounded-xl p-6 shadow-sm hover:shadow-md transition-all mb-6"
   >
     <div class="flex justify-between items-start mb-4">
-      <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">
+      <h3 class="text-lg font-semibold text-gray-800">
         {{ isEditing(bank._id) ? (cbnBankCodes.find(b => b.code === getDisplayValue(bank, 'bankCode'))?.name || bank.bankName) : bank.bankName }} - {{ bank.accountName }}
       </h3>
 
@@ -248,7 +248,7 @@ const isEditing = (id: string) => editingBankId.value === id
       <DropdownMenu>
         <DropdownMenuTrigger>
           <button
-            class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition"
+            class="p-2 rounded-full hover:bg-gray-200 transition"
           >
             <Icon icon="mdi:dots-vertical" width="20" height="20" />
           </button>
@@ -259,11 +259,11 @@ const isEditing = (id: string) => editingBankId.value === id
             <Icon icon="uil:edit" class="mr-2" /> Edit
           </DropdownMenuItem>
 
-          <DropdownMenuItem @click="handleAction('verify', bank)">
+          <!-- <DropdownMenuItem @click="handleAction('verify', bank)">
             <Icon icon="mdi:check-circle-outline" class="mr-2" /> Verify
           </DropdownMenuItem>
 
-          <DropdownMenuSeparator />
+          <DropdownMenuSeparator /> -->
 
           <DropdownMenuItem class="text-red-600" @click="handleAction('delete', bank)">
             <Icon icon="mi:delete" class="mr-2" /> Delete
