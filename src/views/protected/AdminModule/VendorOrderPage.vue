@@ -1,3 +1,4 @@
+<!-- VendorOrderPage.vue -->
 <template>
   <div class="flex-col flex bg-[#f0f8ff] h-full px-4 sm:px-10 pb-10">
     <VendorNav class="mx-6" headingText="Order" />
@@ -389,6 +390,45 @@
           </div>
         </SheetHeader>
 
+        <!-- Delivery Details Section -->
+        <div v-if="currentOrderForDisplay && !isSheetLoading" class="px-4 mt-6 pb-4 border-b">
+          <h3 class="text-base font-semibold text-[#020721] mb-3">Delivery Details</h3>
+          <div class="space-y-3 bg-gray-50 p-3 rounded-lg">
+            <div>
+              <p class="text-xs text-muted-foreground">Recipient Name</p>
+              <p class="text-sm font-medium text-[#020721] mt-1">
+                {{
+                  currentOrderForDisplay.shippingAddress?.recipientName ||
+                  currentOrderForDisplay.customerName ||
+                  'N/A'
+                }}
+              </p>
+            </div>
+            <div v-if="currentOrderForDisplay.shippingAddress?.phone || currentOrderForDisplay.customerPhone">
+              <p class="text-xs text-muted-foreground">Phone Number</p>
+              <p class="text-sm text-[#020721] mt-1">
+                {{
+                  currentOrderForDisplay.shippingAddress?.phone ||
+                  currentOrderForDisplay.customerPhone ||
+                  'N/A'
+                }}
+              </p>
+            </div>
+            <div v-if="currentOrderForDisplay.shippingAddress?.address">
+              <p class="text-xs text-muted-foreground">Delivery Address</p>
+              <p class="text-sm text-[#020721] mt-1">
+                {{ currentOrderForDisplay.shippingAddress.address }}
+              </p>
+            </div>
+            <div v-if="currentOrderForDisplay.customerEmail">
+              <p class="text-xs text-muted-foreground">Email</p>
+              <p class="text-sm text-[#020721] mt-1 break-all">
+                {{ currentOrderForDisplay.customerEmail }}
+              </p>
+            </div>
+          </div>
+        </div>
+
         <!-- Order Items Section - only show if we have data -->
         <div v-if="currentOrderForDisplay && !isSheetLoading" class="px-4 mt-6">
           <div class="flex items-center gap-2 mb-4">
@@ -440,7 +480,7 @@
             <div class="flex justify-between text-sm">
               <span class="text-muted-foreground">Delivery Charge</span>
               <span class="font-medium"
-                >₦{{ (currentOrderForDisplay.deliveryCharge || 2500).toLocaleString() }}</span
+                >₦{{ (currentOrderForDisplay.deliveryCharge ).toLocaleString() }}</span
               >
             </div>
             <div class="flex justify-between text-sm">
@@ -548,13 +588,28 @@
           </div>
         </div>
 
-        <!-- Receiver and Sender Information -->
-        <div v-if="currentOrderForDisplay && !isSheetLoading" class="px-4 mt-6 space-y-4">
-          <div class="grid grid-cols-2 gap-4">
-            <!-- Receiver -->
-            <div>
-              <h4 class="text-sm font-semibold text-[#020721] mb-3">Receiver</h4>
-              <div class="space-y-2">
+        <!-- Receiver and Sender Information - Tabs -->
+        <div v-if="currentOrderForDisplay && !isSheetLoading" class="px-0 mt-6 border-t">
+          <Tabs :default-value="receiverSenderTab" class="w-full">
+            <TabsList class="w-full flex rounded-none border-b bg-transparent px-4">
+              <TabsTrigger 
+                value="receiver"
+                class="flex-1 rounded-none border-b-2 px-4 py-3 text-sm font-medium data-[state=active]:border-[#020721] data-[state=active]:text-[#020721] text-muted-foreground"
+              >
+                Receiver
+              </TabsTrigger>
+              <TabsTrigger 
+                value="sender"
+                class="flex-1 rounded-none border-b-2 px-4 py-3 text-sm font-medium data-[state=active]:border-[#020721] data-[state=active]:text-[#020721] text-muted-foreground"
+              >
+                Sender
+              </TabsTrigger>
+            </TabsList>
+
+            <!-- Receiver Tab -->
+            <TabsContent value="receiver" class="px-4 py-4 space-y-4">
+              <div>
+                <p class="text-xs text-muted-foreground mb-2">Name</p>
                 <p class="text-sm font-medium text-[#020721]">
                   {{
                     currentOrderForDisplay.shippingAddress?.recipientName ||
@@ -562,53 +617,53 @@
                     'N/A'
                   }}
                 </p>
-                <div
-                  v-if="
-                    currentOrderForDisplay.shippingAddress?.phone ||
-                    currentOrderForDisplay.customerPhone
-                  "
-                >
-                  <p class="text-xs text-muted-foreground">Phone Number</p>
-                  <p class="text-xs text-[#020721]">
-                    {{
-                      currentOrderForDisplay.shippingAddress?.phone ||
-                      currentOrderForDisplay.customerPhone ||
-                      'N/A'
-                    }}
-                  </p>
-                </div>
-                <div v-if="currentOrderForDisplay.customerEmail">
-                  <p class="text-xs text-muted-foreground">Email</p>
-                  <p class="text-xs text-[#020721] break-all">
-                    {{ currentOrderForDisplay.customerEmail }}
-                  </p>
-                </div>
-                <div v-if="currentOrderForDisplay.shippingAddress?.address">
-                  <p class="text-xs text-muted-foreground">Address</p>
-                  <p class="text-xs text-[#020721]">
-                    {{ currentOrderForDisplay.shippingAddress.address }}
-                  </p>
-                </div>
               </div>
-            </div>
+              <div v-if="currentOrderForDisplay.shippingAddress?.address" class="flex justify-between items-start">
+                <p class="text-xs text-muted-foreground">Address</p>
+                <p class="text-xs text-[#020721] text-right max-w-xs">
+                  {{ currentOrderForDisplay.shippingAddress.address }}
+                </p>
+              </div>
+              <div
+                v-if="
+                  currentOrderForDisplay.shippingAddress?.phone ||
+                  currentOrderForDisplay.customerPhone
+                "
+                class="flex justify-between items-center"
+              >
+                <p class="text-xs text-muted-foreground">Phone Number</p>
+                <p class="text-xs text-[#020721]">
+                  {{
+                    currentOrderForDisplay.shippingAddress?.phone ||
+                    currentOrderForDisplay.customerPhone ||
+                    'N/A'
+                  }}
+                </p>
+              </div>
+              <div v-if="currentOrderForDisplay.customerEmail" class="flex justify-between items-center">
+                <p class="text-xs text-muted-foreground">Email</p>
+                <p class="text-xs text-[#020721] break-all text-right max-w-xs">
+                  {{ currentOrderForDisplay.customerEmail }}
+                </p>
+              </div>
+            </TabsContent>
 
-            <!-- Sender -->
-            <div>
-              <h4 class="text-sm font-semibold text-[#020721] mb-3">Sender</h4>
-              <div class="space-y-2">
+            <!-- Sender Tab -->
+            <TabsContent value="sender" class="px-4 py-4 space-y-4">
+              <div>
+                <p class="text-xs text-muted-foreground mb-2">Company Name</p>
                 <p class="text-sm font-medium text-[#020721]">
                   {{ superAdminStore.vendor?.companyName || 'Your Store' }}
                 </p>
-                <div v-if="superAdminStore.vendor?.companyEmail">
-                  <p class="text-xs text-muted-foreground">Email</p>
-                  <p class="text-xs text-[#020721] break-all">
-                    {{ superAdminStore.vendor.companyEmail }}
-                  </p>
-                </div>
-              
               </div>
-            </div>
-          </div>
+              <div v-if="superAdminStore.vendor?.companyEmail" class="flex justify-between items-center">
+                <p class="text-xs text-muted-foreground">Email</p>
+                <p class="text-xs text-[#020721] break-all text-right max-w-xs">
+                  {{ superAdminStore.vendor.companyEmail }}
+                </p>
+              </div>
+            </TabsContent>
+          </Tabs>
         </div>
       </SheetContent>
     </Sheet>
@@ -636,6 +691,7 @@ import { Icon } from '@iconify/vue'
 import Search from '@/components/UseSearch.vue'
 import { Sheet, SheetContent, SheetDescription, SheetHeader } from '@/components/ui/sheet'
 import { Badge } from '@/components/ui/badge'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import VendorNav from '@/components/VendorNav.vue'
 import DashboardFooter from '@/components/DashboardFooter.vue'
 import {
@@ -663,6 +719,9 @@ const isSheetLoading = ref(false)
 // Status filter state
 const statusFilter = ref('all')
 const showStatusFilter = ref(false)
+
+// Receiver/Sender tab state
+const receiverSenderTab = ref('receiver')
 
 // Cache for product images to avoid repeated API calls
 const productImageCache = ref<Record<string, string>>({})
@@ -964,7 +1023,7 @@ const fetchProductImage = async (productId: string) => {
   } catch (error) {
     console.error('Error fetching product image:', error)
   }
-}
+}  
 
 // Get placeholder image (simple SVG)
 const getPlaceholderImage = (): string => {
