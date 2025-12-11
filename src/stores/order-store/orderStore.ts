@@ -72,7 +72,6 @@ export const useOrderStore = defineStore('order', {
       const { toast } = useToast();
       try {
         this.loading = true;
-        // Fixed endpoint to match API spec
         const response = await axios.get(`/api/v1/admin/market/orders/vendor/${vendorId}`);
         
         if (response.status === 200 || response.status === 201) {
@@ -124,104 +123,100 @@ export const useOrderStore = defineStore('order', {
       }
     },
 
-    // orderStore.ts - fix fetchOrderById method
-async fetchOrderById(orderId: string) {
-  const { toast } = useToast();
-  try {
-    this.loading = true;
-    const response = await axios.get(`/api/v1/admin/market/orders/${orderId}`);
-    
-    if (response.status === 200 || response.status === 201) {
-      // According to Postman response, data is in response.data.data
-      const orderData = response.data.data || response.data;
+  async fetchOrderById(orderId: string) {
+    const { toast } = useToast();
+    try {
+      this.loading = true;
+      const response = await axios.get(`/api/v1/admin/market/orders/${orderId}`);
       
-      if (!orderData) {
+      if (response.status === 200 || response.status === 201) {
+        // According to Postman response, data is in response.data.data
+        const orderData = response.data.data || response.data;
+        
+        if (!orderData) {
+          toast({
+            description: 'Order not found',
+            variant: 'destructive'
+          });
+          return;
+        }
+
+        // Transform the data to match your component's expected structure
+        const transformedOrder = {
+          _id: orderData._id,
+          userId: orderData.userId,
+          vendorId: orderData.vendorId,
+          
+          // Transform items array - note: Postman shows productId as an object
+          items: Array.isArray(orderData.items) ? orderData.items.map((item: any) => ({
+            _id: item._id || item.productId?._id,
+            productId: item.productId?._id,
+            name: item.productId?.name || 'Product',
+            price: item.price || item.productId?.amount || 0,
+            quantity: item.quantity || 1,
+            image: item.productId?.image?.secure_url || item.productId?.image?.url || item.productId?.image || null,
+            amount: item.productId?.amount || 0
+          })) : [],
+          
+          // Status fields
+          status: orderData.status || 'new',
+          paymentStatus: orderData.paymentStatus || 'pending',
+          
+          // Amount fields
+          totalAmount: orderData.totalAmount || 0,
+          amount: orderData.amount || orderData.totalAmount || 0,
+          
+          // Shipping information - map from API response fields
+          shippingAddress: {
+            address: orderData.shippingAddress || null,
+            recipientName: orderData.recieverName || null, // Note: API uses "reciever" spelling
+            phone: orderData.phoneNumber || null,
+            city: null,
+            state: null
+          },
+          
+          // Customer information - map from API response fields
+          customerName: orderData.recieverName || null,
+          customerPhone: orderData.phoneNumber || null,
+          customerEmail: orderData.customerEmail || null,
+          
+          // Additional fields
+          payoutMethod: orderData.payoutMethod,
+          deliveryCharge: orderData.deliveryCharge || 0,
+          discount: orderData.discount || 0,
+          isDeleted: orderData.isDeleted || false,
+          createdAt: orderData.createdAt,
+          updatedAt: orderData.updatedAt,
+          __v: orderData.__v
+        };
+
+        this.currentOrder = transformedOrder;
+        this.error = null;
+        
+        // Also update the order in the orders list if it exists
+        const orderIndex = this.orders.findIndex(o => o._id === orderId);
+        if (orderIndex !== -1) {
+          this.orders[orderIndex] = { ...this.orders[orderIndex], ...transformedOrder };
+        }
+        
+        return transformedOrder;
+      } else {
         toast({
-          description: 'Order not found',
+          description: response.data.message || 'Failed to fetch order',
           variant: 'destructive'
         });
-        return;
       }
-
-      // Transform the data to match your component's expected structure
-      const transformedOrder = {
-        _id: orderData._id,
-        userId: orderData.userId,
-        vendorId: orderData.vendorId,
-        
-        // Transform items array - note: Postman shows productId as an object
-        items: Array.isArray(orderData.items) ? orderData.items.map((item: any) => ({
-          _id: item._id || item.productId?._id,
-          productId: item.productId?._id,
-          name: item.productId?.name || 'Product',
-          price: item.price || item.productId?.amount || 0,
-          quantity: item.quantity || 1,
-          image: item.productId?.image || null,
-          amount: item.productId?.amount || 0
-        })) : [],
-        
-        // Status fields
-        status: orderData.status || 'new',
-        paymentStatus: orderData.paymentStatus || 'pending',
-        
-        // Amount fields
-        totalAmount: orderData.totalAmount || 0,
-        amount: orderData.amount || orderData.totalAmount || 0,
-        
-        // Shipping information
-        shippingAddress: typeof orderData.shippingAddress === 'string' 
-          ? {
-              address: orderData.shippingAddress,
-              recipientName: null, // Not in Postman response
-              phone: null, // Not in Postman response
-              city: null,
-              state: null
-            }
-          : orderData.shippingAddress,
-        
-        // Customer information - note: these fields aren't in Postman response
-        // You might need to add them to your API response
-        customerName: orderData.customerName || null,
-        customerPhone: orderData.customerPhone || null,
-        customerEmail: orderData.customerEmail || null,
-        
-        // Additional fields
-        payoutMethod: orderData.payoutMethod,
-        deliveryCharge: orderData.deliveryCharge || 0,
-        discount: orderData.discount || 0,
-        isDeleted: orderData.isDeleted || false,
-        createdAt: orderData.createdAt,
-        updatedAt: orderData.updatedAt,
-        __v: orderData.__v
-      };
-
-      this.currentOrder = transformedOrder;
-      this.error = null;
-      
-      // Also update the order in the orders list if it exists
-      const orderIndex = this.orders.findIndex(o => o._id === orderId);
-      if (orderIndex !== -1) {
-        this.orders[orderIndex] = { ...this.orders[orderIndex], ...transformedOrder };
-      }
-      
-      return transformedOrder;
-    } else {
+    } catch (error: any) {
+      this.error = error.message || 'An unexpected error occurred';
       toast({
-        description: response.data.message || 'Failed to fetch order',
+        description: error.response?.data?.message || 'Failed to fetch order',
         variant: 'destructive'
       });
+      throw error;
+    } finally {
+      this.loading = false;
     }
-  } catch (error: any) {
-    this.error = error.message || 'An unexpected error occurred';
-    toast({
-      description: error.response?.data?.message || 'Failed to fetch order',
-      variant: 'destructive'
-    });
-    throw error;
-  } finally {
-    this.loading = false;
-  }
-},
+  },
 
     async updateOrderStatus(orderId: string, status: string) {
       const { toast } = useToast();
@@ -270,34 +265,71 @@ async fetchOrderById(orderId: string) {
       }
     },
 
-    async fetchVendorAnalytics(vendorId: string) {
-      const { toast } = useToast();
-      try {
-        this.loading = true;
-        // Fixed endpoint - removed double slash
-        const response = await axios.get(
-          `/api/v1/admin/market/orders/vendor/${vendorId}/analytics/status`
-        );
-        
-        if (response.status === 200 || response.status === 201) {
-          this.analytics = response.data.data || response.data;
-          this.error = null;
-        } else {
-          toast({
-            description: response.data.message || 'Failed to fetch analytics',
-            variant: 'destructive'
-          });
-        }
-      } catch (error: any) {
-        this.error = error.message || 'An unexpected error occurred';
-        toast({
-          description: error.response?.data?.message || 'Failed to fetch analytics',
-          variant: 'destructive'
+   async fetchVendorAnalytics(vendorId: string) {
+  const { toast } = useToast();
+  try {
+    this.loading = true;
+    
+    // Correct endpoint with vendorId as path parameter
+    const response = await axios.get(
+      `/api/v1/admin/market/orders/vendor/${vendorId}/analytics/status`
+    );
+    
+    if (response.status === 200 || response.status === 201) {
+      const analyticsData = response.data.data || response.data;
+      
+      // Transform array response into analytics object
+      // API returns array like: [{status: "delivered", orderCount: 3}, ...]
+      this.analytics = {
+        overdue: 0,
+        new: 0,
+        processing: 0,
+        outbound: 0,
+        delivered: 0,
+        cancelled: 0
+      };
+      
+      // Map the array response to the analytics object
+      if (Array.isArray(analyticsData)) {
+        analyticsData.forEach((item: any) => {
+          const status = item.status?.toLowerCase();
+          if (status in this.analytics) {
+            this.analytics[status as keyof typeof this.analytics] = item.orderCount || 0;
+          }
         });
-      } finally {
-        this.loading = false;
       }
-    },
+      
+      this.error = null;
+      
+      return this.analytics;
+    } else {
+      toast({
+        description: response.data.message || 'Failed to fetch analytics',
+        variant: 'destructive'
+      });
+    }
+  } catch (error: any) {
+    this.error = error.message || 'An unexpected error occurred';
+    console.error('Analytics fetch error:', error.response?.data || error.message);
+    
+    toast({
+      description: error.response?.data?.message || 'Failed to fetch analytics',
+      variant: 'destructive'
+    });
+    
+    // Set default analytics on error to prevent UI issues
+    this.analytics = {
+      overdue: 0,
+      new: 0,
+      processing: 0,
+      outbound: 0,
+      delivered: 0,
+      cancelled: 0
+    };
+  } finally {
+    this.loading = false;
+  }
+},
 
     async fetchAllOrders() {
       const { toast } = useToast();
