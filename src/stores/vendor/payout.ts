@@ -2,6 +2,7 @@ import { defineStore } from "pinia"
 import axios from "@/services/ApiService";
 import { toast } from "@/components/ui/toast";
 import router from '@/router'
+import { catchErr } from "@/composables/catchError";
 
 export interface Payout {
   _id: string;
@@ -171,6 +172,54 @@ export const useVendorPayoutStore = defineStore('vendor-payout', {
         // useGeneralStore().setLoading(false)
       } catch (error: any) {
         // catchErr(error)
+        if (error.response.status === 401) {
+          // sessionStorage.removeItem('token')
+          // Clear token from superAdminStore
+          // superAdminStore.setToken('')
+
+          setTimeout(() => {
+            // router.push({ name: 'super-admin-login' })
+          }, 3000)
+
+          toast({
+            title: 'Unauthorized',
+            description: 'You are not authorized to perform this action. Redirecting to home page...',
+            variant: 'destructive'
+          })
+          // Redirect after 3 seconds
+        } else {
+          toast({
+            title: error.response.data.message || 'An error occurred',
+            variant: 'destructive'
+          })
+          catchErr(error)
+        }
+      }
+    },
+    async fetchAllTransactions(msg: string){
+      toast({
+        title: 'Loading Data',
+        description: 'Fetching data...',
+        duration: 0 // Set duration to 0 to make it indefinite until manually closed
+      })
+
+      try {
+        // Set loading to true
+        // useGeneralStore().setLoading(true)
+        const response = await axios.get(`/api/v1/admin/market/payouts`)
+
+        if (response.status === 200 || response.status === 201) {
+          this.payout = response.data.data;
+          toast({
+            title: 'Success',
+            description: `${msg}`,
+            variant: 'success'
+          })
+        }
+        // set Loading to false
+        // useGeneralStore().setLoading(false)
+      } catch (error: any) {
+        catchErr(error)
         if (error.response.status === 401) {
           // sessionStorage.removeItem('token')
           // Clear token from superAdminStore

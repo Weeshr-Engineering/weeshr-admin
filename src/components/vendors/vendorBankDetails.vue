@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
 import type { Bank } from './vendor-types'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger, DropdownMenuItem, DropdownMenuSeparator } from '../ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger, DropdownMenuItem } from '../ui/dropdown-menu';
 import { Label } from '../ui/label';
 import { Select, SelectContent, SelectTrigger, SelectItem, SelectValue } from '../ui/select';
 import { Input } from '../ui/input';
