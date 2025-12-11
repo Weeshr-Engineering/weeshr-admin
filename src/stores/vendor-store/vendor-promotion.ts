@@ -239,21 +239,26 @@ export const usePromotionsStore = defineStore('promotions', {
     },
 
     // Fetch a single promotion by ID
-    async fetchPromotionById(id: string) {
-      try {
-        const response = await axios.get(`/api/v1/admin/market/promotions/${id}`, {
-        })
-        
-        if (response.status === 200) {
-          this.currentPromotion = response.data.data
-          return response.data.data
-        }
-        return null
-      } catch (error: any) {
-        console.error('Error fetching promotion by ID:', error)
-        throw error
+async fetchPromotionById(id: string) {
+  try {
+    const vendorId = this.getVendorId()
+    
+    const response = await axios.get(`/api/v1/admin/market/promotions/${id}`, {
+      params: {
+        vendorId: vendorId
       }
-    },
+    })
+    
+    if (response.status === 200) {
+      this.currentPromotion = response.data.data
+      return response.data.data
+    }
+    return null
+  } catch (error: any) {
+    console.error('Error fetching promotion by ID:', error)
+    throw error
+  }
+},
 
     // Create a new promotion
     async createPromotion(promotionData: any) {
@@ -302,198 +307,219 @@ export const usePromotionsStore = defineStore('promotions', {
     },
 
     // Update an existing promotion
-    async updatePromotion(id: string, promotionData: any) {
-      this.loading = true
-      const { toast } = useToast()
-      
-      try {
-        const vendorId = this.getVendorId()
-        
-        // Add vendorId to the request body if not present
-        const dataWithVendorId = {
-          ...promotionData,
+   async updatePromotion(id: string, promotionData: any) {
+  this.loading = true
+  const { toast } = useToast()
+  
+  try {
+    const vendorId = this.getVendorId()
+    
+    // Don't add vendorId to body, it goes in query params
+    const response = await axios.patch(
+      `/api/v1/admin/market/promotions/${id}`, 
+      promotionData, 
+      {
+        params: {
           vendorId: vendorId
         }
-        
-        const response = await axios.patch(`/api/v1/admin/market/promotions/${id}`, dataWithVendorId, {
-          
-        })
-        
-        if (response.status === 200 || response.status === 201) {
-          const updatedPromotion = response.data.data
-          
-          toast({
-            title: "Success!",
-            description: response.data.message || 'Promotion updated successfully!',
-            variant: "default"
-          })
-          
-          // Find and update the promotion in the list
-          const index = this.promotions.findIndex(p => p._id === id)
-          if (index !== -1) {
-            const oldStatus = this.promotions[index].status
-            this.promotions[index] = updatedPromotion
-            
-            // Update counts if status changed
-            if (updatedPromotion.status && oldStatus !== updatedPromotion.status) {
-              this.updateCountsAfterStatusChange(oldStatus, updatedPromotion.status)
-            }
-          }
-          
-          // Update current promotion if it's the one being viewed
-          if (this.currentPromotion?._id === id) {
-            this.currentPromotion = updatedPromotion
-          }
-          
-          return updatedPromotion
-        }
-      } catch (error: any) {
-        console.error('Update promotion error:', error)
-        const errorMessage = error.response?.data?.message || 'Error updating promotion. Please try again.'
-        toast({
-          title: "Error",
-          description: errorMessage,
-          variant: 'destructive'
-        })
-        throw error
-      } finally {
-        this.loading = false
       }
-    },
-
-    // Update promotion products
-    async updatePromotionProducts(id: string, productIds: string[]) {
-      this.loading = true
-      const { toast } = useToast()
+    )
+    
+    if (response.status === 200 || response.status === 201) {
+      const updatedPromotion = response.data.data
       
-      try {
-        const response = await axios.patch(`/api/v1/admin/market/promotions/${id}/products`, { productIds }, {
-          
-        })
+      toast({
+        title: "Success!",
+        description: response.data.message || 'Promotion updated successfully!',
+        variant: "default"
+      })
+      
+      // Find and update the promotion in the list
+      const index = this.promotions.findIndex(p => p._id === id)
+      if (index !== -1) {
+        const oldStatus = this.promotions[index].status
+        this.promotions[index] = updatedPromotion
         
-        if (response.status === 200 || response.status === 201) {
-          toast({
-            title: "Success!",
-            description: response.data.message || 'Products updated successfully!',
-            variant: "default"
-          })
-          
-          return response.data.data
+        // Update counts if status changed
+        if (updatedPromotion.status && oldStatus !== updatedPromotion.status) {
+          this.updateCountsAfterStatusChange(oldStatus, updatedPromotion.status)
         }
-      } catch (error: any) {
-        console.error('Update promotion products error:', error)
-        const errorMessage = error.response?.data?.message || 'Error updating products. Please try again.'
-        toast({
-          title: "Error",
-          description: errorMessage,
-          variant: 'destructive'
-        })
-        throw error
-      } finally {
-        this.loading = false
       }
-    },
+      
+      // Update current promotion if it's the one being viewed
+      if (this.currentPromotion?._id === id) {
+        this.currentPromotion = updatedPromotion
+      }
+      
+      return updatedPromotion
+    }
+  } catch (error: any) {
+    console.error('Update promotion error:', error)
+    const errorMessage = error.response?.data?.message || 'Error updating promotion. Please try again.'
+    toast({
+      title: "Error",
+      description: errorMessage,
+      variant: 'destructive'
+    })
+    throw error
+  } finally {
+    this.loading = false
+  }
+},
+
+    
 
     // Publish a draft promotion
-    async publishPromotion(id: string) {
-      this.loading = true
-      const { toast } = useToast()
-      
-      try {
-        const response = await axios.post(`/api/v1/admin/market/promotions/${id}/publish`, {}, {
-          
-        })
-        
-        if (response.status === 200 || response.status === 201) {
-          const publishedPromotion = response.data.data
-          
-          toast({
-            title: "Success!",
-            description: response.data.message || 'Promotion published successfully!',
-            variant: "default"
-          })
-          
-          // Find and update the promotion in the list
-          const index = this.promotions.findIndex(p => p._id === id)
-          if (index !== -1) {
-            const oldStatus = this.promotions[index].status
-            this.promotions[index] = publishedPromotion
-            
-            // Update counts
-            this.updateCountsAfterStatusChange(oldStatus, publishedPromotion.status)
-          }
-          
-          return publishedPromotion
+   // Publish a draft promotion - FIXED
+async publishPromotion(id: string) {
+  this.loading = true
+  const { toast } = useToast()
+  
+  try {
+    const vendorId = this.getVendorId()
+    
+    const response = await axios.post(
+      `/api/v1/admin/market/promotions/${id}/publish`, 
+      {}, 
+      {
+        params: {
+          vendorId: vendorId
         }
-      } catch (error: any) {
-        console.error('Publish promotion error:', error)
-        const errorMessage = error.response?.data?.message || 'Error publishing promotion. Please try again.'
-        toast({
-          title: "Error",
-          description: errorMessage,
-          variant: 'destructive'
-        })
-        throw error
-      } finally {
-        this.loading = false
       }
-    },
+    )
+    
+    if (response.status === 200 || response.status === 201) {
+      const publishedPromotion = response.data.data
+      
+      toast({
+        title: "Success!",
+        description: response.data.message || 'Promotion published successfully!',
+        variant: "default"
+      })
+      
+      // Find and update the promotion in the list
+      const index = this.promotions.findIndex(p => p._id === id)
+      if (index !== -1) {
+        const oldStatus = this.promotions[index].status
+        this.promotions[index] = publishedPromotion
+        
+        // Update counts
+        this.updateCountsAfterStatusChange(oldStatus, publishedPromotion.status)
+      }
+      
+      return publishedPromotion
+    }
+  } catch (error: any) {
+    console.error('Publish promotion error:', error)
+    const errorMessage = error.response?.data?.message || 'Error publishing promotion. Please try again.'
+    toast({
+      title: "Error",
+      description: errorMessage,
+      variant: 'destructive'
+    })
+    throw error
+  } finally {
+    this.loading = false
+  }
+},
 
     // Delete a promotion
     async deletePromotion(id: string) {
-      this.loading = true
-      const { toast } = useToast()
-      
-      try {
-        const vendorId = this.getVendorId()
-        const promotionToDelete = this.promotions.find(p => p._id === id)
-        
-        await axios.delete(`/api/v1/admin/market/promotions/${id}`, {
-          
-          data: {
-            vendorId: vendorId
-          }
-        })
-        
-        // Update counts BEFORE removing from list
-        if (promotionToDelete) {
-          this.updateCountsAfterDelete(promotionToDelete.status)
-        }
-        
-        // Remove promotion from the list IMMEDIATELY (optimistic update)
-        this.promotions = this.promotions.filter(p => p._id !== id)
-        
-        // Update pagination count
-        if (this.pagination.totalItems > 0) {
-          this.pagination.totalItems--
-        }
-        
-        // Clear current promotion if it's the one being deleted
-        if (this.currentPromotion?._id === id) {
-          this.currentPromotion = null
-        }
-        
-        toast({
-          title: "Success!",
-          description: 'Promotion deleted successfully!',
-          variant: "default"
-        })
-        
-        // Return success without re-fetching
-        return { success: true }
-      } catch (error: any) {
-        console.error('Delete promotion error:', error)
-        const errorMessage = error.response?.data?.message || 'Error deleting promotion. Please try again.'
-        toast({
-          title: "Error",
-          description: errorMessage,
-          variant: 'destructive'
-        })
-        throw error
-      } finally {
-        this.loading = false
+  this.loading = true
+  const { toast } = useToast()
+  
+  try {
+    const vendorId = this.getVendorId()
+    const promotionToDelete = this.promotions.find(p => p._id === id)
+    
+    // vendorId goes in query params, not in request body
+    await axios.delete(`/api/v1/admin/market/promotions/${id}`, {
+      params: {
+        vendorId: vendorId
       }
-    },
+    })
+    
+    // Update counts BEFORE removing from list
+    if (promotionToDelete) {
+      this.updateCountsAfterDelete(promotionToDelete.status)
+    }
+    
+    // Remove promotion from the list IMMEDIATELY (optimistic update)
+    this.promotions = this.promotions.filter(p => p._id !== id)
+    
+    // Update pagination count
+    if (this.pagination.totalItems > 0) {
+      this.pagination.totalItems--
+    }
+    
+    // Clear current promotion if it's the one being deleted
+    if (this.currentPromotion?._id === id) {
+      this.currentPromotion = null
+    }
+    
+    toast({
+      title: "Success!",
+      description: 'Promotion deleted successfully!',
+      variant: "default"
+    })
+    
+    // Return success without re-fetching
+    return { success: true }
+  } catch (error: any) {
+    console.error('Delete promotion error:', error)
+    const errorMessage = error.response?.data?.message || 'Error deleting promotion. Please try again.'
+    toast({
+      title: "Error",
+      description: errorMessage,
+      variant: 'destructive'
+    })
+    throw error
+  } finally {
+    this.loading = false
+  }
+},
+
+// Update promotion products - FIXED
+async updatePromotionProducts(id: string, productIds: string[]) {
+  this.loading = true
+  const { toast } = useToast()
+  
+  try {
+    const vendorId = this.getVendorId()
+    
+    const response = await axios.patch(
+      `/api/v1/admin/market/promotions/${id}/products`, 
+      { productIds }, 
+      {
+        params: {
+          vendorId: vendorId
+        }
+      }
+    )
+    
+    if (response.status === 200 || response.status === 201) {
+      toast({
+        title: "Success!",
+        description: response.data.message || 'Products updated successfully!',
+        variant: "default"
+      })
+      
+      return response.data.data
+    }
+  } catch (error: any) {
+    console.error('Update promotion products error:', error)
+    const errorMessage = error.response?.data?.message || 'Error updating products. Please try again.'
+    toast({
+      title: "Error",
+      description: errorMessage,
+      variant: 'destructive'
+    })
+    throw error
+  } finally {
+    this.loading = false
+  }
+},
+
 
     // Update promotion status only
     async updatePromotionStatus(
