@@ -8,6 +8,20 @@ import axios from '@/services/ApiService'
 import { toast } from '@/components/ui/toast'
 import { defineAbilities } from '@/lib/ability'
 import { Input } from '@/components/ui/input'
+import { CheckIcon, ChevronsUpDownIcon } from 'lucide-vue-next'
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
 import {
   Select,
   SelectContent,
@@ -33,6 +47,7 @@ import ProxyNav from '../ProxyNav.vue'
 import MainNav from '../MainNav.vue'
 import VendorBankDetails from './vendorBankDetails.vue'
 import { Badge } from '../ui/badge'
+import { cn } from '@/lib/utils'
 
 defineAbilities()
 // const update = true//ability.can('update', 'users')
@@ -58,6 +73,7 @@ const logo = ref<File | null>(null)
 const bankDetails = ref<Bank[]>([])
 const banks = ref<Banks[]>([])
 const verifyBank = ref<VerifiedBank | null>()
+const open = ref(false)
 
 interface VendorData {
     "_id": "691ed372e1081bcda7fd759d",
@@ -1127,8 +1143,52 @@ onMounted(async () => {
                       <div class="space-y-4 py-2">
                         <div class=" gap-2 md:gap-8">
                           <div class="">
-                            <Label class="px-2">Bank Name</Label>
-                            <Select
+                            <Label class="px-2 w-full">Bank Name</Label>
+                            <Popover v-model:open="open">
+                              <PopoverTrigger as-child>
+                                <Button
+                                  variant="outline"
+                                  role="combobox"
+                                  :aria-expanded="open"
+                                  class="w-full justify-between"
+                                >
+                                  {{
+                                    bankCode
+                                      ? banks.find(framework => framework.code === bankCode)?.name
+                                      : 'Select framework...'
+                                  }}
+                                  <ChevronsUpDownIcon class="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                </Button>
+                              </PopoverTrigger>
+                              <PopoverContent class="w-full p-0">
+                                <Command>
+                                  <CommandInput placeholder="Search bank..." />
+                                  <CommandList>
+                                    <CommandEmpty>No bank found.</CommandEmpty>
+                                    <CommandGroup>
+                                      <CommandItem
+                                        v-for="framework in banks"
+                                        :key="framework.code"
+                                        :value="framework.code"
+                                        @select="() => {
+                                          bankCode = bankCode === framework.code ? '' : framework.code
+                                          open = false
+                                        }"
+                                      >
+                                        <CheckIcon
+                                          :class="cn(
+                                            'mr-2 h-4 w-4',
+                                            bankCode === framework.code ? 'opacity-100' : 'opacity-0',
+                                          )"
+                                        />
+                                        {{ framework.name }}
+                                      </CommandItem>
+                                    </CommandGroup>
+                                  </CommandList>
+                                </Command>
+                              </PopoverContent>
+                            </Popover>
+                            <!-- <Select
                               v-model="bankCode"
                               id="gender"
                               class="bg-gray-900 w-auto mt-3 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
@@ -1146,7 +1206,7 @@ onMounted(async () => {
                                   {{ bank.name }}                        
                                 </SelectItem>
                               </SelectContent>
-                            </Select>
+                            </Select> -->
                           </div>
                           <div class="">
                             <Label class="px-2">Account Number</Label>
