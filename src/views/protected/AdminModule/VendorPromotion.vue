@@ -140,10 +140,10 @@
               <!-- Step Indicator -->
               <div class="px-4 flex items-center justify-between mb-4">
                 <div :class="currentStep === 1 ? 'text-[#020721] font-semibold' : 'text-[#02072199]'" class="text-sm">
-                  {{ currentStep === 1 ? 'Promotion Details' : currentStep === 2 ? 'Discount Configuration' : 'Target Products or Categories' }}
+                  {{ currentStep === 1 ? 'Promotion Details' : currentStep === 2 ? 'Discount Configuration' : currentStep === 3 ? 'Target Products or Categories' : 'Review & Confirm' }}
                 </div>
                 <div class="text-xs text-muted-foreground bg-gray-100 px-2 py-1 rounded">
-                  Step {{ currentStep }} of 3
+                  Step {{ currentStep }} of 4
                 </div>
               </div>
 
@@ -345,6 +345,130 @@
                 </div>
               </div>
 
+              <!-- Step 4: Review & Confirm -->
+              <div v-if="currentStep === 4" class="px-4 space-y-6 overflow-y-auto max-h-[calc(100vh-300px)]">
+                <div class="bg-[#F0F8FF] border border-[#3A8EE5] rounded-lg p-4 mb-4">
+                  <p class="text-sm text-[#020721] font-medium">
+                    <Icon icon="mdi:information-outline" class="inline w-4 h-4 mr-2" />
+                    Review all details before {{ isEditMode ? 'updating' : 'creating' }} the promotion
+                  </p>
+                </div>
+
+                <!-- Promotion Status -->
+                <div>
+                  <p class="text-xs text-[#8B8D97] mb-2 font-semibold uppercase">Promotion Status</p>
+                  <div class="px-3 py-2 bg-gray-50 rounded-lg">
+                    <p class="text-sm font-medium text-[#020721] capitalize">{{ formData.status }}</p>
+                  </div>
+                </div>
+
+                <!-- Details Section -->
+                <div>
+                  <p class="text-xs text-[#8B8D97] mb-3 font-semibold uppercase">Promotion Details</p>
+                  <div class="space-y-3 border border-gray-200 rounded-lg p-4 bg-gray-50">
+                    <div class="grid grid-cols-2 gap-4">
+                      <div>
+                        <p class="text-xs text-[#8B8D97] mb-1">Name</p>
+                        <p class="text-sm font-medium text-[#020721]">{{ formData.name }}</p>
+                      </div>
+                      <div>
+                        <p class="text-xs text-[#8B8D97] mb-1">Type</p>
+                        <p class="text-sm font-medium text-[#020721]">{{ promotionsStore.formatPromotionType(formData.promotionType) }}</p>
+                      </div>
+                    </div>
+
+                    <div v-if="formData.description">
+                      <p class="text-xs text-[#8B8D97] mb-1">Description</p>
+                      <p class="text-sm text-[#020721]">{{ formData.description }}</p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                      <div>
+                        <p class="text-xs text-[#8B8D97] mb-1">Start Date</p>
+                        <p class="text-sm font-medium text-[#020721]">{{ formatDate(formData.startDate) }}</p>
+                      </div>
+                      <div>
+                        <p class="text-xs text-[#8B8D97] mb-1">End Date</p>
+                        <p class="text-sm font-medium text-[#020721]">{{ formatDate(formData.endDate) }}</p>
+                      </div>
+                    </div>
+
+                    <div v-if="formData.promoCode">
+                      <p class="text-xs text-[#8B8D97] mb-1">Promo Code</p>
+                      <p class="text-sm font-medium text-[#020721]">{{ formData.promoCode }}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Discount Configuration -->
+                <div>
+                  <p class="text-xs text-[#8B8D97] mb-3 font-semibold uppercase">Discount Configuration</p>
+                  <div class="space-y-3 border border-gray-200 rounded-lg p-4 bg-gray-50">
+                    <div class="grid grid-cols-2 gap-4">
+                      <div>
+                        <p class="text-xs text-[#8B8D97] mb-1">Discount Value</p>
+                        <p class="text-sm font-medium text-[#020721]">
+                          {{ formData.promotionType === 'percentage_off' ? formData.discountValue + '%' : '₦' + Number(formData.discountValue).toLocaleString() }}
+                        </p>
+                      </div>
+                      <div v-if="formData.minPurchaseAmount">
+                        <p class="text-xs text-[#8B8D97] mb-1">Minimum Purchase</p>
+                        <p class="text-sm font-medium text-[#020721]">₦{{ Number(formData.minPurchaseAmount).toLocaleString() }}</p>
+                      </div>
+                    </div>
+
+                    <div v-if="formData.maxDiscountCap">
+                      <p class="text-xs text-[#8B8D97] mb-1">Maximum Discount Cap</p>
+                      <p class="text-sm font-medium text-[#020721]">₦{{ Number(formData.maxDiscountCap).toLocaleString() }}</p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                      <div v-if="formData.totalUsageLimit">
+                        <p class="text-xs text-[#8B8D97] mb-1">Total Usage Limit</p>
+                        <p class="text-sm font-medium text-[#020721]">{{ formData.totalUsageLimit }}</p>
+                      </div>
+                      <div v-if="formData.limitPerCustomer">
+                        <p class="text-xs text-[#8B8D97] mb-1">Limit Per Customer</p>
+                        <p class="text-sm font-medium text-[#020721]">{{ formData.limitPerCustomer }}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Products/Categories -->
+                <div>
+                  <p class="text-xs text-[#8B8D97] mb-3 font-semibold uppercase">Applies To</p>
+                  <div class="space-y-3 border border-gray-200 rounded-lg p-4 bg-gray-50">
+                    <div>
+                      <p class="text-xs text-[#8B8D97] mb-1">Application Scope</p>
+                      <p class="text-sm font-medium text-[#020721] capitalize">
+                        {{ formData.appliesTo === 'all_products' ? 'All Products' : 'Selected Products' }}
+                      </p>
+                    </div>
+
+                    <div v-if="formData.appliesTo === 'selected_products' && formData.productIds.length > 0">
+                      <p class="text-xs text-[#8B8D97] mb-2">Selected Products ({{ formData.productIds.length }})</p>
+                      <div class="space-y-2 max-h-40 overflow-y-auto">
+                        <div 
+                          v-for="productId in formData.productIds" 
+                          :key="productId"
+                          class="flex items-center gap-2 p-2 bg-white rounded border border-gray-200"
+                        >
+                          <div class="flex-1">
+                            <p class="text-sm text-[#020721] font-medium">
+                              {{ eligibleProducts.find(p => p._id === productId)?.name || productId }}
+                            </p>
+                          </div>
+                          <span class="text-xs text-[#8B8D97]">
+                            ₦{{ (eligibleProducts.find(p => p._id === productId)?.amount || 0).toLocaleString() }}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <!-- Navigation Buttons -->
               <div class="px-4 py-4 mt-auto flex items-center justify-between border-t">
                 <button 
@@ -362,10 +486,10 @@
                   :disabled="promotionsStore.loading"
                   class="flex items-center gap-2 px-6 py-2 bg-[#5B68DF] text-white rounded-lg text-sm font-medium hover:bg-[#4a56cc] disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <span v-if="promotionsStore.loading && currentStep === 3">
+                  <span v-if="promotionsStore.loading && currentStep === 4">
                     {{ isEditMode ? 'Updating...' : 'Creating...' }}
                   </span>
-                  <span v-else>{{ currentStep === 3 ? (isEditMode ? 'Update' : 'Create') : 'Next' }}</span>
+                  <span v-else>{{ currentStep === 4 ? (isEditMode ? 'Update Promotion' : 'Create Promotion') : 'Next' }}</span>
                   <Icon v-if="!promotionsStore.loading" icon="radix-icons:chevron-right" />
                 </button>
               </div>
@@ -606,7 +730,7 @@
                     <div 
                       v-if="showActionsMenu === promo._id"
                       @click.stop
-                      class="absolute right-0 mt-2 w-32 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden z-50"
+                      class="absolute -top-16 right-0  mt-2 w-32 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden z-50"
                     >
                       <button
                         @click="viewPromotionDetails(promo._id); showActionsMenu = null"
@@ -852,7 +976,7 @@ const handleNext = async () => {
     return
   }
 
-  // Step 3 - Create or update promotion
+  // Validate step 3
   if (currentStep.value === 3) {
     // Validate selected products if applies to selected products
     if (formData.value.appliesTo === 'selected_products' && formData.value.productIds.length === 0) {
@@ -862,7 +986,13 @@ const handleNext = async () => {
       })
       return
     }
+    // Move to step 4 (confirmation)
+    currentStep.value++
+    return
+  }
 
+  // Step 4 - Create or update promotion
+  if (currentStep.value === 4) {
     if (isEditMode.value && editingPromotionId.value) {
       await updatePromotion()
     } else {
