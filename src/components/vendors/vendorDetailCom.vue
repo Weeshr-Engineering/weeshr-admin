@@ -58,7 +58,8 @@ const props = defineProps({
 interface Banks {
   id: string,
   code: string,
-  name: string
+  name: string,
+  [key: string]: any;
 }
 
 interface VerifiedBank {
@@ -276,7 +277,7 @@ const fetchBanks = async (msg: string) => {
     if (response.status === 200 || response.status === 201) {
       // Update the users data with the response
       // console.log(response)
-      banks.value = response.data.data.data
+      banks.value = response.data.data.banks
       toast({
         title: 'Success',
         description: `Success- ${msg}`,
@@ -1154,8 +1155,8 @@ onMounted(async () => {
                                 >
                                   {{
                                     bankCode
-                                      ? banks.find(framework => framework.code === bankCode)?.name
-                                      : 'Select framework...'
+                                      ? banks.find(bank => bank.code === bankCode)?.name
+                                      : 'Select bank...'
                                   }}
                                   <ChevronsUpDownIcon class="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                 </Button>
@@ -1167,21 +1168,21 @@ onMounted(async () => {
                                     <CommandEmpty>No bank found.</CommandEmpty>
                                     <CommandGroup>
                                       <CommandItem
-                                        v-for="framework in banks"
-                                        :key="framework.code"
-                                        :value="framework.code"
+                                        v-for="bank in banks"
+                                        :key="bank.code"
+                                        :value="bank.name"
                                         @select="() => {
-                                          bankCode = bankCode === framework.code ? '' : framework.code
+                                          bankCode = bankCode === bank.code ? '' : bank.code
                                           open = false
                                         }"
                                       >
                                         <CheckIcon
                                           :class="cn(
                                             'mr-2 h-4 w-4',
-                                            bankCode === framework.code ? 'opacity-100' : 'opacity-0',
+                                            bankCode === bank.code ? 'opacity-100' : 'opacity-0',
                                           )"
                                         />
-                                        {{ framework.name }}
+                                        {{ bank.name }}
                                       </CommandItem>
                                     </CommandGroup>
                                   </CommandList>
