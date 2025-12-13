@@ -533,7 +533,8 @@ watch([bankCode, accountNumber, payoutFrequency], ([newBank, newAcc, newFreq]) =
           "bankName": bankName.value?.name,
           "bankCode": bankCode.value,
           "accountNumber": accountNumber.value,
-          "payoutFrequency": payoutFrequency.value.toLowerCase()
+          "payoutFrequency": payoutFrequency.value.toLowerCase(),
+          accountName: verifyBank.value?.accountName
         }
       )
 
@@ -545,11 +546,14 @@ watch([bankCode, accountNumber, payoutFrequency], ([newBank, newAcc, newFreq]) =
           description: `${bankName.value?.name} added successfully.`,
           variant: 'success'
         })
+        verifyBank.value = null;
+        accountNumber.value = ''
         fetchBankData('Success')
       }
       // Handle success
     } catch (err: any) {
       //   VendorListStore.loadingControl(false)
+      console.log(err)
       catchErr(err)
       // Handle other errors
     }
@@ -738,6 +742,10 @@ const saveUserData = async () => {
     }
     // VendorListStore.loadingControl(true)
     try {
+      // verifyBank.value= {
+      //     accountName: 'IZEKOR RUBY',
+      //     accountNumber: '8099433649'
+      //   }
       const response = await axios.post(
         '/api/v1/admin/market/banks/verify',
         {
@@ -751,7 +759,7 @@ const saveUserData = async () => {
       // Check if response status is 200 or 201
       if (response.status === 200 || response.status === 201) {
         // Show success toast
-        // console.log(response)
+        // console.log(response)\
         verifyBank.value = response.data.data;
         toast({
           title: 'Success',
@@ -763,7 +771,7 @@ const saveUserData = async () => {
     } catch (err: any) {
       //   VendorListStore.loadingControl(false)
       catchErr(err)
-      // console.log(err)
+      console.log(err)
       // Handle other errors
     }
   }
