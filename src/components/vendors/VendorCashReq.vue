@@ -136,7 +136,7 @@
                   >
                   <Badge
                     class="text-white rounded-full bg-[#020721]"
-                    v-if="item.status.toUpperCase() === 'DISBURSED'"
+                    v-if="item.status.toUpperCase() === 'DISBURSED' || item.status.toUpperCase() === 'COMPLETED'"
                     >{{ item.status.toUpperCase() }}</Badge
                   >
                   <Badge
@@ -421,22 +421,25 @@ const disburse = async () => {
       payoutIds: reqIDs.value
     })
 
-    const data = response.data.data.data
-    if (response.data.code === 200 || response.data.code === 201) {
-      selectedPayout.value = selectedRequests.value.map((item) => {
-        const payoutReq = data.find((result: { payout_id: string }) => result.payout_id === item.id)
+    // console.log(response)
 
-        return {
-          ...item,
-          success: payoutReq?.success,
-          error: payoutReq?.error ?? null
-        }
-      })
+    // const data = response.data.data.data
+    if (response.status === 200 || response.data.code === 201) {
+      // selectedPayout.value = selectedRequests.value.map((item) => {
+      //   const payoutReq = data.find((result: { payout_id: string }) => result.payout_id === item.id)
+
+      //   return {
+      //     ...item,
+      //     success: payoutReq?.success,
+      //     error: payoutReq?.error ?? null
+      //   }
+      // })
       toast({
         description: 'Disbursement processed!',
         variant: 'success'
       })
-      openRequestSheet.value = true
+      store.getPayout(store.page, 'Page: '+store.page)
+      // openRequestSheet.value = true
     }
   } catch (error: any) {
     toast({

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
 import type { Bank } from './vendor-types'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger, DropdownMenuItem } from '../ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger, DropdownMenuItem, DropdownMenuSeparator } from '../ui/dropdown-menu';
 import { Label } from '../ui/label';
 import { Select, SelectContent, SelectTrigger, SelectItem, SelectValue } from '../ui/select';
 import { Input } from '../ui/input';
@@ -182,6 +182,40 @@ const saveEdit = async (bankId: string) => {
   editingBankId.value = null
 }
 
+  const setDefaultBank = async (bankId: string) => {
+    toast({
+      title: 'Loading Data',
+      description: 'Saving details...',
+      variant: 'loading',
+      duration: 0 // Set duration to 0 to make it indefinite until manually closed
+    })
+
+    try {
+      const response = await axios.patch(
+        `/api/v1/admin/market/banks/${bankId}/default`,
+        {
+         "vendorId": props.id
+        }
+      )
+
+      // Check if response status is 200 or 201
+      if (response.status === 200 || response.status === 201) {
+        // Show success toast
+        props.refresh('Success')
+        toast({
+          title: 'Success',
+          description: `Edit successfully.`,
+          variant: 'success'
+        })
+      }
+      // Handle success
+    } catch (err: any) {
+      //   VendorListStore.loadingControl(false)
+      catchErr(err)
+      // Handle other errors
+    }
+  }
+
 // Get edit data for a specific bank
 // const getEditData = (bankId: string) => {
 //   return editedBanks[bankId] || {
@@ -211,7 +245,8 @@ const handleAction = (action: string, bank: Bank) => {
       // console.log('Delete', bank._id)
       break
 
-    case 'verify':
+    case 'default':
+      setDefaultBank(bank._id)
       // verifyDetails(bank.accountName, bank.bankCode)
       // verifiedMap.value[bank._id] = true
       break
@@ -233,7 +268,8 @@ const isEditing = (id: string) => editingBankId.value === id
       </h3>
 
       <!-- Verified Badge -->
-      <!-- <span
+      <span
+        v-if="bank.isDefault"
         class="px-3 py-1 text-xs rounded-full"
         :class="
           verifiedMap[bank._id]
@@ -241,8 +277,9 @@ const isEditing = (id: string) => editingBankId.value === id
             : 'bg-yellow-100 text-yellow-700'
         "
       >
-        {{ verifiedMap[bank._id] ? 'Verified' : 'Pending' }}
-      </span> -->
+      Default
+        <!-- {{ bank.isDefault ? 'Verified' : 'Pending' }} -->
+      </span>
 
       <!-- Actions Dropdown -->
       <DropdownMenu>
@@ -259,11 +296,11 @@ const isEditing = (id: string) => editingBankId.value === id
             <Icon icon="uil:edit" class="mr-2" /> Edit
           </DropdownMenuItem>
 
-          <!-- <DropdownMenuItem @click="handleAction('verify', bank)">
-            <Icon icon="mdi:check-circle-outline" class="mr-2" /> Verify
+          <DropdownMenuItem v-if="!bank.isDefault" @click="handleAction('default', bank)">
+            <Icon icon="mdi:check-circle-outline" class="mr-2" /> {{ bank.isDefault ? 'Remove Default' : 'Make Default' }}
           </DropdownMenuItem>
 
-          <DropdownMenuSeparator /> -->
+          <DropdownMenuSeparator v-if="!bank.isDefault" />
 
           <DropdownMenuItem class="text-red-600" @click="handleAction('delete', bank)">
             <Icon icon="mi:delete" class="mr-2" /> Delete
