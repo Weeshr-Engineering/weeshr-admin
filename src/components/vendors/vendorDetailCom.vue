@@ -650,46 +650,6 @@ const saveUserData = async () => {
     }
   }
 
-  // const setDefaultBank = async () => {
-  //   toast({
-  //     title: 'Loading Data',
-  //     description: 'Saving details...',
-  //     variant: 'loading',
-  //     duration: 0 // Set duration to 0 to make it indefinite until manually closed
-  //   })
-
-  //   try {
-  //     const response = await axios.put(
-  //       `/api/v1/admin/market/invites/${inviteId.value}`,
-  //       {
-  //         "firstName": vendorFormData.value.firstName,
-  //         'email': vendorFormData.value.email,
-  //         'lastName': vendorFormData.value.lastName,
-  //         "phoneNumber": {
-  //           "countryCode": vendorFormData.value.phone?.split('-')[0],
-  //           "phoneNumber": vendorFormData.value.phone?.split('-')[1]
-  //         }
-  //       }
-  //     )
-
-  //     // Check if response status is 200 or 201
-  //     if (response.status === 200 || response.status === 201) {
-  //       // Show success toast
-  //       fetchVendorsData('Success')
-  //       toast({
-  //         title: 'Success',
-  //         description: `Edit successfully.`,
-  //         variant: 'success'
-  //       })
-  //     }
-  //     // Handle success
-  //   } catch (err: any) {
-  //     //   VendorListStore.loadingControl(false)
-  //     catchErr(err)
-  //     // Handle other errors
-  //   }
-  // }
-
   const saveNewPassword = async () => {
     toast({
       title: 'Loading Data',
@@ -1277,7 +1237,7 @@ onMounted(async () => {
                           </div> -->
                         </div>
                         <div v-if="verifyBank" class="grid grid-cols-2 gap-4">
-                          <Button @click="()=> saveBankDetails()" class="border-2 border-[#020721] w-full px-4 md:px-8 py-2 flex items-center gap-2">
+                          <Button @click="()=> saveBankDetails()" class="border-2 border-green-600 w-full px-4 md:px-8 py-2 flex items-center gap-2">
                             Save
                           </Button>
                           <Button @click="()=> verifyBank = null" class="border-2 border-[#020721] w-full px-4 md:px-8 py-2 flex items-center gap-2" variant="outline">
