@@ -553,7 +553,7 @@ watch([bankCode, accountNumber, payoutFrequency], ([newBank, newAcc, newFreq]) =
       // Handle success
     } catch (err: any) {
       //   VendorListStore.loadingControl(false)
-      console.log(err)
+      // console.log(err)
       catchErr(err)
       // Handle other errors
     }
@@ -649,6 +649,46 @@ const saveUserData = async () => {
       // Handle other errors
     }
   }
+
+  // const setDefaultBank = async () => {
+  //   toast({
+  //     title: 'Loading Data',
+  //     description: 'Saving details...',
+  //     variant: 'loading',
+  //     duration: 0 // Set duration to 0 to make it indefinite until manually closed
+  //   })
+
+  //   try {
+  //     const response = await axios.put(
+  //       `/api/v1/admin/market/invites/${inviteId.value}`,
+  //       {
+  //         "firstName": vendorFormData.value.firstName,
+  //         'email': vendorFormData.value.email,
+  //         'lastName': vendorFormData.value.lastName,
+  //         "phoneNumber": {
+  //           "countryCode": vendorFormData.value.phone?.split('-')[0],
+  //           "phoneNumber": vendorFormData.value.phone?.split('-')[1]
+  //         }
+  //       }
+  //     )
+
+  //     // Check if response status is 200 or 201
+  //     if (response.status === 200 || response.status === 201) {
+  //       // Show success toast
+  //       fetchVendorsData('Success')
+  //       toast({
+  //         title: 'Success',
+  //         description: `Edit successfully.`,
+  //         variant: 'success'
+  //       })
+  //     }
+  //     // Handle success
+  //   } catch (err: any) {
+  //     //   VendorListStore.loadingControl(false)
+  //     catchErr(err)
+  //     // Handle other errors
+  //   }
+  // }
 
   const saveNewPassword = async () => {
     toast({
@@ -771,7 +811,7 @@ const saveUserData = async () => {
     } catch (err: any) {
       //   VendorListStore.loadingControl(false)
       catchErr(err)
-      console.log(err)
+      // console.log(err)
       // Handle other errors
     }
   }
