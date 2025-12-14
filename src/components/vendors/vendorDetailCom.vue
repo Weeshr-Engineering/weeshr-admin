@@ -1098,7 +1098,7 @@ onMounted(async () => {
                 </div>
                 <div class="md:col-span-3 ">
                   <Label class="px-2">Phone Number</Label>
-                  <Input :value="`${vendorData?.phoneNumber.countryCode} ${vendorData?.phoneNumber.phoneNumber}`" placeholder="Phone number" class="ghost" :disabled="!isEdit"/>
+                  <Input v-model="vendorFormData.phone" :placeholder="`${vendorData?.phoneNumber.countryCode || ''} ${vendorData?.phoneNumber.phoneNumber || ''}`" class="ghost" :disabled="!isEdit"/>
                 </div>
               </div>
             </div>
