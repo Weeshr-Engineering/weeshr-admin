@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input'
 import { toast } from '@/components/ui/toast'
 import { useRoute, useRouter } from 'vue-router'
 import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
+import { Eye, EyeOff } from 'lucide-vue-next'
 import axios from '@/services/ApiService'
 // import { ability } from '@/lib/ability'
 // import { useAbilityStore } from '@/stores/permissions/permission-store'
@@ -38,7 +39,7 @@ const currentYear = ref(new Date().getFullYear())
 const updateYear = () => {
   currentYear.value = new Date().getFullYear()
 }
-
+const showPassword = ref(false)
 const { setToken, setPassword, setuserEmail, setLocalStorage } = useSuperAdminStore()
 const route = useRoute()
 const router = useRouter()
@@ -112,6 +113,7 @@ const onSubmit = form.handleSubmit(async () => {
       const {
         data: { data }
       } = response
+      // console.log(response)
 
       // Check if the token property exists in the response
       if (data && data.user && data.user.token) {
@@ -120,6 +122,8 @@ const onSubmit = form.handleSubmit(async () => {
           user: { token, firstName, lastName, _id: id, email: userEmail }
         } = data
 
+        const vendors: any[] = response.data.data.user.vendors
+
         // save basic user data to local storage
         setLocalStorage(firstName, lastName, userEmail, id)
         // save user email
@@ -127,8 +131,14 @@ const onSubmit = form.handleSubmit(async () => {
         // Save the token in Pinia store
         setToken(token)
 
+        if(vendors.length !== 0){
+          useSuperAdminStore().setVendor(true, vendors[0].vendorId)
+          localStorage.setItem('vendor', JSON.stringify(vendors[0].companyName))
+        }else{
+          useSuperAdminStore().setVendor(false, '')
+        }
         sessionStorage.setItem('permissions', JSON.stringify(response.data.data.user.permissions))
-        // console.log(response.data)
+        // console.log(response)
         // const permissions = modPermissions(response.data.data.user.permissions)
         // ability.update(permissions)
         // updateAbility(permissions)
@@ -145,7 +155,8 @@ const onSubmit = form.handleSubmit(async () => {
     } catch ({ response }: any) {
       loading.value = false
 
-      const { status, data, statusText } = response
+      // console.log(response)
+      const { status, data } = response
 
       if ([400, 401].includes(status)) {
         return toast({
@@ -281,20 +292,34 @@ const onSubmit = form.handleSubmit(async () => {
                     </FormItem>
                   </FormField>
                   <FormField v-slot="{ componentField }" name="password">
-                    <FormItem>
-                      <FormLabel class="font-normal text-white font-outfit">Password</FormLabel>
-                      <FormControl>
-                        <Input
-                          id="password"
-                          type="password"
-                          class="focus-visible:ring-[#BAEF23]"
-                          v-bind="componentField"
-                        />
-                      </FormControl>
+  <FormItem>
+    <FormLabel class="font-normal text-white font-outfit">Password</FormLabel>
 
-                      <FormMessage />
-                    </FormItem>
-                  </FormField>
+    <FormControl>
+      <div class="relative">
+        <Input
+          id="password"
+          :type="showPassword ? 'text' : 'password'"
+          class="focus-visible:ring-[#BAEF23] pr-10"
+          v-bind="componentField"
+        />
+
+        <!-- Toggle icon -->
+        <button
+          type="button"
+          @click="showPassword = !showPassword"
+          class="absolute inset-y-0 right-2 flex items-center text-gray-400 hover:text-gray-600 "
+        >
+          <Eye v-if="!showPassword" class="w-5 h-5" />
+          <EyeOff v-else class="w-5 h-5" />
+        </button>
+      </div>
+    </FormControl>
+
+    <FormMessage />
+  </FormItem>
+</FormField>
+
                 </form>
               </CardContent>
               <CardFooter>

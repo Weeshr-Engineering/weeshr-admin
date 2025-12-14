@@ -1,24 +1,15 @@
 <script setup lang="ts">
 import Search from '@/components/UseSearch.vue'
-import { ref } from 'vue'
-import { useForm } from 'vee-validate'
-import { toTypedSchema } from '@vee-validate/zod'
-import * as z from 'zod'
-import { useDateFormat, useNow } from '@vueuse/core'
-import MainNav from '@/components/MainNav.vue'
-import VueTelInput from 'vue-tel-input'
+import { onMounted, ref } from 'vue'
+import VendorsCards from '@/components/VendorsCards.vue'
+import VendorNav from '@/components/VendorNav.vue'
 import 'vue-tel-input/vue-tel-input.css'
-// import axios from "@/services/ApiService";
-import { Loader2 } from 'lucide-vue-next'
-// import router from '@/router'
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetDescription,
-  SheetTrigger
-} from '@/components/ui/sheet'
-
+import PagePagination from '@/components/PagePagination.vue'
+import VendorAdd from './VendorAdd.vue'
+import DashboardFooter from '@/components/DashboardFooter.vue';
+import { Card, CardContent } from '@/components/ui/card'
+import { catchErr } from '@/composables/catchError'
+import { toast } from '@/components/ui/toast'
 import {
   Table,
   TableRow,
@@ -27,413 +18,479 @@ import {
   TableCell,
   TableHead
 } from '@/components/ui/table'
-
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
+import Badge from '@/components/ui/badge/Badge.vue'
+import axios from 'axios'
+import type { VendorAnalytics } from '@/stores/vendor/vendor-transactions'
+import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
+import ProxyNav from '@/components/ProxyNav.vue'
 // import { toast } from '@/components/ui/toast'
 // import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
 // import { useGeneralStore } from '@/stores/general-use'
 
-const formSchema = toTypedSchema(
-  z.object({
-    vendor: z
-      .string()
-      .min(2, { message: 'Vendor name must be at least 2 characters long' })
-      .max(50, { message: 'Vendor name cannot be longer than 50 characters' })
-      .nonempty('Please enter your first name'),
-
-    userEmail: z.string().email('Please enter a valid email address'),
-    category: z.string().nonempty('Please select Category'),
-    status: z.boolean().optional(),
-    phone: z.string().nonempty('Please enter your phone number')
-  })
-)
-const { handleSubmit } = useForm({
-  validationSchema: formSchema
-})
-
-const newUser = ref({
-  vendor: '',
-  userEmail: '',
-  category: ''
-})
-const sheetOpen = ref(false)
-const loading = ref(false)
-// const superAdminStore = useSuperAdminStore()
-
-const onSubmit = handleSubmit(async (values) => {
-  loading.value = true
-
-  const user = {
-    vendor: values.vendor,
-    email: values.userEmail,
-    category: values.category,
-    phone: {
-      phoneNumber: values.phone
-    },
-    dateJoined: formattedDate.value,
-    disabled: values.status || false
+// 2: Object { _id: "68fe0e3e6cfdca39099fa39e", rcNumber: 9000, companyName: "Cadbury", … }
+// 3: Object { _id: "68fe175da98f5d209988f4b7", rcNumber: 23935, companyName: "Wakame Restaurant", … }
+// 4: Object { _id: "68fe1772a98f5d209988f4c1", rcNumber: 239350, companyName: "Wakame Restaurant", … }
+// 5: Object { _id: "68fe1791a98f5d209988f4cd", rcNumber: 239353, companyName: "Wakame Restaurant", … }
+// 6: Object { _id: "68fe17b8a98f5d209988f4d5", rcNumber: 2393523, companyName: "Shiro Lagos", … }
+// 7: Object { _id: "68fe1807a98f5d209988f4e0", rcNumber: 23910456, companyName: "Z Kitchen Lagos", … }
+// 8: Object { _id: "68fe1816a98f5d209988f4ea"
+export interface Product {
+  _id: string
+  name: string
+  description: string
+  amount: number
+  qty: number
+  status: 'draft' | 'published' | 'archived' | string
+  tat: string // ISO date string
+  isDeleted: boolean
+  deletedAt: string | null
+  createdAt: string
+  updatedAt: string
+  vendorId: string
+  tag: { name: string; [key: string]: any }[]
+  image: {
+    public_id: string
+    version: number
+    signature: string
+    api_key: string
+    asset_id: string
+    bytes: number
+    created_at: string
+    etag: string
+    folder: string
+    format: string
+    height: number
+    original_filename: string
+    placeholder: boolean
+    resource_type: string
+    secure_url: string
+    tags: string[]
+    type: string
+    url: string
+    version_id: string
+    width: number
   }
+}
 
-  // await saveUserData(user)
+interface OrderItem {
+  productId: string,
+  quantity: number,
+  price: number,
+}
 
-  users.value.push(user)
+interface Order {
+  _id: string;
+  userId: string,
+  vendorId: string,
+  items: OrderItem[],
+  status: string,
+  paymentStatus: string,
+  totalAmount: string,
+  payoutMethod?: string,
+  shippingAddress?: string,
+  isDeleted: boolean,
+  deletedAt?: Date | null,
+  createdAt?: Date | string,
+  updatedAt?: Date | null
+}
 
-  sheetOpen.value = false
-
-  // Show success toast
-
-  // Reset form fields
-  newUser.value = {
-    vendor: '',
-    userEmail: '',
-    category: ''
-  }
-})
-
+const id = useSuperAdminStore().vendorId;
 // Define a ref to hold the users data
-const users = ref<any[]>([
-  { _id: 1, vendor: 'Abiola', category: 'Cash', dateJoined: '03 Jan 2024', deliveryrate: '85%' },
-  {
-    _id: 2,
-    vendor: 'Gitacy',
-    category: 'Gift Cash',
-    dateJoined: '03 Jan 2024',
-    deliveryrate: '90%'
-  },
-  {
-    _id: 3,
-    vendor: 'Ajax Logistics',
-    category: 'All category',
-    dateJoined: '03 Jan 2024',
-    deliveryrate: '99%'
-  },
-  {
-    _id: 4,
-    vendor: 'Middle Man Abuja',
-    category: 'All category',
-    dateJoined: '03 Jan 2024',
-    deliveryrate: '95%'
-  },
-  {
-    _id: 5,
-    vendor: ' Middle Man Lagos',
-    category: 'All category',
-    dateJoined: '03 Jan 2024',
-    deliveryrate: '70%'
+const orders = ref<Order[]>([])
+const analytics = ref<VendorAnalytics>()
+
+const products = ref<Product[]>([])
+
+const loading = ref(false)
+
+
+const fetchOrders = async (msg: string) => {
+  toast({
+    title: 'Loading Data',
+    description: 'Fetching data...',
+    duration: 0 // Set duration to 0 to make it indefinite until manually closed
+  })
+
+  try {
+    // Set loading to true
+    // useGeneralStore().setLoading(true)
+    const response = await axios.get(`/api/v1/admin/market/orders/vendor/${id}`)
+
+    if (response.status === 200 || response.status === 201) {
+      // Update the users data with the response
+      // console.log(response.data.data)
+      orders.value = response.data.data;
+      // const responseData = response.data.data[0]
+      // const phoneData = response.data.data[0].phoneNumber.normalizedNumber
+      // const data = { ...responseData, phone: phoneData }
+      // Show success toast
+      toast({
+        title: 'Success',
+        description: `${msg}`,
+        variant: 'success'
+      })
+    }
+    // set Loading to false
+    // useGeneralStore().setLoading(false)
+  } catch (error: any) {
+    catchErr(error)
+    if (error.response.status === 401) {
+      // sessionStorage.removeItem('token')
+      // Clear token from superAdminStore
+      // superAdminStore.setToken('')
+
+      setTimeout(() => {
+        // router.push({ name: 'super-admin-login' })
+      }, 3000)
+
+      toast({
+        title: 'Unauthorized',
+        description: 'You are not authorized to perform this action. Redirecting to home page...',
+        variant: 'destructive'
+      })
+      // Redirect after 3 seconds
+    } else {
+      toast({
+        title: error.response.data.message || 'An error occurred',
+        variant: 'destructive'
+      })
+    }
   }
-])
+}
 
-// Define a function to fetch users data
-// const fetchUsersData = async () => {
-//   toast({
-//     title: 'Loading Data',
-//     description: 'Fetching data...',
-//     duration: 0 // Set duration to 0 to make it indefinite until manually closed
-//   })
+const fetchProducts = async (msg: string) => {
+  toast({
+    title: 'Loading Data',
+    description: 'Fetching data...',
+    duration: 0 // Set duration to 0 to make it indefinite until manually closed
+  })
 
-//   // useGeneralStore().setLoading(true)
-//   try {
-//     // Set loading to true
+  try {
+    // Set loading to true
+    // useGeneralStore().setLoading(true)
+    const response = await axios.get('/api/v1/admin/market/products/', {
+      params: {
+        vendorId:  useSuperAdminStore().vendorId,
+        // page: params?.page || 1,
+        // limit: params?.limit || 10,
+        // search: params?.search || '',
+        // sortBy: params?.sortBy || 'name',
+        // status: params?.status || 'all'
+      }
+    })
 
-//     const response = await axios.get(
-//       '/administrators?search=test_admin&disabled_status=disabled',
-//       {
-//         // params: {
-//         //   search: 'test_admin',
-//         //   disabled_status: 'disabled'
-//         // },
-//       }
-//     )
+    if (response.status === 200 || response.status === 201) {
+      // Update the users data with the response
+      // console.log(response)
+      products.value = response.data.data.data;
+      // const responseData = response.data.data[0]
+      // const phoneData = response.data.data[0].phoneNumber.normalizedNumber
+      // const data = { ...responseData, phone: phoneData }
+      // Show success toast
+      toast({
+        title: 'Success',
+        description: `${msg}`,
+        variant: 'success'
+      })
+    }
+    // set Loading to false
+    // useGeneralStore().setLoading(false)
+  } catch (error: any) {
+    catchErr(error)
+    if (error.response.status === 401) {
+      // sessionStorage.removeItem('token')
+      // Clear token from superAdminStore
+      // superAdminStore.setToken('')
 
-//     if (response.status === 200 || response.status === 201) {
-//       useGeneralStore().setLoadingToFalse()
-//       // Show success toast
-//       toast({
-//         title: 'Success',
-//         description: `data fetched`,
-//         variant: 'success'
-//       })
+      setTimeout(() => {
+        // router.push({ name: 'super-admin-login' })
+      }, 3000)
 
-//       console.log('jiji' + JSON.stringify(response.data))
-//     }
+      toast({
+        title: 'Unauthorized',
+        description: 'You are not authorized to perform this action. Redirecting to home page...',
+        variant: 'destructive'
+      })
+      // Redirect after 3 seconds
+    } else {
+      toast({
+        title: error.response.data.message || 'An error occurred',
+        variant: 'destructive'
+      })
+    }
+  }
+}
 
-//     // Update the users data with the response
+const fetchAnalytics = async (msg: string) => {
+  toast({
+    title: 'Loading Data',
+    description: 'Fetching data...',
+    duration: 0 // Set duration to 0 to make it indefinite until manually closed
+  })
 
-//     users.value = response.data.data.data
-//   } catch (error: any) {
-//     if (error.response.status === 401) {
-//       sessionStorage.removeItem('token')
-//       // Clear token from superAdminStore
-//       superAdminStore.setToken('')
+  try {
+    // Set loading to true
+    // useGeneralStore().setLoading(true)
+    const response = await axios.get(`/api/v1/admin/market/vendor/dashboard/${id}`)
 
-//       setTimeout(() => {
-//         router.push({ name: 'super-admin-login' })
-//       }, 3000)
+    if (response.status === 200 || response.status === 201) {
+      // Update the users data with the response
+      // products.value = response.data.data.data;
+      // console.log(response)
+      analytics.value = response.data.data;
+      // const phoneData = response.data.data[0].phoneNumber.normalizedNumber
+      // const data = { ...responseData, phone: phoneData }
+      // Show success toast
+      toast({
+        title: 'Success',
+        description: `${msg}`,
+        variant: 'success'
+      })
+    }
+    // set Loading to false
+    // useGeneralStore().setLoading(false)
+  } catch (error: any) {
+    catchErr(error)
+    // console.log(error)
+    if (error.response.status === 401) {
+      // sessionStorage.removeItem('token')
+      // Clear token from superAdminStore
+      // superAdminStore.setToken('')
 
-//       toast({
-//         title: 'Unauthorized',
-//         description: 'You are not authorized to perform this action. Redirecting to home page...',
-//         variant: 'destructive'
-//       })
-//       // Redirect after 3 seconds
-//     } else {
-//       toast({
-//         title: error.response.data.message || 'An error occurred',
-//         variant: 'destructive'
-//       })
-//     }
-//   }
-// } // Call the fetchUsersData function when the component is mounted
+      setTimeout(() => {
+        // router.push({ name: 'super-admin-login' })
+      }, 3000)
 
-// Save user data to the /administrator endpoint
-// const saveUserData = async (user: any) => {
-//   loading.value = true
-//   try {
-//     const response = await axios.post(
-//       '/administrators?search=test_admin&disabled_status=disabled',
-//       user,
-//       {
+      toast({
+        title: 'Unauthorized',
+        description: 'You are not authorized to perform this action. Redirecting to home page...',
+        variant: 'destructive'
+      })
+      // Redirect after 3 seconds
+    } else {
+      toast({
+        title: error.response.data.message || 'An error occurred',
+        variant: 'destructive'
+      })
+    }
+  }
+}
 
-//       }
-//     )
+const statusBg = (status: string) => {
+  switch (status?.toLowerCase()) {
+    case 'failed':
+    case 'cancelled':
+      return 'bg-[#E45044]'
+    case 'pending':
+    case 'new':
+      return 'bg-[#EE9F39]'
+    case 'processing':
+      return 'bg-[#6A70FF]'
+    case 'outbound':
+    case 'shipped':
+      return 'bg-[#3A8EE5]'
+    case 'delivered':
+    case 'completed':
+      return 'bg-[#00C37F]'
+    case 'overdue':
+      return 'bg-[#DF6C50]'
+    default:
+      return 'bg-gray-500'
+  }
+}
 
-//     // Check if response status is 200 or 201
-//     if (response.status === 200 || response.status === 201) {
-//       // Show success toast
-//       toast({
-//         title: 'Success',
-//         description: `${user.vendor} User profile created successfully.`,
-//         variant: 'success'
-//       })
-//     }
+const formatDate = (dateStr: string | Date | undefined) => {
+  if (!dateStr) return 'N/A'
+  try {
+    const date = new Date(dateStr)
+    if (isNaN(date.getTime())) return 'Invalid Date'
+    return new Intl.DateTimeFormat('en-GB', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    }).format(date)
+  } catch (error) {
+    return 'Invalid Date'
+  }
+}
 
-//     console.log(response.data)
-//     loading.value = false
-//     // Handle success
-//   } catch (err: any) {
-//     loading.value = false
-//     if (err.response.data.code === 401) {
-//       sessionStorage.removeItem('token')
-//       // Clear token from superAdminStore
-//       superAdminStore.setToken('')
 
-//       setTimeout(() => {
-//         router.push({ name: 'super-admin-login' })
-//       }, 3000)
-
-//       toast({
-//         title: 'Unauthorized',
-//         description: 'You are not authorized to perform this action. Redirecting to home page...',
-//         variant: 'destructive'
-//       })
-//       // Redirect after 3 seconds
-//     } else {
-//       toast({
-//         title: err.response.data.message || 'An error occurred',
-//         variant: 'destructive'
-//       })
-//     }
-//     // Handle other errors
-//   }
-// }
-
-// const toggleStatus = (user: { status: boolean }) => {
-//   user.status = !user.status
-// }
-const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
-
-// onMounted(fetchUsersData);
-
-// onMounted(async () => {
-//   // useGeneralStore().setLoading(true);
-//   fetchUsersData()
-// })
+onMounted(() => {
+  fetchOrders('data fetched')
+  fetchProducts('Products are available')
+  fetchAnalytics('Success')
+})
 </script>
 
 <template>
   <div class="flex-col flex bg-[#f0f8ff] min-h-[400px] px-4 sm:px-10 pb-10">
-    <MainNav class="mx-6" headingText="User > Vendors" />
-    <div class="px-10 py-10 ml-auto">
-      <Sheet :close="sheetOpen">
-        <SheetTrigger as-child>
-          <button @click="sheetOpen = true" class="bg-[#020721] px-4 py-2 rounded-xl w-50 h-12">
-            <div class="text-base text-[#F8F9FF] text-center flex items-center">
-              Add New User
-              <svg
-                width="20"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                class="ml-6"
-              >
-                <path
-                  d="M12 2C6.49 2 2 6.49 2 12C2 17.51 6.49 22 12 22C17.51 22 22 17.51 22 12C22 6.49 17.51 2 12 2ZM16 12.75H12.75V16C12.75 16.41 12.41 16.75 12 16.75C11.59 16.75 11.25 16.41 11.25 16V12.75H8C7.59 12.75 7.25 12.41 7.25 12C7.25 11.59 7.59 11.25 8 11.25H11.25V8C11.25 7.59 11.59 7.25 12 7.25C12.41 7.25 12.75 7.59 12.75 8V11.25H16C16.41 11.25 16.75 11.59 16.75 12C16.75 12.41 16.41 12.75 16 12.75Z"
-                  fill="#F8F9FF"
-                />
-              </svg>
-            </div>
-          </button>
-        </SheetTrigger>
-        <SheetContent class="overflow-y-auto">
-          <SheetHeader>
-            <h3 class="text-2xl font-medium">Create User profile</h3>
-            <SheetDescription>
-              Add a new profile here. Click submit when you're done.
-            </SheetDescription>
-          </SheetHeader>
-          <CardContent class="grid gap-4 pt-10">
-            <form class="space-y-4" @submit="onSubmit">
-              <FormField v-slot="{ componentField }" name="vendor">
-                <FormItem v-auto-animate>
-                  <FormLabel class="text-blue-900">Vendor</FormLabel>
-                  <FormControl>
-                    <Input
-                      id="text"
-                      type="text"
-                      placeholder="Vendor Name"
-                      class="focus-visible:ring-blue-600"
-                      v-bind="componentField"
-                    />
-                  </FormControl>
-
-                  <FormMessage for="vendor" />
-                </FormItem>
-              </FormField>
-
-              <FormField v-slot="{ componentField }" name="userEmail">
-                <FormItem v-auto-animate>
-                  <FormLabel class="text-blue-900">Email</FormLabel>
-                  <FormControl>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="weeshr@admin.com"
-                      class="focus-visible:ring-blue-600"
-                      v-bind="componentField"
-                    />
-                  </FormControl>
-
-                  <FormMessage />
-                </FormItem>
-              </FormField>
-
-              <FormField v-slot="{ componentField }" name="phone">
-                <FormItem v-auto-animate>
-                  <FormLabel class="text-blue-900">Phone Number</FormLabel>
-                  <FormControl>
-                    <vue-tel-input
-                      mode="international"
-                      id="phone"
-                      type="tel"
-                      placeholder="Last Name"
-                      class="focus-visible:ring-blue-600"
-                      v-bind="componentField"
-                    >
-                    </vue-tel-input>
-                  </FormControl>
-
-                  <FormMessage for="phone" />
-                </FormItem>
-              </FormField>
-
-              <FormField v-slot="{ componentField }" name="category">
-                <FormItem>
-                  <FormLabel>Category</FormLabel>
-                  <select
-                    v-bind="componentField"
-                    id="category"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                    placeholder="Category"
-                  >
-                    <option value="" disabled selected hidden>Select Vendor Category</option>
-                    <option value="cash">Cash</option>
-                    <option value="gift">Gift Cards</option>
-                    <option value="all">All Category</option>
-                  </select>
-                  <FormMessage for="category" />
-                </FormItem>
-              </FormField>
-
-              <Button :disabled="loading" type="submit">
-                <Loader2
-                  color="#ffffff"
-                  v-if="loading"
-                  class="w-4 h-4 mr-2 text-black animate-spin"
-                />
-                Submit
-
-                <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" />
-              </Button>
-            </form>
-          </CardContent>
-        </SheetContent>
-      </Sheet>
+    <!-- <MainNav class="mx-6" headingText="Dashboard" /> -->
+    <ProxyNav/>
+    <VendorNav class="mx-6" headingText="Dashboard"/>
+    <div class="w-full grid gap-4 md:grid-cols-2 md:gap-6 lg:grid-cols-4">
+      <VendorsCards
+        type="payouts"
+        :loading="loading"
+        :value='analytics?.vendorPayoutAnalytics.totalCompletedPayout || 0'
+        :subvalue='analytics?.vendorPayoutAnalytics.totalPendingPayout || 0'
+      />
+      <VendorsCards
+        type="orders"
+        :loading="loading"
+        :value='analytics?.deliveredAnalytics.totalDeliveredOrders || 0'
+        :subvalue='analytics?.overdueAndUndelivered.overdueCount || 0'
+      />
+      <VendorsCards
+        type="totalFulfilment"
+        :loading="loading"
+        :value='analytics?.deliveredAnalytics.totalDeliveredOrders || 0'
+        :subvalue='analytics?.deliveredAnalytics.totalDeliveredAmount || 0'
+      />
+      <VendorsCards
+        type="products"
+        :loading="loading"
+        :value='analytics?.productAnalytics.total_products || 0'
+        :subvalue='analytics?.productAnalytics.no_of_published || 0'
+      />
     </div>
 
-    <Card class="container px-4 pt-6 pb-10 mx-auto sm:px-6 lg:px-8 bg-[#FFFFFF] rounded-2xl">
-      <div class="flex items-center justify-between px-6 py-4">
-        <div class="text-2xl font-bold tracking-tight text-[#020721]">
-          Vendors
-          <p class="text-xs text-[#02072199] py-2">List of Weeshr Vendors</p>
+   <div class="grid grid-cols-10 gap-4 md:gap-8 my-8">
+     <Card class="shadow-none container col-span-10 md:col-span-6 px-4 py-6 pb-10 mx-auto sm:px-6 lg:px-8 h-full bg-[#FFFFFF] rounded-2xl">
+        <div class="flex items-center justify-between px-6 py-4">
+          <div class="text-2xl font-bold tracking-tight text-[#020721]">
+            Orders
+            <p class="text-xs text-[#02072199] py-2">List of Orders</p>
+          </div>
+          <Search />
         </div>
-        <Search />
-      </div>
 
-      <div class="overflow-auto bg-white rounded-lg shadow">
-        <Table>
-          <TableHeader>
-            <TableRow
-              class="text-xs sm:text-sm md:text-base text-[#02072199] font-semibold bg-gray-200"
-            >
-              <TableHead> Vendor </TableHead>
-              <TableHead>Category</TableHead>
-              <TableHead>Onboarded</TableHead>
-              <TableHead> Delivery Rate</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            <TableRow v-for="user in users" :key="user._id">
-              <TableCell class="font-medium">{{ user.vendor }}</TableCell>
-              <TableCell>{{ user.category }}</TableCell>
-              <TableCell>{{ user.dateJoined }}</TableCell>
-              <TableCell>{{ user.deliveryrate }}</TableCell>
-              <TableCell>
-                <button
-                  :class="{ 'bg-[#00C37F]': user.status, 'bg-[#020721]': !user.status }"
-                  class="px-4 py-2 text-sm text-white rounded-md"
+        <div class="overflow-y-scroll h-[50dvh] bg-white rounded-lg">
+          <Table class="h-[20dvh] overflow-y-scroll" v-if="orders.length !== 0">
+            <TableHeader>
+              <TableRow
+                class="text-xs sm:text-sm md:text-base text-[#02072199] font-semibold bg-gray-200"
+              >
+                <TableHead>
+                <div class="flex items-center">Order Date</div>
+              </TableHead>
+              <TableHead>
+                <div class="flex items-center">Total Amount</div>
+              </TableHead>
+              <TableHead>
+                <div class="flex items-center">Item Count</div>
+              </TableHead>
+              <TableHead>
+                <div class="flex items-center">Payment Status</div>
+              </TableHead>
+              <TableHead>
+                <div class="flex items-center">Status</div>
+              </TableHead>
+              <TableHead>Order ID</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <template v-for="order in orders" :key="order._id">
+                <router-link :to="`/order?id=${order._id}`" custom v-slot="{ navigate }">
+                  <TableRow @click="navigate" class="cursor-pointer hover:bg-muted/30">
+                    <TableCell class="text-xs md:text-sm lg:text-sm">
+                      {{ formatDate(order.createdAt) }}
+                    </TableCell>
+
+                    <TableCell class="text-xs md:text-sm lg:text-sm">
+                      ₦{{ order.totalAmount?.toLocaleString() || '0' }}
+                    </TableCell>
+
+                    <TableCell class="text-xs md:text-sm lg:text-sm">
+                      {{ order.items?.length || 0 }}
+                    </TableCell>
+
+                    <TableCell class="text-xs md:text-sm lg:text-sm capitalize">
+                      {{ order.paymentStatus || 'pending' }}
+                    </TableCell>
+
+                    <TableCell>
+                      <div
+                        :class="statusBg(order.status)"
+                        class="rounded-[10px] w-fit px-2 py-0.5 text-white text-sm capitalize"
+                      >
+                        {{ order.status }}
+                      </div>
+                    </TableCell>
+
+                    <TableCell class="text-xs md:text-sm lg:text-sm">
+                      {{ order._id?.substring(0, 8) }}...
+                    </TableCell>
+                  </TableRow>
+                </router-link>
+              </template>
+            </TableBody>
+          </Table>
+          <div v-else class="flex h-full flex-col gap-4 items-center justify-center px-2 sm:px-4 py-4">
+            <img src="https://res.cloudinary.com/drykej1am/image/upload/v1757871471/weershr-vendor/empty-cart_x2itw9.png" class="w-60 h-60" alt="">
+            <h1 class="text-2xl font-semibold animate-pulse">No Order yet</h1>
+          </div>
+        </div>
+        <div class="w-full md:flex flex-col md:flex-row items-end justify-center gap-4" v-if="orders.length !== 0">
+          <!-- <PagePagination :page-total="1" :page-current="1" @pagination="()=> console.log('trigger page change')" /> -->
+          <div class="h-10 w-full md:w-fit flex items-center justify-center text-blue-500">
+            <router-link to="/order">See all</router-link>
+          </div>
+        </div>
+      </Card>
+       <Card class="container shadow-none col-span-10 md:col-span-4 relative px-4 pt-6 md:pt-0 pb-10 mx-auto sm:px-6 lg:px-8 bg-[#FFFFFF] rounded-2xl">
+          <div class="flex items-center justify-between px-2 py-8">
+            <div class="text-2xl font-bold tracking-tight text-[#020721]">
+              Our Products
+              <p class="text-xs text-[#02072199] py-2">List of our published products</p>
+            </div>
+            <VendorAdd v-if="products.length !== 0"/>
+          </div>
+
+          <div v-if="products.length !== 0" class="overflow-y-scroll bg-white pb-4 flex flex-col space-y-2 h-[50dvh]">
+            <Card Content class="border rounded-lg hover:shadow-xl" v-for="(product, key) in products" :key="key">
+              <router-link to="/product">
+                <CardContent
+                  class="flex items-center justify-between px-2 sm:px-4 py-4"
                 >
-                  {{ user.disabled ? 'Inactive' : 'Active' }}
-                </button>
-              </TableCell>
-              <TableCell>
-                <svg
-                  width="20"
-                  height="50"
-                  viewBox="0 0 20 50"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M7 31L12.5118 26.0606C13.1627 25.4773 13.1627 24.5227 12.5118 23.9394L7 19"
-                    stroke="#54586D"
-                    stroke-opacity="0.8"
-                    stroke-width="2"
-                    stroke-miterlimit="10"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-              </TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
-      </div>
-    </Card>
+                  <span class="flex gap-2 items-center"><div
+                    class="inline-block text-[#F8F9FF] w-14 h-14"
+                  >
+                    <img :src='product.image.secure_url' class="w-full h-full rounded-sm"/>
+                  </div>
+                  <div class="flex flex-col items-start justify-between">
+                    <p class="text-sm text-muted-foreground text-center text-[#000000]">
+                      {{product.name}}
+                    </p>
+                    <p class="text-sm text-muted-foreground text-center text-[#000000]">
+                      ₦ {{product.amount}}
+                    </p>
+                  </div>
+                </span>
+                <div class="flex items-center gap-4">
+                  <Badge variant="outline">QTY - {{ product.qty }}</Badge>
+                </div>
+                </CardContent>
+              </router-link>
+            </Card>
+            <div class="text-center text-blue-500 absolute bottom-4 w-full place-self-center">
+              <router-link to="/product">See all</router-link>
+            </div>
+          </div>
+          <div v-else class="h-full flex items-center justify-center">
+            <!-- <Card> -->
+              <div class="flex shadow-none flex-col gap-4 items-center justify-center px-2 sm:px-4 py-4">
+                <img src="https://res.cloudinary.com/drykej1am/image/upload/v1757871412/weershr-vendor/ecommerce_xrvr9h.png" class="w-48 h-48" alt="">
+                <h1>No products to display</h1>
+                <div class="w-full flex items-center justify-center">
+                  <span class="animate-bounce"><VendorAdd/></span>
+                </div>
+              </div>
+            <!-- </Card> -->
+          </div>
+        </Card>
+   </div>
+   <DashboardFooter/>
   </div>
 </template>
 @/stores/super-admin/super-admin@/stores/super-admin/super-admin
+<!-- <a href="https://www.flaticon.com/free-stickers/purchase" title="purchase stickers">Purchase stickers created by kerismaker - Flaticon</a> -->

@@ -4,11 +4,13 @@ import SuperAdminLogin from '@/views/unprotected/SuperAdminModule/SuperAdminLogi
 import configuration from '@/views/protected/AdminModule/UserConfiguration.vue'
 import user from '@/views/protected/AdminModule/UserHub.vue'
 import AppUsers from '@/views/protected/AdminModule/AppUsers.vue'
-import Vendors from '@/views/protected/AdminModule/VendorsList.vue'
+// import Vendors from '@/views/protected/AdminModule/VendorsList.vue'
+import VendorListAdmin from '@/views/protected/VendorModule/VendorListAdmin.vue'
 import AdminDetails from '@/views/protected/AdminModule/AdminDetails.vue'
 import UserDetails from '@/views/protected/AdminModule/UserDetails.vue'
-import AdminDashboard from '@/views/protected/AdminModule/AdminDashboard.vue'
+// import AdminDashboard from '@/views/protected/AdminModule/AdminDashboard.vue'
 import Analytics from '@/views/protected/AdminModule/AnalyticsView.vue'
+import DashboardWrapper from '@/views/protected/AdminModule/DashboardWrapper.vue'
 
 import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
 import ErrorPage from '@/views/unprotected/ErrorPageView.vue'
@@ -17,6 +19,10 @@ import AdminView from '@/views/protected/AdminModule/AdminList.vue'
 import AdminList from '@/views/protected/SuperAdminModule/AdminList.vue'
 import CreateUser from '@/views/protected/SuperAdminModule/CreateUser.vue'
 import DepotPage from '@/views/protected/AdminModule/DepotPage.vue'
+import ProductPage from '@/views/protected/AdminModule/ProductPage.vue'
+import PromotionPage from '@/views/protected/AdminModule/VendorPromotion.vue'
+import OrderPage from '@/views/protected/AdminModule/VendorOrderPage.vue'
+
 import BankPage from '@/views/protected/AdminModule/BankPage.vue'
 import CashRequest from '@/views/protected/AdminModule/CashRequest.vue'
 import ActivityLog from '@/views/protected/AdminModule/ActivityLog.vue'
@@ -29,22 +35,28 @@ import CountryConfig from '@/views/protected/ConfigModule/CountryModule/CountryC
 import WeeshDetails from '@/views/protected/WeeshModule/WeeshDetails.vue'
 import FeaturedConfig from '@/views/protected/ConfigModule/FeaturedModule/Featured-config.vue'
 import OutFlow from '@/views/protected/AdminModule/OutFlow.vue'
+import VendorTransaction from '@/views/protected/AdminModule/VendorTransaction.vue'
+import VendorDetails from '@/views/protected/AdminModule/VendorDetails.vue'
+import GlobalTransaction from '@/views/protected/VendorModule/GlobalTransaction.vue'
+import GlobalGeeftr from '@/views/protected/VendorModule/GlobalGeeftr.vue'
+import VendorRegistration from '@/views/unprotected/VendorModule/VendorRegistration.vue'
+import VendorsDetailsPage from '@/components/vendors/vendorsDetailsPage.vue'
+import VendorPayout from '@/views/protected/AdminModule/VendorPayout.vue'
 
 const routes = [
+  // dashboard,
   {
     path: '/',
     name: 'home',
-    component: AdminDashboard,
-    meta: { requiresAuth: true }
+    component: DashboardWrapper,
+    meta: { requiresAuth: true, dynamic: true  }
   },
-
-  // {
-  //   path: '/',
-  //   name: 'home',
-  //   component: HomeView,
-  //   meta: { requiresAuth: true }
-  // },
-
+  {
+    path: '/registration',
+    name: 'vendorRegistration',
+    component: VendorRegistration,
+    meta: { hideSidebar: true }
+  },
   {
     path: '/login',
     name: 'superAdmin-login',
@@ -87,7 +99,37 @@ const routes = [
   {
     path: '/user/vendors',
     name: 'vendors',
-    component: Vendors,
+    component: VendorListAdmin,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/vendors/transaction',
+    name: 'vendorTransaction',
+    component: VendorTransaction,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/user/vendors/:id',
+    name: 'vendorDetails',
+    component: VendorDetails,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/details',
+    name: 'vendorDetailsPage',
+    component: VendorsDetailsPage,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/geeftr',
+    name: 'GlobalGeeftr',
+    component: GlobalGeeftr,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/global/transaction',
+    name: 'geeftrTransaction',
+    component: GlobalTransaction,
     meta: { requiresAuth: true }
   },
   {
@@ -130,6 +172,12 @@ const routes = [
     component: WeeshesPage,
   },
   {
+    path: '/vendor/payout',
+    name: 'vendorPayout',
+    component: VendorPayout,
+    // meta: { requiresAuth: true }
+  },
+  {
     path: '/weeshes/details/:Id',
     name: 'weeshedetails',
     component: WeeshDetails
@@ -139,6 +187,24 @@ const routes = [
     path: '/depot',
     name: 'depot',
     component: DepotPage,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/product',
+    name: 'product',
+    component: ProductPage,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/promotion',
+    name: 'promotion',
+    component: PromotionPage,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/order',
+    name: 'order',
+    component: OrderPage,
     meta: { requiresAuth: true }
   },
   {
@@ -227,7 +293,20 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const isAuthenticated = useSuperAdminStore().token !== ''
+  // const isVendor = useSuperAdminStore().isVendor
   const requiresAuth = to.matched.some((record) => record.meta.requiresAuth)
+ // 🧠 Dynamic dashboard: if user is vendor, switch home component
+//  if (to.name === 'home') {
+//   const record = to.matched[0]
+
+//   if (record?.components) {
+//     record.components.default = isVendor
+//       ? Vendors
+//       : AdminDashboard
+//   }
+// }
+
+
 
   if (requiresAuth && !isAuthenticated) {
     next({ name: 'superAdmin-login' }) // Redirect to login if not authenticated

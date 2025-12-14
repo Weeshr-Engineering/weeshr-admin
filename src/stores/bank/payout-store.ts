@@ -78,7 +78,6 @@ export const usePayoutStore = defineStore('payout', {
       if (newPage > 0 && newPage <= this.totalPages) {
         this.currentPage = newPage;
         this.page = newPage
-        console.log(this.page)
         this.getPayout(this.page, `Page ${this.page}`)
       }
     },

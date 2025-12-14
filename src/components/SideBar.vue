@@ -5,6 +5,7 @@ import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
 import { ability, defineAbilities } from '@/lib/ability';
 import { useRoute } from 'vue-router';
 import NotificationBoardSheet from '@/components/notifications/notification-board/NotificationBoardSheet.vue'
+import { Layers, Menu,  NotepadText } from 'lucide-vue-next';
 
 const notificationBoard = ref();
 
@@ -89,7 +90,7 @@ const openNotificationsBoard = () => {
         </a>
       </li>
 
-      <li v-if="users" :class="{ 'dashboard-active': isActive('/user') }">
+      <li v-if="users && !superAdminStore.isVendor" :class="{ 'dashboard-active': isActive('/user') }">
         <a @click="$router.push({ name: 'user' })">
           <div class="icon-grid">
             <Icon icon="teenyicons:users-solid" width="16" height="16" class="icons-sidebar" />
@@ -99,7 +100,7 @@ const openNotificationsBoard = () => {
         </a>
       </li>
 
-      <li v-if="weeshes" :class="{ 'dashboard-active': isActive('/weeshes') }">
+      <li v-if="weeshes && !superAdminStore.isVendor" :class="{ 'dashboard-active': isActive('/weeshes') }">
         <a @click="$router.push({ name: 'weeshes' })">
           <div class="icon-grid">
             <Icon icon="codicon:note" width="17" height="17" class="icons-sidebar" />
@@ -109,7 +110,7 @@ const openNotificationsBoard = () => {
         </a>
       </li>
 
-      <li :class="{ 'dashboard-active': isActive('/depot') }">
+      <li v-if="!superAdminStore.isVendor" :class="{ 'dashboard-active': isActive('/depot') }">
         <a @click="$router.push({ name: 'depot' })">
           <div class="icon-grid">
             <Icon icon="mdi:truck-fast" width="17" height="17" class="icons-sidebar" />
@@ -119,7 +120,45 @@ const openNotificationsBoard = () => {
         </a>
       </li>
 
-      <li v-if='bank' :class="{ 'dashboard-active': isActive('/bank') }">
+      <li :class="{ 'dashboard-active': isActive('/promotion') }">
+        <a @click="$router.push({ name: 'promotion' })">
+          <div class="icon-grid">
+             <Menu width="17" height="17" class="icons-sidebar" />
+          </div>
+          <span class="nav-text"> Promotions</span>
+        </a>
+      </li>
+
+       <li v-if="superAdminStore.isVendor" :class="{ 'dashboard-active': isActive('/details') }">
+        <a @click="$router.push({ name: 'vendorDetailsPage' })">
+          <div class="icon-grid">
+            <Icon icon="teenyicons:users-solid" width="16" height="16" class="icons-sidebar" />
+          </div>
+
+          <span class="nav-text"> Profile </span>
+        </a>
+      </li>
+
+      <li v-if="superAdminStore.isVendor" :class="{ 'dashboard-active': isActive('/product') }">
+        <a @click="$router.push({ name: 'product' })">
+          <div class="icon-grid">
+             <Layers width="17" height="17" class="icons-sidebar" />
+          </div>
+
+          <span class="nav-text"> Products </span>
+        </a>
+      </li>
+
+      <li v-if="superAdminStore.isVendor" :class="{ 'dashboard-active': isActive('/order') }">
+        <a @click="$router.push({ name: 'order' })">
+          <div class="icon-grid">
+             <NotepadText width="17" height="17" class="icons-sidebar" />
+          </div>
+          <span class="nav-text"> Orders </span>
+        </a>
+      </li>
+
+      <li v-if='bank && !superAdminStore.isVendor' :class="{ 'dashboard-active': isActive('/bank') }">
         <a @click="$router.push({ name: 'bank' })">
           <div class="icon-grid">
             <Icon icon="fluent:building-bank-16-filled" width="17" height="17" class="icons-sidebar" />
@@ -129,7 +168,7 @@ const openNotificationsBoard = () => {
         </a>
       </li>
 
-      <li v-if="config" :class="{ 'dashboard-active': isActive('/config') }">
+      <li v-if="config && !superAdminStore.isVendor" :class="{ 'dashboard-active': isActive('/config') }">
         <a @click="$router.push({ name: 'config' })">
           <div class="icon-grid">
             <Icon icon="mdi:settings" width="17" height="17" class="icons-sidebar" />
@@ -139,19 +178,29 @@ const openNotificationsBoard = () => {
         </a>
       </li>
 
-      <!-- <li :class="{ 'dashboard-active': isActive('/analytics') }">
-        <a @click="$router.push({ name: 'AdminAnalytics' })">
+      <li v-if="superAdminStore.isVendor" :class="{ 'dashboard-active': isActive('/vendors/transaction') }">
+        <a @click="$router.push({ name: 'vendorTransaction' })">
           <div class="icon-grid">
-            <Icon icon="carbon:text-link-analysis" width="17" height="17" class="icons-sidebar" />
+            <Icon icon="gridicons:money" width="17" height="17" class="icons-sidebar" />
           </div>
 
-          <span class="nav-text"> Analytics </span>
+          <span class="nav-text"> Transactions</span>
         </a>
-      </li> -->
+      </li>
+
+      <li v-if="bank && !superAdminStore.isVendor" :class="{ 'dashboard-active': isActive('/vendor/payout') }">
+        <a @click="$router.push({ name: 'vendorPayout' })">
+          <div class="icon-grid">
+            <Icon icon="fluent:building-bank-16-filled" width="17" height="17" class="icons-sidebar" />
+          </div>
+
+          <span class="nav-text"> Vendor Payout </span>
+        </a>
+      </li>
  
      
 
-      <li v-if="analytics" :class="{ 'dashboard-active': isActive('/analytics') }">
+      <li v-if="analytics && !superAdminStore.isVendor" :class="{ 'dashboard-active': isActive('/analytics') }">
         <a @click="$router.push({ name: 'AdminAnalytics' })">
           <div class="icon-grid">
             <Icon icon="carbon:text-link-analysis" width="17" height="17" class="icons-sidebar" />
@@ -160,8 +209,28 @@ const openNotificationsBoard = () => {
           <span class="nav-text"> Analytics </span>
         </a>
       </li>
+
+      <li v-if="!superAdminStore.isVendor" :class="{ 'dashboard-active': isActive('/geeftr') }">
+        <a @click="$router.push({ name: 'GlobalGeeftr' })">
+          <div class="icon-grid">
+            <Icon icon="mingcute:send-fill" width="17" height="17" class="icons-sidebar" />
+          </div>
+
+          <span class="nav-text"> Geeftr Ops </span>
+        </a>
+      </li>
+
+      <!-- <li v-if="!superAdminStore.isVendor" :class="{ 'dashboard-active': isActive('/global/transaction') }">
+        <a @click="$router.push({ name: 'geeftrTransaction' })">
+          <div class="icon-grid">
+            <Icon icon="gridicons:money" width="17" height="17" class="icons-sidebar" />
+          </div>
+
+          <span class="nav-text">Global Transactions</span>
+        </a>
+      </li> -->
       
-      <li v-if="ability.can('read', 'admin-board-notifications')">
+      <li v-if="ability.can('read', 'admin-board-notifications') && !superAdminStore.isVendor">
         <a @click.prevent="openNotificationsBoard">
           <div class="icon-grid">
             <Icon icon="codicon:bell" width="17" height="17" class="icons-sidebar" />

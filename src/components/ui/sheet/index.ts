@@ -24,6 +24,7 @@ export const sheetVariants = cva(
       length: {
         full: 'min-w-[70%]',
         mid: 'min-w-[55%]',
+        mid_low: 'min-w-[35%]',
         normal: '',
         template: 'min-w-[90%] md:min-w-[85%]'
       }
