@@ -175,14 +175,24 @@ export const useOrderStore = defineStore('order', {
             state: null
           },
           
-          // Customer information - map from API response fields
+          // Receiver information (who receives the order)
+          receiverName: orderData.recieverName || null,
+          receiverPhone: orderData.phoneNumber || null,
+          
+          // Sender information (user who placed the order)
+          senderName: orderData.userId ? 
+            `${orderData.userId.firstName || ''} ${orderData.userId.lastName || ''}`.trim() : null,
+          senderPhone: orderData.userId?.phoneNumber?.normalizedNumber || null,
+          senderEmail: orderData.userId?.email || null,
+          
+          // Customer information (backward compatibility)
           customerName: orderData.recieverName || null,
           customerPhone: orderData.phoneNumber || null,
-          customerEmail: orderData.customerEmail || null,
+          customerEmail: orderData.userId?.email || null,
           
           // Additional fields
           payoutMethod: orderData.payoutMethod,
-          deliveryCharge: orderData.deliveryCharge || 0,
+          deliveryCharge: orderData.deliveryFee || orderData.deliveryCharge || 0,
           discount: orderData.discount || 0,
           isDeleted: orderData.isDeleted || false,
           createdAt: orderData.createdAt,
