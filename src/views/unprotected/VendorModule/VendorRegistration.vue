@@ -73,8 +73,19 @@ const onConfirmPasswordInput = (event: Event) => {
   confirmPasswordValue.value = target.value
 }
 
-const saveDetails = async (password: string) => {
-    toast({
+const onSubmit = form.handleSubmit(async () => {
+  loading.value = true
+
+  // Ensure userEmail and password have values
+  if (form.values.password && form.values.confirmPassword) {
+    const { password } = form.values
+
+    // Set the username and password in the store
+    // setPassword(password)
+
+
+    try {
+      toast({
       title: 'Loading Data',
       description: 'Processing...',
       variant: 'loading',
@@ -99,6 +110,11 @@ const saveDetails = async (password: string) => {
           description: `Registration successfully!`,
           variant: 'success'
         })
+        // Reset form after successful submission
+        form.resetForm()
+        passwordValue.value = ''
+        confirmPasswordValue.value = ''
+        router.push('/')
       }
       // Handle success
     } catch (err: any) {
@@ -107,32 +123,11 @@ const saveDetails = async (password: string) => {
       catchErr(err)
       // Handle other errors
     }
-  }
-
-const onSubmit = form.handleSubmit(async () => {
-  loading.value = true
-
-  // Ensure userEmail and password have values
-  if (form.values.password && form.values.confirmPassword) {
-    const { password } = form.values
-
-    // Set the username and password in the store
-    // setPassword(password)
-
-
-    try {
-      await saveDetails(password)
       
       // toast({
       //   description: 'Form submitted successfully!',
       //   variant: 'default'
       // })
-
-      // Reset form after successful submission
-      form.resetForm()
-      passwordValue.value = ''
-      confirmPasswordValue.value = ''
-      router.push('/')
 
     } catch (error: any) {
       loading.value = false
