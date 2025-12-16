@@ -376,17 +376,33 @@ const dateFormat = (dob: string, time?: string): string => {
 //   return filteredObject
 // }
 
-const handleProxy = ()=>{
+const getVendorAdminID = async()=>{
+  const response = await axios.get(`/api/v1/admin/market/vendor/users/vendor/${vendorData.value?.vendorId}`)
+  // console.log(response.data.data[0].adminId._id)
+  return response.data.data[0].adminId._id
+}
+
+const handleProxy = async ()=>{
   toast({
       description: 'Setting up proxy...',
       variant: 'loading',
       duration: 0 // Set duration to 0 to make it indefinite until manually closed
     })
   if(vendorData.value && vendor.value){
-    useSuperAdminStore().setVendor(true, vendorData.value?.vendorId)
-    localStorage.setItem('vendor', JSON.stringify(vendor.value.companyName))
-    sessionStorage.setItem('isProxy', JSON.stringify(true))
-    router.push('/')
+    try {
+      useSuperAdminStore().setVendor(true, vendorData.value?.vendorId)
+      localStorage.setItem('vendor', JSON.stringify(vendor.value.companyName))
+      sessionStorage.setItem('isProxy', JSON.stringify(true))
+      sessionStorage.setItem('proxyAdminId', await getVendorAdminID())
+      router.push('/')
+    } catch (error) {
+      toast({
+        description: 'Error setting up proxy, please try again',
+        variant: 'destructive',
+        duration: 0 // Set duration to 0 to make it indefinite until manually closed
+      })
+      catchErr(error)
+    }
   }else{
     toast({
       description: 'The page is not ready for proxy actions, please refresh your browser and try again',
@@ -659,7 +675,9 @@ const saveUserData = async () => {
     })
 
     try {
-      const user = JSON.parse(localStorage.getItem('user') || '')
+      const user = JSON.parse(localStorage.getItem('user') || '');
+      // const user = JSON.parse(localStorage.getItem('user') || '')
+      // const proxyAdminId = await getVendorAdminID()
       if(!user) {
         toast({
           title: 'Success',
@@ -668,8 +686,9 @@ const saveUserData = async () => {
         })
         return
       }
+      // console.log(isVendor.value, proxyAdminId, user.id)
       const response = await axios.patch(
-        `/api/v1/admin/market/vendor/user/${user.id}/change-password`,
+        `/api/v1/admin/market/vendor/user/${isVendor.value ? user.id : await getVendorAdminID() }/change-password`,
         {
           newPassword: newPassword.value
         }
