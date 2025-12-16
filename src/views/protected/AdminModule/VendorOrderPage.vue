@@ -106,12 +106,12 @@
         <div class="flex items-center flex-col md:flex-row gap-4">
           <!-- Status Filter Dropdown -->
           <div class="relative" data-status-filter>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               class="flex items-center gap-2 w-full sm:w-auto bg-[#EEEFF5]"
               @click.stop="showStatusFilter = !showStatusFilter"
             >
-              <ListFilter class="w-4 h-4"/>
+              <ListFilter class="w-4 h-4" />
               {{ getStatusFilterDisplay() }}
               <Icon icon="mdi:chevron-down" class="w-4 h-4" />
             </Button>
@@ -125,7 +125,7 @@
               leave-from-class="transform opacity-100 scale-100"
               leave-to-class="transform opacity-0 scale-95"
             >
-              <div 
+              <div
                 v-if="showStatusFilter"
                 @click.stop
                 class="absolute left-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden z-50"
@@ -137,12 +137,18 @@
                     statusFilter === 'all' ? 'bg-blue-50 text-blue-600' : 'text-gray-700'
                   ]"
                 >
-                  <div class="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center">
-                    <Icon v-if="statusFilter === 'all'" icon="mdi:check" class="w-4 h-4 text-blue-600" />
+                  <div
+                    class="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center"
+                  >
+                    <Icon
+                      v-if="statusFilter === 'all'"
+                      icon="mdi:check"
+                      class="w-4 h-4 text-blue-600"
+                    />
                   </div>
                   <span class="text-sm font-medium">All Status</span>
                 </button>
-                
+
                 <button
                   @click="applyStatusFilter('new')"
                   :class="[
@@ -150,8 +156,14 @@
                     statusFilter === 'new' ? 'bg-blue-50 text-blue-600' : 'text-gray-700'
                   ]"
                 >
-                  <div class="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center">
-                    <Icon v-if="statusFilter === 'new'" icon="mdi:check" class="w-4 h-4 text-blue-600" />
+                  <div
+                    class="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center"
+                  >
+                    <Icon
+                      v-if="statusFilter === 'new'"
+                      icon="mdi:check"
+                      class="w-4 h-4 text-blue-600"
+                    />
                   </div>
                   <span class="text-sm font-medium">New</span>
                 </button>
@@ -163,8 +175,14 @@
                     statusFilter === 'processing' ? 'bg-purple-50 text-purple-600' : 'text-gray-700'
                   ]"
                 >
-                  <div class="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center">
-                    <Icon v-if="statusFilter === 'processing'" icon="mdi:check" class="w-4 h-4 text-purple-600" />
+                  <div
+                    class="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center"
+                  >
+                    <Icon
+                      v-if="statusFilter === 'processing'"
+                      icon="mdi:check"
+                      class="w-4 h-4 text-purple-600"
+                    />
                   </div>
                   <span class="text-sm font-medium">Processing</span>
                 </button>
@@ -176,8 +194,14 @@
                     statusFilter === 'outbound' ? 'bg-orange-50 text-orange-600' : 'text-gray-700'
                   ]"
                 >
-                  <div class="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center">
-                    <Icon v-if="statusFilter === 'outbound'" icon="mdi:check" class="w-4 h-4 text-orange-600" />
+                  <div
+                    class="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center"
+                  >
+                    <Icon
+                      v-if="statusFilter === 'outbound'"
+                      icon="mdi:check"
+                      class="w-4 h-4 text-orange-600"
+                    />
                   </div>
                   <span class="text-sm font-medium">Outbound</span>
                 </button>
@@ -189,8 +213,14 @@
                     statusFilter === 'delivered' ? 'bg-green-50 text-green-600' : 'text-gray-700'
                   ]"
                 >
-                  <div class="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center">
-                    <Icon v-if="statusFilter === 'delivered'" icon="mdi:check" class="w-4 h-4 text-green-600" />
+                  <div
+                    class="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center"
+                  >
+                    <Icon
+                      v-if="statusFilter === 'delivered'"
+                      icon="mdi:check"
+                      class="w-4 h-4 text-green-600"
+                    />
                   </div>
                   <span class="text-sm font-medium">Delivered</span>
                 </button>
@@ -202,8 +232,14 @@
                     statusFilter === 'overdue' ? 'bg-red-50 text-red-600' : 'text-gray-700'
                   ]"
                 >
-                  <div class="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center">
-                    <Icon v-if="statusFilter === 'overdue'" icon="mdi:check" class="w-4 h-4 text-red-600" />
+                  <div
+                    class="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center"
+                  >
+                    <Icon
+                      v-if="statusFilter === 'overdue'"
+                      icon="mdi:check"
+                      class="w-4 h-4 text-red-600"
+                    />
                   </div>
                   <span class="text-sm font-medium">Overdue</span>
                 </button>
@@ -215,8 +251,14 @@
                     statusFilter === 'cancelled' ? 'bg-gray-50 text-gray-600' : 'text-gray-700'
                   ]"
                 >
-                  <div class="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center">
-                    <Icon v-if="statusFilter === 'cancelled'" icon="mdi:check" class="w-4 h-4 text-gray-600" />
+                  <div
+                    class="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center"
+                  >
+                    <Icon
+                      v-if="statusFilter === 'cancelled'"
+                      icon="mdi:check"
+                      class="w-4 h-4 text-gray-600"
+                    />
                   </div>
                   <span class="text-sm font-medium">Cancelled</span>
                 </button>
@@ -342,7 +384,6 @@
           </TableBody>
         </Table>
       </div>
-   
     </Card>
     <DashboardFooter />
 
@@ -390,47 +431,8 @@
           </div>
         </SheetHeader>
 
-        <!-- Delivery Details Section -->
-        <div v-if="currentOrderForDisplay && !isSheetLoading" class="px-4 mt-6 pb-4 border-b">
-          <h3 class="text-base font-semibold text-[#020721] mb-3">Delivery Details</h3>
-          <div class="space-y-3 bg-gray-50 p-3 rounded-lg">
-            <div>
-              <p class="text-xs text-muted-foreground">Recipient Name</p>
-              <p class="text-sm font-medium text-[#020721] mt-1">
-                {{
-                  currentOrderForDisplay.shippingAddress?.recipientName ||
-                  currentOrderForDisplay.customerName ||
-                  'N/A'
-                }}
-              </p>
-            </div>
-            <div v-if="currentOrderForDisplay.shippingAddress?.phone || currentOrderForDisplay.customerPhone">
-              <p class="text-xs text-muted-foreground">Phone Number</p>
-              <p class="text-sm text-[#020721] mt-1">
-                {{
-                  currentOrderForDisplay.shippingAddress?.phone ||
-                  currentOrderForDisplay.customerPhone ||
-                  'N/A'
-                }}
-              </p>
-            </div>
-            <div v-if="currentOrderForDisplay.shippingAddress?.address">
-              <p class="text-xs text-muted-foreground">Delivery Address</p>
-              <p class="text-sm text-[#020721] mt-1">
-                {{ currentOrderForDisplay.shippingAddress.address }}
-              </p>
-            </div>
-            <div v-if="currentOrderForDisplay.customerEmail">
-              <p class="text-xs text-muted-foreground">Email</p>
-              <p class="text-sm text-[#020721] mt-1 break-all">
-                {{ currentOrderForDisplay.customerEmail }}
-              </p>
-            </div>
-          </div>
-        </div>
-
         <!-- Order Items Section - only show if we have data -->
-        <div v-if="currentOrderForDisplay && !isSheetLoading" class="px-4 mt-6">
+        <div v-if="currentOrderForDisplay && !isSheetLoading" class="px-4 mt-6 border-t pt-4">
           <div class="flex items-center gap-2 mb-4">
             <h3 class="text-base font-semibold">Order</h3>
             <Badge class="bg-[#E9F4d1] text-primary text-xs">{{
@@ -444,25 +446,29 @@
           <!-- Order Items List -->
           <div
             v-if="currentOrderForDisplay.items && currentOrderForDisplay.items.length > 0"
-            class="space-y-3"
+            class="space-y-4"
           >
             <div
               v-for="(item, index) in currentOrderForDisplay.items"
               :key="index"
-              class="flex items-center gap-3 pb-3 border-b last:border-b-0"
+              class="flex items-center gap-3"
             >
               <img
                 :src="getProductImage(item)"
-                class="w-12 h-12 rounded-md object-cover"
+                class="w-12 h-12 rounded-md object-cover bg-gray-100"
                 @error="handleImageError($event, item)"
               />
-              <div class="flex-1">
-                <p class="text-sm font-medium text-[#020721]">{{ item.name || 'Product' }}</p>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-[#020721] truncate">
+                  {{ item.name || 'Product' }}
+                </p>
                 <p class="text-xs text-muted-foreground">
                   ₦{{ (item.price || item.amount || 0)?.toLocaleString() || '0' }}
                 </p>
               </div>
-              <span class="text-sm text-muted-foreground">{{ item.quantity || 1 }}x</span>
+              <span class="text-sm text-[#020721] font-medium whitespace-nowrap"
+                >{{ item.quantity || 1 }}x</span
+              >
             </div>
           </div>
           <div v-else class="text-center py-4 text-muted-foreground">
@@ -480,7 +486,7 @@
             <div class="flex justify-between text-sm">
               <span class="text-muted-foreground">Delivery Charge</span>
               <span class="font-medium"
-                >₦{{ (currentOrderForDisplay.deliveryCharge ).toLocaleString() }}</span
+                >₦{{ (currentOrderForDisplay.deliveryCharge || 0).toLocaleString() }}</span
               >
             </div>
             <div class="flex justify-between text-sm">
@@ -592,13 +598,13 @@
         <div v-if="currentOrderForDisplay && !isSheetLoading" class="px-0 mt-6 border-t">
           <Tabs :default-value="receiverSenderTab" class="w-full">
             <TabsList class="w-full flex rounded-none border-b bg-transparent px-4">
-              <TabsTrigger 
+              <TabsTrigger
                 value="receiver"
                 class="flex-1 rounded-none border-b-2 px-4 py-3 text-sm font-medium data-[state=active]:border-[#020721] data-[state=active]:text-[#020721] text-muted-foreground"
               >
                 Receiver
               </TabsTrigger>
-              <TabsTrigger 
+              <TabsTrigger
                 value="sender"
                 class="flex-1 rounded-none border-b-2 px-4 py-3 text-sm font-medium data-[state=active]:border-[#020721] data-[state=active]:text-[#020721] text-muted-foreground"
               >
@@ -612,13 +618,16 @@
                 <p class="text-xs text-muted-foreground mb-2">Name</p>
                 <p class="text-sm font-medium text-[#020721]">
                   {{
+                    currentOrderForDisplay.receiverName ||
                     currentOrderForDisplay.shippingAddress?.recipientName ||
-                    currentOrderForDisplay.customerName ||
                     'N/A'
                   }}
                 </p>
               </div>
-              <div v-if="currentOrderForDisplay.shippingAddress?.address" class="flex justify-between items-start">
+              <div
+                v-if="currentOrderForDisplay.shippingAddress?.address"
+                class="flex justify-between items-start"
+              >
                 <p class="text-xs text-muted-foreground">Address</p>
                 <p class="text-xs text-[#020721] text-right max-w-xs">
                   {{ currentOrderForDisplay.shippingAddress.address }}
@@ -626,24 +635,18 @@
               </div>
               <div
                 v-if="
-                  currentOrderForDisplay.shippingAddress?.phone ||
-                  currentOrderForDisplay.customerPhone
+                  currentOrderForDisplay.receiverPhone ||
+                  currentOrderForDisplay.shippingAddress?.phone
                 "
                 class="flex justify-between items-center"
               >
                 <p class="text-xs text-muted-foreground">Phone Number</p>
                 <p class="text-xs text-[#020721]">
                   {{
+                    currentOrderForDisplay.receiverPhone ||
                     currentOrderForDisplay.shippingAddress?.phone ||
-                    currentOrderForDisplay.customerPhone ||
                     'N/A'
                   }}
-                </p>
-              </div>
-              <div v-if="currentOrderForDisplay.customerEmail" class="flex justify-between items-center">
-                <p class="text-xs text-muted-foreground">Email</p>
-                <p class="text-xs text-[#020721] break-all text-right max-w-xs">
-                  {{ currentOrderForDisplay.customerEmail }}
                 </p>
               </div>
             </TabsContent>
@@ -651,15 +654,27 @@
             <!-- Sender Tab -->
             <TabsContent value="sender" class="px-4 py-4 space-y-4">
               <div>
-                <p class="text-xs text-muted-foreground mb-2">Company Name</p>
+                <p class="text-xs text-muted-foreground mb-2">Name</p>
                 <p class="text-sm font-medium text-[#020721]">
-                  {{ superAdminStore.vendor?.companyName || 'Your Store' }}
+                  {{ currentOrderForDisplay.senderName || 'N/A' }}
                 </p>
               </div>
-              <div v-if="superAdminStore.vendor?.companyEmail" class="flex justify-between items-center">
+              <div
+                v-if="currentOrderForDisplay.senderPhone"
+                class="flex justify-between items-center"
+              >
+                <p class="text-xs text-muted-foreground">Phone Number</p>
+                <p class="text-xs text-[#020721]">
+                  {{ currentOrderForDisplay.senderPhone }}
+                </p>
+              </div>
+              <div
+                v-if="currentOrderForDisplay.senderEmail"
+                class="flex justify-between items-center"
+              >
                 <p class="text-xs text-muted-foreground">Email</p>
                 <p class="text-xs text-[#020721] break-all text-right max-w-xs">
-                  {{ superAdminStore.vendor.companyEmail }}
+                  {{ currentOrderForDisplay.senderEmail }}
                 </p>
               </div>
             </TabsContent>
@@ -759,7 +774,7 @@ onMounted(() => {
     console.error('Vendor ID not found. Please log in as a vendor.')
     orderStore.error = 'Vendor ID not found. Please log in as a vendor.'
   }
-  
+
   // Add event listener for closing dropdown
   document.addEventListener('click', closeDropdownOnClickOutside)
 })
@@ -804,29 +819,33 @@ const handleSearch = (searchTerm: string) => {
 const applyStatusFilter = (status: string) => {
   statusFilter.value = status
   showStatusFilter.value = false
-  
+
   if (status === 'all') {
-    orderStore.setFilters({ status: undefined })
+    orderStore.setFilters({ status: '' })
   } else {
     orderStore.setFilters({ status })
-  }
-  
-  if (vendorId.value) {
-    loadOrders()
   }
 }
 
 // Get display name for status filter
 const getStatusFilterDisplay = () => {
   switch (statusFilter.value) {
-    case 'all': return 'All'
-    case 'new': return 'New'
-    case 'processing': return 'Processing'
-    case 'outbound': return 'Outbound'
-    case 'delivered': return 'Delivered'
-    case 'overdue': return 'Overdue'
-    case 'cancelled': return 'Cancelled'
-    default: return 'All'
+    case 'all':
+      return 'All'
+    case 'new':
+      return 'New'
+    case 'processing':
+      return 'Processing'
+    case 'outbound':
+      return 'Outbound'
+    case 'delivered':
+      return 'Delivered'
+    case 'overdue':
+      return 'Overdue'
+    case 'cancelled':
+      return 'Cancelled'
+    default:
+      return 'All'
   }
 }
 
@@ -982,34 +1001,32 @@ const getProductImage = (item: any): string => {
   if (item.image) {
     return item.image
   }
-  
+
   // Get product ID from the item
   const productId = item.productId || item._id
   if (!productId) {
     return getPlaceholderImage()
   }
-  
+
   // Check cache first
   if (productImageCache.value[productId]) {
     return productImageCache.value[productId]
   }
-  
+
   // Check if product exists in products store
-  const productInStore = productsStore.products.find(
-    (p: Product) => p._id === productId
-  )
-  
+  const productInStore = productsStore.products.find((p: Product) => p._id === productId)
+
   if (productInStore?.image) {
     // Cache the image URL
     productImageCache.value[productId] = productInStore.image
     return productInStore.image
   }
-  
+
   // Try to fetch the product if not in store
   if (productId && !productImageCache.value[productId]) {
     fetchProductImage(productId)
   }
-  
+
   return getPlaceholderImage()
 }
 
@@ -1023,7 +1040,7 @@ const fetchProductImage = async (productId: string) => {
   } catch (error) {
     console.error('Error fetching product image:', error)
   }
-}  
+}
 
 // Get placeholder image (simple SVG)
 const getPlaceholderImage = (): string => {
@@ -1034,7 +1051,7 @@ const getPlaceholderImage = (): string => {
 const handleImageError = (event: Event, item: any) => {
   const target = event.target as HTMLImageElement
   target.src = getPlaceholderImage()
-  
+
   // Try to fetch the product image if it failed
   const productId = item.productId || item._id
   if (productId && !productImageCache.value[productId]) {
