@@ -81,9 +81,13 @@ interface OrderItem {
 interface Order {
   _id: string;
   userId: string,
+  "vendorTotal": 0,
+  "deliveryFee": 0,
   vendorId: string,
   items: OrderItem[],
   status: string,
+  "phoneNumber": "08143106496",
+  "recieverName": "ss",
   paymentStatus: string,
   totalAmount: string,
   payoutMethod?: string,
@@ -374,6 +378,9 @@ onMounted(() => {
                 <div class="flex items-center">Order Date</div>
               </TableHead>
               <TableHead>
+                <div class="flex items-center">Receiver</div>
+              </TableHead>
+              <TableHead>
                 <div class="flex items-center">Total Amount</div>
               </TableHead>
               <TableHead>
@@ -397,7 +404,11 @@ onMounted(() => {
                     </TableCell>
 
                     <TableCell class="text-xs md:text-sm lg:text-sm">
-                      ₦{{ order.totalAmount?.toLocaleString() || '0' }}
+                      {{ order.recieverName || 'N/A' }}
+                    </TableCell>
+
+                    <TableCell class="text-xs md:text-sm lg:text-sm">
+                      ₦{{ order.vendorTotal?.toLocaleString() || '0' }}
                     </TableCell>
 
                     <TableCell class="text-xs md:text-sm lg:text-sm">
