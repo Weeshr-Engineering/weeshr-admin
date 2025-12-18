@@ -15,7 +15,7 @@
             <p class="text-2xl md:text-xl xl:text-3xl font-medium text-[#ffffff] absolute bottom-2 left-5">
               <!-- <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" /> -->
               <span>
-                {{ analytics?.overdueAndUndelivered.overdueCount || 0 }}</span>
+                {{ analytics?.overdue.orderCount || 0 }}</span>
             </p>
           </CardContent>
         </div>
@@ -32,7 +32,7 @@
             <p class="text-2xl md:text-xl xl:text-3xl font-medium text-[#ffffff] absolute bottom-2 left-5">
               <!-- <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" /> -->
               <span>
-                {{ analytics?.vendorPayoutAnalytics.recentPayouts.length || 0 }}</span>
+                {{ analytics?.new.orderCount || 0 }}</span>
             </p>
           </CardContent>
         </div>
@@ -49,7 +49,7 @@
             <p class="text-2xl md:text-xl xl:text-3xl font-medium text-[#ffffff] absolute bottom-2 left-5">
               <!-- <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" /> -->
               <span>
-                {{ analytics?.vendorPayoutAnalytics.totalPendingPayout || 0 }}</span>
+                {{ analytics?.processing.orderCount || 0 }}</span>
             </p>
           </CardContent>
         </div>
@@ -66,7 +66,7 @@
             <p class="text-2xl md:text-xl xl:text-3xl font-medium text-[#ffffff] absolute bottom-2 left-5">
               <!-- <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" /> -->
               <span>
-                {{ analytics?.overdueAndUndelivered.notDeliveredCount || 0 }}</span>
+                {{ analytics?.outbound.orderCount || 0 }}</span>
             </p>
           </CardContent>
         </div>
@@ -87,7 +87,7 @@
                 <!-- <span v-else>{{ currencySymbol(totalTransfers.currency) || 0 }}
                   {{ totalTransfers.amount.toLocaleString() || 0 }}</span> -->
                    <span>
-                {{ analytics?.deliveredAnalytics.totalDeliveredOrders || 0 }}</span>
+                {{ analytics?.delivered.orderCount || 0 }}</span>
               </p>
             </CardContent>
           </div>
@@ -653,7 +653,7 @@ watch(
 )
 
 const analytics = computed(()=>{
-  return useGeeftrStore().analytics
+  return useGeeftrStore().geeftrAnalytics;
 })
 
 // Keep track of sort directions per field
@@ -762,6 +762,7 @@ const handleExport= async()=>{
 
 onMounted(()=>{
   // useGeeftrStore().fetchAllTransactions('Analytics')
+  useGeeftrStore().fetchAnalytics('Analytics')
   useGeeftrStore().fetchAllOrders('Orders')
 })
 
