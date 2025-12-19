@@ -87,7 +87,9 @@ export const useOrderStore = defineStore('order', {
                 price: item.price || 0,
                 quantity: item.quantity || 1,
                 image: item.productId?.image || item.image || null,
-                productId: item.productId?._id
+                productId: item.productId?._id,
+                receiverName: item.recieverName || null,
+                vendorTotal: item.vendorTotal || 0
               }));
             }
             
@@ -101,7 +103,6 @@ export const useOrderStore = defineStore('order', {
                 state: null
               };
             }
-            
             return order;
           }) : [];
           
@@ -155,12 +156,13 @@ export const useOrderStore = defineStore('order', {
             price: item.price || item.productId?.amount || 0,
             quantity: item.quantity || 1,
             image: item.productId?.image?.secure_url || item.productId?.image?.url || item.productId?.image || null,
-            amount: item.productId?.amount || 0
+            amount: item.productId?.amount || 0,
           })) : [],
           
           // Status fields
           status: orderData.status || 'new',
           paymentStatus: orderData.paymentStatus || 'pending',
+          vendorTotal: orderData.vendorTotal || 0,
           
           // Amount fields
           totalAmount: orderData.totalAmount || 0,

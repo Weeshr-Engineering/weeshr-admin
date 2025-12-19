@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import * as z from 'zod'
-import { Loader2, Building2,  Ticket, Eye, EyeOff, } from 'lucide-vue-next'
+import { Loader2, Building2, Ticket, Eye, EyeOff } from 'lucide-vue-next'
 import { FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -14,8 +14,10 @@ import axios from 'axios'
 import { catchErr } from '@/composables/catchError'
 import { useRoute, useRouter } from 'vue-router'
 
-const showPassword = ref(false);
-const showConfirmPassword = ref(false);
+const showPassword = ref(false)
+const showConfirmPassword = ref(false)
+const termsAccepted = ref(false)
+const showTermsDropdown = ref(false)
 
 const currentYear = ref(new Date().getFullYear())
 const router = useRouter()
@@ -27,7 +29,6 @@ const updateYear = () => {
   currentYear.value = new Date().getFullYear()
 }
 
-
 onMounted(() => {
   updateYear()
   setInterval(updateYear, 1000 * 60 * 60 * 24 * 30) // Update the year once a month
@@ -36,27 +37,28 @@ onMounted(() => {
 const loading = ref(false)
 
 // Create refs to track input values
-const emailValue = ref('')
 const passwordValue = ref('')
 const confirmPasswordValue = ref('')
 
 const formSchema = toTypedSchema(
-  z.object({
-    password: z
-      .string({
-        required_error: 'Please enter your password '
-      })
-      .min(9),
-    
-    confirmPassword: z
-      .string({
-        required_error: 'Please confirm your password'
-      })
-      .min(9)
-  }).refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
-    path: ["confirmPassword"],
-  })
+  z
+    .object({
+      password: z
+        .string({
+          required_error: 'Please enter your password '
+        })
+        .min(9),
+
+      confirmPassword: z
+        .string({
+          required_error: 'Please confirm your password'
+        })
+        .min(9)
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      message: "Passwords don't match",
+      path: ['confirmPassword']
+    })
 )
 
 const form = useForm({
@@ -73,6 +75,39 @@ const onConfirmPasswordInput = (event: Event) => {
   confirmPasswordValue.value = target.value
 }
 
+const saveDetails = async (password: string) => {
+  toast({
+    title: 'Loading Data',
+    description: 'Processing...',
+    variant: 'loading',
+    duration: 0 // Set duration to 0 to make it indefinite until manually closed
+  })
+  // VendorListStore.loadingControl(true)
+  try {
+    const response = await axios.post(`/api/v1/market/invites/${id}/accept`, {
+      password: password
+    })
+
+    // Check if response status is 200 or 201
+    if (response.status === 200 || response.status === 201) {
+      // Show success toast
+      // console.log(response)
+
+      toast({
+        title: 'Success',
+        description: `Registration successfully!`,
+        variant: 'success'
+      })
+    }
+    // Handle success
+  } catch (err: any) {
+    //   VendorListStore.loadingControl(false)
+    // console.log(err)
+    catchErr(err)
+    // Handle other errors
+  }
+}
+
 const onSubmit = form.handleSubmit(async () => {
   loading.value = true
 
@@ -83,55 +118,22 @@ const onSubmit = form.handleSubmit(async () => {
     // Set the username and password in the store
     // setPassword(password)
 
-
     try {
-      toast({
-      title: 'Loading Data',
-      description: 'Processing...',
-      variant: 'loading',
-      duration: 0 // Set duration to 0 to make it indefinite until manually closed
-    })
-    // VendorListStore.loadingControl(true)
-    try {
-      const response = await axios.post(
-        `/api/v1/market/invites/${id}/accept`,
-        {
-          "password": password
-        }
-      )
+      await saveDetails(password)
 
-      // Check if response status is 200 or 201
-      if (response.status === 200 || response.status === 201) {
-        // Show success toast
-        // console.log(response)
-        
-        toast({
-          title: 'Success',
-          description: `Registration successfully!`,
-          variant: 'success'
-        })
-        // Reset form after successful submission
-        form.resetForm()
-        passwordValue.value = ''
-        confirmPasswordValue.value = ''
-        router.push('/')
-      }
-      // Handle success
-    } catch (err: any) {
-      //   VendorListStore.loadingControl(false)
-      // console.log(err)
-      catchErr(err)
-      // Handle other errors
-    }
-      
       // toast({
       //   description: 'Form submitted successfully!',
       //   variant: 'default'
       // })
 
+      // Reset form after successful submission
+      form.resetForm()
+      passwordValue.value = ''
+      confirmPasswordValue.value = ''
+      router.push('/')
     } catch (error: any) {
       loading.value = false
-      
+
       return toast({
         description: error?.message || 'An error occurred',
         variant: 'destructive'
@@ -146,7 +148,7 @@ const onSubmit = form.handleSubmit(async () => {
 
     loading.value = false
   }
-  
+
   loading.value = false
 })
 
@@ -164,14 +166,14 @@ const fetchVendorsData = async (msg: string) => {
     const response = await axios.get(`/api/v1/market/invites/${id}`)
 
     if (response.status === 200 || response.status === 201) {
-      if(response.data.data.acceptedAt !== null){
+      if (response.data.data.acceptedAt !== null) {
         toast({
           title: 'Success',
           description: `Invite already accepted please login!`,
           variant: 'success'
-        })  
+        })
         router.push('/')
-        return;
+        return
       }
       toast({
         title: 'Success',
@@ -208,7 +210,7 @@ const fetchVendorsData = async (msg: string) => {
   }
 }
 
-onBeforeMount(()=>{
+onBeforeMount(() => {
   fetchVendorsData('Success')
 })
 </script>
@@ -283,129 +285,161 @@ onBeforeMount(()=>{
               />
 
               <CardHeader class="space-y-1 pt-9">
-                <CardTitle class="text-2xl text-white font-outfit"> Complete Registration</CardTitle>
+                <CardTitle class="text-2xl text-white font-outfit">
+                  Complete Registration</CardTitle
+                >
               </CardHeader>
               <CardContent class="grid gap-4">
                 <form class="space-y-4" @submit.prevent="onSubmit">
                   <!-- <FormField v-slot="{ componentField }" name="userEmail">
                     <FormItem v-auto-animate>
                       <FormControl> -->
-                        <div class="relative">
-                          <div class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                              <Building2 class="w-4 h-6 text-[#4145A7]" />
-                          </div>
-                          <!-- <Input
-                            id="email"
-                            type="email"
-                            placeholder="Your username"
-                            class="focus-visible:ring-[#BAEF23] pl-10 pr-3"
-                            v-bind="componentField"
-                            @input="onEmailInput"
-                          /> -->
-                          <span 
-                            v-if="!emailValue"
-                            class="absolute inset-y-0 right-0 flex items-center gap-1 pr-3 text-gray-400 text-sm transition-opacity duration-200"
-                          >
-                            <span class="font-semibold truncate w-40">{{ vendor }}</span> X <span class="font-semibold"> WEESHR</span>
-                          </span>
-                        </div>
-                      <!-- </FormControl>
+                  <div
+                    class="relative flex items-center h-10 w-full rounded-md bg-[#02072199] px-3 py-2 text-sm"
+                  >
+                    <div class="flex items-center text-gray-400">
+                      <Building2 class="w-4 h-4 text-[#4145A7]" />
+                    </div>
+                    <span class="ml-3 text-white font-medium truncate">{{ vendor }}</span>
+                    <span class="ml-auto text-gray-400 text-sm">X WEESHR</span>
+                  </div>
+                  <!-- </FormControl>
                       <FormMessage />
                     </FormItem>
                   </FormField> -->
-                  
-                <FormField v-slot="{ componentField }" name="password">
-  <FormItem>
-    <FormControl>
-      <div class="relative">
-        <!-- left icon -->
-        <div class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-          <Ticket class="w-4 h-6 text-[#4145A7]" />
-        </div>
 
-        <!-- input -->
-        <Input
-          id="password"
-          :type="showPassword ? 'text' : 'password'"
-          placeholder="Your password"
-          class="focus-visible:ring-[#BAEF23] pl-10 pr-10"
-          v-bind="componentField"
-          @input="onPasswordInput"
-        />
+                  <FormField v-slot="{ componentField }" name="password">
+                    <FormItem>
+                      <FormControl>
+                        <div class="relative">
+                          <!-- left icon -->
+                          <div
+                            class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400"
+                          >
+                            <Ticket class="w-4 h-6 text-[#4145A7]" />
+                          </div>
 
-        <!-- toggle icon -->
-        <button
-          type="button"
-          @click="showPassword = !showPassword"
-          class="absolute inset-y-0 right-2 flex items-center text-gray-400 hover:text-white"
-        >
-          <Eye v-if="!showPassword" class="w-5 h-5" />
-          <EyeOff v-else class="w-5 h-5" />
-        </button>
-      </div>
-    </FormControl>
-    <FormMessage />
-  </FormItem>
-</FormField>
+                          <!-- input -->
+                          <Input
+                            id="password"
+                            :type="showPassword ? 'text' : 'password'"
+                            placeholder="Your password"
+                            class="focus-visible:ring-[#BAEF23] pl-10 pr-10"
+                            v-bind="componentField"
+                            @input="onPasswordInput"
+                          />
 
+                          <!-- toggle icon -->
+                          <button
+                            type="button"
+                            @click="showPassword = !showPassword"
+                            class="absolute inset-y-0 right-2 flex items-center text-gray-400 hover:text-white"
+                          >
+                            <Eye v-if="!showPassword" class="w-5 h-5 text-[#4145A7]" />
+                            <EyeOff v-else class="w-5 h-5 text-[#4145A7]" />
+                          </button>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  </FormField>
 
-<FormField v-slot="{ componentField }" name="confirmPassword">
-  <FormItem>
-    <FormControl>
-      <div class="relative">
-        <!-- left icon -->
-        <div class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-          <Ticket class="w-4 h-6 text-[#4145A7]" />
-        </div>
+                  <FormField v-slot="{ componentField }" name="confirmPassword">
+                    <FormItem>
+                      <FormControl>
+                        <div class="relative">
+                          <!-- left icon -->
+                          <div
+                            class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400"
+                          >
+                            <Ticket class="w-4 h-6 text-[#4145A7]" />
+                          </div>
 
-        <!-- input -->
-        <Input
-          id="confirmPassword"
-          :type="showConfirmPassword ? 'text' : 'password'"
-          placeholder="Confirm password"
-          class="focus-visible:ring-[#BAEF23] pl-10 pr-10"
-          v-bind="componentField"
-          @input="onConfirmPasswordInput"
-        />
+                          <!-- input -->
+                          <Input
+                            id="confirmPassword"
+                            :type="showConfirmPassword ? 'text' : 'password'"
+                            placeholder="Confirm password"
+                            class="focus-visible:ring-[#BAEF23] pl-10 pr-10"
+                            v-bind="componentField"
+                            @input="onConfirmPasswordInput"
+                          />
 
-        <!-- toggle icon -->
-        <button
-          type="button"
-          @click="showConfirmPassword = !showConfirmPassword"
-          class="absolute inset-y-0 right-2 flex items-center text-gray-400 hover:text-white"
-        >
-          <Eye v-if="!showConfirmPassword" class="w-5 h-5" />
-          <EyeOff v-else class="w-5 h-5" />
-        </button>
-      </div>
-    </FormControl>
-    <FormMessage />
-  </FormItem>
-</FormField>
+                          <!-- toggle icon -->
+                          <button
+                            type="button"
+                            @click="showConfirmPassword = !showConfirmPassword"
+                            class="absolute inset-y-0 right-2 flex items-center text-gray-400 hover:text-white"
+                          >
+                            <Eye v-if="!showConfirmPassword" class="w-5 h-5 text-[#4145A7]" />
+                            <EyeOff v-else class="w-5 h-5 text-[#4145A7]" />
+                          </button>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  </FormField>
 
+                  <!-- Terms and Conditions Checkbox -->
+                  <div class="flex items-center gap-2 mt-2">
+                    <input
+                      id="terms"
+                      type="checkbox"
+                      v-model="termsAccepted"
+                      class="w-4 h-4 rounded border-gray-600 bg-transparent text-[#BAEF23] focus:ring-[#BAEF23] focus:ring-offset-0 cursor-pointer accent-[#BAEF23]"
+                    />
+                    <div class="relative">
+                      <label for="terms" class="text-sm text-gray-300 cursor-pointer">
+                        I agree to the
+                        <span
+                          class="text-[#BAEF23] hover:underline cursor-pointer"
+                          @click.prevent="showTermsDropdown = !showTermsDropdown"
+                          >terms and conditions</span
+                        >
+                      </label>
+                      <!-- Dropdown -->
+                      <div
+                        v-if="showTermsDropdown"
+                        class="absolute left-0 top-6 z-10 bg-[#1a1f2e] border border-gray-600 rounded-md shadow-lg p-2 min-w-[250px]"
+                      >
+                        <a
+                          href="/WEESHR MARKETPLACE VENDOR PARTNERSHIP AGREEMENT (1).pdf"
+                          target="_blank"
+                          class="block text-xs text-[#BAEF23] hover:underline hover:bg-gray-700 p-2 rounded"
+                          >• Vendor Partnership Agreement</a
+                        >
+                        <a
+                          href="/Data Processing Addendum Weeshr (1) (1).docx"
+                          target="_blank"
+                          class="block text-xs text-[#BAEF23] hover:underline hover:bg-gray-700 p-2 rounded"
+                          >• Data Processing Addendum</a
+                        >
+                      </div>
+                    </div>
+                  </div>
                 </form>
               </CardContent>
-             <CardFooter>
-  <div class="flex flex-col w-full">
-    <div class="flex items-center justify-end w-full mb-4">
-      <!-- <a href="#" class="text-sm text-white hover:underline">
+              <CardFooter>
+                <div class="flex flex-col w-full">
+                  <div class="flex items-center justify-end w-full mb-4">
+                    <!-- <a href="#" class="text-sm text-white hover:underline">
         Forgot credentials?
       </a> -->
-      <Button
-        @click="onSubmit()"
-        type="submit"
-        :disabled="loading"                    
-        class="bg-[#BAEF23] hover:bg-[#BAEF23] hover:scale-105 text-black font-normal px-8"
-      >
-        <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" />
-        Enter
-      </Button>
-    </div>
-    <div class="pt-5 text-xs text-center text-gray-400">
-      <span> Copyright © {{ currentYear }} </span>
-    </div>
-  </div>
-</CardFooter>
+                    <Button
+                      @click="onSubmit()"
+                      type="submit"
+                      :disabled="loading || !termsAccepted"
+                      class="bg-[#BAEF23] hover:bg-[#BAEF23] hover:scale-105 text-black font-normal px-8 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                    >
+                      <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" />
+                      Enter
+                    </Button>
+                  </div>
+                  <div class="pt-5 text-xs text-center text-gray-400">
+                    <span> Copyright © {{ currentYear }} </span>
+                  </div>
+                </div>
+              </CardFooter>
             </Card>
           </div>
         </div>
