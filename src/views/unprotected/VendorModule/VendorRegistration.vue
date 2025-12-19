@@ -335,8 +335,8 @@ onBeforeMount(() => {
                             @click="showPassword = !showPassword"
                             class="absolute inset-y-0 right-2 flex items-center text-gray-400 hover:text-white"
                           >
-                            <Eye v-if="!showPassword" class="w-5 h-5" />
-                            <EyeOff v-else class="w-5 h-5" />
+                            <Eye v-if="!showPassword" class="w-5 h-5 text-[#4145A7]" />
+                            <EyeOff v-else class="w-5 h-5 text-[#4145A7]" />
                           </button>
                         </div>
                       </FormControl>
@@ -371,8 +371,8 @@ onBeforeMount(() => {
                             @click="showConfirmPassword = !showConfirmPassword"
                             class="absolute inset-y-0 right-2 flex items-center text-gray-400 hover:text-white"
                           >
-                            <Eye v-if="!showConfirmPassword" class="w-5 h-5" />
-                            <EyeOff v-else class="w-5 h-5" />
+                            <Eye v-if="!showConfirmPassword" class="w-5 h-5 text-[#4145A7]" />
+                            <EyeOff v-else class="w-5 h-5 text-[#4145A7]" />
                           </button>
                         </div>
                       </FormControl>
