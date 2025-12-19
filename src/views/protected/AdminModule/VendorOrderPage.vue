@@ -319,6 +319,9 @@
                 <div class="flex items-center">Order Date</div>
               </TableHead>
               <TableHead>
+                <div class="flex items-center">Receiver</div>
+              </TableHead>
+              <TableHead>
                 <div class="flex items-center">Total Amount</div>
               </TableHead>
               <TableHead>
@@ -340,7 +343,10 @@
                 {{ formatDate(order.createdAt) }}
               </TableCell>
               <TableCell class="text-xs md:text-sm lg:text-sm">
-                ₦{{ order.totalAmount?.toLocaleString() || '0' }}
+                {{ order.recieverName  || 'N/A' }}
+              </TableCell>
+              <TableCell class="text-xs md:text-sm lg:text-sm">
+                ₦{{ order.vendorTotal?.toLocaleString() || '0' }}
               </TableCell>
               <TableCell class="text-xs md:text-sm lg:text-sm">
                 {{ order.items?.length || 0 }}
@@ -439,7 +445,7 @@
               currentOrderForDisplay.items?.length || 0
             }}</Badge>
             <span class="ml-auto text-lg font-bold"
-              >₦{{ currentOrderForDisplay.totalAmount?.toLocaleString() || '0' }}</span
+              >₦{{ currentOrderForDisplay.vendorTotal?.toLocaleString() || '0' }}</span
             >
           </div>
 

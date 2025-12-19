@@ -120,6 +120,7 @@ interface GeeftrStore {
   page: number,
   activityLog: any[],
   analytics: VendorAnalytics | null,
+  geeftrAnalytics: NormalizedOrderStats | null,
   orders: Order[] | null,
   order: OrderData | null,
 }
@@ -143,6 +144,40 @@ export interface VendorAnalytics {
   };
 }
 
+export type OrderStatus =
+  | 'new'
+  | 'delivered'
+  | 'processing'
+  | 'outbound'
+  | 'overdue';
+
+
+interface RawOrderStats {
+  status: OrderStatus;
+  orderCount: number;
+  totalAmount: number;
+}
+
+export interface OrderStatusStats {
+  orderCount: number;
+  totalAmount: number;
+}
+
+
+export type NormalizedOrderStats = Record<OrderStatus, OrderStatusStats>;
+
+export function normalizeOrderStats(
+  data: RawOrderStats[]
+): NormalizedOrderStats {
+  return data.reduce((acc, item) => {
+    acc[item.status] = {
+      orderCount: item.orderCount,
+      totalAmount: item.totalAmount,
+    };
+    return acc;
+  }, {} as NormalizedOrderStats);
+}
+
 export const useGeeftrStore = defineStore({
   id: 'vendor-transaction',
   state: (): GeeftrStore => ({
@@ -156,12 +191,13 @@ export const useGeeftrStore = defineStore({
     totalPages: 1,
     activityLog: [],
     analytics: null,
+    geeftrAnalytics: null,
     orders: null,
     page: 1,
     order: null
   }),
   actions: {
-    async fetchAnalytics(msg: string, id: string){
+    async fetchAnalytics(msg: string){
       toast({
         title: 'Loading Data',
         description: 'Fetching data...',
@@ -171,10 +207,10 @@ export const useGeeftrStore = defineStore({
       try {
         // Set loading to true
         // useGeneralStore().setLoading(true)
-        const response = await axios.get(`/api/v1/admin/market/vendor/dashboard/${id}`)
+        const response = await axios.get(`/api/v1/admin/market/orders/analytics/status/all`)
 
         if (response.status === 200 || response.status === 201) {
-          this.order = response.data.data;
+          this.geeftrAnalytics = normalizeOrderStats(response.data.data) || null;
           toast({
             title: 'Success',
             description: `${msg}`,
