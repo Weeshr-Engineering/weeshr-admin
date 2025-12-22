@@ -52,7 +52,8 @@ const formSchema = toTypedSchema(
       .regex(
         /[!@#$%^&*(),.?":{}|<>]/,
         'Password must contain at least one symbol'
-      ),
+      )
+      .regex(/[A-Z]/, 'Password must contain at least one uppercase letter'),
 
       confirmPassword: z
         .string({
