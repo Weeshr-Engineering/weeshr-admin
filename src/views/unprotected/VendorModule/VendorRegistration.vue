@@ -91,7 +91,7 @@ const onSubmit = form.handleSubmit(async () => {
     // setPassword(password)
 
 
-    try {
+    // try {
       toast({
       title: 'Loading Data',
       description: 'Processing...',
@@ -128,6 +128,10 @@ const onSubmit = form.handleSubmit(async () => {
       //   VendorListStore.loadingControl(false)
       // console.log(err)
       catchErr(err)
+      toast({
+        description: err?.message || 'An error occurred',
+        variant: 'destructive'
+      })
       // Handle other errors
     }
       
@@ -135,15 +139,6 @@ const onSubmit = form.handleSubmit(async () => {
       //   description: 'Form submitted successfully!',
       //   variant: 'default'
       // })
-
-    } catch (error: any) {
-      loading.value = false
-      
-      return toast({
-        description: error?.message || 'An error occurred',
-        variant: 'destructive'
-      })
-    }
   } else {
     // Handle the case when form fields are empty
     toast({
