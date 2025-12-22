@@ -1,21 +1,25 @@
 <script setup lang="ts">
-import { defineProps, defineEmits } from 'vue';
+import { defineProps, defineEmits } from 'vue'
 
 interface Props {
-  modelValue?: string;
+  value?: string
 }
 
-const props = defineProps<Props>();
-const emit = defineEmits(['update:modelValue']);
-
-const { modelValue } = props;
+const props = defineProps<Props>()
+const emit = defineEmits(['search'])
 
 const onKeyPress = (event: KeyboardEvent) => {
   if (event.key === 'Enter') {
-    const target = event.target as HTMLInputElement;
-    emit('update:modelValue', target.value);
+    const target = event.target as HTMLInputElement
+    emit('search', target.value)
   }
-};
+}
+
+const onInput = (event: Event) => {
+  const target = event.target as HTMLInputElement
+  // Emit search on every input for real-time searching
+  emit('search', target.value)
+}
 </script>
 
 <template>
@@ -40,11 +44,11 @@ const onKeyPress = (event: KeyboardEvent) => {
     </div>
     <input
       type="text"
-      class="bg-[#EEEFF5] text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-      placeholder="Search             weeshrname, email, name, type, status"
-      :value="modelValue"
+      class="bg-[#EEEFF5] text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 placeholder-gray-400"
+      placeholder="Search by name, code, or status"
+      :value="value"
       @keypress="onKeyPress"
-      required
+      @input="onInput"
     />
   </div>
 </template>
