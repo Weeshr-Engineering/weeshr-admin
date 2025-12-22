@@ -75,39 +75,6 @@ const onConfirmPasswordInput = (event: Event) => {
   confirmPasswordValue.value = target.value
 }
 
-const saveDetails = async (password: string) => {
-  toast({
-    title: 'Loading Data',
-    description: 'Processing...',
-    variant: 'loading',
-    duration: 0 // Set duration to 0 to make it indefinite until manually closed
-  })
-  // VendorListStore.loadingControl(true)
-  try {
-    const response = await axios.post(`/api/v1/market/invites/${id}/accept`, {
-      password: password
-    })
-
-    // Check if response status is 200 or 201
-    if (response.status === 200 || response.status === 201) {
-      // Show success toast
-      // console.log(response)
-
-      toast({
-        title: 'Success',
-        description: `Registration successfully!`,
-        variant: 'success'
-      })
-    }
-    // Handle success
-  } catch (err: any) {
-    //   VendorListStore.loadingControl(false)
-    // console.log(err)
-    catchErr(err)
-    // Handle other errors
-  }
-}
-
 const onSubmit = form.handleSubmit(async () => {
   loading.value = true
 
@@ -118,22 +85,55 @@ const onSubmit = form.handleSubmit(async () => {
     // Set the username and password in the store
     // setPassword(password)
 
-    try {
-      await saveDetails(password)
 
+    try {
+      toast({
+      title: 'Loading Data',
+      description: 'Processing...',
+      variant: 'loading',
+      duration: 0 // Set duration to 0 to make it indefinite until manually closed
+    })
+    // VendorListStore.loadingControl(true)
+    try {
+      const response = await axios.post(
+        `/api/v1/market/invites/${id}/accept`,
+        {
+          "password": password
+        }
+      )
+
+      // Check if response status is 200 or 201
+      if (response.status === 200 || response.status === 201) {
+        // Show success toast
+        // console.log(response)
+        
+        toast({
+          title: 'Success',
+          description: `Registration successfully!`,
+          variant: 'success'
+        })
+        // Reset form after successful submission
+        form.resetForm()
+        passwordValue.value = ''
+        confirmPasswordValue.value = ''
+        router.push('/')
+      }
+      // Handle success
+    } catch (err: any) {
+      //   VendorListStore.loadingControl(false)
+      // console.log(err)
+      catchErr(err)
+      // Handle other errors
+    }
+      
       // toast({
       //   description: 'Form submitted successfully!',
       //   variant: 'default'
       // })
 
-      // Reset form after successful submission
-      form.resetForm()
-      passwordValue.value = ''
-      confirmPasswordValue.value = ''
-      router.push('/')
     } catch (error: any) {
       loading.value = false
-
+      
       return toast({
         description: error?.message || 'An error occurred',
         variant: 'destructive'
@@ -148,7 +148,7 @@ const onSubmit = form.handleSubmit(async () => {
 
     loading.value = false
   }
-
+  
   loading.value = false
 })
 
