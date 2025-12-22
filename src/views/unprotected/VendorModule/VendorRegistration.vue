@@ -43,11 +43,16 @@ const confirmPasswordValue = ref('')
 const formSchema = toTypedSchema(
   z
     .object({
-      password: z
-        .string({
-          required_error: 'Please enter your password '
-        })
-        .min(9),
+    password: z
+      .string({
+        required_error: 'Please enter your password',
+      })
+      .min(9, 'Password must be at least 9 characters long')
+      .regex(/\d/, 'Password must contain at least one number')
+      .regex(
+        /[!@#$%^&*(),.?":{}|<>]/,
+        'Password must contain at least one symbol'
+      ),
 
       confirmPassword: z
         .string({
