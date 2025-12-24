@@ -282,7 +282,7 @@ const onSubmit = form.handleSubmit(async () => {
                         <Input
                           id="email"
                           type="email"
-                          placeholder="weeshr@admin.com"
+                          placeholder="Enter your email"
                           class="focus-visible:ring-[#BAEF23]"
                           v-bind="componentField"
                         />
