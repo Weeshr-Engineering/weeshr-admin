@@ -6,6 +6,7 @@ import { ability, defineAbilities } from '@/lib/ability';
 import { useRoute } from 'vue-router';
 import NotificationBoardSheet from '@/components/notifications/notification-board/NotificationBoardSheet.vue'
 import { Layers, Menu,  NotepadText } from 'lucide-vue-next';
+import WhatsappSupport from './vendors/whatsappSupport.vue';
 
 const notificationBoard = ref();
 
@@ -90,6 +91,16 @@ const openNotificationsBoard = () => {
         </a>
       </li>
 
+      <li v-if="superAdminStore.isVendor" :class="{ 'dashboard-active': isActive('/product') }">
+        <a @click="$router.push({ name: 'product' })">
+          <div class="icon-grid">
+             <Layers width="17" height="17" class="icons-sidebar" />
+          </div>
+
+          <span class="nav-text"> Products </span>
+        </a>
+      </li>
+
       <li v-if="users && !superAdminStore.isVendor" :class="{ 'dashboard-active': isActive('/user') }">
         <a @click="$router.push({ name: 'user' })">
           <div class="icon-grid">
@@ -120,41 +131,21 @@ const openNotificationsBoard = () => {
         </a>
       </li>
 
-      <li :class="{ 'dashboard-active': isActive('/promotion') }">
-        <a @click="$router.push({ name: 'promotion' })">
-          <div class="icon-grid">
-             <Menu width="17" height="17" class="icons-sidebar" />
-          </div>
-          <span class="nav-text"> Promotions</span>
-        </a>
-      </li>
-
-       <li v-if="superAdminStore.isVendor" :class="{ 'dashboard-active': isActive('/details') }">
-        <a @click="$router.push({ name: 'vendorDetailsPage' })">
-          <div class="icon-grid">
-            <Icon icon="teenyicons:users-solid" width="16" height="16" class="icons-sidebar" />
-          </div>
-
-          <span class="nav-text"> Profile </span>
-        </a>
-      </li>
-
-      <li v-if="superAdminStore.isVendor" :class="{ 'dashboard-active': isActive('/product') }">
-        <a @click="$router.push({ name: 'product' })">
-          <div class="icon-grid">
-             <Layers width="17" height="17" class="icons-sidebar" />
-          </div>
-
-          <span class="nav-text"> Products </span>
-        </a>
-      </li>
-
       <li v-if="superAdminStore.isVendor" :class="{ 'dashboard-active': isActive('/order') }">
         <a @click="$router.push({ name: 'order' })">
           <div class="icon-grid">
              <NotepadText width="17" height="17" class="icons-sidebar" />
           </div>
           <span class="nav-text"> Orders </span>
+        </a>
+      </li>
+
+      <li :class="{ 'dashboard-active': isActive('/promotion') }">
+        <a @click="$router.push({ name: 'promotion' })">
+          <div class="icon-grid">
+             <Menu width="17" height="17" class="icons-sidebar" />
+          </div>
+          <span class="nav-text"> Promotions</span>
         </a>
       </li>
 
@@ -185,6 +176,16 @@ const openNotificationsBoard = () => {
           </div>
 
           <span class="nav-text"> Transactions</span>
+        </a>
+      </li>
+
+      <li v-if="superAdminStore.isVendor" :class="{ 'dashboard-active': isActive('/details') }">
+        <a @click="$router.push({ name: 'vendorDetailsPage' })">
+          <div class="icon-grid">
+            <Icon icon="teenyicons:users-solid" width="16" height="16" class="icons-sidebar" />
+          </div>
+
+          <span class="nav-text"> Profile </span>
         </a>
       </li>
 
@@ -254,6 +255,7 @@ const openNotificationsBoard = () => {
       </li>
     </ul>
   </nav>
+  <WhatsappSupport v-if="superAdminStore.isVendor"/>
 
   <NotificationBoardSheet v-if="ability.can('read', 'admin-board-notifications')" :ref="val => notificationBoard = val" />
 </template>
