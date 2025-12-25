@@ -6,6 +6,7 @@ import { ability, defineAbilities } from '@/lib/ability';
 import { useRoute } from 'vue-router';
 import NotificationBoardSheet from '@/components/notifications/notification-board/NotificationBoardSheet.vue'
 import { Layers, Menu,  NotepadText } from 'lucide-vue-next';
+import WhatsappSupport from './vendors/whatsappSupport.vue';
 
 const notificationBoard = ref();
 
@@ -254,6 +255,7 @@ const openNotificationsBoard = () => {
       </li>
     </ul>
   </nav>
+  <WhatsappSupport v-if="superAdminStore.isVendor"/>
 
   <NotificationBoardSheet v-if="ability.can('read', 'admin-board-notifications')" :ref="val => notificationBoard = val" />
 </template>
