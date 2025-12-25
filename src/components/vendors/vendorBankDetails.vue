@@ -264,7 +264,7 @@ const isEditing = (id: string) => editingBankId.value === id
   >
     <div class="flex justify-between items-start mb-4">
       <h3 class="text-lg font-semibold text-gray-800">
-        {{ isEditing(bank._id) ? (cbnBankCodes.find(b => b.code === getDisplayValue(bank, 'bankCode'))?.name || bank.bankName) : bank.bankName }} - {{ bank.accountName }}
+        {{ isEditing(bank._id) ? (cbnBankCodes?.find(b => b.code === getDisplayValue(bank, 'bankCode'))?.name || bank.bankName) : bank.bankName }} - {{ bank.accountName }}
       </h3>
 
       <!-- Verified Badge -->
