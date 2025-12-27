@@ -277,7 +277,7 @@ const fetchBanks = async (msg: string) => {
     if (response.status === 200 || response.status === 201) {
       // Update the users data with the response
       // console.log(response)
-      banks.value = response.data.data.banks
+      banks.value = response.data.data
       toast({
         title: 'Success',
         description: `Success- ${msg}`,
@@ -836,9 +836,9 @@ onMounted(async () => {
             <div>
               <h6 class="font-semibold text-primary">Business Logo</h6>
               <div class="border-t border-b pt-6 pb-4 mt-4">
-                <div class="grid grid-cols-2 gap-4">
-                  <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 bg-[#F0F0FF] flex flex-col items-center justify-center">
-                    <div v-if="vendor?.logo?.secure_url || bgImagePreview" class="w-full h-full rounded-md relative bg-no-repeat bg-contain"
+                <div class="grid grid-cols-3 gap-4">
+                  <div :class="{ 'border-dashed' : vendor?.logo?.secure_url }" class="border-2 border-gray-300 rounded-lg w-20 h-20 p-2 bg-[#F0F0FF] flex items-center justify-center col-span-1">
+                    <div v-if="vendor?.logo?.secure_url || bgImagePreview" class="w-full h-full bg-no-repeat bg-contain"
                       :style="{ backgroundImage: vendor?.logo?.secure_url ? `url(${vendor.logo?.secure_url})` : `url(${bgImagePreview})` }"></div>
                     <div v-else class="w-12 h-12 mb-3 text-[#5B68DF]">
                       
@@ -846,9 +846,9 @@ onMounted(async () => {
                     </div>
                   </div>
                   
-                  <div class="flex flex-col justify-center">
+                  <div class="flex flex-col justify-center col-span-2">
                     <p class="text-sm font-medium text-[#020721] mb-1">Upload Business Logo</p>
-                    <p class="text-xs text-[#8B8D97] mb-3">Max 10 each, 3MB, Recommended<br/>Format: JPG or PNG</p>
+                    <p class="text-xs text-[#8B8D97] mb-3">Recommended Format: JPG or PNG</p>
                     <input
                       type="file"
                       accept="image/*"
