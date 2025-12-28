@@ -390,12 +390,14 @@ const handleProxy = async ()=>{
     })
   if(vendorData.value && vendor.value){
     try {
+      sessionStorage.setItem('proxyAdminId', await getVendorAdminID())
       useSuperAdminStore().setVendor(true, vendorData.value?.vendorId)
+      useSuperAdminStore().isProxy = true
       localStorage.setItem('vendor', JSON.stringify(vendor.value.companyName))
       sessionStorage.setItem('isProxy', JSON.stringify(true))
-      sessionStorage.setItem('proxyAdminId', await getVendorAdminID())
       router.push('/')
     } catch (error) {
+      // console.log(error)
       toast({
         description: 'Error setting up proxy, please try again',
         variant: 'destructive',
@@ -483,7 +485,8 @@ const editProfile = async (values: string) => {
 //   }
 // })
 
-const frequency = ref(['DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY'])
+// const frequency = ref(['DAILY', 'DAILY2', 'WEEKLY', 'MONTHLY'])
+const frequency = [{tag: '24 hours after delivery', value: 'DAILY'}, {tag: '2 days after delivery', value: 'DAILY2'}, {tag: '1 week after delivery', value: 'WEEKLY'}]
 interface CompanyType {
   name: string, value: string
 }
@@ -507,7 +510,7 @@ const bankName = computed(() =>
 );
 // const bankCode = ref(cbnBankCodes[])
 const accountNumber = ref("");
-const payoutFrequency = ref("WEEKLY");
+const payoutFrequency = ref("DAILY");
 const initialData = ref({
   bankCode: "",
   accountNumber: "",
@@ -1256,7 +1259,7 @@ onMounted(async () => {
                           </div> -->
                         </div>
                         <div v-if="verifyBank" class="grid grid-cols-2 gap-4">
-                          <Button @click="()=> saveBankDetails()" class="border-2 border-green-600 w-full px-4 md:px-8 py-2 flex items-center gap-2">
+                          <Button @click="()=> saveBankDetails()" class="border-2 border-green-600 bg-green-600 w-full px-4 md:px-8 py-2 flex items-center gap-2">
                             Save
                           </Button>
                           <Button @click="()=> verifyBank = null" class="border-2 border-[#020721] w-full px-4 md:px-8 py-2 flex items-center gap-2" variant="outline">
