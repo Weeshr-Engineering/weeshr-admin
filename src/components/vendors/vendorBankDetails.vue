@@ -12,10 +12,14 @@ import axios from 'axios';
 import { catchErr } from '@/composables/catchError';
 
 // Props
+interface Frequency {
+  tag: string,
+  value: string
+}
 const props = defineProps<{
   bankDetails: Bank[]
   cbnBankCodes: { code: string; name: string }[]
-  frequency: string[],
+  frequency: Frequency[],
   refresh: (msg: string)=> void;
   id: string
 }>()
@@ -26,7 +30,7 @@ const editedBanks = reactive<Record<string, {
   bankCode: string
   accountNumber: string
   bankName: string
-  payoutFrequency: 'daily' | 'weekly' | 'monthly' //| '24 hours after delivery' | '2 days after delivery' | '1 week after delivery'
+  payoutFrequency: 'daily' | 'daily2' | 'weekly' | 'monthly' //| '24 hours after delivery' | '2 days after delivery' | '1 week after delivery'
 }>>({})
 
 // Verified state (local until API)
@@ -226,12 +230,21 @@ const saveEdit = async (bankId: string) => {
 // }
 
 // Get display value for inputs
-const getDisplayValue = (bank: Bank, field: keyof typeof editedBanks[string]) => {
+const getDisplayValue = (
+  bank: Bank,
+  field: keyof typeof editedBanks[string]
+) => {
   if (isEditing(bank._id) && editedBanks[bank._id]) {
-    return editedBanks[bank._id][field]
+    return editedBanks[bank._id][field] as string
   }
-  return bank[field]
+  return bank[field] as string
 }
+
+
+const getFrequencyLabel = (value?: string) => {
+  return props.frequency.find(f => f.value.toLowerCase() === value?.toLowerCase())?.tag ?? '—'
+}
+
 
 // Dropdown action handler
 const handleAction = (action: string, bank: Bank) => {
@@ -362,25 +375,32 @@ const isEditing = (id: string) => editingBankId.value === id
         <Label>Payout Frequency</Label>
         <Select
           :model-value="getDisplayValue(bank, 'payoutFrequency')"
-          @update:model-value="(value) => { 
-            if (!editedBanks[bank._id]) editedBanks[bank._id] = { ...bank };
-            editedBanks[bank._id].payoutFrequency = value as 'daily' | 'weekly' | 'monthly'
+          @update:model-value="(value) => {
+            if (!editedBanks[bank._id]) {
+              editedBanks[bank._id] = { ...bank }
+            }
+
+            editedBanks[bank._id].payoutFrequency = value as 'daily' | 'daily2' | 'weekly' | 'monthly'
           }"
           :disabled="!isEditing(bank._id)"
         >
           <SelectTrigger class="h-11">
             <SelectValue>
-              {{ getDisplayValue(bank, 'payoutFrequency') || bank.payoutFrequency }}
+              {{
+                getFrequencyLabel(
+                  getDisplayValue(bank, 'payoutFrequency')
+                )
+              }}
             </SelectValue>
           </SelectTrigger>
 
           <SelectContent>
-            <SelectItem 
+            <SelectItem
               v-for="f in frequency"
-              :key="f"
-              :value="f"
+              :key="f.value"
+              :value="f.value"
             >
-              {{ f }}
+              {{ f.tag }}
             </SelectItem>
           </SelectContent>
         </Select>

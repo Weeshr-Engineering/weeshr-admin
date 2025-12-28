@@ -21,8 +21,6 @@ const openWhatsApp = () => {
   if (isDragging.value) {
     isDragging.value = false;
     return;
-  }else{
-    console.log('clicked')
   }
 
   const isMobile = /Android|iPhone|iPad|iPod/i.test(
