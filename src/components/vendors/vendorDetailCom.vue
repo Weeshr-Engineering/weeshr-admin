@@ -390,12 +390,14 @@ const handleProxy = async ()=>{
     })
   if(vendorData.value && vendor.value){
     try {
+      sessionStorage.setItem('proxyAdminId', await getVendorAdminID())
       useSuperAdminStore().setVendor(true, vendorData.value?.vendorId)
+      useSuperAdminStore().isProxy = true
       localStorage.setItem('vendor', JSON.stringify(vendor.value.companyName))
       sessionStorage.setItem('isProxy', JSON.stringify(true))
-      sessionStorage.setItem('proxyAdminId', await getVendorAdminID())
       router.push('/')
     } catch (error) {
+      // console.log(error)
       toast({
         description: 'Error setting up proxy, please try again',
         variant: 'destructive',

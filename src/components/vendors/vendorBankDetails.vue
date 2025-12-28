@@ -26,7 +26,7 @@ const editedBanks = reactive<Record<string, {
   bankCode: string
   accountNumber: string
   bankName: string
-  payoutFrequency: 'daily' | 'weekly' | 'monthly'
+  payoutFrequency: 'daily' | 'weekly' | 'monthly' //| '24 hours after delivery' | '2 days after delivery' | '1 week after delivery'
 }>>({})
 
 // Verified state (local until API)
