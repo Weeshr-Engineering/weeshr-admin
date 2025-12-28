@@ -5,7 +5,7 @@ export interface Bank {
   accountName: string;
   accountNumber: string;
   recipientCode: string;
-  payoutFrequency: 'weekly' | 'daily' | 'monthly';
+  payoutFrequency: 'weekly' | 'daily' | 'daily2' | 'monthly';
   isDefault: boolean;
   isDeleted: boolean;
   deletedAt?: Date | null;
@@ -16,6 +16,7 @@ export interface Bank {
 
 export enum PayoutFrequency {
   DAILY = "daily",
+  DAILY2 = "daily2",
   WEEKLY = "weekly",
   MONTHLY = "monthly",
 }
