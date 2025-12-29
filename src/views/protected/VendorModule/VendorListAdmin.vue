@@ -30,16 +30,16 @@ import {
   PaginationList,
   PaginationListItem,
   PaginationNext,
-  PaginationPrev,
-} from '@/components/ui/pagination';
+  PaginationPrev
+} from '@/components/ui/pagination'
 
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+  SelectValue
+} from '@/components/ui/select'
 
 import {
   Table,
@@ -53,47 +53,49 @@ import {
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { Icon } from '@iconify/vue'
+
 // import { toast } from '@/components/ui/toast'
 // import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
 import { useVendorListStore } from '@/stores/vendor/vendor-list'
 // import { useGeneralStore } from '@/stores/general-use'
 
 interface CompanyType {
-  name: string, value: string
+  name: string
+  value: string
 }
 
 const companyTypes: CompanyType[] = [
-  { name: "Sole Proprietorship", value: "Sole Proprietorship" },
-  { name: "Business", value: "BUSINESS" },
-  { name: "Company", value: "COMPANY" },
-  { name: "Partnership", value: "Partnership" },
-  { name: "Limited Liability Company (LLC)", value: "Limited Liability Company (LLC)" },
-  { name: "Corporation", value: "Corporation" },
-  { name: "S Corporation", value: "S Corporation" },
-  { name: "Nonprofit Organization", value: "Nonprofit Organization" },
-  { name: "Cooperative", value: "Cooperative" }
+  { name: 'Sole Proprietorship', value: 'Sole Proprietorship' },
+  { name: 'Business', value: 'BUSINESS' },
+  { name: 'Company', value: 'COMPANY' },
+  { name: 'Partnership', value: 'Partnership' },
+  { name: 'Limited Liability Company (LLC)', value: 'Limited Liability Company (LLC)' },
+  { name: 'Corporation', value: 'Corporation' },
+  { name: 'S Corporation', value: 'S Corporation' },
+  { name: 'Nonprofit Organization', value: 'Nonprofit Organization' },
+  { name: 'Cooperative', value: 'Cooperative' }
 ]
 const formSchema = toTypedSchema(
   z.object({
     rcNumber: z.number(),
     companyName: z.string(),
-    companyType: z.union([z.literal("COMPANY"), z.string()]),
+    companyType: z.union([z.literal('COMPANY'), z.string()]),
     companyEmail: z.string().email(),
     companyAddress: z.string(),
     companyState: z.string(),
-    status: z.union([
-      z.literal("published"),
-      z.literal("draft"),
-      z.string(),
-    ]),
+    status: z.union([z.literal('published'), z.literal('draft'), z.string()]),
     invite: z.object({
       firstName: z.string(),
       lastName: z.string(),
       email: z.string().email(),
-      countryCode: z.string().regex(/^\+\d+$/, "Invalid country code").optional(),
-      phoneNumber: z.string().regex(/^\d+$/, "Invalid phone number"),
-    }),
-})
+      countryCode: z
+        .string()
+        .regex(/^\+\d+$/, 'Invalid country code')
+        .optional(),
+      phoneNumber: z.string().regex(/^\d+$/, 'Invalid phone number')
+    })
+  })
 )
 const { handleSubmit, resetForm } = useForm({
   validationSchema: formSchema
@@ -106,43 +108,60 @@ const newUser = ref({
 })
 const sheetOpen = ref(false)
 const loading = ref(false)
+const searchQuery = ref('')
 const vendorListStore = useVendorListStore()
 const { fetchVendors, saveUserData } = useVendorListStore()
-const vendors = computed(()=>{
-  return vendorListStore.vendors;
+
+// Filtered vendors based on search query (searches by name, type, and email)
+const filteredVendors = computed(() => {
+  const query = searchQuery.value.toLowerCase().trim()
+  if (!query) {
+    return vendorListStore.vendors
+  }
+  return vendorListStore.vendors.filter((vendor) => {
+    const companyName = vendor.companyName?.toLowerCase() || ''
+    const companyType = vendor.companyType?.toLowerCase() || ''
+    const companyEmail = vendor.companyEmail?.toLowerCase() || ''
+    return (
+      companyName.includes(query) || companyType.includes(query) || companyEmail.includes(query)
+    )
+  })
+})
+
+const vendors = computed(() => {
+  return vendorListStore.vendors
 })
 // const superAdminStore = useSuperAdminStore()
 
 const onSubmit = handleSubmit(async (values) => {
   loading.value = true
   const admin = localStorage.getItem('user')
-  let data;
-  if(admin){
+  let data
+  if (admin) {
     data = JSON.parse(admin)
-  }else{
-    return;
+  } else {
+    return
   }
 
   const user = {
-    "rcNumber": values.rcNumber,
-    "companyName": values.companyName,
-    "companyType": values.companyType,
-    "companyEmail": values.companyEmail,
-    "companyAddress": values.companyAddress,
-    "companyState": values.companyState,
-    "status": values.status,
-    "invite": {
-      "firstName": values.invite.firstName,
-      "lastName": values.invite.lastName,
-      "email": values.invite.email,
-      "invitedBy": data.id,
-      "phoneNumber": {
-        "countryCode": values.invite.countryCode || '+234',
-        "phoneNumber": values.invite.phoneNumber
+    rcNumber: values.rcNumber,
+    companyName: values.companyName,
+    companyType: values.companyType,
+    companyEmail: values.companyEmail,
+    companyAddress: values.companyAddress,
+    companyState: values.companyState,
+    status: values.status,
+    invite: {
+      firstName: values.invite.firstName,
+      lastName: values.invite.lastName,
+      email: values.invite.email,
+      invitedBy: data.id,
+      phoneNumber: {
+        countryCode: values.invite.countryCode || '+234',
+        phoneNumber: values.invite.phoneNumber
       }
     }
   }
-
 
   await saveUserData(user)
 
@@ -222,21 +241,20 @@ const onSubmit = handleSubmit(async (values) => {
 // const page = computed(()=>{
 //   return vendorListStore.page
 // })
-const currentPage = computed(()=>{
+const currentPage = computed(() => {
   return vendorListStore.currentPage
-});
-const totalPages = computed(()=>{
+})
+const totalPages = computed(() => {
   return vendorListStore.totalPages
 })
 
-
 const paginationItems = computed(() => {
-  const pages = [];
+  const pages = []
   for (let i = 1; i <= totalPages.value; i++) {
-    pages.push({ type: 'page', value: i });
+    pages.push({ type: 'page', value: i })
   }
-  return pages;
-});
+  return pages
+})
 
 onMounted(async () => {
   // useGeneralStore().setLoading(true);
@@ -246,7 +264,12 @@ onMounted(async () => {
 
 <template>
   <div class="flex-col flex bg-[#f0f8ff] min-h-[400px] px-4 sm:px-10 pb-10">
-    <MainNav class="mx-6" headingText="User > Vendors" />
+    <MainNav class="md:mx-6" headingText="" /> 
+        <div class="flex items-center text-xl mx-4 md:mx-10 md:text-3xl mb-4 -mt-8">
+      <RouterLink :to="{name: 'user'}" class="text-gray-500">User</RouterLink>
+      <Icon icon="tabler:chevron-right" width="22px" height="22px" class="ml-1 pt-1"/>
+      <RouterLink :to="{name: 'vendors'}">Vendors</RouterLink>
+    </div>
     <div class="px-10 py-10 ml-auto">
       <Sheet :close="sheetOpen">
         <SheetTrigger as-child>
@@ -278,7 +301,6 @@ onMounted(async () => {
           </SheetHeader>
           <CardContent class="grid gap-4 pt-10">
             <form class="space-y-4" @submit.prevent="onSubmit">
-
               <!-- RC Number -->
               <FormField v-slot="{ componentField }" name="rcNumber">
                 <FormItem v-auto-animate>
@@ -324,12 +346,12 @@ onMounted(async () => {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem
-                          v-for="(company) in companyTypes"
+                          v-for="company in companyTypes"
                           :value="company.value"
                           :key="company.name"
                           class="flex justify-center items-center gap-2"
-                        >                   
-                        {{ company.name }}   
+                        >
+                          {{ company.name }}
                         </SelectItem>
                       </SelectContent>
                     </Select>
@@ -460,7 +482,7 @@ onMounted(async () => {
 
               <!-- Phone Number -->
               <div>
-                <h5 class='text-blue-900 text-sm font-medium mb-3'>Phone Number</h5>
+                <h5 class="text-blue-900 text-sm font-medium mb-3">Phone Number</h5>
                 <div class="flex gap-2">
                   <FormField v-slot="{ componentField }" name="invite.countryCode">
                     <FormItem>
@@ -468,19 +490,28 @@ onMounted(async () => {
                         <Select
                           v-bind="componentField"
                           id="gender"
-                          class='bg-gray-50 w-auto mt-3 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white'>
-                            <SelectTrigger class="">
-                                <SelectValue placeholder="+234" />
-                              </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem v-for="(code, key ) in CountryCodes" :value="code.dial_code" :key="key" class='flex justify-center items-center gap-2'>
-                                {{code.dial_code}} 
-                                <img
+                          class="bg-gray-50 w-auto mt-3 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+                        >
+                          <SelectTrigger class="">
+                            <SelectValue placeholder="+234" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem
+                              v-for="(code, key) in CountryCodes"
+                              :value="code.dial_code"
+                              :key="key"
+                              class="flex justify-center items-center gap-2"
+                            >
+                              {{ code.dial_code }}
+                              <img
                                 class="w-[18px] h-[18px] hidden md:inline-block"
-                                :src="'https://flagcdn.com/16x12/'+code.code.toLowerCase()+'.png'"
-                                alt="gradient"/>
-                              </SelectItem>
-                            </SelectContent>
+                                :src="
+                                  'https://flagcdn.com/16x12/' + code.code.toLowerCase() + '.png'
+                                "
+                                alt="gradient"
+                              />
+                            </SelectItem>
+                          </SelectContent>
                         </Select>
                       </FormControl>
                       <FormMessage for="invite.countryCode" />
@@ -504,10 +535,7 @@ onMounted(async () => {
               </div>
 
               <Button @click="onSubmit" type="submit" class="w-full mt-4">
-                <Loader2
-                  v-if="loading"
-                  class="w-4 h-4 mr-2 text-white animate-spin"
-                />
+                <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-white animate-spin" />
                 Submit
               </Button>
             </form>
@@ -522,7 +550,7 @@ onMounted(async () => {
           Vendors
           <p class="text-xs text-[#02072199] py-2">List of Weeshr Vendors</p>
         </div>
-        <Search class="mt-3 lg:mt-0" @keypress="(query: string) => vendorListStore.fetchVendors({ search: query })"/>
+        <Search class="mt-3 lg:mt-0" @search="(query: string) => (searchQuery = query)" />
       </div>
 
       <div class="overflow-auto bg-white rounded-lg shadow">
@@ -541,7 +569,7 @@ onMounted(async () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            <TableRow v-for="vendor in vendors" :key="vendor._id">
+            <TableRow v-for="vendor in filteredVendors" :key="vendor._id">
               <TableCell class="font-medium">{{ vendor.companyName }}</TableCell>
               <TableCell class="font-medium">{{ vendor.companyType }}</TableCell>
               <TableCell>{{ vendor.companyEmail }}</TableCell>
@@ -549,7 +577,10 @@ onMounted(async () => {
               <TableCell>{{ vendor.rcNumber }}</TableCell>
               <TableCell>
                 <button
-                  :class="{ 'bg-[#00C37F]': vendor.status === 'published', 'bg-[#020721]': vendor.status !== 'published' }"
+                  :class="{
+                    'bg-[#00C37F]': vendor.status === 'published',
+                    'bg-[#020721]': vendor.status !== 'published'
+                  }"
                   class="px-4 py-2 text-sm text-white rounded-md"
                 >
                   {{ vendor.status === 'published' ? 'Active' : 'Inactive' }}
@@ -580,24 +611,41 @@ onMounted(async () => {
           </TableBody>
         </Table>
       </div>
-      <div class="flex gap-2 max-w-full flex-wrap justify-end mt-8 mr-4 items-center text-[15px]" v-if="vendorListStore.vendors.length !== 0">
-          <Pagination :total="totalPages" :sibling-count="1" show-edges :default-page="1" @change="vendorListStore.handlePageChange">
-            <PaginationList class="flex items-center gap-1">
-              <PaginationFirst @click="vendorListStore.handlePageChange(1)" />
-              <PaginationPrev @click="vendorListStore.handlePageChange(Math.max(currentPage - 1, 1))" />
-              <template v-for="(item, index) in paginationItems" :key="index">
-                <PaginationListItem v-if="item.type === 'page'" :value="item.value" as-child>
-                  <Button class="w-10 h-10 p-0" :variant="item.value === currentPage ? 'default' : 'outline'" @click="vendorListStore.handlePageChange(item.value)">
-                    {{ item.value }}
-                  </Button>
-                </PaginationListItem>
-                <PaginationEllipsis v-else :index="index" />
-              </template>
-              <PaginationNext @click="vendorListStore.handlePageChange(Math.min(currentPage + 1, totalPages))" />
-              <PaginationLast @click="vendorListStore.handlePageChange(totalPages)" />
-            </PaginationList>
-          </Pagination>
-        </div>
+      <div
+        class="flex gap-2 max-w-full flex-wrap justify-end mt-8 mr-4 items-center text-[15px]"
+        v-if="vendorListStore.vendors.length !== 0"
+      >
+        <Pagination
+          :total="totalPages"
+          :sibling-count="1"
+          show-edges
+          :default-page="1"
+          @change="vendorListStore.handlePageChange"
+        >
+          <PaginationList class="flex items-center gap-1">
+            <PaginationFirst @click="vendorListStore.handlePageChange(1)" />
+            <PaginationPrev
+              @click="vendorListStore.handlePageChange(Math.max(currentPage - 1, 1))"
+            />
+            <template v-for="(item, index) in paginationItems" :key="index">
+              <PaginationListItem v-if="item.type === 'page'" :value="item.value" as-child>
+                <Button
+                  class="w-10 h-10 p-0"
+                  :variant="item.value === currentPage ? 'default' : 'outline'"
+                  @click="vendorListStore.handlePageChange(item.value)"
+                >
+                  {{ item.value }}
+                </Button>
+              </PaginationListItem>
+              <PaginationEllipsis v-else :index="index" />
+            </template>
+            <PaginationNext
+              @click="vendorListStore.handlePageChange(Math.min(currentPage + 1, totalPages))"
+            />
+            <PaginationLast @click="vendorListStore.handlePageChange(totalPages)" />
+          </PaginationList>
+        </Pagination>
+      </div>
     </Card>
   </div>
 </template>
