@@ -553,7 +553,8 @@ watch([bankCode, accountNumber, payoutFrequency], ([newBank, newAcc, newFreq]) =
           "bankCode": bankCode.value,
           "accountNumber": accountNumber.value,
           "payoutFrequency": payoutFrequency.value.toLowerCase(),
-          accountName: verifyBank.value?.accountName
+          accountName: verifyBank.value?.accountName,
+          isDefault: true
         }
       )
 
