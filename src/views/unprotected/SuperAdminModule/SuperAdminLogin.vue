@@ -85,7 +85,7 @@ const formSchema = toTypedSchema(
       .string({
         required_error: 'Please enter your password '
       })
-      .min(9)
+      .min(9, 'Password must be at least 9 characters long')
   })
 )
 
@@ -131,10 +131,10 @@ const onSubmit = form.handleSubmit(async () => {
         // Save the token in Pinia store
         setToken(token)
 
-        if(vendors.length !== 0){
+        if (vendors.length !== 0) {
           useSuperAdminStore().setVendor(true, vendors[0].vendorId)
           localStorage.setItem('vendor', JSON.stringify(vendors[0].companyName))
-        }else{
+        } else {
           useSuperAdminStore().setVendor(false, '')
         }
         sessionStorage.setItem('permissions', JSON.stringify(response.data.data.user.permissions))
@@ -292,34 +292,33 @@ const onSubmit = form.handleSubmit(async () => {
                     </FormItem>
                   </FormField>
                   <FormField v-slot="{ componentField }" name="password">
-  <FormItem>
-    <FormLabel class="font-normal text-white font-outfit">Password</FormLabel>
+                    <FormItem>
+                      <FormLabel class="font-normal text-white font-outfit">Password</FormLabel>
 
-    <FormControl>
-      <div class="relative">
-        <Input
-          id="password"
-          :type="showPassword ? 'text' : 'password'"
-          class="focus-visible:ring-[#BAEF23] pr-10"
-          v-bind="componentField"
-        />
+                      <FormControl>
+                        <div class="relative">
+                          <Input
+                            id="password"
+                            :type="showPassword ? 'text' : 'password'"
+                            class="focus-visible:ring-[#BAEF23] pr-10"
+                            v-bind="componentField"
+                          />
 
-        <!-- Toggle icon -->
-        <button
-          type="button"
-          @click="showPassword = !showPassword"
-          class="absolute inset-y-0 right-2 flex items-center text-gray-400 hover:text-gray-600 "
-        >
-          <Eye v-if="!showPassword" class="w-5 h-5" />
-          <EyeOff v-else class="w-5 h-5" />
-        </button>
-      </div>
-    </FormControl>
+                          <!-- Toggle icon -->
+                          <button
+                            type="button"
+                            @click="showPassword = !showPassword"
+                            class="absolute inset-y-0 right-2 flex items-center text-gray-400 hover:text-gray-600"
+                          >
+                            <Eye v-if="!showPassword" class="w-5 h-5" />
+                            <EyeOff v-else class="w-5 h-5" />
+                          </button>
+                        </div>
+                      </FormControl>
 
-    <FormMessage />
-  </FormItem>
-</FormField>
-
+                      <FormMessage />
+                    </FormItem>
+                  </FormField>
                 </form>
               </CardContent>
               <CardFooter>
@@ -327,7 +326,7 @@ const onSubmit = form.handleSubmit(async () => {
                   <Button
                     @click="onSubmit()"
                     type="submit"
-                    :disabled="loading"                    
+                    :disabled="loading"
                     class="w-full bg-[#BAEF23] hover:bg-[#BAEF23] hover:scale-105 text-black font-normal"
                   >
                     <Loader2 v-if="loading" class="w-4 h-4 mr-2 text-black animate-spin" />
