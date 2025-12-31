@@ -22,6 +22,8 @@ import {
   SheetTrigger
 } from '@/components/ui/sheet'
 
+import { DropdownMenu, DropdownMenuContent, DropdownMenuSeparator, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+
 import {
   Pagination,
   PaginationEllipsis,
@@ -50,6 +52,26 @@ import {
   TableHead
 } from '@/components/ui/table'
 
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
+
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -58,12 +80,16 @@ import { Icon } from '@iconify/vue'
 // import { toast } from '@/components/ui/toast'
 // import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
 import { useVendorListStore } from '@/stores/vendor/vendor-list'
+import axios from '@/services/ApiService'
+import { toast } from '@/components/ui/toast/use-toast'
+import { catchErr } from '@/composables/catchError'
 // import { useGeneralStore } from '@/stores/general-use'
 
 interface CompanyType {
   name: string
   value: string
 }
+
 
 const companyTypes: CompanyType[] = [
   { name: 'Sole Proprietorship', value: 'Sole Proprietorship' },
@@ -565,6 +591,7 @@ onMounted(async () => {
               <TableHead>Onboarded</TableHead>
               <TableHead> RC Number </TableHead>
               <TableHead>Status</TableHead>
+              <TableHead> Actions </TableHead>
               <TableHead></TableHead>
             </TableRow>
           </TableHeader>
@@ -587,6 +614,35 @@ onMounted(async () => {
                 </button>
               </TableCell>
               <TableCell>
+                <DropdownMenu>
+                  <DropdownMenuTrigger>
+                    <button
+                      class="p-2 rounded-full hover:bg-gray-200 transition"
+                    >
+                      <Icon icon="mdi:dots-vertical" width="20" height="20" />
+                    </button>
+                  </DropdownMenuTrigger>
+
+                  <DropdownMenuContent class="w-40">
+                    <DropdownMenuItem @click="handleAction('invite', vendor._id, vendor.companyName)">
+                      <Icon icon="uil:eye" class="mr-2" /> View Invite
+                    </DropdownMenuItem>
+
+                    <DropdownMenuSeparator />
+
+                    <DropdownMenuItem class="text-red-600" @click="handleAction('deleteModal', vendor._id)">
+                      <Icon icon="mi:delete" class="mr-2" /> Delete
+                    </DropdownMenuItem>
+
+                    <DropdownMenuSeparator />
+
+                    <DropdownMenuItem class="bg-red-600 text-white" @click="handleAction('pDeleteModal', vendor._id)">
+                      <Icon icon="mi:delete" class="mr-2" /> Permanantely Delete
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </TableCell>
+              <TableCell>
                 <router-link :to="`/user/vendors/${vendor._id}`">
                   <svg
                     width="20"
@@ -607,6 +663,49 @@ onMounted(async () => {
                   </svg>
                 </router-link>
               </TableCell>
+              <AlertDialog :open="deleteModal" >
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone..
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel @click="deleteModal = false">Cancel</AlertDialogCancel>
+                    <Button @click="deleteVendor()" class="bg-red-600 hover:bg-red-700 text-white">Delete</Button>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+               <AlertDialog :open="pDeleteModal" >
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. This will permanently delete this vendor
+                      account and remove its data from our servers.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <div>
+                    <Label class="flex flex-col space-x-2 px-6">
+                      To continue, input the phrase 'I understand' below:
+                      <Input
+                        type="text"
+                        v-model="understand"
+                        placeholder="Type 'I understand' to confirm"
+                        class="w-full rounded border-gray-300 text-red-600 focus:ring-red-500"
+                      />
+                      <!-- <span class="text-sm text-gray-700">
+                        I understand that this action cannot be undone.
+                      </span> -->
+                    </Label>
+                  </div>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel @click="pDeleteModal = false">Cancel</AlertDialogCancel>
+                    <Button :disabled="!understand || understand.toLowerCase() !== 'i understand'" @click="permanentlyDeleteVendor()" class="bg-red-600 hover:bg-red-700 text-white">Delete</Button>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </TableRow>
           </TableBody>
         </Table>

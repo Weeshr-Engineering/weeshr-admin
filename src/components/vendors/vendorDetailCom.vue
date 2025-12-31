@@ -388,6 +388,7 @@ const handleProxy = async ()=>{
       variant: 'loading',
       duration: 0 // Set duration to 0 to make it indefinite until manually closed
     })
+    // console.log(vendorData.value, vendor.value)
   if(vendorData.value && vendor.value){
     try {
       sessionStorage.setItem('proxyAdminId', await getVendorAdminID())
