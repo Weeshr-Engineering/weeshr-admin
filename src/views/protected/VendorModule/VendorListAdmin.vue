@@ -89,7 +89,6 @@ interface CompanyType {
   name: string
   value: string
 }
-
 interface VendorData {
     "_id": string,
     "firstName": string,
@@ -106,7 +105,6 @@ interface VendorData {
     "createdAt": string,
     "updatedAt": string,
 }
-
 
 const companyTypes: CompanyType[] = [
   { name: 'Sole Proprietorship', value: 'Sole Proprietorship' },
