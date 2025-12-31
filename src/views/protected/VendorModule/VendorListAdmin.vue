@@ -89,7 +89,22 @@ interface CompanyType {
   name: string
   value: string
 }
-
+interface VendorData {
+    "_id": string,
+    "firstName": string,
+    "lastName": string,
+    "email": string,
+    "phoneNumber": {
+        "countryCode": string, 
+        "phoneNumber": string,
+        "normalizedNumber": string|null
+    },
+    "vendorId": string,
+    "invitedBy": string,
+    "acceptedAt": string,
+    "createdAt": string,
+    "updatedAt": string,
+}
 
 const companyTypes: CompanyType[] = [
   { name: 'Sole Proprietorship', value: 'Sole Proprietorship' },
@@ -134,9 +149,18 @@ const newUser = ref({
 })
 const sheetOpen = ref(false)
 const loading = ref(false)
+const vendorLoading = ref(false)
 const searchQuery = ref('')
 const vendorListStore = useVendorListStore()
 const { fetchVendors, saveUserData } = useVendorListStore()
+const vendor = ref<VendorData>()
+const error = ref<string | null>(null)
+const deleteModal = ref(false)
+const pDeleteModal = ref(false)
+const viewInviteModal = ref(false)
+const currentVendor = ref('')
+const currentID = ref('')
+const understand = ref('')
 
 // Filtered vendors based on search query (searches by name, type, and email)
 const filteredVendors = computed(() => {
@@ -154,9 +178,9 @@ const filteredVendors = computed(() => {
   })
 })
 
-const vendors = computed(() => {
-  return vendorListStore.vendors
-})
+// const vendors = computed(() => {
+//   return vendorListStore.vendors
+// })
 // const superAdminStore = useSuperAdminStore()
 
 const onSubmit = handleSubmit(async (values) => {
@@ -206,67 +230,187 @@ const onSubmit = handleSubmit(async (values) => {
   resetForm()
 })
 
-// Save user data to the /administrator endpoint
-// const saveUserData = async (user: any) => {
-//   loading.value = true
-//   try {
-//     const response = await axios.post(
-//       '/administrators?search=test_admin&disabled_status=disabled',
-//       user,
-//       {
+const permanentlyDeleteVendor = async () => {
+  if(understand.value.toLowerCase() !== 'i understand'){
+    toast({
+        title: 'Unauthorized',
+        description: 'You must fill the field to continue!',
+        variant: 'destructive'
+      })
+      return;
+  }
+  toast({
+    title: 'Loading Data',
+    description: 'Fetching data...',
+    variant: 'loading',
+    duration: 0 // Set duration to 0 to make it indefinite until manually closed
+  })
 
-//       }
-//     )
+  try {
+    // Set loading to true
+    // useGeneralStore().setLoading(true)
+    const response = await axios.delete(`/api/v1/admin/market/vendor/${currentID.value}/hard-permanent`)
 
-//     // Check if response status is 200 or 201
-//     if (response.status === 200 || response.status === 201) {
-//       // Show success toast
-//       toast({
-//         title: 'Success',
-//         description: `${user.vendor} User profile created successfully.`,
-//         variant: 'success'
-//       })
-//     }
+    if (response.status === 200 || response.status === 201) {
+      toast({
+        title: 'Success',
+        description: `Delete success`,
+        variant: 'success'
+      })
+      // props.refresh('Success')
+    }
+    pDeleteModal.value = false
+    fetchVendors()
+    // set Loading to false
+  } catch (error: any) {
+    catchErr(error)
+    if (error.response.status === 401) {
+      // sessionStorage.removeItem('token')
+      // Clear token from superAdminStore
+      // superAdminStore.setToken('')
 
-//     console.log(response.data)
-//     loading.value = false
-//     // Handle success
-//   } catch (err: any) {
-//     loading.value = false
-//     if (err.response.data.code === 401) {
-//       sessionStorage.removeItem('token')
-//       // Clear token from superAdminStore
-//       superAdminStore.setToken('')
+      setTimeout(() => {
+        // router.push({ name: 'super-admin-login' })
+      }, 3000)
 
-//       setTimeout(() => {
-//         router.push({ name: 'super-admin-login' })
-//       }, 3000)
+      toast({
+        title: 'Unauthorized',
+        description: 'You are not authorized to perform this action. Redirecting to home page...',
+        variant: 'destructive'
+      })
+      // Redirect after 3 seconds
+    } else {
+      toast({
+        title: error.response.data.message || 'An error occurred',
+        variant: 'destructive'
+      })
+    }
+  }
+}
 
-//       toast({
-//         title: 'Unauthorized',
-//         description: 'You are not authorized to perform this action. Redirecting to home page...',
-//         variant: 'destructive'
-//       })
-//       // Redirect after 3 seconds
-//     } else {
-//       toast({
-//         title: err.response.data.message || 'An error occurred',
-//         variant: 'destructive'
-//       })
-//     }
-//     // Handle other errors
-//   }
-// }
+const deleteVendor = async () => {
+  toast({
+    title: 'Loading Data',
+    description: 'Fetching data...',
+    variant: 'loading',
+    duration: 0 // Set duration to 0 to make it indefinite until manually closed
+  })
 
-// const toggleStatus = (user: { status: boolean }) => {
-//   user.status = !user.status
-// }
-// const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
+  try {
+    // Set loading to true
+    // useGeneralStore().setLoading(true)
+    const response = await axios.delete(`/api/v1/admin/market/vendor/${currentID.value}`)
 
-// onMounted(fetchVendorsData);
-// const page = computed(()=>{
-//   return vendorListStore.page
-// })
+    if (response.status === 200 || response.status === 201) {
+      toast({
+        title: 'Success',
+        description: `Delete success`,
+        variant: 'success'
+      })
+      // props.refresh('Success')
+    }
+    deleteModal.value = false
+    fetchVendors()
+    // set Loading to false
+  } catch (error: any) {
+    catchErr(error)
+    if (error.response.status === 401) {
+      // sessionStorage.removeItem('token')
+      // Clear token from superAdminStore
+      // superAdminStore.setToken('')
+
+      setTimeout(() => {
+        // router.push({ name: 'super-admin-login' })
+      }, 3000)
+
+      toast({
+        title: 'Unauthorized',
+        description: 'You are not authorized to perform this action. Redirecting to home page...',
+        variant: 'destructive'
+      })
+      // Redirect after 3 seconds
+    } else {
+      toast({
+        title: error.response.data.message || 'An error occurred',
+        variant: 'destructive'
+      })
+    }
+  }
+}
+
+const fetchVendorsData = async (id: string) => {
+  vendorLoading.value = true
+  // toast({
+  //   title: 'Loading Data',
+  //   description: 'Fetching data...',
+  //   variant: 'loading',
+  //   duration: 0 // Set duration to 0 to make it indefinite until manually closed
+  // })
+
+  try {
+    // Set loading to true
+    // useGeneralStore().setLoading(true)
+    const response = await axios.get(`/api/v1/admin/market/invites/vendor/${id}`)
+
+    if (response.status === 200 || response.status === 201) {
+      // Update the users data with the response
+      // console.log(response)
+      vendor.value = response.data.data[0];
+    }
+    vendorLoading.value = false
+    // set Loading to false
+    // useGeneralStore().setLoading(false)
+  } catch (error: any) {
+    catchErr(error)
+    error.value = error.response.data.message || 'An error occurred while fetching vendor data.'
+    vendorLoading.value = false;
+    // console.log(error)
+    if (error.response.status === 401) {
+      setTimeout(() => {
+        // router.push({ name: 'super-admin-login' })
+      }, 3000)
+
+      toast({
+        title: 'Unauthorized',
+        description: 'You are not authorized to perform this action. Redirecting to home page...',
+        variant: 'destructive'
+      })
+      // Redirect after 3 seconds
+    } else {
+      toast({
+        title: error.response.data.message || 'An error occurred',
+        variant: 'destructive'
+      })
+    }
+  }
+}
+
+const handleAction = (action: string, id: string, name?: string) => {
+  switch (action) {
+    case 'invite':
+      // startEdit(id)
+      currentVendor.value = name || '';
+      viewInviteModal.value = true
+      fetchVendorsData(id)
+      break
+    
+    case 'deleteModal':
+      deleteModal.value = true
+      currentID.value = id;
+      break
+    
+    case 'pDeleteModal':
+      pDeleteModal.value = true
+      currentID.value = id;
+      break
+
+    case 'delete':
+      // deleteVendor(id)
+      // console.log('Delete', bank._id)
+      break
+  }
+}
+
 const currentPage = computed(() => {
   return vendorListStore.currentPage
 })
@@ -281,6 +425,13 @@ const paginationItems = computed(() => {
   }
   return pages
 })
+
+const formatDate = (date: string) =>
+  new Date(date).toLocaleDateString(undefined, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',})
 
 onMounted(async () => {
   // useGeneralStore().setLoading(true);
@@ -745,7 +896,124 @@ onMounted(async () => {
           </PaginationList>
         </Pagination>
       </div>
+
+      <Dialog :open="viewInviteModal">
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{{ currentVendor }} Invite Details</DialogTitle>
+            <DialogDescription>
+              Invitation information
+            </DialogDescription>
+          </DialogHeader>
+          <div class="w-full mx-auto mt-10 font-sans">
+            <!-- Loading -->
+            <div
+              v-if="vendorLoading"
+              class="flex flex-col items-center justify-center gap-3 py-12"
+            >
+              <div class="spinner"></div>
+              <p class="text-sm text-gray-500">Fetching vendor data…</p>
+            </div>
+
+            <!-- Error -->
+            <div
+              v-else-if="error"
+              class="rounded-xl border border-red-200 bg-red-50 p-6 text-center"
+            >
+              <p class="mb-1 font-semibold text-red-700">Something went wrong</p>
+              <p class="text-sm text-red-600">{{ error }}</p>
+            </div>
+
+            <!-- Data -->
+            <div
+              v-else
+              class="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-black/5"
+            >
+              <!-- Header -->
+              <div class="mb-4 flex items-start justify-between">
+                <div>
+                  <h2 class="text-lg font-semibold text-gray-900">
+                    {{ vendor?.firstName }} {{ vendor?.lastName }}
+                  </h2>
+
+                  <span
+                    class="mt-1 inline-flex items-center rounded-full px-3 py-0.5 text-xs font-medium"
+                    :class="
+                      vendor?.acceptedAt
+                        ? 'bg-emerald-100 text-emerald-700'
+                        : 'bg-amber-100 text-amber-700'
+                    "
+                  >
+                    {{ vendor?.acceptedAt ? 'Invite Accepted' : 'Invite Pending' }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Details -->
+              <div class="space-y-3 text-sm">
+                <div class="flex justify-between">
+                  <span class="text-gray-500">Email</span>
+                  <span class="text-gray-900">{{ vendor?.email }}</span>
+                </div>
+
+                <div class="flex justify-between">
+                  <span class="text-gray-500">Phone</span>
+                  <span class="text-gray-900">
+                    +{{ vendor?.phoneNumber.countryCode }}
+                    {{ vendor?.phoneNumber.phoneNumber }}
+                  </span>
+                </div>
+
+                <div class="flex justify-between">
+                  <span class="text-gray-500">Vendor ID</span>
+                  <span class="text-gray-900">{{ vendor?.vendorId }}</span>
+                </div>
+
+                <div class="flex justify-between">
+                  <span class="text-gray-500">Invited By</span>
+                  <span class="text-gray-900">{{ vendor?.invitedBy }}</span>
+                </div>
+
+                <div
+                  v-if="vendor?.acceptedAt"
+                  class="flex justify-between"
+                >
+                  <span class="text-gray-500">Accepted At</span>
+                  <span class="text-gray-900">
+                    {{ formatDate(vendor?.acceptedAt) }}
+                  </span>
+                </div>
+
+                <div v-if="vendor?.acceptedAt" class="flex justify-between text-xs text-gray-400 pt-2">
+                  <span>Created</span>
+                  <span>{{ formatDate(vendor?.createdAt || '') }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <DialogClose @click="()=> viewInviteModal = false">Close</DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   </div>
 </template>
+<style scoped>
+/* Spinner is easier in CSS than Tailwind gymnastics */
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 4px solid #e5e7eb;
+  border-top-color: #00C37F;
+  border-radius: 9999px;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+</style>
 @/stores/super-admin/super-admin@/stores/super-admin/super-admin
