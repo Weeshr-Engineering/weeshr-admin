@@ -213,7 +213,7 @@ const fetchVendorsData = async (msg: string) => {
 
     if (response.status === 200 || response.status === 201) {
       // Update the users data with the response
-      console.log(response)
+      // console.log(response)
       vendorData.value = response.data.data[0];
       vendorFormData.value={
         firstName: vendorData.value?.firstName,
@@ -388,7 +388,7 @@ const handleProxy = async ()=>{
       variant: 'loading',
       duration: 0 // Set duration to 0 to make it indefinite until manually closed
     })
-    console.log(vendorData.value, vendor.value)
+    // console.log(vendorData.value, vendor.value)
   if(vendorData.value && vendor.value){
     try {
       sessionStorage.setItem('proxyAdminId', await getVendorAdminID())

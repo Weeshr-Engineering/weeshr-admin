@@ -158,8 +158,11 @@ const { fetchVendors, saveUserData } = useVendorListStore()
 const vendor = ref<VendorData>()
 const error = ref<string | null>(null)
 const deleteModal = ref(false)
+const pDeleteModal = ref(false)
 const viewInviteModal = ref(false)
 const currentVendor = ref('')
+const permanteDelete = ref(false)
+const understand = ref('')
 
 // Filtered vendors based on search query (searches by name, type, and email)
 const filteredVendors = computed(() => {
@@ -229,6 +232,64 @@ const onSubmit = handleSubmit(async (values) => {
   resetForm()
 })
 
+const permanentlyDeleteVendor = async (id: string) => {
+  if(understand.value.toLowerCase() !== 'i understand'){
+    toast({
+        title: 'Unauthorized',
+        description: 'You must fill the field to continue!',
+        variant: 'destructive'
+      })
+      return;
+  }
+  toast({
+    title: 'Loading Data',
+    description: 'Fetching data...',
+    variant: 'loading',
+    duration: 0 // Set duration to 0 to make it indefinite until manually closed
+  })
+
+  try {
+    // Set loading to true
+    // useGeneralStore().setLoading(true)
+    const response = await axios.delete(`/api/v1/admin/market/vendor/${id}/hard-permanent`)
+
+    if (response.status === 200 || response.status === 201) {
+      toast({
+        title: 'Success',
+        description: `Delete success`,
+        variant: 'success'
+      })
+      // props.refresh('Success')
+    }
+    pDeleteModal.value = false
+    fetchVendors()
+    // set Loading to false
+  } catch (error: any) {
+    catchErr(error)
+    if (error.response.status === 401) {
+      // sessionStorage.removeItem('token')
+      // Clear token from superAdminStore
+      // superAdminStore.setToken('')
+
+      setTimeout(() => {
+        // router.push({ name: 'super-admin-login' })
+      }, 3000)
+
+      toast({
+        title: 'Unauthorized',
+        description: 'You are not authorized to perform this action. Redirecting to home page...',
+        variant: 'destructive'
+      })
+      // Redirect after 3 seconds
+    } else {
+      toast({
+        title: error.response.data.message || 'An error occurred',
+        variant: 'destructive'
+      })
+    }
+  }
+}
+
 const deleteVendor = async (id: string) => {
   toast({
     title: 'Loading Data',
@@ -240,7 +301,7 @@ const deleteVendor = async (id: string) => {
   try {
     // Set loading to true
     // useGeneralStore().setLoading(true)
-    const response = await axios.delete(`/api/v1/admin/market/vendor/users/${id}`)
+    const response = await axios.delete(`/api/v1/admin/market/vendor/${id}`)
 
     if (response.status === 200 || response.status === 201) {
       toast({
@@ -250,7 +311,7 @@ const deleteVendor = async (id: string) => {
       })
       // props.refresh('Success')
     }
-    deleteModal.value = false
+    pDeleteModal.value = false
     fetchVendors()
     // set Loading to false
   } catch (error: any) {
@@ -337,6 +398,10 @@ const handleAction = (action: string, id: string, name?: string) => {
     
     case 'deleteModal':
       deleteModal.value = true
+      break
+    
+    case 'pDeleteModal':
+      pDeleteModal.value = true
       break
 
     case 'delete':
@@ -719,6 +784,12 @@ onMounted(async () => {
                     <DropdownMenuItem class="text-red-600" @click="handleAction('deleteModal', vendor._id)">
                       <Icon icon="mi:delete" class="mr-2" /> Delete
                     </DropdownMenuItem>
+
+                    <DropdownMenuSeparator />
+
+                    <DropdownMenuItem class="bg-red-600 text-white" @click="handleAction('pDeleteModal', vendor._id)">
+                      <Icon icon="mi:delete" class="mr-2" /> Permanantely Delete
+                    </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </TableCell>
@@ -748,13 +819,41 @@ onMounted(async () => {
                   <AlertDialogHeader>
                     <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                     <AlertDialogDescription>
-                      This action cannot be undone. This will permanently delete this vendor
-                      account and remove its data from our servers.
+                      This action cannot be undone..
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel @click="deleteModal = false">Cancel</AlertDialogCancel>
                     <Button @click="deleteVendor(vendor._id)" class="bg-red-600 hover:bg-red-700 text-white">Delete</Button>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+               <AlertDialog :open="pDeleteModal" >
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. This will permanently delete this vendor
+                      account and remove its data from our servers.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <div>
+                    <Label class="flex flex-col space-x-2 px-6">
+                      To continue, input the phrase 'I understand' below:
+                      <Input
+                        type="text"
+                        v-model="understand"
+                        placeholder="Type 'I understand' to confirm"
+                        class="w-full rounded border-gray-300 text-red-600 focus:ring-red-500"
+                      />
+                      <!-- <span class="text-sm text-gray-700">
+                        I understand that this action cannot be undone.
+                      </span> -->
+                    </Label>
+                  </div>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel @click="pDeleteModal = false">Cancel</AlertDialogCancel>
+                    <Button :disabled="!understand || understand.toLowerCase() !== 'i understand'" @click="permanentlyDeleteVendor(vendor._id)" class="bg-red-600 hover:bg-red-700 text-white">Delete</Button>
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
