@@ -240,7 +240,7 @@ const deleteVendor = async (id: string) => {
   try {
     // Set loading to true
     // useGeneralStore().setLoading(true)
-    const response = await axios.delete(`/api/v1/admin/market/vendor/${id}`)
+    const response = await axios.delete(`/api/v1/admin/market/vendor/users/${id}`)
 
     if (response.status === 200 || response.status === 201) {
       toast({
