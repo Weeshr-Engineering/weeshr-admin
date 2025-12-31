@@ -161,7 +161,7 @@ const deleteModal = ref(false)
 const pDeleteModal = ref(false)
 const viewInviteModal = ref(false)
 const currentVendor = ref('')
-const permanteDelete = ref(false)
+const currentID = ref('')
 const understand = ref('')
 
 // Filtered vendors based on search query (searches by name, type, and email)
@@ -232,7 +232,7 @@ const onSubmit = handleSubmit(async (values) => {
   resetForm()
 })
 
-const permanentlyDeleteVendor = async (id: string) => {
+const permanentlyDeleteVendor = async () => {
   if(understand.value.toLowerCase() !== 'i understand'){
     toast({
         title: 'Unauthorized',
@@ -251,7 +251,7 @@ const permanentlyDeleteVendor = async (id: string) => {
   try {
     // Set loading to true
     // useGeneralStore().setLoading(true)
-    const response = await axios.delete(`/api/v1/admin/market/vendor/${id}/hard-permanent`)
+    const response = await axios.delete(`/api/v1/admin/market/vendor/${currentID.value}/hard-permanent`)
 
     if (response.status === 200 || response.status === 201) {
       toast({
@@ -290,7 +290,7 @@ const permanentlyDeleteVendor = async (id: string) => {
   }
 }
 
-const deleteVendor = async (id: string) => {
+const deleteVendor = async () => {
   toast({
     title: 'Loading Data',
     description: 'Fetching data...',
@@ -301,7 +301,7 @@ const deleteVendor = async (id: string) => {
   try {
     // Set loading to true
     // useGeneralStore().setLoading(true)
-    const response = await axios.delete(`/api/v1/admin/market/vendor/${id}`)
+    const response = await axios.delete(`/api/v1/admin/market/vendor/${currentID.value}`)
 
     if (response.status === 200 || response.status === 201) {
       toast({
@@ -311,7 +311,7 @@ const deleteVendor = async (id: string) => {
       })
       // props.refresh('Success')
     }
-    pDeleteModal.value = false
+    deleteModal.value = false
     fetchVendors()
     // set Loading to false
   } catch (error: any) {
@@ -398,10 +398,12 @@ const handleAction = (action: string, id: string, name?: string) => {
     
     case 'deleteModal':
       deleteModal.value = true
+      currentID.value = id;
       break
     
     case 'pDeleteModal':
       pDeleteModal.value = true
+      currentID.value = id;
       break
 
     case 'delete':
@@ -824,7 +826,7 @@ onMounted(async () => {
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel @click="deleteModal = false">Cancel</AlertDialogCancel>
-                    <Button @click="deleteVendor(vendor._id)" class="bg-red-600 hover:bg-red-700 text-white">Delete</Button>
+                    <Button @click="deleteVendor()" class="bg-red-600 hover:bg-red-700 text-white">Delete</Button>
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
@@ -853,7 +855,7 @@ onMounted(async () => {
                   </div>
                   <AlertDialogFooter>
                     <AlertDialogCancel @click="pDeleteModal = false">Cancel</AlertDialogCancel>
-                    <Button :disabled="!understand || understand.toLowerCase() !== 'i understand'" @click="permanentlyDeleteVendor(vendor._id)" class="bg-red-600 hover:bg-red-700 text-white">Delete</Button>
+                    <Button :disabled="!understand || understand.toLowerCase() !== 'i understand'" @click="permanentlyDeleteVendor()" class="bg-red-600 hover:bg-red-700 text-white">Delete</Button>
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
