@@ -836,7 +836,7 @@ onMounted(async () => {
     <div class="flex-col lg:flex lg:flex-row gap-1 px-8 mt-9 min-h-[80dvh]">
       <Card class="lg:w-4/12 bg-[#F8F9FF] sm:items-center shadow-xl">
         <CardHeader>
-          <h1 class="font-semibold text-lg">{{ useSuperAdminStore().companyName }}</h1>
+          <h1 class="font-semibold text-lg">{{ companyFormData.companyName }}</h1>
           <CardDescription>
             <div>
               <h6 class="font-semibold text-primary">Business Logo</h6>
