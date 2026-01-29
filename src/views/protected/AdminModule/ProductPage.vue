@@ -2273,13 +2273,6 @@ onBeforeUnmount(() => {
                         View
                       </button>
                       <button
-                        @click="viewProductDetails(product._id); showActionsMenu = null"
-                        class="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center gap-2 text-sm text-gray-700 transition-colors"
-                      >
-                        <Icon icon="tabler:copy" class="w-4 h-4" />
-                        Copy Link
-                      </button>
-                      <button
                         @click="editProductFromList(product); showActionsMenu = null"
                         class="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center gap-2 text-sm text-gray-700 transition-colors"
                       >
