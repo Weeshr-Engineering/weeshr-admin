@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
 import { Button } from '@/components/ui/button'
 import { Icon } from '@iconify/vue'
 import {
@@ -40,6 +40,60 @@ const emit = defineEmits<{
   (e: 'changePage', page: number | string): void
   (e: 'toggleActionsMenu', id: string | null): void
 }>()
+
+// Image slider state - track current image index per product
+const currentImageIndex = ref<Record<string, number>>({})
+let sliderInterval: ReturnType<typeof setInterval> | null = null
+
+// Get images array for a product (handles both string and array formats)
+const getProductImages = (product: Product): string[] => {
+  if (!product.images) return []
+
+  if (Array.isArray(product.images)) {
+    return product.images.filter(Boolean)
+  }
+
+  if (typeof product.images === 'string') {
+    return [product.images]
+  }
+
+  return []
+}
+
+// Initialize slider on mount
+onMounted(() => {
+  // Start auto-rotation interval
+  sliderInterval = setInterval(() => {
+    props.products.forEach((product) => {
+      const images = getProductImages(product)
+      if (images.length > 1) {
+        const currentIdx = currentImageIndex.value[product._id] || 0
+        currentImageIndex.value[product._id] = (currentIdx + 1) % images.length
+      }
+    })
+  }, 2500) // Rotate every 2.5 seconds
+})
+
+// Cleanup on unmount
+onBeforeUnmount(() => {
+  if (sliderInterval) {
+    clearInterval(sliderInterval)
+  }
+})
+
+// Get current image for a product
+const getCurrentImage = (product: Product): string | null => {
+  const images = getProductImages(product)
+  if (images.length === 0) return null
+
+  const index = currentImageIndex.value[product._id] || 0
+  return images[index] || images[0]
+}
+
+// Check if product has multiple images
+const hasMultipleImages = (product: Product): boolean => {
+  return getProductImages(product).length > 1
+}
 
 const statusBg = (status: string) => {
   switch (status) {
@@ -161,16 +215,46 @@ const handleEdit = (product: Product) => {
           class="border-b border-gray-100 hover:bg-gray-50"
         >
           <TableCell class="py-4">
+            <!-- Image Slider Container -->
             <div
-              class="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden"
+              class="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden relative"
             >
-              <img
-                v-if="product.image"
-                :src="product.image"
-                :alt="product.name"
-                class="w-full h-full object-cover"
-              />
-              <Icon v-else icon="mdi:package-variant" class="w-6 h-6 text-gray-400" />
+              <!-- Image with fade transition -->
+              <Transition
+                enter-active-class="transition-opacity duration-500 ease-in-out"
+                enter-from-class="opacity-0"
+                enter-to-class="opacity-100"
+                leave-active-class="transition-opacity duration-500 ease-in-out absolute inset-0"
+                leave-from-class="opacity-100"
+                leave-to-class="opacity-0"
+                mode="out-in"
+              >
+                <img
+                  v-if="getCurrentImage(product)"
+                  :key="currentImageIndex[product._id] || 0"
+                  :src="getCurrentImage(product)!"
+                  :alt="product.name"
+                  class="w-full h-full object-cover"
+                />
+                <Icon v-else icon="mdi:package-variant" class="w-6 h-6 text-gray-400" />
+              </Transition>
+
+              <!-- Indicator dots for multiple images -->
+              <div
+                v-if="hasMultipleImages(product)"
+                class="absolute bottom-0.5 left-1/2 transform -translate-x-1/2 flex gap-0.5"
+              >
+                <span
+                  v-for="(_, idx) in getProductImages(product)"
+                  :key="idx"
+                  :class="[
+                    'w-1 h-1 rounded-full transition-all duration-300',
+                    (currentImageIndex[product._id] || 0) === idx
+                      ? 'bg-white scale-110'
+                      : 'bg-white/50'
+                  ]"
+                ></span>
+              </div>
             </div>
           </TableCell>
           <TableCell class="text-sm font-medium text-[#020721]">{{ product.name }}</TableCell>
