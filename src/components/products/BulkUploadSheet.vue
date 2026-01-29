@@ -35,22 +35,17 @@ interface Props {
 const props = defineProps<Props>()
 
 const emit = defineEmits<{
-  (e: 'update:open', value: boolean): void
-  (e: 'update:applyTagToAll', value: boolean): void
-  (e: 'update:globalBulkTag', value: string): void
-  (e: 'update:bulkProductTags', value: Record<number, string>): void
-  (e: 'fileUpload', event: Event): void
-  (e: 'downloadTemplate'): void
-  (e: 'removeProduct', index: number): void
-  (
-    e: 'uploadProduct',
-    product: BulkProduct,
-    index: number,
-    status: 'published' | 'draft' | 'archived'
-  ): void
-  (e: 'bulkPublishAll'): void
-  (e: 'bulkDraftAll'): void
-  (e: 'bulkArchiveAll'): void
+  'update:open': [value: boolean]
+  'update:applyTagToAll': [value: boolean]
+  'update:globalBulkTag': [value: string]
+  'update:bulkProductTags': [value: Record<number, string>]
+  fileUpload: [event: Event]
+  downloadTemplate: []
+  removeProduct: [index: number]
+  uploadProduct: [product: BulkProduct, index: number, status: 'published' | 'draft' | 'archived']
+  bulkPublishAll: []
+  bulkDraftAll: []
+  bulkArchiveAll: []
 }>()
 
 const canUploadProduct = (index: number) => {
