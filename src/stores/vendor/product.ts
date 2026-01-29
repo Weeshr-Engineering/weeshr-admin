@@ -1,4 +1,3 @@
-// product.ts
 import { defineStore } from 'pinia'
 import axios from 'axios'
 import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
@@ -72,7 +71,6 @@ export const useProductsStore = defineStore('products', {
       return superAdminStore.vendorId
     },
 
-    //  Fetch all categories to use as tags
     async fetchCategories() {
       this.loadingCategories = true
       try {
@@ -103,7 +101,6 @@ export const useProductsStore = defineStore('products', {
       return category ? category.name : 'Unknown Category'
     },
 
-    //  Fetch all products with optional filters
     async fetchProducts(params?: {
       page?: number
       limit?: number
@@ -208,7 +205,20 @@ export const useProductsStore = defineStore('products', {
       if (!product) return product
    
       let imageUrl = null
-      if (product.image) {
+      
+      // Handle images array (from bulk upload API)
+      if (product.images && Array.isArray(product.images) && product.images.length > 0) {
+        const firstImage = product.images[0]
+        if (typeof firstImage === 'string') {
+          imageUrl = firstImage
+        } else if (firstImage?.secure_url) {
+          imageUrl = firstImage.secure_url
+        } else if (firstImage?.url) {
+          imageUrl = firstImage.url
+        }
+      }
+      // Handle single image field (legacy format)
+      else if (product.image) {
         if (typeof product.image === 'string') {
           imageUrl = product.image
         } else if (product.image.secure_url) {
@@ -387,26 +397,38 @@ export const useProductsStore = defineStore('products', {
     },
 
     /**
-     * Bulk upload products
+     * Bulk upload products using the new bulk endpoint
+     * @param products Array of products to upload
+     * @returns Result with success/failed arrays
      */
-    async bulkUploadProducts(products: Partial<Product>[]) {
+    async bulkUploadProducts(products: {
+      name: string
+      description?: string
+      images?: string[]
+      amount: number
+      tat: string
+      qty: number
+    }[]) {
       this.loading = true
-      const results = {
-        success: [] as Product[],
-        failed: [] as { product: Partial<Product>, error: any }[]
-      }
-
+      
       try {
-        for (const productData of products) {
-          try {
-            const created = await this.createProduct(productData)
-            results.success.push(created)
-          } catch (error) {
-            results.failed.push({ product: productData, error })
-          }
-        }
+        const vendorId = this.getVendorId()
+        
+        const response = await axios.post('/api/v1/admin/market/products/bulk-upload/all', {
+          vendorId,
+          products
+        })
 
-        return results
+        const data = response.data
+        
+        return {
+          success: true,
+          data: data.data,
+          message: data.message || 'Products uploaded successfully'
+        }
+      } catch (error: any) {
+        console.error('Bulk upload error:', error)
+        throw error
       } finally {
         this.loading = false
       }
