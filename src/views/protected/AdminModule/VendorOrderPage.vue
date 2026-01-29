@@ -683,6 +683,15 @@
                   {{ currentOrderForDisplay.senderEmail }}
                 </p>
               </div>
+              <div 
+                v-if="currentOrderForDisplay.senderEmail"
+                class="flex justify-between items-center"
+              >
+                <p class="text-xs text-muted-foreground mb-2">Message</p>
+                <p class="text-xs text-[#020721] break-all text-right max-w-xs">
+                  {{ currentOrderForDisplay.comment || 'N/A' }}
+                </p>
+              </div>
             </TabsContent>
           </Tabs>
         </div>
