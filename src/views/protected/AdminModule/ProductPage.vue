@@ -748,7 +748,7 @@ const bulkPublishAll = async () => {
 
   try {
     const products = prepareBulkProducts()
-    const result = await productsStore.bulkUploadProducts(products)
+    const result = await productsStore.bulkUploadProducts(products, 'published')
 
     await productsStore.fetchProducts({ vendorId: vendorId.value })
     await productsStore.fetchProductStatusCounts(vendorId.value)
@@ -795,7 +795,7 @@ const bulkDraftAll = async () => {
 
   try {
     const products = prepareBulkProducts()
-    const result = await productsStore.bulkUploadProducts(products)
+    const result = await productsStore.bulkUploadProducts(products, 'draft')
 
     await productsStore.fetchProducts({ vendorId: vendorId.value })
     await productsStore.fetchProductStatusCounts(vendorId.value)
@@ -842,7 +842,7 @@ const bulkArchiveAll = async () => {
 
   try {
     const products = prepareBulkProducts()
-    const result = await productsStore.bulkUploadProducts(products)
+    const result = await productsStore.bulkUploadProducts(products, 'archived')
 
     await productsStore.fetchProducts({ vendorId: vendorId.value })
     await productsStore.fetchProductStatusCounts(vendorId.value)

@@ -399,24 +399,34 @@ export const useProductsStore = defineStore('products', {
     /**
      * Bulk upload products using the new bulk endpoint
      * @param products Array of products to upload
+     * @param status Optional status for all products (defaults to 'published')
      * @returns Result with success/failed arrays
      */
-    async bulkUploadProducts(products: {
-      name: string
-      description?: string
-      images?: string[]
-      amount: number
-      tat: string
-      qty: number
-    }[]) {
+    async bulkUploadProducts(
+      products: {
+        name: string
+        description?: string
+        images?: string[]
+        amount: number
+        tat: string
+        qty: number
+      }[],
+      status: 'published' | 'draft' | 'archived' = 'published'
+    ) {
       this.loading = true
       
       try {
         const vendorId = this.getVendorId()
         
+        // Add status to each product
+        const productsWithStatus = products.map(product => ({
+          ...product,
+          status
+        }))
+        
         const response = await axios.post('/api/v1/admin/market/products/bulk-upload/all', {
           vendorId,
-          products
+          products: productsWithStatus
         })
 
         const data = response.data
