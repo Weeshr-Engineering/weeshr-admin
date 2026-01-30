@@ -518,7 +518,7 @@ onMounted(async () => {
     name: product.name,
     amount: product.amount || 0,
     size: product.size || '',
-    image: product.image || ''
+    image: product.images?.[0] || ''
   }))
   promotionsStore.fetchPromotions({ vendorId: vendorId.value })
   promotionsStore.fetchPromotionStatusCounts(vendorId.value)
