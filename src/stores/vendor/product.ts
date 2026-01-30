@@ -9,7 +9,7 @@ export interface Product {
   amount?: number  
   qty?: number  
   tat?: string  
-  image?: string | any
+  images?: string[] | null
   status: 'published' | 'draft' | 'archived' | 'out-of-stock'
   size?: string
   tag?: string[]  

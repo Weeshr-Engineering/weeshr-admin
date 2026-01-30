@@ -78,8 +78,8 @@ const statusBg = (status: string) => {
             class="w-full h-48 rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden mb-4"
           >
             <img
-              v-if="props.product.image"
-              :src="props.product.image"
+              v-if="props.product.images && props.product.images.length > 0"
+              :src="props.product.images[0]"
               :alt="props.product.name"
               class="w-full h-full object-cover"
             />
