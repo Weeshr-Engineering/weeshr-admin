@@ -68,7 +68,7 @@ const formData = ref({
   tat: '',
   size: '',
   tag: [] as string[],
-  image: null as File | null,
+  images: [] as File[],
   status: 'draft' as 'published' | 'draft' | 'archived' | 'out-of-stock'
 })
 
@@ -474,13 +474,13 @@ const downloadTemplate = () => {
   }
 }
 
-// Handle image upload
-const handleImageUpload = (file: File) => {
-  formData.value.image = file
+// Handle images upload (multiple files)
+const handleImagesUpload = (files: File[]) => {
+  formData.value.images = files
 }
 
 // Handle form submit
-const handleFormSubmit = async (status: 'published' | 'draft' | 'archived') => {
+const handleFormSubmit = async (status: 'published' | 'draft' | 'archived' | 'out-of-stock') => {
   formData.value.status = status
 
   if (!formData.value.name || !formData.value.amount) {
@@ -519,8 +519,11 @@ const handleFormSubmit = async (status: 'published' | 'draft' | 'archived') => {
       data.append('tag', formData.value.tag.join(','))
     }
 
-    if (formData.value.image) {
-      data.append('image', formData.value.image)
+    // Append multiple images
+    if (formData.value.images && formData.value.images.length > 0) {
+      formData.value.images.forEach((file) => {
+        data.append('images', file)
+      })
     }
 
     if (isEditMode.value && editingProductId.value) {
@@ -573,7 +576,7 @@ const resetForm = () => {
     tat: '',
     size: '',
     tag: [],
-    image: null,
+    images: [],
     status: 'draft'
   }
 }
@@ -603,7 +606,7 @@ const editProduct = () => {
     tat: selectedProduct.value.tat || '',
     size: selectedProduct.value.size || '',
     tag: selectedProduct.value.tag || [],
-    image: null,
+    images: [],
     status: selectedProduct.value.status
   }
 
@@ -625,7 +628,7 @@ const editProductFromList = (product: Product) => {
     tat: product.tat || '',
     size: product.size || '',
     tag: product.tag || [],
-    image: null,
+    images: [],
     status: product.status
   }
 
@@ -871,25 +874,61 @@ const bulkArchiveAll = async () => {
   }
 }
 
-// Format TAT for display
+// Format TAT for display - show as "2 days", "1 day", etc.
 const formatTatForDisplay = (tat: string) => {
   if (!tat) return 'N/A'
 
+  // If it's already a friendly format like "2 Days", "1 Week", return as-is
   if (!tat.includes('T') && !tat.includes('-')) {
     return tat
   }
 
-  if (tat.includes('T')) {
-    const dateOnly = tat.split('T')[0]
-    const [year, month, day] = dateOnly.split('-')
-    return `${year}-${month}-${day}`
-  }
+  try {
+    // Parse the date
+    let tatDate: Date
+    if (tat.includes('T')) {
+      tatDate = new Date(tat)
+    } else if (tat.match(/^\d{4}-\d{2}-\d{2}$/)) {
+      tatDate = new Date(tat + 'T00:00:00')
+    } else {
+      return tat
+    }
 
-  if (tat.match(/^\d{4}-\d{2}-\d{2}$/)) {
+    // Check if valid date
+    if (isNaN(tatDate.getTime())) {
+      return tat
+    }
+
+    // Calculate difference in days from today
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    tatDate.setHours(0, 0, 0, 0)
+
+    const diffTime = tatDate.getTime() - today.getTime()
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+
+    if (diffDays <= 0) {
+      return 'Same Day'
+    } else if (diffDays === 1) {
+      return '1 Day'
+    } else if (diffDays < 7) {
+      return `${diffDays} Days`
+    } else if (diffDays === 7) {
+      return '1 Week'
+    } else if (diffDays < 14) {
+      return `${diffDays} Days`
+    } else if (diffDays === 14) {
+      return '2 Weeks'
+    } else if (diffDays < 30) {
+      return `${Math.floor(diffDays / 7)} Weeks`
+    } else if (diffDays < 60) {
+      return '1 Month'
+    } else {
+      return `${Math.floor(diffDays / 30)} Months`
+    }
+  } catch {
     return tat
   }
-
-  return tat
 }
 
 // Fetch products, counts, and categories on mount
@@ -1070,7 +1109,7 @@ onBeforeUnmount(() => {
         @update:open="addProductSheetOpen = $event"
         @update:formData="formData = $event"
         @submit="handleFormSubmit"
-        @imageUpload="handleImageUpload"
+        @imagesUpload="handleImagesUpload"
       />
 
       <!-- Bulk Upload Sheet -->

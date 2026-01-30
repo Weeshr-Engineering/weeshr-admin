@@ -165,8 +165,8 @@ const handleEdit = (product: Product) => {
               class="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden"
             >
               <img
-                v-if="product.image"
-                :src="product.image"
+                v-if="product.images && product.images.length > 0"
+                :src="product.images[0]"
                 :alt="product.name"
                 class="w-full h-full object-cover"
               />
