@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
 import { Sheet, SheetContent, SheetDescription, SheetHeader } from '@/components/ui/sheet'
 import { Icon } from '@iconify/vue'
 import type { Product } from '@/stores/vendor/product'
@@ -20,48 +19,6 @@ const emit = defineEmits<{
   (e: 'edit'): void
   (e: 'updateStatus', status: 'published' | 'draft' | 'archived' | 'out-of-stock'): void
 }>()
-
-// Image gallery state
-const currentImageIndex = ref(0)
-
-// Reset image index when product changes
-watch(
-  () => props.product,
-  () => {
-    currentImageIndex.value = 0
-  }
-)
-
-// Get images array
-const productImages = computed(() => {
-  if (!props.product?.images) return []
-  if (Array.isArray(props.product.images)) {
-    return props.product.images.filter(Boolean)
-  }
-  if (typeof props.product.images === 'string') {
-    return [props.product.images]
-  }
-  return []
-})
-
-const hasMultipleImages = computed(() => productImages.value.length > 1)
-
-const nextImage = () => {
-  if (productImages.value.length > 1) {
-    currentImageIndex.value = (currentImageIndex.value + 1) % productImages.value.length
-  }
-}
-
-const prevImage = () => {
-  if (productImages.value.length > 1) {
-    currentImageIndex.value =
-      currentImageIndex.value === 0 ? productImages.value.length - 1 : currentImageIndex.value - 1
-  }
-}
-
-const goToImage = (index: number) => {
-  currentImageIndex.value = index
-}
 
 const statusBg = (status: string) => {
   switch (status) {
@@ -116,81 +73,17 @@ const statusBg = (status: string) => {
             </button>
           </div>
 
-          <!-- Product Image Gallery -->
+          <!-- Product Image -->
           <div
-            class="w-full h-48 rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden mb-4 relative"
+            class="w-full h-48 rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden mb-4"
           >
-            <template v-if="productImages.length > 0">
-              <!-- Image with transition -->
-              <Transition
-                enter-active-class="transition-opacity duration-300 ease-in-out"
-                enter-from-class="opacity-0"
-                enter-to-class="opacity-100"
-                leave-active-class="transition-opacity duration-300 ease-in-out absolute inset-0"
-                leave-from-class="opacity-100"
-                leave-to-class="opacity-0"
-                mode="out-in"
-              >
-                <img
-                  :key="currentImageIndex"
-                  :src="productImages[currentImageIndex]"
-                  :alt="props.product.name"
-                  class="w-full h-full object-cover"
-                />
-              </Transition>
-
-              <!-- Navigation arrows for multiple images -->
-              <template v-if="hasMultipleImages">
-                <button
-                  @click="prevImage"
-                  class="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/80 hover:bg-white rounded-full flex items-center justify-center shadow-md transition-colors"
-                >
-                  <Icon icon="mdi:chevron-left" class="w-5 h-5 text-gray-700" />
-                </button>
-                <button
-                  @click="nextImage"
-                  class="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/80 hover:bg-white rounded-full flex items-center justify-center shadow-md transition-colors"
-                >
-                  <Icon icon="mdi:chevron-right" class="w-5 h-5 text-gray-700" />
-                </button>
-              </template>
-
-              <!-- Indicator dots -->
-              <div
-                v-if="hasMultipleImages"
-                class="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex gap-1.5"
-              >
-                <button
-                  v-for="(_, idx) in productImages"
-                  :key="idx"
-                  @click="goToImage(idx)"
-                  :class="[
-                    'w-2 h-2 rounded-full transition-all duration-300',
-                    currentImageIndex === idx
-                      ? 'bg-white scale-110'
-                      : 'bg-white/50 hover:bg-white/70'
-                  ]"
-                ></button>
-              </div>
-            </template>
+            <img
+              v-if="props.product.images && props.product.images.length > 0"
+              :src="props.product.images[0]"
+              :alt="props.product.name"
+              class="w-full h-full object-cover"
+            />
             <Icon v-else icon="mdi:package-variant" class="w-16 h-16 text-gray-400" />
-          </div>
-
-          <!-- Image thumbnails for multiple images -->
-          <div v-if="hasMultipleImages" class="flex gap-2 mb-4">
-            <button
-              v-for="(image, idx) in productImages"
-              :key="idx"
-              @click="goToImage(idx)"
-              :class="[
-                'w-12 h-12 rounded-lg overflow-hidden border-2 transition-all',
-                currentImageIndex === idx
-                  ? 'border-[#5B68DF] ring-2 ring-[#5B68DF]/20'
-                  : 'border-gray-200 hover:border-gray-300'
-              ]"
-            >
-              <img :src="image" :alt="`Thumbnail ${idx + 1}`" class="w-full h-full object-cover" />
-            </button>
           </div>
 
           <!-- Product Info Grid -->
