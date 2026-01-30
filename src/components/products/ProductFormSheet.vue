@@ -2,6 +2,7 @@
 import { ref, computed, watch } from 'vue'
 import { Sheet, SheetContent, SheetHeader, SheetDescription } from '@/components/ui/sheet'
 import { Icon } from '@iconify/vue'
+import { useToast } from '@/components/ui/toast'
 
 interface Category {
   _id: string
@@ -54,7 +55,9 @@ const deliveryTimeOptions = [
 // Local state for image previews
 const imagePreviews = ref<string[]>([])
 const MAX_IMAGES = 3
-const MAX_FILE_SIZE = 2 * 1024 * 1024 // 2MB
+const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
+
+const { toast } = useToast()
 
 // Watch for formData changes to sync previews
 watch(
@@ -108,13 +111,21 @@ const handleImageUpload = (e: Event) => {
 
     // Validate file size
     if (file.size > MAX_FILE_SIZE) {
-      alert(`File "${file.name}" exceeds 2MB limit`)
+      toast({
+        title: 'File too large',
+        description: `"${file.name}" exceeds 5MB limit. Please choose a smaller file.`,
+        variant: 'destructive'
+      })
       continue
     }
 
     // Validate file type
     if (!file.type.startsWith('image/')) {
-      alert(`File "${file.name}" is not an image`)
+      toast({
+        title: 'Invalid file type',
+        description: `"${file.name}" is not an image file.`,
+        variant: 'destructive'
+      })
       continue
     }
 

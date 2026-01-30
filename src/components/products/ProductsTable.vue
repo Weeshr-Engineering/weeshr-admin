@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { Button } from '@/components/ui/button'
 import { Icon } from '@iconify/vue'
 import {
@@ -40,6 +40,43 @@ const emit = defineEmits<{
   (e: 'changePage', page: number | string): void
   (e: 'toggleActionsMenu', id: string | null): void
 }>()
+
+// Lightbox state for image preview
+const showLightbox = ref(false)
+const lightboxImages = ref<string[]>([])
+const lightboxIndex = ref(0)
+const lightboxProductName = ref('')
+
+// Open lightbox with product images
+const openLightbox = (product: Product) => {
+  if (!product.images || product.images.length === 0) return
+
+  lightboxImages.value = Array.isArray(product.images)
+    ? product.images.filter(Boolean)
+    : [product.images]
+  lightboxIndex.value = 0
+  lightboxProductName.value = product.name
+  showLightbox.value = true
+}
+
+// Close lightbox
+const closeLightbox = () => {
+  showLightbox.value = false
+}
+
+// Navigate lightbox
+const prevLightboxImage = () => {
+  if (lightboxImages.value.length > 0) {
+    lightboxIndex.value =
+      (lightboxIndex.value - 1 + lightboxImages.value.length) % lightboxImages.value.length
+  }
+}
+
+const nextLightboxImage = () => {
+  if (lightboxImages.value.length > 0) {
+    lightboxIndex.value = (lightboxIndex.value + 1) % lightboxImages.value.length
+  }
+}
 
 const statusBg = (status: string) => {
   switch (status) {
@@ -161,8 +198,10 @@ const handleEdit = (product: Product) => {
           class="border-b border-gray-100 hover:bg-gray-50"
         >
           <TableCell class="py-4">
-            <div
-              class="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden"
+            <button
+              @click.stop="openLightbox(product)"
+              class="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden relative cursor-pointer hover:ring-2 hover:ring-[#020721]/30 transition-all"
+              :disabled="!product.images || product.images.length === 0"
             >
               <img
                 v-if="product.images && product.images.length > 0"
@@ -171,7 +210,14 @@ const handleEdit = (product: Product) => {
                 class="w-full h-full object-cover"
               />
               <Icon v-else icon="mdi:package-variant" class="w-6 h-6 text-gray-400" />
-            </div>
+              <!-- Image count badge -->
+              <span
+                v-if="product.images && product.images.length > 1"
+                class="absolute bottom-0 right-0 bg-black/70 text-white text-[8px] px-1 rounded-tl"
+              >
+                +{{ product.images.length - 1 }}
+              </span>
+            </button>
           </TableCell>
           <TableCell class="text-sm font-medium text-[#020721]">{{ product.name }}</TableCell>
           <TableCell class="text-sm text-[#8B8D97] max-w-[200px] truncate">{{
@@ -283,4 +329,89 @@ const handleEdit = (product: Product) => {
     </Button>
     <a href="#"><p class="text-[blue]">See all</p></a>
   </div>
+
+  <!-- Image Lightbox Modal -->
+  <Teleport to="body">
+    <Transition
+      enter-active-class="transition-opacity duration-200"
+      enter-from-class="opacity-0"
+      enter-to-class="opacity-100"
+      leave-active-class="transition-opacity duration-200"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0"
+    >
+      <div
+        v-if="showLightbox"
+        class="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center"
+        @click.self="closeLightbox"
+        @keydown.escape="closeLightbox"
+      >
+        <!-- Close Button -->
+        <button
+          @click="closeLightbox"
+          class="absolute top-4 right-4 text-white hover:text-gray-300 z-10"
+        >
+          <Icon icon="mdi:close" class="w-8 h-8" />
+        </button>
+
+        <!-- Product Name -->
+        <div class="absolute top-4 left-4 text-white text-lg font-medium">
+          {{ lightboxProductName }}
+        </div>
+
+        <!-- Main Image -->
+        <div class="relative max-w-4xl max-h-[80vh] w-full mx-4">
+          <img
+            :src="lightboxImages[lightboxIndex]"
+            :alt="lightboxProductName"
+            class="w-full h-auto max-h-[70vh] object-contain mx-auto rounded-lg"
+          />
+
+          <!-- Navigation Arrows -->
+          <template v-if="lightboxImages.length > 1">
+            <button
+              @click="prevLightboxImage"
+              class="absolute left-2 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/20 hover:bg-white/40 text-white rounded-full flex items-center justify-center transition-colors"
+            >
+              <Icon icon="mdi:chevron-left" class="w-8 h-8" />
+            </button>
+            <button
+              @click="nextLightboxImage"
+              class="absolute right-2 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/20 hover:bg-white/40 text-white rounded-full flex items-center justify-center transition-colors"
+            >
+              <Icon icon="mdi:chevron-right" class="w-8 h-8" />
+            </button>
+          </template>
+
+          <!-- Image Counter -->
+          <div
+            class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/60 text-white text-sm px-4 py-2 rounded-full"
+          >
+            {{ lightboxIndex + 1 }} / {{ lightboxImages.length }}
+          </div>
+        </div>
+
+        <!-- Thumbnail Strip -->
+        <div
+          v-if="lightboxImages.length > 1"
+          class="absolute bottom-4 left-1/2 -translate-x-1/2 mt-20 flex gap-2 bg-black/50 p-2 rounded-lg"
+          style="bottom: 80px"
+        >
+          <button
+            v-for="(image, idx) in lightboxImages"
+            :key="idx"
+            @click="lightboxIndex = idx"
+            :class="[
+              'w-16 h-16 rounded-md overflow-hidden border-2 transition-all',
+              idx === lightboxIndex
+                ? 'border-white scale-110'
+                : 'border-transparent opacity-60 hover:opacity-100'
+            ]"
+          >
+            <img :src="image" :alt="`Image ${idx + 1}`" class="w-full h-full object-cover" />
+          </button>
+        </div>
+      </div>
+    </Transition>
+  </Teleport>
 </template>

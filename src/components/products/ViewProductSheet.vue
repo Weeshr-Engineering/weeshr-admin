@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref, watch, computed } from 'vue'
 import { Sheet, SheetContent, SheetDescription, SheetHeader } from '@/components/ui/sheet'
 import { Icon } from '@iconify/vue'
 import type { Product } from '@/stores/vendor/product'
@@ -19,6 +20,43 @@ const emit = defineEmits<{
   (e: 'edit'): void
   (e: 'updateStatus', status: 'published' | 'draft' | 'archived' | 'out-of-stock'): void
 }>()
+
+// Image gallery state
+const currentImageIndex = ref(0)
+
+// Get product images as array
+const productImages = computed(() => {
+  if (!props.product?.images) return []
+  if (Array.isArray(props.product.images)) {
+    return props.product.images.filter(Boolean)
+  }
+  if (typeof props.product.images === 'string') {
+    return [props.product.images]
+  }
+  return []
+})
+
+// Reset image index when product changes
+watch(
+  () => props.product,
+  () => {
+    currentImageIndex.value = 0
+  }
+)
+
+// Navigation functions
+const prevImage = () => {
+  if (productImages.value.length > 0) {
+    currentImageIndex.value =
+      (currentImageIndex.value - 1 + productImages.value.length) % productImages.value.length
+  }
+}
+
+const nextImage = () => {
+  if (productImages.value.length > 0) {
+    currentImageIndex.value = (currentImageIndex.value + 1) % productImages.value.length
+  }
+}
 
 const statusBg = (status: string) => {
   switch (status) {
@@ -73,17 +111,60 @@ const statusBg = (status: string) => {
             </button>
           </div>
 
-          <!-- Product Image -->
-          <div
-            class="w-full h-48 rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden mb-4"
-          >
-            <img
-              v-if="props.product.images && props.product.images.length > 0"
-              :src="props.product.images[0]"
-              :alt="props.product.name"
-              class="w-full h-full object-cover"
-            />
-            <Icon v-else icon="mdi:package-variant" class="w-16 h-16 text-gray-400" />
+          <!-- Product Image Gallery -->
+          <div class="mb-4">
+            <!-- Main Image with Navigation -->
+            <div
+              class="w-full h-48 rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden relative"
+            >
+              <img
+                v-if="productImages.length > 0"
+                :src="productImages[currentImageIndex]"
+                :alt="props.product.name"
+                class="w-full h-full object-cover"
+              />
+              <Icon v-else icon="mdi:package-variant" class="w-16 h-16 text-gray-400" />
+
+              <!-- Navigation Arrows (only if multiple images) -->
+              <template v-if="productImages.length > 1">
+                <button
+                  @click="prevImage"
+                  class="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-black/50 hover:bg-black/70 text-white rounded-full flex items-center justify-center transition-colors"
+                >
+                  <Icon icon="mdi:chevron-left" class="w-5 h-5" />
+                </button>
+                <button
+                  @click="nextImage"
+                  class="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-black/50 hover:bg-black/70 text-white rounded-full flex items-center justify-center transition-colors"
+                >
+                  <Icon icon="mdi:chevron-right" class="w-5 h-5" />
+                </button>
+
+                <!-- Image Counter -->
+                <span
+                  class="absolute bottom-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded"
+                >
+                  {{ currentImageIndex + 1 }} / {{ productImages.length }}
+                </span>
+              </template>
+            </div>
+
+            <!-- Thumbnail Grid (only if multiple images) -->
+            <div v-if="productImages.length > 1" class="flex gap-2 mt-2 overflow-x-auto pb-1">
+              <button
+                v-for="(image, idx) in productImages"
+                :key="idx"
+                @click="currentImageIndex = idx"
+                :class="[
+                  'w-12 h-12 rounded-md overflow-hidden flex-shrink-0 border-2 transition-colors',
+                  idx === currentImageIndex
+                    ? 'border-[#020721]'
+                    : 'border-transparent hover:border-gray-300'
+                ]"
+              >
+                <img :src="image" :alt="`Image ${idx + 1}`" class="w-full h-full object-cover" />
+              </button>
+            </div>
           </div>
 
           <!-- Product Info Grid -->
