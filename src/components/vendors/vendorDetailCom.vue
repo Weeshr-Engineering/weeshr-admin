@@ -75,6 +75,16 @@ const bankDetails = ref<Bank[]>([])
 const banks = ref<Banks[]>([])
 const verifyBank = ref<VerifiedBank | null>()
 const open = ref(false)
+const fileInput = ref<HTMLInputElement | null>(null)
+const bgImagePreview = ref<string | null>(null)
+
+const imageSrc = computed(() => {
+  return bgImagePreview.value || vendor.value?.logo?.secure_url || null
+})
+
+function triggerFileSelect() {
+  fileInput.value?.click()
+}
 
 interface VendorData {
     "_id": "691ed372e1081bcda7fd759d",
@@ -100,7 +110,6 @@ const vendor = computed(()=>{
 })
 const vendorData = ref<VendorData>()
 const inviteId = ref('')
-const bgImagePreview = ref<string | null>(null)
 const newPassword = ref('')
 const showPassword = ref(false)
 
@@ -621,6 +630,8 @@ watch([bankCode, accountNumber, payoutFrequency], ([newBank, newAcc, newFreq]) =
           description: `${bankName.value?.name} added successfully.`,
           variant: 'success'
         })
+        logo.value = null
+        bgImagePreview.value = null
         await useSuperAdminStore().fetchUsersData('Success')
       }
       // Handle success
@@ -840,36 +851,51 @@ onMounted(async () => {
           <CardDescription>
             <div>
               <h6 class="font-semibold text-primary">Business Logo</h6>
-              <div class="border-t border-b pt-6 pb-4 mt-4">
-                <div class="grid grid-cols-3 gap-4">
-                  <div :class="{ 'border-dashed' : vendor?.logo?.secure_url }" class="border-2 border-gray-300 rounded-lg w-20 h-20 p-2 bg-[#F0F0FF] flex items-center justify-center col-span-1">
-                    <div v-if="vendor?.logo?.secure_url || bgImagePreview" class="w-full h-full bg-no-repeat bg-contain"
-                      :style="{ backgroundImage: vendor?.logo?.secure_url ? `url(${vendor.logo?.secure_url})` : `url(${bgImagePreview})` }"></div>
-                    <div v-else class="w-12 h-12 mb-3 text-[#5B68DF]">
-                      
-                    <Icon icon="mdi:clock-outline" width="48" height="48" />
-                    </div>
-                  </div>
-                  
-                  <div class="flex flex-col justify-center col-span-2">
-                    <p class="text-sm font-medium text-[#020721] mb-1">Upload Business Logo</p>
-                    <p class="text-xs text-[#8B8D97] mb-3">Recommended Format: JPG or PNG</p>
+                <div class="border-t border-b pt-6 pb-4 mt-4">
+                  <div class="space-y-2">
+
+                    <!-- Hidden but accessible input -->
                     <input
+                      ref="fileInput"
                       type="file"
                       accept="image/*"
                       @change="handleImageUpload"
-                      class="hidden"
-                      id="product-image"
+                      class="sr-only"
                     />
-                    <label 
-                      for="product-image"
-                      class="text-xs text-[#5B68DF] cursor-pointer hover:underline"
+
+                    <!-- Upload area -->
+                    <div
+                      class="relative flex items-center justify-center cursor-pointer rounded-md overflow-hidden w-[300px] h-[300px] bg-[#DCDEFF]"
+                      @click="triggerFileSelect"
                     >
-                      {{ logo ? '✓ Image uploaded' : 'Choose file' }}
-                    </label>
-                    <Button v-if="logo" @click="saveLogo">Save</Button>
+                      <img
+                        v-if="imageSrc"
+                        :src="imageSrc"
+                        alt="Vendor logo preview"
+                        class="w-full h-full object-contain"
+                      />
+
+                      <Icon
+                        v-else
+                        icon="streamline-flex:new-file-solid"
+                        width="48"
+                        height="48"
+                        class="text-[#5B68DF]"
+                      />
+
+                      <!-- Change icon overlay -->
+                      <div
+                        v-if="imageSrc"
+                        class="absolute bottom-4 right-4 text-white"
+                      >
+                        <Icon icon="ic:round-change-circle" width="40" height="40" />
+                      </div>
+                    </div>
+
+                    <Button v-if="bgImagePreview" @click="saveLogo">
+                      Save
+                    </Button>
                   </div>
-                </div>
               </div>            
             </div>
             <div>
