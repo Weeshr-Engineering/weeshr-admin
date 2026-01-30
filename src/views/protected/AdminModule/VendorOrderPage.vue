@@ -343,7 +343,7 @@
                 {{ formatDate(order.createdAt) }}
               </TableCell>
               <TableCell class="text-xs md:text-sm lg:text-sm">
-                {{ order.recieverName  || 'N/A' }}
+                {{ order.recieverName || 'N/A' }}
               </TableCell>
               <TableCell class="text-xs md:text-sm lg:text-sm">
                 ₦{{ order.vendorTotal?.toLocaleString() || '0' }}
@@ -1022,10 +1022,10 @@ const getProductImage = (item: any): string => {
   // Check if product exists in products store
   const productInStore = productsStore.products.find((p: Product) => p._id === productId)
 
-  if (productInStore?.image) {
+  if (productInStore?.images && productInStore.images.length > 0) {
     // Cache the image URL
-    productImageCache.value[productId] = productInStore.image
-    return productInStore.image
+    productImageCache.value[productId] = productInStore.images[0]
+    return productInStore.images[0]
   }
 
   // Try to fetch the product if not in store
@@ -1040,8 +1040,8 @@ const getProductImage = (item: any): string => {
 const fetchProductImage = async (productId: string) => {
   try {
     const product = await productsStore.fetchProductById(productId)
-    if (product?.image) {
-      productImageCache.value[productId] = product.image
+    if (product?.images && product.images.length > 0) {
+      productImageCache.value[productId] = product.images[0]
     }
   } catch (error) {
     console.error('Error fetching product image:', error)
