@@ -204,27 +204,36 @@ export const useProductsStore = defineStore('products', {
     normalizeProduct(product: any): Product {
       if (!product) return product
    
-      let imageUrl = null
+      const imagesArray: string[] = []
       
-      // Handle images array (from bulk upload API)
+      // Handle images array (from bulk upload API or new multi-upload)
       if (product.images && Array.isArray(product.images) && product.images.length > 0) {
-        const firstImage = product.images[0]
-        if (typeof firstImage === 'string') {
-          imageUrl = firstImage
-        } else if (firstImage?.secure_url) {
-          imageUrl = firstImage.secure_url
-        } else if (firstImage?.url) {
-          imageUrl = firstImage.url
-        }
+        product.images.forEach((img: any) => {
+          if (typeof img === 'string') {
+            imagesArray.push(img)
+          } else if (img?.secure_url) {
+            imagesArray.push(img.secure_url)
+          } else if (img?.url) {
+            imagesArray.push(img.url)
+          }
+        })
       }
       // Handle single image field (legacy format)
       else if (product.image) {
         if (typeof product.image === 'string') {
-          imageUrl = product.image
+          imagesArray.push(product.image)
         } else if (product.image.secure_url) {
-          imageUrl = product.image.secure_url
+          imagesArray.push(product.image.secure_url)
         } else if (product.image.url) {
-          imageUrl = product.image.url
+          imagesArray.push(product.image.url)
+        }
+      }
+      // Handle single images field (object, not array)
+      else if (product.images && typeof product.images === 'object' && !Array.isArray(product.images)) {
+        if (product.images.secure_url) {
+          imagesArray.push(product.images.secure_url)
+        } else if (product.images.url) {
+          imagesArray.push(product.images.url)
         }
       }
 
@@ -241,7 +250,7 @@ export const useProductsStore = defineStore('products', {
 
       return {
         ...product,
-        image: imageUrl,
+        images: imagesArray.length > 0 ? imagesArray : null,
         tag: tags, 
         vendorId: product.vendor?._id || product.vendorId
       }
