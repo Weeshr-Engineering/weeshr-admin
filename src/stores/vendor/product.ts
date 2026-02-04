@@ -2,20 +2,33 @@ import { defineStore } from 'pinia'
 import axios from 'axios'
 import { useSuperAdminStore } from '@/stores/super-admin/super-admin'
 
+// Config-based variant structure for products
+export interface ProductConfig {
+  color: string
+  size: string
+  amount: number
+  qty: number
+  availableQty?: number
+  sku?: string
+}
+
 export interface Product {
   _id: string
   name: string
   description?: string
   amount?: number  
-  qty?: number  
+  qty?: number
+  availableQty?: number
   tat?: string  
   images?: string[] | null
   status: 'published' | 'draft' | 'archived' | 'out-of-stock'
   size?: string
+  color?: string
   tag?: string[]  
   vendorId?: string
   createdAt?: string
   updatedAt?: string
+  config?: ProductConfig[]  
 }
 
 export interface Category {
@@ -247,12 +260,27 @@ export const useProductsStore = defineStore('products', {
         }).filter(Boolean) 
       }
 
+      // Handle config array - ensure it's properly formatted
+      let configArray: ProductConfig[] = []
+      if (product.config && Array.isArray(product.config)) {
+        configArray = product.config.map((c: any) => ({
+          color: c.color || '',
+          size: c.size || '',
+          amount: Number(c.amount) || 0,
+          qty: Number(c.qty) || 0,
+          availableQty: Number(c.availableQty) || Number(c.qty) || 0,
+          sku: c.sku || ''
+        }))
+      }
 
       return {
         ...product,
         images: imagesArray.length > 0 ? imagesArray : null,
         tag: tags, 
-        vendorId: product.vendor?._id || product.vendorId
+        vendorId: product.vendor?._id || product.vendorId,
+        qty: Number(product.qty) || 0,
+        availableQty: Number(product.availableQty) || Number(product.qty) || 0,
+        config: configArray.length > 0 ? configArray : product.config
       }
     },
     /**
