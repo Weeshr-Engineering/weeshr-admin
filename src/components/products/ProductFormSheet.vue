@@ -274,10 +274,10 @@ const saveButtonLabel = computed(() => {
           <button
             @click="handleSubmit(props.formData.status)"
             :disabled="props.loading"
-            class="flex items-center gap-2 px-4 py-2 bg-[#020721] text-white text-sm font-medium rounded-full hover:bg-[#020721]/90 disabled:opacity-50 transition-colors"
+            class="flex items-center gap-2 px-4 py-2 bg-[#4145A7] text-white text-sm font-medium rounded-full hover:bg-[#020721]/90 disabled:opacity-50 transition-colors"
           >
             Save
-            <Icon icon="mdi:check" class="w-4 h-4" />
+            <img src="@/assets/directindox.svg" alt="save" class="w-4 h-4" />
           </button>
         </div>
 
@@ -432,15 +432,15 @@ const saveButtonLabel = computed(() => {
             <label class="text-sm text-[#8B8D97] mb-2 block">
               Description
               <span class="text-xs text-[#8B8D97] ml-1"
-                >{{ props.formData.description.length }}/50</span
+                >{{ props.formData.description.length }}/150</span
               >
             </label>
             <textarea
               :value="props.formData.description"
               @input="updateField('description', ($event.target as HTMLTextAreaElement).value)"
-              placeholder="Describe product in 50 characters"
-              maxlength="50"
-              rows="2"
+              placeholder="Describe product in 150 characters"
+              maxlength="150"
+              rows="3"
               class="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#5B68DF] resize-none bg-white"
             ></textarea>
           </div>
