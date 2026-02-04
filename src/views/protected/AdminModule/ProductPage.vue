@@ -59,17 +59,23 @@ const bulkProductsList = ref<any[]>([])
 // Actions dropdown state
 const showActionsMenu = ref<string | null>(null)
 
-// Form data
+// Form data with config-based variants
+interface ProductConfigItem {
+  color: string
+  size: string
+  amount: string
+  qty: string
+}
+
 const formData = ref({
   name: '',
   description: '',
-  amount: '',
-  qty: '1',
   tat: '',
-  size: '',
   tag: [] as string[],
   images: [] as File[],
-  status: 'draft' as 'published' | 'draft' | 'archived' | 'out-of-stock'
+  status: 'draft' as 'published' | 'draft' | 'archived' | 'out-of-stock',
+  config: [{ color: '', size: '', amount: '', qty: '' }] as ProductConfigItem[],
+  qty: ''
 })
 
 // Edit mode
@@ -483,9 +489,19 @@ const handleImagesUpload = (files: File[]) => {
 const handleFormSubmit = async (status: 'published' | 'draft' | 'archived' | 'out-of-stock') => {
   formData.value.status = status
 
-  if (!formData.value.name || !formData.value.amount) {
+  if (!formData.value.name) {
     toast({
-      description: 'Please fill Name and Price fields',
+      description: 'Please fill in the product name',
+      variant: 'destructive'
+    })
+    return
+  }
+
+  // Validate config - at least one complete variant required
+  const validConfigs = formData.value.config.filter((c) => c.amount && c.qty)
+  if (validConfigs.length === 0) {
+    toast({
+      description: 'Please add at least one variant with price and quantity',
       variant: 'destructive'
     })
     return
@@ -505,19 +521,50 @@ const handleFormSubmit = async (status: 'published' | 'draft' | 'archived' | 'ou
     let data = new FormData()
     data.append('name', formData.value.name)
     data.append('description', formData.value.description || '')
-    data.append('amount', formData.value.amount.toString())
     data.append('tat', tatDate || '')
-    data.append('qty', formData.value.qty.toString())
     data.append('status', formData.value.status)
     data.append('vendorId', vendorId.value)
 
-    if (formData.value.size) {
-      data.append('size', formData.value.size)
+    // Build config array with proper types first (needed for qty calculation)
+    const configArray = formData.value.config
+      .filter((c) => c.amount && c.qty)
+      .map((c) => ({
+        color: c.color || '',
+        size: c.size || '',
+        amount: Number(c.amount) || 0,
+        qty: Number(c.qty) || 0,
+        availableQty: Number(c.qty) || 0 // Set availableQty equal to qty for new products
+      }))
+
+    // Calculate total qty: sum of all config qty if variants exist, otherwise use manual input
+    let totalQty: number
+    if (configArray.length > 0) {
+      // Sum all config quantities
+      totalQty = configArray.reduce((sum, c) => sum + c.qty, 0)
+    } else {
+      // No valid config, use manual qty input
+      totalQty = Number(formData.value.qty) || 1
+    }
+    data.append('qty', totalQty.toString())
+
+    // Add amount/qty/size from first config for backward compatibility
+    const firstConfig = formData.value.config[0]
+    if (firstConfig) {
+      data.append('amount', firstConfig.amount?.toString() || '0')
+      if (firstConfig.size) {
+        data.append('size', firstConfig.size)
+      }
+      if (firstConfig.color) {
+        data.append('color', firstConfig.color)
+      }
     }
 
     if (formData.value.tag && formData.value.tag.length > 0) {
       data.append('tag', formData.value.tag.join(','))
     }
+
+    // Send config as JSON string - backend expects JSON array format
+    data.append('config', JSON.stringify(configArray))
 
     // Append multiple images
     if (formData.value.images && formData.value.images.length > 0) {
@@ -525,6 +572,8 @@ const handleFormSubmit = async (status: 'published' | 'draft' | 'archived' | 'ou
         data.append('images', file)
       })
     }
+
+   
 
     if (isEditMode.value && editingProductId.value) {
       await productsStore.updateProduct(editingProductId.value, data)
@@ -571,13 +620,12 @@ const resetForm = () => {
   formData.value = {
     name: '',
     description: '',
-    amount: '',
-    qty: '1',
     tat: '',
-    size: '',
     tag: [],
     images: [],
-    status: 'draft'
+    status: 'draft',
+    config: [{ color: '', size: '', amount: '', qty: '' }],
+    qty: ''
   }
 }
 
@@ -598,16 +646,36 @@ const editProduct = () => {
   editingProductId.value = selectedProduct.value._id
   bulkUploadMode.value = false
 
+  // Convert existing product config or create from legacy fields
+  let configData: ProductConfigItem[] = []
+  if (selectedProduct.value.config && selectedProduct.value.config.length > 0) {
+    configData = selectedProduct.value.config.map((c) => ({
+      color: c.color || '',
+      size: c.size || '',
+      amount: c.amount?.toString() || '',
+      qty: c.qty?.toString() || ''
+    }))
+  } else {
+    // Fallback for legacy products without config
+    configData = [
+      {
+        color: selectedProduct.value.color || '',
+        size: selectedProduct.value.size || '',
+        amount: selectedProduct.value.amount?.toString() || '',
+        qty: selectedProduct.value.qty?.toString() || '1'
+      }
+    ]
+  }
+
   formData.value = {
     name: selectedProduct.value.name,
     description: selectedProduct.value.description || '',
-    amount: selectedProduct.value.amount?.toString() || '',
-    qty: selectedProduct.value.qty?.toString() || '1',
     tat: selectedProduct.value.tat || '',
-    size: selectedProduct.value.size || '',
     tag: selectedProduct.value.tag || [],
     images: [],
-    status: selectedProduct.value.status
+    status: selectedProduct.value.status,
+    config: configData,
+    qty: selectedProduct.value.qty?.toString() || ''
   }
 
   viewProductSheetOpen.value = false
@@ -620,16 +688,36 @@ const editProductFromList = (product: Product) => {
   editingProductId.value = product._id
   bulkUploadMode.value = false
 
+  // Convert existing product config or create from legacy fields
+  let configData: ProductConfigItem[] = []
+  if (product.config && product.config.length > 0) {
+    configData = product.config.map((c) => ({
+      color: c.color || '',
+      size: c.size || '',
+      amount: c.amount?.toString() || '',
+      qty: c.qty?.toString() || ''
+    }))
+  } else {
+    // Fallback for legacy products without config
+    configData = [
+      {
+        color: product.color || '',
+        size: product.size || '',
+        amount: product.amount?.toString() || '',
+        qty: product.qty?.toString() || '1'
+      }
+    ]
+  }
+
   formData.value = {
     name: product.name,
     description: product.description || '',
-    amount: product.amount?.toString() || '',
-    qty: product.qty?.toString() || '1',
     tat: product.tat || '',
-    size: product.size || '',
     tag: product.tag || [],
     images: [],
-    status: product.status
+    status: product.status,
+    config: configData,
+    qty: product.qty?.toString() || ''
   }
 
   addProductSheetOpen.value = true

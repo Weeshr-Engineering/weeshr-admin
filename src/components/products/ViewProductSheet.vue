@@ -167,34 +167,80 @@ const statusBg = (status: string) => {
             </div>
           </div>
 
-          <!-- Product Info Grid -->
-          <div class="grid grid-cols-2 gap-4 mb-6">
-            <div>
-              <p class="text-xs text-[#8B8D97] mb-1">Price</p>
-              <p class="text-sm font-medium text-[#020721]">
-                {{ props.formatPrice(props.product.amount) }}
-              </p>
-            </div>
-            <div>
-              <p class="text-xs text-[#8B8D97] mb-1">Quantity</p>
-              <p class="text-sm font-medium text-[#020721]">
-                {{ props.product.qty || 0 }}
-              </p>
-            </div>
-            <div>
-              <p class="text-xs text-[#8B8D97] mb-1">Size</p>
-              <p class="text-sm font-medium text-[#020721]">
-                {{ props.product.size || 'N/A' }}
-              </p>
-            </div>
-            <div>
-              <p class="text-xs text-[#8B8D97] mb-1">Status</p>
+          <!-- Product Variants Section -->
+          <div class="mb-6">
+            <p class="text-xs text-[#8B8D97] mb-2">Product Variants</p>
+
+            <!-- If product has config array -->
+            <div v-if="props.product.config && props.product.config.length > 0" class="space-y-2">
               <div
-                :class="statusBg(props.product.status)"
-                class="rounded-full w-fit px-3 py-1 text-white text-xs font-medium capitalize"
+                v-for="(variant, index) in props.product.config"
+                :key="index"
+                class="bg-[#F8F9FF] rounded-lg p-3"
               >
-                {{ props.formatStatus(props.product.status) }}
+                <div class="grid grid-cols-4 gap-2 text-sm">
+                  <div>
+                    <p class="text-xs text-[#8B8D97]">Color</p>
+                    <p class="font-medium text-[#020721]">{{ variant.color || 'N/A' }}</p>
+                  </div>
+                  <div>
+                    <p class="text-xs text-[#8B8D97]">Size</p>
+                    <p class="font-medium text-[#020721]">{{ variant.size || 'N/A' }}</p>
+                  </div>
+                  <div>
+                    <p class="text-xs text-[#8B8D97]">Price</p>
+                    <p class="font-medium text-[#020721]">
+                      {{ props.formatPrice(variant.amount) }}
+                    </p>
+                  </div>
+                  <div>
+                    <p class="text-xs text-[#8B8D97]">Qty</p>
+                    <p class="font-medium text-[#020721]">{{ variant.qty || 0 }}</p>
+                  </div>
+                </div>
               </div>
+            </div>
+
+            <!-- Fallback for legacy products without config -->
+            <div v-else class="grid grid-cols-2 gap-4">
+              <div>
+                <p class="text-xs text-[#8B8D97] mb-1">Price</p>
+                <p class="text-sm font-medium text-[#020721]">
+                  {{ props.formatPrice(props.product.amount) }}
+                </p>
+              </div>
+              <div>
+                <p class="text-xs text-[#8B8D97] mb-1">Quantity</p>
+                <p class="text-sm font-medium text-[#020721]">
+                  {{ props.product.qty || 0 }}
+                </p>
+              </div>
+              <div>
+                <p class="text-xs text-[#8B8D97] mb-1">Size</p>
+                <p class="text-sm font-medium text-[#020721]">
+                  {{ props.product.size || 'N/A' }}
+                </p>
+              </div>
+              <div>
+                <p class="text-xs text-[#8B8D97] mb-1">Status</p>
+                <div
+                  :class="statusBg(props.product.status)"
+                  class="rounded-full w-fit px-3 py-1 text-white text-xs font-medium capitalize"
+                >
+                  {{ props.formatStatus(props.product.status) }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Status (always shown) -->
+          <div class="mb-4" v-if="props.product.config && props.product.config.length > 0">
+            <p class="text-xs text-[#8B8D97] mb-1">Status</p>
+            <div
+              :class="statusBg(props.product.status)"
+              class="rounded-full w-fit px-3 py-1 text-white text-xs font-medium capitalize"
+            >
+              {{ props.formatStatus(props.product.status) }}
             </div>
           </div>
 
