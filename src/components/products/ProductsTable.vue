@@ -93,6 +93,22 @@ const statusBg = (status: string) => {
   }
 }
 
+// Get total quantity - sum all config variant quantities for accurate total
+const getTotalQty = (product: Product): number => {
+  if (product.config && product.config.length > 0) {
+    return product.config.reduce((sum, c) => sum + (c.qty || 0), 0)
+  }
+  return product.qty || 0
+}
+
+// Get amount from config (first entry) or fallback to legacy amount
+const getAmount = (product: Product): number => {
+  if (product.config && product.config.length > 0) {
+    return product.config[0].amount || 0
+  }
+  return product.amount || 0
+}
+
 const visiblePages = computed(() => {
   const current = props.pagination.currentPage
   const total = props.pagination.totalPages
@@ -224,12 +240,14 @@ const handleEdit = (product: Product) => {
             product.description || 'No description'
           }}</TableCell>
           <TableCell class="text-sm font-medium text-[#020721]">{{
-            props.formatPrice(product.amount || 0)
+            props.formatPrice(getAmount(product))
           }}</TableCell>
           <TableCell class="text-sm text-[#8B8D97]">{{
             props.formatTat(product.tat ?? '') || 'N/A'
           }}</TableCell>
-          <TableCell class="text-sm text-[#8B8D97] text-center">{{ product.qty || 0 }}</TableCell>
+          <TableCell class="text-sm text-[#8B8D97] text-center">{{
+            getTotalQty(product)
+          }}</TableCell>
           <TableCell>
             <div
               :class="statusBg(product.status)"

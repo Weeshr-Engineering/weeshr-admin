@@ -9,16 +9,23 @@ interface Category {
   name: string
 }
 
+// Config-based variant structure
+interface ProductConfigItem {
+  color: string
+  size: string
+  amount: string
+  qty: string
+}
+
 interface FormData {
   name: string
   description: string
-  amount: string
-  qty: string
   tat: string
-  size: string
   tag: string[]
   images: File[]
   status: 'published' | 'draft' | 'archived' | 'out-of-stock'
+  config: ProductConfigItem[]
+  qty: string
 }
 
 interface Props {
@@ -52,10 +59,40 @@ const deliveryTimeOptions = [
   '1 Month'
 ]
 
+// Predefined options for colors and sizes
+const colorOptions = [
+  'n/a',
+  'white',
+  'black',
+  'red',
+  'blue',
+  'green',
+  'yellow',
+  'pink',
+  'purple',
+  'orange',
+  'brown',
+  'grey'
+]
+const sizeOptions = ['n/a', 'xs', 's', 'm', 'l', 'xl', '2xl', '3xl', 'litre', 'kg', 'g']
+
 // Local state for image previews
 const imagePreviews = ref<string[]>([])
 const MAX_IMAGES = 3
 const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
+
+// Toggle state for config section visibility
+const showConfigSection = ref(false)
+
+// Computed: Check if config has valid entries with qty
+const hasValidConfig = computed(() => {
+  return props.formData.config.some((c) => c.qty && Number(c.qty) > 0)
+})
+
+// Computed: Total qty from all config items
+const totalConfigQty = computed(() => {
+  return props.formData.config.reduce((sum, c) => sum + (Number(c.qty) || 0), 0)
+})
 
 const { toast } = useToast()
 
@@ -82,6 +119,30 @@ watch(
 
 const updateField = (field: keyof FormData, value: any) => {
   emit('update:formData', { ...props.formData, [field]: value })
+}
+
+// Config management functions
+const addConfigRow = () => {
+  const newConfig = [...props.formData.config, { color: '', size: '', amount: '', qty: '' }]
+  updateField('config', newConfig)
+}
+
+const removeConfigRow = (index: number) => {
+  if (props.formData.config.length <= 1) {
+    toast({
+      description: 'At least one variant configuration is required',
+      variant: 'destructive'
+    })
+    return
+  }
+  const newConfig = props.formData.config.filter((_, i) => i !== index)
+  updateField('config', newConfig)
+}
+
+const updateConfigItem = (index: number, field: keyof ProductConfigItem, value: string) => {
+  const newConfig = [...props.formData.config]
+  newConfig[index] = { ...newConfig[index], [field]: value }
+  updateField('config', newConfig)
 }
 
 const handleTagSelection = (categoryId: string) => {
@@ -156,6 +217,27 @@ const canAddMore = computed(() => {
 
 const remainingSlots = computed(() => {
   return MAX_IMAGES - (props.formData.images?.length || 0)
+})
+
+// Toggle config section visibility
+const toggleConfigSection = () => {
+  showConfigSection.value = !showConfigSection.value
+}
+
+// Computed: Get label for save button based on selected status
+const saveButtonLabel = computed(() => {
+  switch (props.formData.status) {
+    case 'published':
+      return 'Publish'
+    case 'draft':
+      return 'Save as Draft'
+    case 'archived':
+      return 'Save as Archive'
+    case 'out-of-stock':
+      return 'Save as Out of Stock'
+    default:
+      return 'Save'
+  }
 })
 </script>
 
@@ -306,39 +388,6 @@ const remainingSlots = computed(() => {
             />
           </div>
 
-          <div>
-            <label class="text-sm text-[#8B8D97] mb-2 block"> Price </label>
-            <input
-              :value="props.formData.amount"
-              @input="updateField('amount', ($event.target as HTMLInputElement).value)"
-              type="number"
-              placeholder="Enter price"
-              class="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#5B68DF] bg-white"
-            />
-          </div>
-
-          <div>
-            <label class="text-sm text-[#8B8D97] mb-2 block">Size</label>
-            <input
-              :value="props.formData.size"
-              @input="updateField('size', ($event.target as HTMLInputElement).value)"
-              type="text"
-              placeholder="Enter size"
-              class="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#5B68DF] bg-white"
-            />
-          </div>
-
-          <div>
-            <label class="text-sm text-[#8B8D97] mb-2 block">Quantity</label>
-            <input
-              :value="props.formData.qty"
-              @input="updateField('qty', ($event.target as HTMLInputElement).value)"
-              type="number"
-              placeholder="Enter available quantity"
-              class="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#5B68DF] bg-white"
-            />
-          </div>
-
           <!-- Category Selection -->
           <div>
             <label class="text-sm text-[#8B8D97] mb-2 block">
@@ -409,6 +458,167 @@ const remainingSlots = computed(() => {
               </option>
             </select>
           </div>
+
+          <!-- Total Quantity Input -->
+          <div>
+            <label class="text-sm text-[#8B8D97] mb-2 block">
+              Total Quantity
+              <span v-if="hasValidConfig" class="text-xs text-[#5B68DF] ml-1"
+                >(Sum of variants)</span
+              >
+            </label>
+            <input
+              :value="hasValidConfig ? totalConfigQty : props.formData.qty"
+              @input="
+                !hasValidConfig && updateField('qty', ($event.target as HTMLInputElement).value)
+              "
+              type="number"
+              placeholder="Enter total quantity"
+              :readonly="hasValidConfig"
+              :class="[
+                'w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#5B68DF]',
+                hasValidConfig ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'
+              ]"
+            />
+          </div>
+
+          <!-- Variants Configuration Section -->
+          <div class="border-t border-gray-200 pt-4 mt-4">
+            <div class="flex items-center justify-between mb-3">
+              <label class="text-sm font-medium text-[#020721]">Product Variants</label>
+              <button
+                type="button"
+                @click="toggleConfigSection"
+                class="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-[#5B68DF] hover:bg-[#F8F9FF] rounded-full transition-colors"
+              >
+                <Icon
+                  :icon="showConfigSection ? 'mdi:chevron-up' : 'mdi:chevron-down'"
+                  class="w-4 h-4"
+                />
+                {{ showConfigSection ? 'Hide' : 'Show' }} Variants
+              </button>
+            </div>
+
+            <!-- Collapsible Config Content -->
+            <div v-show="showConfigSection">
+              <!-- Config Rows -->
+              <div class="space-y-3">
+                <div
+                  v-for="(configItem, index) in props.formData.config"
+                  :key="index"
+                  class="bg-[#F8F9FF] rounded-xl p-4"
+                >
+                  <div class="flex items-center justify-between mb-3">
+                    <span class="text-xs font-medium text-[#5B68DF]">Variant {{ index + 1 }}</span>
+                    <button
+                      v-if="props.formData.config.length > 1"
+                      @click="removeConfigRow(index)"
+                      class="text-red-500 hover:text-red-600 transition-colors"
+                    >
+                      <Icon icon="mdi:close-circle" class="w-5 h-5" />
+                    </button>
+                  </div>
+
+                  <div class="grid grid-cols-2 gap-3">
+                    <!-- Color Dropdown -->
+                    <div>
+                      <label class="text-xs text-[#8B8D97] mb-1 block">Color</label>
+                      <select
+                        :value="configItem.color"
+                        @change="
+                          updateConfigItem(
+                            index,
+                            'color',
+                            ($event.target as HTMLSelectElement).value
+                          )
+                        "
+                        class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#5B68DF] bg-white"
+                      >
+                        <option value="">Select color</option>
+                        <option v-for="color in colorOptions" :key="color" :value="color">
+                          {{ color }}
+                        </option>
+                      </select>
+                    </div>
+
+                    <!-- Size Dropdown -->
+                    <div>
+                      <label class="text-xs text-[#8B8D97] mb-1 block">Size</label>
+                      <select
+                        :value="configItem.size"
+                        @change="
+                          updateConfigItem(
+                            index,
+                            'size',
+                            ($event.target as HTMLSelectElement).value
+                          )
+                        "
+                        class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#5B68DF] bg-white"
+                      >
+                        <option value="">Select size</option>
+                        <option v-for="size in sizeOptions" :key="size" :value="size">
+                          {{ size }}
+                        </option>
+                      </select>
+                    </div>
+
+                    <!-- Price Input -->
+                    <div>
+                      <label class="text-xs text-[#8B8D97] mb-1 block">Price</label>
+                      <input
+                        :value="configItem.amount"
+                        @input="
+                          updateConfigItem(
+                            index,
+                            'amount',
+                            ($event.target as HTMLInputElement).value
+                          )
+                        "
+                        type="number"
+                        placeholder="₦0"
+                        class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#5B68DF] bg-white"
+                      />
+                    </div>
+
+                    <!-- Quantity Input -->
+                    <div>
+                      <label class="text-xs text-[#8B8D97] mb-1 block">Available Quantity</label>
+                      <input
+                        :value="configItem.qty"
+                        @input="
+                          updateConfigItem(index, 'qty', ($event.target as HTMLInputElement).value)
+                        "
+                        type="number"
+                        placeholder="0"
+                        class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#5B68DF] bg-white"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Add Another Size Button -->
+              <button
+                @click="addConfigRow"
+                type="button"
+                class="w-full mt-3 px-4 py-3 border-2 border-dashed border-[#5B68DF] rounded-xl text-[#5B68DF] text-sm font-medium hover:bg-[#F8F9FF] transition-colors flex items-center justify-center gap-2"
+              >
+                <Icon icon="mdi:plus" class="w-4 h-4" />
+                Add other sizes
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom Action Button -->
+        <div class="px-4 py-4 border-t border-gray-200">
+          <button
+            @click="handleSubmit(props.formData.status)"
+            :disabled="props.loading"
+            class="w-full px-4 py-3 bg-[#020721] text-white rounded-lg text-sm font-medium hover:bg-[#020721]/90 disabled:opacity-50 transition-colors"
+          >
+            {{ saveButtonLabel }}
+          </button>
         </div>
       </div>
     </SheetContent>
