@@ -1063,21 +1063,23 @@ onBeforeUnmount(() => {
 
     <!-- Main Content Card -->
     <Card class="m-0 py-6 rounded-[24px] w-full mt-6">
-      <!-- Header with search and filters -->
-      <div class="flex flex-row flex-wrap gap-4 items-center justify-between px-6">
-        <div class="flex gap-4 items-center flex-wrap">
-          <Search @search="handleSearch" />
-
+      <!-- Header matching Transaction/Order page style -->
+      <div class="flex flex-col sm:flex-row items-center justify-between py-4 px-6">
+        <div class="text-xl sm:text-xl font-bold tracking-tight text-[#020721] mb-2 sm:mb-0">
+          Product List
+          <p class="text-xs sm:text-sm font-normal text-[#02072199]">Details of all transactions</p>
+        </div>
+        <div class="flex items-center flex-col md:flex-row gap-4">
           <!-- Status Filter Dropdown -->
-          <div class="relative">
+          <div class="relative" data-status-filter>
             <Button
-              data-status-filter
-              @click="showStatusFilter = !showStatusFilter"
               variant="outline"
-              class="flex items-center gap-2"
+              class="flex items-center gap-2 w-full sm:w-auto bg-[#EEEFF5]"
+              @click.stop="showStatusFilter = !showStatusFilter"
             >
               <ListFilter class="w-4 h-4" />
               {{ getStatusFilterDisplay() }}
+              <Icon icon="mdi:chevron-down" class="w-4 h-4" />
             </Button>
 
             <div
@@ -1131,37 +1133,50 @@ onBeforeUnmount(() => {
               </button>
             </div>
           </div>
-        </div>
 
-        <!-- Add Product Dropdown -->
-        <div class="relative">
-          <Button
-            data-add-product-menu
-            @click="showAddProductMenu = !showAddProductMenu"
-            class="bg-[#020721] text-white hover:bg-[#020721]/90"
-          >
-            <Icon icon="mdi:plus" class="w-4 h-4 mr-2" />
-            Add Product
-          </Button>
+          <Search @search="handleSearch" class="mt-3 lg:mt-0" />
 
-          <div
-            v-if="showAddProductMenu"
-            class="absolute top-full mt-2 right-0 bg-white border rounded-lg shadow-lg py-2 z-50 min-w-[180px]"
-          >
+          <!-- Add Product Button -->
+          <div class="relative">
             <button
-              @click="openSingleProductMode"
-              class="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center gap-2 text-sm"
+              data-add-product-menu
+              @click="showAddProductMenu = !showAddProductMenu"
+              class="bg-[#020721] px-4 py-2 rounded-xl h-12 flex items-center gap-2"
             >
-              <Icon icon="mdi:plus-circle-outline" class="w-4 h-4" />
-              Add Single Product
+              <span class="text-base text-[#F8F9FF]">Add Product</span>
+              <svg
+                width="20"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M12 2C6.49 2 2 6.49 2 12C2 17.51 6.49 22 12 22C17.51 22 22 17.51 22 12C22 6.49 17.51 2 12 2ZM16 12.75H12.75V16C12.75 16.41 12.41 16.75 12 16.75C11.59 16.75 11.25 16.41 11.25 16V12.75H8C7.59 12.75 7.25 12.41 7.25 12C7.25 11.59 7.59 11.25 8 11.25H11.25V8C11.25 7.59 11.59 7.25 12 7.25C12.41 7.25 12.75 7.59 12.75 8V11.25H16C16.41 11.25 16.75 11.59 16.75 12C16.75 12.41 16.41 12.75 16 12.75Z"
+                  fill="#F8F9FF"
+                />
+              </svg>
             </button>
-            <button
-              @click="openBulkProductMode"
-              class="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center gap-2 text-sm"
+
+            <div
+              v-if="showAddProductMenu"
+              class="absolute top-full mt-2 right-0 bg-white border rounded-lg shadow-lg py-2 z-50 min-w-[180px]"
             >
-              <Icon icon="mdi:upload-multiple" class="w-4 h-4" />
-              Bulk Upload
-            </button>
+              <button
+                @click="openSingleProductMode"
+                class="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center gap-2 text-sm"
+              >
+                <Icon icon="mdi:plus-circle-outline" class="w-4 h-4" />
+                Add Single Product
+              </button>
+              <button
+                @click="openBulkProductMode"
+                class="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center gap-2 text-sm"
+              >
+                <Icon icon="mdi:upload-multiple" class="w-4 h-4" />
+                Bulk Upload
+              </button>
+            </div>
           </div>
         </div>
       </div>
