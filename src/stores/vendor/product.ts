@@ -362,8 +362,14 @@ export const useProductsStore = defineStore('products', {
           }
         }
 
+
+
+
         const response = await axios.patch(`/api/v1/admin/market/products/${id}`, productData, config)
-        const updatedProduct = response.data.data
+        const rawUpdatedProduct = response.data.data
+        
+        // Normalize the product data to convert images from objects to URLs
+        const updatedProduct = this.normalizeProduct(rawUpdatedProduct)
         
         // Find and update the product in the list
         const index = this.products.findIndex(p => p._id === id)

@@ -20,12 +20,14 @@ interface ProductConfigItem {
 interface FormData {
   name: string
   description: string
+  amount: string // Standalone price for simple products
+  qty: string // Standalone qty for simple products
   tat: string
   tag: string[]
   images: File[]
+  existingImages: string[] // URLs of existing images when editing
   status: 'published' | 'draft' | 'archived' | 'out-of-stock'
   config: ProductConfigItem[]
-  qty: string
 }
 
 interface Props {
@@ -112,6 +114,19 @@ watch(
       })
     } else {
       imagePreviews.value = []
+    }
+  },
+  { immediate: true, deep: true }
+)
+
+// Watch for config changes to auto-expand section when editing product with variants
+watch(
+  () => props.formData.config,
+  (newConfig) => {
+    // Auto-open config section if any config item has amount and qty filled
+    const hasValidEntries = newConfig.some((c) => c.amount && c.qty)
+    if (hasValidEntries) {
+      showConfigSection.value = true
     }
   },
   { immediate: true, deep: true }
@@ -207,16 +222,27 @@ const removeImage = (index: number) => {
   emit('imagesUpload', currentImages)
 }
 
+// Remove existing URL image
+const removeExistingImage = (index: number) => {
+  const existingImages = [...(props.formData.existingImages || [])]
+  existingImages.splice(index, 1)
+  updateField('existingImages', existingImages)
+}
+
 const handleSubmit = (status: 'published' | 'draft' | 'archived' | 'out-of-stock') => {
   emit('submit', status)
 }
 
 const canAddMore = computed(() => {
-  return (props.formData.images?.length || 0) < MAX_IMAGES
+  const totalImages =
+    (props.formData.images?.length || 0) + (props.formData.existingImages?.length || 0)
+  return totalImages < MAX_IMAGES
 })
 
 const remainingSlots = computed(() => {
-  return MAX_IMAGES - (props.formData.images?.length || 0)
+  const totalImages =
+    (props.formData.images?.length || 0) + (props.formData.existingImages?.length || 0)
+  return MAX_IMAGES - totalImages
 })
 
 // Toggle config section visibility
@@ -300,10 +326,25 @@ const saveButtonLabel = computed(() => {
 
           <!-- Image Preview Slots Row -->
           <div class="flex gap-3 flex-wrap">
-            <!-- Existing Images -->
+            <!-- Existing Images (URLs from server) -->
+            <div
+              v-for="(imageUrl, index) in props.formData.existingImages"
+              :key="'existing-' + index"
+              class="relative w-20 h-20 rounded-lg overflow-hidden bg-[#E8EAFC] border-2 border-green-500 flex-shrink-0"
+            >
+              <img :src="imageUrl" class="w-full h-full object-cover" alt="Existing" />
+              <button
+                @click="removeExistingImage(index)"
+                class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors"
+              >
+                <Icon icon="mdi:close" class="w-3 h-3" />
+              </button>
+            </div>
+
+            <!-- New File Previews -->
             <div
               v-for="(preview, index) in imagePreviews"
-              :key="index"
+              :key="'new-' + index"
               class="relative w-20 h-20 rounded-lg overflow-hidden bg-[#E8EAFC] border-2 border-[#5B68DF] flex-shrink-0"
             >
               <img :src="preview" class="w-full h-full object-cover" alt="Preview" />
@@ -445,6 +486,30 @@ const saveButtonLabel = computed(() => {
             ></textarea>
           </div>
 
+          <!-- Price Field (for simple products without variants) -->
+          <div v-if="!showConfigSection" class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="text-sm text-[#8B8D97] mb-2 block">Price</label>
+              <input
+                :value="props.formData.amount"
+                @input="updateField('amount', ($event.target as HTMLInputElement).value)"
+                type="number"
+                placeholder="₦0"
+                class="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#5B68DF] bg-white"
+              />
+            </div>
+            <div>
+              <label class="text-sm text-[#8B8D97] mb-2 block">Quantity</label>
+              <input
+                :value="props.formData.qty"
+                @input="updateField('qty', ($event.target as HTMLInputElement).value)"
+                type="number"
+                placeholder="0"
+                class="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#5B68DF] bg-white"
+              />
+            </div>
+          </div>
+
           <div>
             <label class="text-sm text-[#8B8D97] mb-2 block">Delivery TAT</label>
             <select
@@ -459,26 +524,18 @@ const saveButtonLabel = computed(() => {
             </select>
           </div>
 
-          <!-- Total Quantity Input -->
-          <div>
+          <!-- Total Quantity (only shown when using variants) -->
+          <div v-if="showConfigSection && hasValidConfig">
             <label class="text-sm text-[#8B8D97] mb-2 block">
               Total Quantity
-              <span v-if="hasValidConfig" class="text-xs text-[#5B68DF] ml-1"
-                >(Sum of variants)</span
-              >
+              <span class="text-xs text-[#5B68DF] ml-1">(Sum of variants)</span>
             </label>
             <input
-              :value="hasValidConfig ? totalConfigQty : props.formData.qty"
-              @input="
-                !hasValidConfig && updateField('qty', ($event.target as HTMLInputElement).value)
-              "
+              :value="totalConfigQty"
               type="number"
               placeholder="Enter total quantity"
-              :readonly="hasValidConfig"
-              :class="[
-                'w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#5B68DF]',
-                hasValidConfig ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'
-              ]"
+              readonly
+              class="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#5B68DF] bg-gray-100 cursor-not-allowed"
             />
           </div>
 
