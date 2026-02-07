@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted, onUnmounted } from 'vue'
 import { Button } from '@/components/ui/button'
 import { Icon } from '@iconify/vue'
 import {
@@ -152,6 +152,23 @@ const handleEdit = (product: Product) => {
   emit('edit', product)
   emit('toggleActionsMenu', null)
 }
+
+// Click outside handler to close actions menu
+const handleClickOutside = (event: MouseEvent) => {
+  const target = event.target as HTMLElement
+  // Check if click is outside the actions menu area
+  if (!target.closest('.actions-menu-container')) {
+    emit('toggleActionsMenu', null)
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
 </script>
 
 <template>
@@ -258,7 +275,7 @@ const handleEdit = (product: Product) => {
           </TableCell>
           <TableCell>
             <!-- Actions Dropdown Menu -->
-            <div class="relative">
+            <div class="relative actions-menu-container">
               <button
                 @click.stop="handleToggleMenu(product._id)"
                 class="text-gray-400 hover:text-gray-600 p-1 rounded hover:bg-gray-100 transition-colors"
@@ -288,7 +305,7 @@ const handleEdit = (product: Product) => {
               >
                 <div
                   v-if="props.activeActionsMenu === product._id"
-                  class="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50"
+                  class="absolute right-0 -top-2 w-40 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50"
                 >
                   <button
                     @click="handleView(product._id)"
