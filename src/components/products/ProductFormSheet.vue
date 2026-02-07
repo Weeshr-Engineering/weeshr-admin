@@ -20,8 +20,6 @@ interface ProductConfigItem {
 interface FormData {
   name: string
   description: string
-  amount: string
-  qty: string
   tat: string
   tag: string[]
   images: File[]
@@ -243,6 +241,27 @@ const remainingSlots = computed(() => {
   const totalImages =
     (props.formData.images?.length || 0) + (props.formData.existingImages?.length || 0)
   return MAX_IMAGES - totalImages
+})
+
+// Toggle config section visibility
+const toggleConfigSection = () => {
+  showConfigSection.value = !showConfigSection.value
+}
+
+// Computed: Get label for save button based on selected status
+const saveButtonLabel = computed(() => {
+  switch (props.formData.status) {
+    case 'published':
+      return 'Publish'
+    case 'draft':
+      return 'Save as Draft'
+    case 'archived':
+      return 'Save as Archive'
+    case 'out-of-stock':
+      return 'Save as Out of Stock'
+    default:
+      return 'Save'
+  }
 })
 
 // Toggle config section visibility
