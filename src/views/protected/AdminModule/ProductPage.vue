@@ -573,6 +573,8 @@ const handleFormSubmit = async (status: 'published' | 'draft' | 'archived' | 'ou
       })
     }
 
+   
+
     if (isEditMode.value && editingProductId.value) {
       await productsStore.updateProduct(editingProductId.value, data)
       toast({
