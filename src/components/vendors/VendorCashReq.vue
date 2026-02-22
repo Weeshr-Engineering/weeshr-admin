@@ -131,22 +131,22 @@
                   >
                   <Badge
                     class="text-white rounded-full bg-yellow-400"
-                    v-if="item.status.toUpperCase() === 'PENDING' || item.status.toUpperCase() === 'PROCESSING'"
+                    v-else-if="item.status.toUpperCase() === 'PENDING' || item.status.toUpperCase() === 'PROCESSING'"
                     >{{ item.status.toUpperCase() }}</Badge
                   >
                   <Badge
                     class="text-white rounded-full bg-[#020721]"
-                    v-if="item.status.toUpperCase() === 'DISBURSED' || item.status.toUpperCase() === 'COMPLETED'"
+                    v-else-if="item.status.toUpperCase() === 'DISBURSED' || item.status.toUpperCase() === 'COMPLETED'"
                     >{{ item.status.toUpperCase() }}</Badge
                   >
                   <Badge
                     class="text-white rounded-full bg-red-500"
-                    v-if="item.status.toUpperCase() === 'REJECTED'"
+                    v-else-if="item.status.toUpperCase() === 'REJECTED'"
                     >{{ item.status.toUpperCase() }}</Badge
                   >
                   <Badge
                     class="text-white rounded-full bg-[#00C37F]"
-                    v-if="item.status.toUpperCase() === 'APPROVED'"
+                    v-else-if="item.status.toUpperCase() === 'APPROVED'"
                   >
                     {{ item.status.toUpperCase() }}
                   </Badge>
