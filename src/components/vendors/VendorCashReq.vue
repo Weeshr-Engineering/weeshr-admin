@@ -131,25 +131,32 @@
                   >
                   <Badge
                     class="text-white rounded-full bg-yellow-400"
-                    v-if="item.status.toUpperCase() === 'PENDING'"
+                    v-else-if="item.status.toUpperCase() === 'PENDING' || item.status.toUpperCase() === 'PROCESSING'"
                     >{{ item.status.toUpperCase() }}</Badge
                   >
                   <Badge
                     class="text-white rounded-full bg-[#020721]"
-                    v-if="item.status.toUpperCase() === 'DISBURSED' || item.status.toUpperCase() === 'COMPLETED'"
+                    v-else-if="item.status.toUpperCase() === 'DISBURSED' || item.status.toUpperCase() === 'COMPLETED'"
                     >{{ item.status.toUpperCase() }}</Badge
                   >
                   <Badge
                     class="text-white rounded-full bg-red-500"
-                    v-if="item.status.toUpperCase() === 'REJECTED'"
+                    v-else-if="item.status.toUpperCase() === 'REJECTED'"
                     >{{ item.status.toUpperCase() }}</Badge
                   >
                   <Badge
                     class="text-white rounded-full bg-[#00C37F]"
-                    v-if="item.status.toUpperCase() === 'APPROVED'"
+                    v-else-if="item.status.toUpperCase() === 'APPROVED'"
                   >
                     {{ item.status.toUpperCase() }}
-                  </Badge></TableCell
+                  </Badge>
+                  <Badge
+                    class="text-white rounded-full bg-gray-500"
+                    v-else
+                  >
+                    {{ item.status.toUpperCase() }}
+                  </Badge>
+                  </TableCell
                 >
                 <TableCell
                   v-if="createRole && (item.status.toUpperCase() === 'REQUESTED' || item.status.toUpperCase() === 'PENDING')"
@@ -401,7 +408,7 @@ function updateStageArray(id: string, sourceArray: Payout[], stageArray: Stage[]
   })
   const allPending = stageArray.every((stagedId) => {
     const stagedItem = sourceArray.find((item) => item._id === stagedId._id)
-    return stagedItem?.status.toUpperCase() === 'REQUESTED' || stagedItem?.status.toUpperCase() === 'PENDING'
+    return stagedItem?.status.toUpperCase() === 'REQUESTED' || stagedItem?.status.toUpperCase() === 'PENDING' || stagedItem?.status.toUpperCase() === 'PROCESSING'
   })
   canApprove.value = allPending
   canDisburse.value = allApproved
