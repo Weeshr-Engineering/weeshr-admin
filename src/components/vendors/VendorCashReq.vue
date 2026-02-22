@@ -131,7 +131,7 @@
                   >
                   <Badge
                     class="text-white rounded-full bg-yellow-400"
-                    v-if="item.status.toUpperCase() === 'PENDING'"
+                    v-if="item.status.toUpperCase() === 'PENDING' || item.status.toUpperCase() === 'PROCESSING'"
                     >{{ item.status.toUpperCase() }}</Badge
                   >
                   <Badge
@@ -149,7 +149,14 @@
                     v-if="item.status.toUpperCase() === 'APPROVED'"
                   >
                     {{ item.status.toUpperCase() }}
-                  </Badge></TableCell
+                  </Badge>
+                  <Badge
+                    class="text-white rounded-full bg-gray-500"
+                    v-else
+                  >
+                    {{ item.status.toUpperCase() }}
+                  </Badge>
+                  </TableCell
                 >
                 <TableCell
                   v-if="createRole && (item.status.toUpperCase() === 'REQUESTED' || item.status.toUpperCase() === 'PENDING')"
@@ -401,7 +408,7 @@ function updateStageArray(id: string, sourceArray: Payout[], stageArray: Stage[]
   })
   const allPending = stageArray.every((stagedId) => {
     const stagedItem = sourceArray.find((item) => item._id === stagedId._id)
-    return stagedItem?.status.toUpperCase() === 'REQUESTED' || stagedItem?.status.toUpperCase() === 'PENDING'
+    return stagedItem?.status.toUpperCase() === 'REQUESTED' || stagedItem?.status.toUpperCase() === 'PENDING' || stagedItem?.status.toUpperCase() === 'PROCESSING'
   })
   canApprove.value = allPending
   canDisburse.value = allApproved
