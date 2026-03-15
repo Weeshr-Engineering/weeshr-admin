@@ -40,3 +40,4 @@ const headingText = props.headingText
     </div>
   </nav>
 </template>
+<!-- nav bar -->
