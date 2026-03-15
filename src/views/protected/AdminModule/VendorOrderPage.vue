@@ -1,7 +1,7 @@
 <!-- VendorOrderPage.vue -->
 <template>
   <div class="flex-col flex bg-[#f0f8ff] h-full px-4 sm:px-10 pb-10">
-    <VendorNav class="mx-6" headingText="Order" />
+    <VendorNav class="lg:mx-6" headingText="Order" />
 
     <div class="w-full grid gap-4 md:grid-cols-2 md:gap-6 lg:grid-cols-5 pt-6">
       <Card
@@ -268,7 +268,7 @@
 
           <Search @search="handleSearch" class="mt-3 lg:mt-0" />
           <button class="bg-[#020721] px-4 py-2 rounded-xl w-50 h-12" @click="downloadReport">
-            <div class="text-base text-[#F8F9FF] text-center flex items-center">
+            <div class="text-xs lg:text-sm text-[#F8F9FF] text-center flex items-center">
               Download Report
               <svg
                 width="20"

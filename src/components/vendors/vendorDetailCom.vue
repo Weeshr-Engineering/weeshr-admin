@@ -838,14 +838,14 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="max-h-screen h-screen">
-    <component :is="View" class="mx-6" :heading-text="isVendor ? 'Profile' : 'Dashboard'"/>
+  <div class="min-h-screen">
+    <component :is="View" class="px-4" :heading-text="isVendor ? 'Profile' : 'Dashboard'"/>
     <ProxyNav/>
   <!-- <div v-if="!appUser">
     <LoadingSpinner />
   </div> -->
-    <div class="flex-col lg:flex lg:flex-row gap-1 px-8 mt-9 min-h-[80dvh]">
-      <Card class="lg:w-4/12 bg-[#F8F9FF] sm:items-center shadow-xl">
+    <div class="flex flex-col lg:flex-row gap-4 px-2 sm:px-4 lg:px-8 mt-4 sm:mt-9 min-h-[80dvh] pb-8">
+      <Card class="w-full lg:w-4/12 bg-[#F8F9FF] shadow-xl">
         <CardHeader>
           <h1 class="font-semibold text-lg">{{ companyFormData.companyName }}</h1>
           <CardDescription>
@@ -865,7 +865,7 @@ onMounted(async () => {
 
                     <!-- Upload area -->
                     <div
-                      class="relative flex items-center justify-center cursor-pointer rounded-md overflow-hidden w-[300px] h-[300px] bg-[#DCDEFF]"
+                      class="relative flex items-center justify-center cursor-pointer rounded-md overflow-hidden w-full max-w-[300px] h-[200px] sm:h-[300px] bg-[#DCDEFF]"
                       @click="triggerFileSelect"
                     >
                       <img
@@ -903,7 +903,7 @@ onMounted(async () => {
                 <span class="text-base font-bold lg:text-base text-[#020721]">Identity</span>
               </div>
               <div
-                class="grid grid-cols-3 py-2 mb-2"
+                class="grid grid-cols-2 py-2 mb-2"
               >
                 <p class="text-[#02072199] text-xs md:text-sm lg:text-sm">Username</p>
                 <p class="text-xs md:text-sm lg:text-sm text-[#020721]">
@@ -911,7 +911,7 @@ onMounted(async () => {
                 </p>
               </div>
               <div
-                class="grid grid-cols-3 py-2 my-2 border-t border-b relative"
+                class="grid grid-cols-2 py-2 my-2 border-t border-b relative"
               >
                 <p class="text-[#02072199] text-xs md:text-sm lg:text-sm">Password</p>
                 <input
@@ -920,7 +920,7 @@ onMounted(async () => {
                     v-model="newPassword"
                     class="border-b-2 border-primary"
                   />
-                <p v-else class="text-xs md:text-sm lg:text-sm text-[#020721]">********</p>
+                <p v-else class="text-xs md:text-sm lg:text-sm text-[#020721] placeholder:truncate">******</p>
                 <div class="flex items-center gap-1 absolute bottom-2 right-0">
                   <Badge v-if="newPassword !== '' && showPassword" @click="saveNewPassword" variant="outline" class="badge rounded-full">
                     Save
@@ -931,7 +931,7 @@ onMounted(async () => {
                 </div>
               </div>
               <div
-                class="grid grid-cols-3 py-2 my-2"
+                class="grid grid-cols-2 py-2 my-2"
               >
                 <p class="flex grow text-[#02072199] text-xs md:text-sm lg:text-sm">Onboarded</p>
                 <p class="text-xs col-span-2 md:text-sm lg:text-sm text-[#020721]">
@@ -957,7 +957,7 @@ onMounted(async () => {
                     class="peer sr-only"
                   />
                   <div
-                    class="peer flex h-10 w-full items-center gap-6 rounded-md bg-[#F6F6F6] text-black after:absolute after:left-1 after:h-8 after:w-[49%] after:rounded-md after:bg-slate-700 after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-focus:outline-none dark:border-[#F6F6F6] dark:bg[#F6F6F6] text-sm peer-checked:text-white justify-between px-[20%] py-4 -mr-2"
+                    class="peer flex h-10 w-full items-center gap-2 rounded-md bg-[#F6F6F6] text-black after:absolute after:left-1 after:h-8 after:w-[49%] after:rounded-md after:bg-slate-700 after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-focus:outline-none dark:border-[#F6F6F6] dark:bg[#F6F6F6] text-sm peer-checked:text-white justify-between px-[8%] sm:px-[15%] py-4"
                   >
                     <span @click="() => editProfile('drafted')" :class="vendor?.status === 'published' ? 'text-[#020721] z-30' : 'text-white z-30'">Draft</span>
                     <span @click="() => editProfile('published')" :class="vendor?.status !== 'published' ? 'text-[#020721] z-30' : 'text-white z-30'">Live</span>
@@ -966,7 +966,7 @@ onMounted(async () => {
               </div>
               <div v-if="!isVendor" class="flex justify-between rounded-md w-full">
                 <div
-                  class="relative flex h-10 w-full items-center gap-6 rounded-md bg-[#F6F6F6] text-black justify-between px-[10%] py-4"
+                  class="relative flex h-10 w-full items-center gap-2 rounded-md bg-[#F6F6F6] text-black justify-between px-[4%] sm:px-[8%] py-4"
                 >
                   <!-- Sliding indicator -->
                   <div
@@ -1009,9 +1009,9 @@ onMounted(async () => {
         </CardHeader>
       </Card>
 
-      <Card class="px-2 py-4 w-full lg:w-8/12 rounded-xl shadow-md overflow-y-scroll">
+      <Card class="px-1 sm:px-2 py-4 w-full lg:w-8/12 rounded-xl shadow-md overflow-y-auto">
         <Tabs default-value="bio" class="space-y-2">
-          <TabsList class="w-full bg-transparent flex items-center">
+          <TabsList class="w-full bg-transparent flex flex-wrap items-center gap-y-1 overflow-x-auto">
             <TabsTrigger
               value="bio"
               class="text-[#000000] data-[state=active]:border-[#6A70FF]"
@@ -1033,31 +1033,31 @@ onMounted(async () => {
             >
               Financial
             </TabsTrigger>
-            <div v-if="!useSuperAdminStore().isVendor" class="p-4 w-full md:w-1/3 flex items-center justify-end">
-              <Button class="my-4" @click="handleProxy">
+            <div v-if="!useSuperAdminStore().isVendor" class="p-1 sm:p-4 w-full flex items-center justify-end">
+              <Button class="my-1 sm:my-4 text-xs sm:text-sm px-2 sm:px-4" @click="handleProxy">
                 Open Proxy Portal
               </Button>
             </div>
           </TabsList>
 
           <TabsContent value="bio" class="">
-            <div class="p-4 space-y-2">
-              <div class="w-full flex items-center justify-between mb-4">
-                <h1 class="text-lg font-medium">Business Information</h1>
-                <div class="flex flex-col md:flex-row items-center gap-2">
-                  <Button v-if="isEditCompany" @click="saveCompanyData" class="border-2 border-[#020721] text-[#020721] rounded-full px-4 md:px-8 py-2 flex items-center gap-2" variant="outline">
+            <div class="p-2 sm:p-4 space-y-2">
+              <div class="w-full flex flex-wrap items-center justify-between gap-2 mb-4">
+                <h1 class="text-base sm:text-lg font-medium">Business Information</h1>
+                <div class="flex flex-row flex-wrap items-center gap-2">
+                  <Button v-if="isEditCompany" @click="saveCompanyData" class="border-2 border-[#020721] text-[#020721] rounded-full px-3 sm:px-8 py-2 flex items-center gap-2 text-xs sm:text-sm" variant="outline">
                     Save
                     <Icon icon="mingcute:save-fill" class="text-[#020721] font-bold"
-                      width="20"
-                      height="20" />
+                      width="16"
+                      height="16" />
                   </Button>
-                  <Button @click="()=> isEditCompany=!isEditCompany" class="border-2 border-[#020721] text-[#020721] rounded-full px-4 md:px-8 py-2 flex items-center gap-2" variant="outline">
-                    Edit                  
+                  <Button @click="()=> isEditCompany=!isEditCompany" class="border-2 border-[#020721] text-[#020721] rounded-full px-3 sm:px-8 py-2 flex items-center gap-2 text-xs sm:text-sm" variant="outline">
+                    Edit
                     <Icon
                       icon="mage:edit"
                       class="text-[#020721] font-bold"
-                      width="20"
-                      height="20"
+                      width="16"
+                      height="16"
                     />
                   </Button>
                 </div>
@@ -1111,22 +1111,22 @@ onMounted(async () => {
                   <Input v-model="companyFormData.companyState" :placeholder="vendor?.companyState" class="ghost" :disabled="!isEditCompany" />
                 </div>
               </div>
-              <div class="w-full flex items-center justify-between pt-8">
-                <h1 class="text-lg font-medium">Contact Person</h1>
-                <div class="flex flex-col md:flex-row items-center gap-2">
-                  <Button v-if="isEdit" @click="saveUserData" class="border-2 border-[#020721] text-[#020721] rounded-full px-4 md:px-8 py-2 flex items-center gap-2" variant="outline">
+              <div class="w-full flex flex-wrap items-center justify-between gap-2 pt-8">
+                <h1 class="text-base sm:text-lg font-medium">Contact Person</h1>
+                <div class="flex flex-row flex-wrap items-center gap-2">
+                  <Button v-if="isEdit" @click="saveUserData" class="border-2 border-[#020721] text-[#020721] rounded-full px-3 sm:px-8 py-2 flex items-center gap-2 text-xs sm:text-sm" variant="outline">
                     Save
                     <Icon icon="mingcute:save-fill" class="text-[#020721] font-bold"
-                      width="20"
-                      height="20" />
+                      width="16"
+                      height="16" />
                   </Button>
-                  <Button @click="()=> isEdit=!isEdit" class="border-2 border-[#020721] text-[#020721] rounded-full px-4 md:px-8 py-2 flex items-center gap-2" variant="outline">
-                    Edit                  
+                  <Button @click="()=> isEdit=!isEdit" class="border-2 border-[#020721] text-[#020721] rounded-full px-3 sm:px-8 py-2 flex items-center gap-2 text-xs sm:text-sm" variant="outline">
+                    Edit
                     <Icon
                       icon="mage:edit"
                       class="text-[#020721] font-bold"
-                      width="20"
-                      height="20"
+                      width="16"
+                      height="16"
                     />
                   </Button>
                 </div>
@@ -1160,11 +1160,11 @@ onMounted(async () => {
 
           <!-- <TabsContent value="support" class="space-y-4"> </TabsContent> -->
 
-          <TabsContent value="financial" class="space-y-4 h-full">
-            <div class="px-4 py-2 h-full">
-              <div class="flex items-center justify-between w-full mb-2">
-                <h1 class="text-lg font-medium">Bank Details</h1>
-                <div class="flex items-center gap-4">
+          <TabsContent value="financial" class="space-y-4">
+            <div class="px-2 sm:px-4 py-2">
+              <div class="flex flex-wrap items-center justify-between gap-2 w-full mb-2">
+                <h1 class="text-base sm:text-lg font-medium">Bank Details</h1>
+                <div class="flex items-center gap-2 sm:gap-4">
                   <!-- <button class="text-[#020721] border-2 border-[#020721] px-4 py-2 rounded-xl w-50 h-12">
                     <div class="text-base text-center flex items-center gap-4 border-[#020721]">
                       Verify Account
@@ -1329,11 +1329,17 @@ onMounted(async () => {
           </TabsContent>
         </Tabs>
       </Card>
+      <DashboardFooter/>
     </div>
   </div>
 </template>
 
 <style scoped>
+/* Prevent horizontal overflow on very small screens */
+:deep(*) {
+  box-sizing: border-box;
+}
+
 .ghost{
     background-color: #F6F6F6;
 }
