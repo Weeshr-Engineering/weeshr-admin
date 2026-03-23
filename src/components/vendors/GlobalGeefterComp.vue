@@ -130,7 +130,7 @@
           </div>
           <!-- <Search class="mt-3 lg:mt-0" /> -->
           <button v-if="orders?.length !== 0" @click="handleExport" class="bg-[#020721] px-4 py-2 rounded-xl w-50 h-12">
-            <div class="text-base text-[#F8F9FF] text-center flex items-center">
+            <div class="text-xs md:text-base text-[#F8F9FF] text-center flex items-center">
               Download Report
               <svg
                 width="20"

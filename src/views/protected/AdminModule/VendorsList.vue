@@ -34,6 +34,26 @@ import ProxyNav from '@/components/ProxyNav.vue'
 // 6: Object { _id: "68fe17b8a98f5d209988f4d5", rcNumber: 2393523, companyName: "Shiro Lagos", … }
 // 7: Object { _id: "68fe1807a98f5d209988f4e0", rcNumber: 23910456, companyName: "Z Kitchen Lagos", … }
 // 8: Object { _id: "68fe1816a98f5d209988f4ea"
+interface Image {
+  public_id: string
+  version: number
+  signature: string
+  api_key: string
+  asset_id: string
+  bytes: number
+  created_at: string
+  etag: string
+  folder: string
+  format: string
+  height: number
+  original_filename: string
+  placeholder: boolean
+  resource_type: string
+  secure_url: string
+  type: string
+  url: string
+  width: number
+}
 export interface Product {
   _id: string
   name: string
@@ -48,28 +68,8 @@ export interface Product {
   updatedAt: string
   vendorId: string
   tag: { name: string; [key: string]: any }[]
-  image: {
-    public_id: string
-    version: number
-    signature: string
-    api_key: string
-    asset_id: string
-    bytes: number
-    created_at: string
-    etag: string
-    folder: string
-    format: string
-    height: number
-    original_filename: string
-    placeholder: boolean
-    resource_type: string
-    secure_url: string
-    tags: string[]
-    type: string
-    url: string
-    version_id: string
-    width: number
-  }
+  image: Image,
+  images: Image[],
 }
 
 interface OrderItem {
@@ -327,10 +327,10 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="flex-col flex bg-[#f0f8ff] min-h-[400px] px-4 sm:px-10 pb-10">
+  <div class="flex-col flex bg-[#f0f8ff] min-h-[400px] px-2 sm:px-4 md:px-10 pb-10">
     <!-- <MainNav class="mx-6" headingText="Dashboard" /> -->
     <ProxyNav/>
-    <VendorNav class="mx-6" headingText="Dashboard"/>
+    <VendorNav class="mx-2 sm:mx-6" headingText="Dashboard"/>
     <div class="w-full grid gap-4 md:grid-cols-2 md:gap-6 lg:grid-cols-4">
       <VendorsCards
         type="payouts"
@@ -358,21 +358,21 @@ onMounted(() => {
       />
     </div>
 
-   <div class="grid grid-cols-10 gap-4 md:gap-8 my-8">
-     <Card class="shadow-none container col-span-10 md:col-span-6 px-4 py-6 pb-10 mx-auto sm:px-6 lg:px-8 h-full bg-[#FFFFFF] rounded-2xl">
-        <div class="flex items-center justify-between px-6 py-4">
-          <div class="text-2xl font-bold tracking-tight text-[#020721]">
+   <div class="grid grid-cols-1 md:grid-cols-10 gap-4 md:gap-8 my-8">
+     <Card class="shadow-none container col-span-1 md:col-span-6 px-2 sm:px-4 py-6 pb-10 mx-auto lg:px-8 h-full bg-[#FFFFFF] rounded-2xl">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-2 px-2 py-4">
+          <div class="text-lg sm:text-2xl  font-bold tracking-tight text-[#020721]">
             Orders
-            <p class="text-xs text-[#02072199] py-2">List of Orders</p>
+            <p class="text-xs text-[#02072199] md:py-2">List of Orders</p>
           </div>
-          <Search />
+          <Search class="mt-3 md:mt-0" />
         </div>
 
-        <div class="overflow-y-scroll h-[50dvh] bg-white rounded-lg">
-          <Table class="h-[20dvh] overflow-y-scroll" v-if="orders.length !== 0">
+        <div class="overflow-y-scroll overflow-x-auto md:h-[50dvh] bg-white rounded-lg">
+          <Table class="md:h-[20dvh] overflow-y-scroll min-w-[520px]" v-if="orders.length !== 0">
             <TableHeader>
               <TableRow
-                class="text-xs sm:text-sm md:text-base text-[#02072199] font-semibold bg-gray-200"
+                class="text-xs text-[#02072199] font-semibold bg-gray-200"
               >
                 <TableHead>
                 <div class="flex items-center">Order Date</div>
@@ -381,54 +381,54 @@ onMounted(() => {
                 <div class="flex items-center">Receiver</div>
               </TableHead>
               <TableHead>
-                <div class="flex items-center">Total Amount</div>
+                <div class="flex items-center">Amount</div>
               </TableHead>
-              <TableHead>
-                <div class="flex items-center">Item Count</div>
+              <TableHead class="hidden sm:table-cell">
+                <div class="flex items-center">Items</div>
               </TableHead>
-              <TableHead>
-                <div class="flex items-center">Payment Status</div>
+              <TableHead class="hidden sm:table-cell">
+                <div class="flex items-center">Payment</div>
               </TableHead>
               <TableHead>
                 <div class="flex items-center">Status</div>
               </TableHead>
-              <TableHead>Order ID</TableHead>
+              <TableHead class="hidden sm:table-cell">Order ID</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               <template v-for="order in orders" :key="order._id">
                 <router-link :to="`/order?id=${order._id}`" custom v-slot="{ navigate }">
                   <TableRow @click="navigate" class="cursor-pointer hover:bg-muted/30">
-                    <TableCell class="text-xs md:text-sm lg:text-sm">
+                    <TableCell class="text-xs">
                       {{ formatDate(order.createdAt) }}
                     </TableCell>
 
-                    <TableCell class="text-xs md:text-sm lg:text-sm">
+                    <TableCell class="text-xs">
                       {{ order.recieverName || 'N/A' }}
                     </TableCell>
 
-                    <TableCell class="text-xs md:text-sm lg:text-sm">
+                    <TableCell class="text-xs">
                       ₦{{ order.vendorTotal?.toLocaleString() || '0' }}
                     </TableCell>
 
-                    <TableCell class="text-xs md:text-sm lg:text-sm">
+                    <TableCell class="text-xs hidden sm:table-cell">
                       {{ order.items?.length || 0 }}
                     </TableCell>
 
-                    <TableCell class="text-xs md:text-sm lg:text-sm capitalize">
+                    <TableCell class="text-xs capitalize hidden sm:table-cell">
                       {{ order.paymentStatus || 'pending' }}
                     </TableCell>
 
                     <TableCell>
                       <div
                         :class="statusBg(order.status)"
-                        class="rounded-[10px] w-fit px-2 py-0.5 text-white text-sm capitalize"
+                        class="rounded-[10px] w-fit px-1.5 py-0.5 text-white text-xs capitalize"
                       >
                         {{ order.status }}
                       </div>
                     </TableCell>
 
-                    <TableCell class="text-xs md:text-sm lg:text-sm">
+                    <TableCell class="text-xs hidden sm:table-cell">
                       {{ order._id?.substring(0, 8) }}...
                     </TableCell>
                   </TableRow>
@@ -448,11 +448,18 @@ onMounted(() => {
           </div>
         </div>
       </Card>
-       <Card class="container shadow-none col-span-10 md:col-span-4 relative px-4 pt-6 md:pt-0 pb-10 mx-auto sm:px-6 lg:px-8 bg-[#FFFFFF] rounded-2xl">
-          <div class="flex items-center justify-between px-2 py-8">
-            <div class="text-2xl font-bold tracking-tight text-[#020721]">
+       <Card class="container shadow-none col-span-1 md:col-span-4 relative px-2 sm:px-4 pt-6 md:pt-0 pb-10 mx-auto lg:px-8 bg-[#FFFFFF] rounded-2xl">
+          <!-- <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-2 px-2 py-4 sm:py-8">
+            <div class="text-lg sm:text-2xl mb-4 md:mb-0 font-bold tracking-tight text-[#020721]">
               Our Products
-              <p class="text-xs text-[#02072199] py-2">List of our published products</p>
+              <p class="text-xs text-[#02072199] md:py-2">List of our published products</p>
+            </div>
+            <VendorAdd v-if="products.length !== 0"/>
+          </div> -->
+          <div class="flex flex-row md:items-center justify-between gap-2 px-2 py-4">
+            <div class="text-lg sm:text-2xl  font-bold tracking-tight text-[#020721]">
+              Our Products
+              <p class="text-xs text-[#02072199] md:py-2">List of our published products</p>
             </div>
             <VendorAdd v-if="products.length !== 0"/>
           </div>
@@ -466,14 +473,14 @@ onMounted(() => {
                   <span class="flex gap-2 items-center"><div
                     class="inline-block text-[#F8F9FF] w-14 h-14"
                   >
-                    <img :src='product.image.secure_url' class="w-full h-full rounded-sm"/>
+                    <img :src='product.images[0]?.secure_url' class="w-full h-full rounded-sm"/>
                   </div>
                   <div class="flex flex-col items-start justify-between">
-                    <p class="text-sm text-muted-foreground text-center text-[#000000]">
+                    <p class="text-sm text-muted-foreground text-[#000000] truncate w-16 md:w-12 lg:w-32">
                       {{product.name}}
                     </p>
                     <p class="text-sm text-muted-foreground text-center text-[#000000]">
-                      ₦ {{product.amount}}
+                      ₦{{product.amount}}
                     </p>
                   </div>
                 </span>

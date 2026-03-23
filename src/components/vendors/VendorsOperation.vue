@@ -1,5 +1,5 @@
 <template>
-  <div class="p-4">
+  <div class="p-2 sm:p-4">
     <div class="w-full flex items-center justify-between mb-4">
       <h1 class="text-lg font-medium">Product & Operation</h1>
     </div>
@@ -9,7 +9,7 @@
       <div class="md:col-span-8">
         <Label class="px-2">Product Category</Label>
         <!-- <ToggleGroup type="multiple" v-model="selectedCategories"> -->
-          <div v-if="vendorData.categories.length !== 0" class="overflow-auto bg-white pb-4 flex items-center gap-4 space-y-2">
+          <div v-if="vendorData.categories.length !== 0" class="overflow-x-auto bg-white pb-4 flex items-center gap-3 flex-nowrap py-2">
             <div
               v-for="(category) in vendorData.categories" 
               :key="category._id"
@@ -187,9 +187,9 @@
 
     <!-- Days Schedule -->
     <div class="grid grid-cols-12 gap-4">
-      <div class="col-span-6 md:col-span-3" v-for="(day, index) in days" :key="index">
-        <Label class="px-2 my-1 w-full flex items-center justify-between">
-          <p>{{ day }}</p>
+      <div class="col-span-6 sm:col-span-4 md:col-span-3" v-for="(day, index) in days" :key="index">
+        <Label class="px-1 sm:px-2 my-1 w-full flex items-center justify-between gap-1">
+          <p class="text-xs sm:text-sm truncate">{{ day }}</p>
           <Switch
             :checked="workingHours[index].active"
             @click="workingHours[index].active = !workingHours[index].active"
@@ -199,8 +199,8 @@
         </Label>
         <Input 
           v-model="workingHours[index].time"
-          class="ghost"
-          placeholder="9:00am - 6:00pm"
+          class="ghost text-xs"
+          placeholder="9am - 6pm"
           :readonly="!vendorData.scheduled"
           :disabled="!workingHours[index].active || !vendorData.scheduled"
         />

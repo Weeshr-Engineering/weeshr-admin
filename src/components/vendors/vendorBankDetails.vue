@@ -273,17 +273,17 @@ const isEditing = (id: string) => editingBankId.value === id
   <div 
     v-for="bank in bankDetails"
     :key="bank._id"
-    class="bg-white border rounded-xl p-6 shadow-sm hover:shadow-md transition-all mb-6"
+    class="bg-white border rounded-xl p-3 sm:p-6 shadow-sm hover:shadow-md transition-all mb-6"
   >
-    <div class="flex justify-between items-start mb-4">
-      <h3 class="text-lg font-semibold text-gray-800">
+    <div class="flex flex-wrap justify-between items-start gap-2 mb-4">
+      <h3 class="text-sm sm:text-lg font-semibold text-gray-800 min-w-0 flex-1 break-words">
         {{ isEditing(bank._id) ? (cbnBankCodes?.find(b => b.code === getDisplayValue(bank, 'bankCode'))?.name || bank.bankName) : bank.bankName }} - {{ bank.accountName }}
       </h3>
 
       <!-- Verified Badge -->
       <span
         v-if="bank.isDefault"
-        class="px-3 py-1 text-xs rounded-full"
+        class="px-2 sm:px-3 py-1 text-xs rounded-full shrink-0"
         :class="
           verifiedMap[bank._id]
             ? 'bg-green-100 text-green-700'
@@ -298,7 +298,7 @@ const isEditing = (id: string) => editingBankId.value === id
       <DropdownMenu>
         <DropdownMenuTrigger>
           <button
-            class="p-2 rounded-full hover:bg-gray-200 transition"
+            class="p-2 rounded-full hover:bg-gray-200 transition shrink-0"
           >
             <Icon icon="mdi:dots-vertical" width="20" height="20" />
           </button>
@@ -323,7 +323,7 @@ const isEditing = (id: string) => editingBankId.value === id
     </div>
 
     <!-- Editable Inputs -->
-    <div class="grid md:grid-cols-3 gap-6">
+    <div class="grid md:grid-cols-3 gap-3 sm:gap-6">
       <!-- Bank Select -->
       <div>
         <Label>Bank</Label>
