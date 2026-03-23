@@ -1,5 +1,5 @@
 <template>
-  <div class="flex-col flex bg-[#f0f8ff] h-screen px-4 sm:px-10 pb-10">
+  <div class="flex-col flex bg-[#f0f8ff] h-screen px-2 sm:px-10 pb-10">
     <ProxyNav/>
     <VendorNav class="" headingText="Transactions"/>
 
@@ -46,7 +46,7 @@
     <Card
       class="container px-4 pt-6 pb-10 mx-auto sm:px-6 lg:px-8 bg-[#FFFFFF] rounded-2xl mt-14 mb-4"
     >
-      <div class="flex flex-col sm:flex-row items-center justify-between py-4">
+      <div class="flex flex-col sm:flex-row md:items-center justify-between py-4">
         <div class="text-xl sm:text-xl font-bold tracking-tight text-[#020721] mb-2 sm:mb-0">
           History
           <p class="text-xs sm:text-sm font-normal text-[#02072199]">

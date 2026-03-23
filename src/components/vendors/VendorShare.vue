@@ -47,7 +47,7 @@ const props = defineProps<{
 const copied = ref(false);
 const baseLink = 'https://weeshr.com/v';
 const vendorSlug = computed(() => {
-  return props.vendorName.toLowerCase().replace(/\s+/g, '-');
+  return props.vendorName?.toLowerCase().replace(/\s+/g, '-');
 });
 const storeLink = computed(() => {
   return `${baseLink}/${vendorSlug.value}`;
