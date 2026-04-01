@@ -48,6 +48,7 @@ import MainNav from '../MainNav.vue'
 import VendorBankDetails from './vendorBankDetails.vue'
 import { Badge } from '../ui/badge'
 import { cn } from '@/lib/utils'
+import VendorDelivery from './VendorDelivery.vue'
 
 defineAbilities()
 // const update = true//ability.can('update', 'users')
@@ -1024,9 +1025,9 @@ onMounted(async () => {
             >
               Product Ops
             </TabsTrigger>
-            <!-- <TabsTrigger value="support" class="text-[#000000] data-[state=active]:border-[#6A70FF]"
-              >Support
-            </TabsTrigger> -->
+            <TabsTrigger value="delivery" class="text-[#000000] data-[state=active]:border-[#6A70FF]"
+              >Delivery
+            </TabsTrigger>
             <TabsTrigger
               value="financial"
               class="text-[#000000] data-[state=active]:border-[#6A70FF]"
@@ -1156,6 +1157,10 @@ onMounted(async () => {
 
           <TabsContent value="product" class="space-y-4">
             <VendorsOperation :id="id"/>
+          </TabsContent>
+
+          <TabsContent value="delivery" class="space-y-4">
+            <VendorDelivery/>
           </TabsContent>
 
           <!-- <TabsContent value="support" class="space-y-4"> </TabsContent> -->
