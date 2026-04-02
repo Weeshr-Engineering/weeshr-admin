@@ -4,7 +4,24 @@ import animate from 'tailwindcss-animate'
 /** @type {import('tailwindcss').Config} */
 // eslint-disable-next-line no-undef
 export const darkMode = ['class']
-export const safelist = ['light']
+export const safelist = [
+  'light',
+  'z-[9999]',
+  'animate-in',
+  'animate-out',
+  'fade-in-0',
+  'fade-out-0',
+  'zoom-in-95',
+  'zoom-out-95',
+  'slide-in-from-top-2',
+  'slide-in-from-right-2',
+  'slide-in-from-bottom-2',
+  'slide-in-from-left-2',
+  'slide-out-to-left-1/2',
+  'slide-out-to-top-[48%]',
+  'slide-in-from-left-1/2',
+  'slide-in-from-top-[48%]'
+]
 export const prefix = ''
 export const content = [
   './pages/**/*.{ts,tsx,vue}',
