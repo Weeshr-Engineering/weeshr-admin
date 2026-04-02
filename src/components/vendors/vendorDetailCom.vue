@@ -1010,9 +1010,9 @@ onMounted(async () => {
         </CardHeader>
       </Card>
 
-      <Card class="px-1 sm:px-2 py-4 w-full lg:w-8/12 rounded-xl shadow-md overflow-y-auto">
+      <Card class="px-1 sm:px-2 py-4 w-full lg:w-8/12 rounded-xl shadow-md lg:overflow-y-auto">
         <Tabs default-value="bio" class="space-y-2">
-          <TabsList class="w-full bg-transparent flex flex-wrap items-center gap-y-1 overflow-x-auto">
+          <TabsList class="sticky top-0 z-50 w-full bg-white sm:bg-transparent flex flex-wrap md:text-nowrap items-center gap-y-1 gap-x-1 py-2 sm:py-0">
             <TabsTrigger
               value="bio"
               class="text-[#000000] data-[state=active]:border-[#6A70FF]"
@@ -1025,23 +1025,30 @@ onMounted(async () => {
             >
               Product Ops
             </TabsTrigger>
-            <TabsTrigger value="delivery" class="text-[#000000] data-[state=active]:border-[#6A70FF]"
+            <!-- <TabsTrigger value="delivery" class="text-[#000000] data-[state=active]:border-[#6A70FF]"
               >Delivery
-            </TabsTrigger>
+            </TabsTrigger> -->
             <TabsTrigger
               value="financial"
               class="text-[#000000] data-[state=active]:border-[#6A70FF]"
             >
               Financial
             </TabsTrigger>
-            <div v-if="!useSuperAdminStore().isVendor" class="p-1 sm:p-4 w-full flex items-center justify-end">
-              <Button class="my-1 sm:my-4 text-xs sm:text-sm px-2 sm:px-4" @click="handleProxy">
+            <TabsTrigger
+              v-if="!useSuperAdminStore().isVendor"
+              value="proxy"
+              class="border-2 border-[#020721] text-[#020721] rounded-md hover:bg-[#f0f8ff] data-[state=active]:bg-[#020721] data-[state=active]:text-white transition-colors"
+            >
+              Open Proxy
+            </TabsTrigger>
+            <!-- <div v-if="!useSuperAdminStore().isVendor" class="p-1 sm:p-4 md:p-0 w-full md:w-fit flex items-center justify-end">
+              <Button class="" @click="handleProxy">
                 Open Proxy Portal
               </Button>
-            </div>
+            </div> -->
           </TabsList>
 
-          <TabsContent value="bio" class="">
+          <TabsContent value="bio" class="pt-10 md:pt-0">
             <div class="p-2 sm:p-4 space-y-2">
               <div class="w-full flex flex-wrap items-center justify-between gap-2 mb-4">
                 <h1 class="text-base sm:text-lg font-medium">Business Information</h1>
@@ -1155,17 +1162,17 @@ onMounted(async () => {
             </div>
           </TabsContent>
 
-          <TabsContent value="product" class="space-y-4">
+          <TabsContent value="product" class="space-y-4 pt-10 md:pt-0">
             <VendorsOperation :id="id"/>
           </TabsContent>
 
-          <TabsContent value="delivery" class="space-y-4">
+          <TabsContent value="delivery" class="space-y-4 pt-10 md:pt-0">
             <VendorDelivery/>
           </TabsContent>
 
           <!-- <TabsContent value="support" class="space-y-4"> </TabsContent> -->
 
-          <TabsContent value="financial" class="space-y-4">
+          <TabsContent value="financial" class="space-y-4 pt-10 md:pt-0">
             <div class="px-2 sm:px-4 py-2">
               <div class="flex flex-wrap items-center justify-between gap-2 w-full mb-2">
                 <h1 class="text-base sm:text-lg font-medium">Bank Details</h1>
@@ -1329,6 +1336,53 @@ onMounted(async () => {
                     </div>
                   </CardContent>
                 </Card>
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="proxy" class="space-y-4 pt-10 md:pt-0">
+            <div class="px-2 sm:px-4 py-4 sm:py-8">
+              <div class="flex flex-col items-center justify-center min-h-[300px] sm:min-h-[400px] gap-4 sm:gap-6">
+                <!-- Loading Animation -->
+                <div class="relative w-20 h-20 sm:w-24 sm:h-24">
+                  <div class="absolute inset-0 rounded-full border-4 border-[#020721] border-t-[#6A70FF] animate-spin"></div>
+                  <div class="absolute inset-0 flex items-center justify-center">
+                    <Icon icon="mdi:shield-account" width="32" height="32" class="sm:w-[40px] sm:h-[40px] text-[#020721]" />
+                  </div>
+                </div>
+
+                <!-- Text Content -->
+                <div class="text-center space-y-1 sm:space-y-2">
+                  <h2 class="text-lg sm:text-2xl font-semibold text-[#020721]">Accessing Proxy Portal</h2>
+                  <p class="text-gray-600 text-xs sm:text-base">Setting up secure access to the vendor account...</p>
+                </div>
+
+                <!-- Details Card -->
+                <Card class="w-full sm:max-w-sm border-2 border-[#020721]">
+                  <CardContent class="p-3 sm:p-4 space-y-2 sm:space-y-3">
+                    <div class="flex items-center gap-3">
+                      <div class="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-green-500 animate-pulse"></div>
+                      <span class="text-xs sm:text-sm font-medium">Admin authentication verified</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                      <div class="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-blue-500 animate-pulse" style="animation-delay: 0.2s"></div>
+                      <span class="text-xs sm:text-sm font-medium">Vendor account loaded</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                      <div class="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-purple-500 animate-pulse" style="animation-delay: 0.4s"></div>
+                      <span class="text-xs sm:text-sm font-medium">Establishing secure connection</span>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <!-- Action Button -->
+                <Button 
+                  @click="handleProxy" 
+                  class="bg-[#020721] text-white hover:bg-[#1a1a2e] px-4 sm:px-8 py-2 rounded-md transition-colors flex items-center gap-2 text-sm sm:text-base"
+                >
+                  <Icon icon="mdi:arrow-right" width="16" height="16" class="sm:w-[18px] sm:h-[18px]" />
+                  <span>Enter Proxy Portal</span>
+                </Button>
               </div>
             </div>
           </TabsContent>
