@@ -35,13 +35,7 @@ import {
   PaginationPrev
 } from '@/components/ui/pagination'
 
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select'
+import CustomSelect from '@/components/ui/custom-select/CustomSelect.vue'
 
 import {
   Table,
@@ -117,6 +111,18 @@ const companyTypes: CompanyType[] = [
   { name: 'Nonprofit Organization', value: 'Nonprofit Organization' },
   { name: 'Cooperative', value: 'Cooperative' }
 ]
+
+const statusOptions = [
+  { label: 'Published', value: 'published' },
+  { label: 'Draft', value: 'drafted' }
+]
+
+const countryCodeOptions = computed(() =>
+  Object.entries(CountryCodes).map(([_, code]) => ({
+    label: code.dial_code,
+    value: code.dial_code
+  }))
+)
 const formSchema = toTypedSchema(
   z.object({
     rcNumber: z.number(),
@@ -517,21 +523,14 @@ onMounted(async () => {
                 <FormItem v-auto-animate>
                   <FormLabel class="text-blue-900">Company Type</FormLabel>
                   <FormControl>
-                    <Select v-bind="componentField" id="companyType">
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select Company Type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem
-                          v-for="company in companyTypes"
-                          :value="company.value"
-                          :key="company.name"
-                          class="flex justify-center items-center gap-2"
-                        >
-                          {{ company.name }}
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <CustomSelect
+                      :modelValue="componentField.modelValue"
+                      @update:modelValue="(val) => componentField['onUpdate:modelValue']?.(val)"
+                      :options="companyTypes.map(c => ({ label: c.name, value: c.value }))"
+                      placeholder="Select Company Type"
+                      id="companyType"
+                      class="focus-visible:ring-blue-600"
+                    />
                   </FormControl>
                   <FormMessage for="companyType" />
                 </FormItem>
@@ -592,15 +591,14 @@ onMounted(async () => {
                 <FormItem v-auto-animate>
                   <FormLabel class="text-blue-900">Status</FormLabel>
                   <FormControl>
-                    <Select v-bind="componentField" id="status">
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select Status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="published">Published</SelectItem>
-                        <SelectItem value="drafted">Draft</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <CustomSelect
+                      :modelValue="componentField.modelValue"
+                      @update:modelValue="(val) => componentField['onUpdate:modelValue']?.(val)"
+                      :options="statusOptions"
+                      placeholder="Select Status"
+                      id="status"
+                      class="focus-visible:ring-blue-600"
+                    />
                   </FormControl>
                   <FormMessage for="status" />
                 </FormItem>
@@ -664,32 +662,14 @@ onMounted(async () => {
                   <FormField v-slot="{ componentField }" name="invite.countryCode">
                     <FormItem>
                       <FormControl>
-                        <Select
-                          v-bind="componentField"
-                          id="gender"
-                          class="bg-gray-50 w-auto mt-3 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
-                        >
-                          <SelectTrigger class="">
-                            <SelectValue placeholder="+234" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem
-                              v-for="(code, key) in CountryCodes"
-                              :value="code.dial_code"
-                              :key="key"
-                              class="flex justify-center items-center gap-2"
-                            >
-                              {{ code.dial_code }}
-                              <img
-                                class="w-[18px] h-[18px] hidden md:inline-block"
-                                :src="
-                                  'https://flagcdn.com/16x12/' + code.code.toLowerCase() + '.png'
-                                "
-                                alt="gradient"
-                              />
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
+                        <CustomSelect
+                          :modelValue="componentField.modelValue"
+                          @update:modelValue="(val) => componentField['onUpdate:modelValue']?.(val)"
+                          :options="countryCodeOptions"
+                          placeholder="+234"
+                          id="countryCode"
+                          class="focus-visible:ring-blue-600 w-auto"
+                        />
                       </FormControl>
                       <FormMessage for="invite.countryCode" />
                     </FormItem>
