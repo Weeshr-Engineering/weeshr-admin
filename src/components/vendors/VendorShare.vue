@@ -49,7 +49,6 @@ const baseLink = 'https://weeshr.com/v';
 const vendorSlug = computed(() => {
   // return props.vendorName?.toLowerCase().replace(/\s+/g, '-');
   return JSON.parse(localStorage.getItem('vendor') || 'null').toLowerCase().replace(/\s+/g, '-');
-
 });
 const storeLink = computed(() => {
   return `${baseLink}/${vendorSlug.value}`;
