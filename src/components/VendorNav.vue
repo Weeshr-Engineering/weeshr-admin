@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineProps } from 'vue'
+import { defineProps, computed } from 'vue'
 import VendorsIcon from './VendorsIcon.vue'
 // Function to format the date in the desired format (e.g., "Tue, 5 Feb 2023")
 import { useDateFormat, useNow } from '@vueuse/core'
@@ -12,6 +12,12 @@ const formattedDate = useDateFormat(useNow(), 'ddd, D MMM YYYY')
 const props = defineProps<{
   headingText: string
 }>()
+
+const vendorSlug = computed(() => {
+  // return props.vendorName?.toLowerCase().replace(/\s+/g, '-');
+  return JSON.parse(localStorage.getItem('vendor') || 'null').toLowerCase().replace(/\s+/g, '-');
+
+});
 
 const headingText = props.headingText
 </script>
@@ -32,7 +38,7 @@ const headingText = props.headingText
       <VendorShare :vendor-name="superAdminStore.companyName" />
       <div class="hidden sm:flex items-center space-x-2 ml-auto">
           <div>
-          <h6 class="font-semibold text-sm truncate max-w-[120px] lg:max-w-none">{{ superAdminStore.companyName }}</h6>
+          <h6 class="font-semibold text-sm truncate max-w-[120px] lg:max-w-none">{{ vendorSlug }}</h6>
           <!-- <h6 class="text-xs text-end text-[#373B4D]">Administrator</h6> -->
         </div>
         <VendorsIcon/>
