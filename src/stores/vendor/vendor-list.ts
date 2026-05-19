@@ -79,7 +79,6 @@ export const useVendorListStore = defineStore({
             search: params?.search || '',
             // status: params?.status || 'all',
             // sortBy: params?.sortBy || 'name',
-            // status: params?.status || 'all'
           }
         })
 
