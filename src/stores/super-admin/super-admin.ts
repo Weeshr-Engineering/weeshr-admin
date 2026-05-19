@@ -118,6 +118,8 @@ export const useSuperAdminStore = defineStore({
         if (response.status === 200 || response.status === 201) {
           // Update the users data with the response
           this.vendor = response.data.data;
+          localStorage.setItem('vendor', JSON.stringify(response.data.data.companyName))
+          this.companyName = response.data.data.companyName;
           // console.log(response.data.data)
           // const responseData = response.data.data[0]
           // const phoneData = response.data.data[0].phoneNumber.normalizedNumber

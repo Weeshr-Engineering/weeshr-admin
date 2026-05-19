@@ -747,6 +747,7 @@ const saveUserData = async () => {
 
       // Check if response status is 200 or 201
       if (response.status === 200 || response.status === 201) {
+        await useSuperAdminStore().fetchUsersData('Success', id)
         // Show success toast
         toast({
           title: 'Success',
