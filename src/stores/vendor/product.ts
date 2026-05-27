@@ -126,28 +126,38 @@ export const useProductsStore = defineStore('products', {
       try {
         const vendorId = params?.vendorId || this.getVendorId()
         
-        const response = await axios.get('/api/v1/market/products/', {
-          params: {
-            vendorId: vendorId,
-            page: params?.page || 1,
-            limit: params?.limit || 10,
-            search: params?.search || '',
-            sortBy: params?.sortBy || 'name',
-            status: params?.status || 'all'
-          }
+        const queryParams: Record<string, any> = {
+          vendorId,
+          page: params?.page || 1,
+          limit: params?.limit || 10,
+          sortBy: params?.sortBy || 'name'
+        }
+        if (params?.search) queryParams.search = params.search
+        if (params?.status && params.status !== 'all') queryParams.status = params.status
+
+        const response = await axios.get('/api/v1/admin/market/products/', {
+          params: queryParams
         })
 
-        const data = response.data.data
-        const products = (data.data || data.products || []).map((product: any) => this.normalizeProduct(product))
-        
+        const payload = response.data?.data ?? response.data ?? {}
+        const rawProducts = Array.isArray(payload)
+          ? payload
+          : (payload.data || payload.products || [])
+        const products = rawProducts.map((product: any) => this.normalizeProduct(product))
+
         this.products = products
-        
+
+        const meta = Array.isArray(payload) ? {} : payload
+        const currentPage = meta.currentPage || meta.page || params?.page || 1
+        const totalPages = meta.totalPages || meta.pages || 1
+        const totalProducts = meta.total ?? meta.totalProducts ?? products.length
+
         this.pagination = {
-          currentPage: data.currentPage || 1,
-          totalPages: data.totalPages || 1,
-          totalProducts: data.total || data.data?.length || 0,
-          hasNext: data.totalPages > data.currentPage,
-          hasPrev: data.currentPage > 1 
+          currentPage,
+          totalPages,
+          totalProducts,
+          hasNext: totalPages > currentPage,
+          hasPrev: currentPage > 1
         }
 
         return this.products
