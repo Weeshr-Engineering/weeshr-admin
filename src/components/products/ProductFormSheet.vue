@@ -2,7 +2,10 @@
 import { ref, computed, watch } from 'vue'
 import { Sheet, SheetContent, SheetHeader, SheetDescription } from '@/components/ui/sheet'
 import { Icon } from '@iconify/vue'
-import { useToast } from '@/components/ui/toast'
+import { toast } from '@/components/ui/toast'
+import axios from '@/services/ApiService'
+import ColorPicker from './ColorPicker.vue'
+import SizePicker from './SizePicker.vue'
 
 interface Category {
   _id: string
@@ -11,10 +14,14 @@ interface Category {
 
 // Config-based variant structure
 interface ProductConfigItem {
+  _id?: string
   color: string
   size: string
   amount: string
   qty: string
+  availableQty?: string
+  sku?: string
+  // isNew?: boolean
 }
 
 interface FormData {
@@ -37,6 +44,8 @@ interface Props {
   categories: Category[]
   loadingCategories: boolean
   loading: boolean
+  vendorId: string
+  productId?: string
 }
 
 const props = defineProps<Props>()
@@ -46,6 +55,7 @@ const emit = defineEmits<{
   (e: 'update:formData', value: FormData): void
   (e: 'submit', status: 'published' | 'draft' | 'archived' | 'out-of-stock'): void
   (e: 'imagesUpload', files: File[]): void
+  (e: 'fetchData'): void
 }>()
 
 const deliveryTimeOptions = [
@@ -61,22 +71,6 @@ const deliveryTimeOptions = [
   '1 Month'
 ]
 
-// Predefined options for colors and sizes
-const colorOptions = [
-  'n/a',
-  'white',
-  'black',
-  'red',
-  'blue',
-  'green',
-  'yellow',
-  'pink',
-  'purple',
-  'orange',
-  'brown',
-  'grey'
-]
-const sizeOptions = ['n/a', 'xs', 's', 'm', 'l', 'xl', '2xl', '3xl', 'litre', 'kg', 'g']
 
 // Local state for image previews
 const imagePreviews = ref<string[]>([])
@@ -96,9 +90,92 @@ const totalConfigQty = computed(() => {
   return props.formData.config.reduce((sum, c) => sum + (Number(c.qty) || 0), 0)
 })
 
-const { toast } = useToast()
+// State for saving and deleting configs
+const savingConfig = ref(false)
+const deletingConfigIndex = ref<number | null>(null)
+const configToDelete = ref<ProductConfigItem | null>(null)
 
-// Watch for formData changes to sync previews
+// Save new configs to API
+const saveNewConfigs = async () => {
+  if (!props.productId) {
+    toast({
+      description: 'No new variants to save',
+      variant: 'destructive'
+    })
+    return
+  }
+
+  savingConfig.value = true
+
+  try {
+    await axios.patch(`/api/v1/admin/market/products/${props.productId}/config`, {
+      config: [...props.formData.config],
+      vendorId: props.vendorId
+    })
+
+    emit('update:formData', { ...props.formData })
+
+
+    toast({
+      title: 'Success',
+      description: 'Variants saved successfully',
+      variant: 'default'
+    })
+  } catch (error: any) {
+    console.error('Error saving config:', error)
+    toast({
+      title: 'Error',
+      description: error.response?.data?.message || 'Failed to save variants',
+      variant: 'destructive'
+    })
+  } finally {
+    savingConfig.value = false
+    emit('fetchData')
+  }
+}
+
+// Delete existing config from API
+const deleteExistingConfig = async (configItem: ProductConfigItem) => {
+  if (!props.productId || !configItem.sku) {
+    toast({
+      description: 'Cannot delete this variant',
+      variant: 'destructive'
+    })
+    return
+  }
+
+  deletingConfigIndex.value = null
+  savingConfig.value = true
+
+  try {
+    await axios.delete(`/api/v1/admin//market/products/${props.productId}/config/${configItem.sku}`,{
+      data: {
+        vendorId: props.vendorId
+      }
+    })
+
+    // Remove from local state
+    const updatedConfig = props.formData.config.filter((c) => c.sku !== configItem.sku)
+    emit('update:formData', { ...props.formData, config: updatedConfig })
+
+    toast({
+      title: 'Success',
+      description: 'Variant deleted successfully',
+      variant: 'default'
+    })
+  } catch (error: any) {
+    console.error('Error deleting config:', error)
+    toast({
+      title: 'Error',
+      description: error.response?.data?.message || 'Failed to delete variant',
+      variant: 'destructive'
+    })
+  } finally {
+    savingConfig.value = false
+    configToDelete.value = null
+    emit('fetchData')
+  }
+}
 watch(
   () => props.formData.images,
   (newImages) => {
@@ -128,6 +205,13 @@ watch(
     if (hasValidEntries) {
       showConfigSection.value = true
     }
+
+    // Sync availableQty with qty for all config items, especially during editing
+    newConfig.forEach((config) => {
+      if (config.qty && !config.availableQty) {
+        config.availableQty = config.qty
+      }
+    })
   },
   { immediate: true, deep: true }
 )
@@ -136,22 +220,34 @@ const updateField = (field: keyof FormData, value: any) => {
   emit('update:formData', { ...props.formData, [field]: value })
 }
 
-// Config management functions
+// Config-based variant structure
 const addConfigRow = () => {
-  const newConfig = [...props.formData.config, { color: '', size: '', amount: '', qty: '' }]
+  const newConfig = [
+    ...props.formData.config,
+    { color: '', size: '', amount: '', qty: '', availableQty: '', sku: '', isNew: true }
+  ]
   updateField('config', newConfig)
 }
 
 const removeConfigRow = (index: number) => {
-  if (props.formData.config.length <= 1) {
-    toast({
-      description: 'At least one variant configuration is required',
-      variant: 'destructive'
-    })
-    return
+  const configItem = props.formData.config[index]
+
+  // If it's a new config (not saved to database yet), just remove it locally
+  if (configItem.sku === '') {
+    if (props.formData.config.length <= 1) {
+      toast({
+        description: 'At least one variant configuration is required',
+        variant: 'destructive'
+      })
+      return
+    }
+    const newConfig = props.formData.config.filter((_, i) => i !== index)
+    updateField('config', newConfig)
+  } else {
+    // If it's an existing config, show delete confirmation dialog
+    configToDelete.value = configItem
+    deletingConfigIndex.value = index
   }
-  const newConfig = props.formData.config.filter((_, i) => i !== index)
-  updateField('config', newConfig)
 }
 
 const updateConfigItem = (index: number, field: keyof ProductConfigItem, value: string) => {
@@ -473,14 +569,14 @@ const saveButtonLabel = computed(() => {
             <label class="text-sm text-[#8B8D97] mb-2 block">
               Description
               <span class="text-xs text-[#8B8D97] ml-1"
-                >{{ props.formData.description.length }}/150</span
+                >{{ props.formData.description.length }}/200</span
               >
             </label>
             <textarea
               :value="props.formData.description"
               @input="updateField('description', ($event.target as HTMLTextAreaElement).value)"
-              placeholder="Describe product in 150 characters"
-              maxlength="150"
+              placeholder="Describe product in 200 characters"
+              maxlength="200"
               rows="3"
               class="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#5B68DF] resize-none bg-white"
             ></textarea>
@@ -577,46 +673,22 @@ const saveButtonLabel = computed(() => {
                   </div>
 
                   <div class="grid grid-cols-2 gap-3">
-                    <!-- Color Dropdown -->
+                    <!-- Color Picker -->
                     <div>
                       <label class="text-xs text-[#8B8D97] mb-1 block">Color</label>
-                      <select
-                        :value="configItem.color"
-                        @change="
-                          updateConfigItem(
-                            index,
-                            'color',
-                            ($event.target as HTMLSelectElement).value
-                          )
-                        "
-                        class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#5B68DF] bg-white"
-                      >
-                        <option value="">Select color</option>
-                        <option v-for="color in colorOptions" :key="color" :value="color">
-                          {{ color }}
-                        </option>
-                      </select>
+                      <ColorPicker
+                        :model-value="configItem.color"
+                        @update:model-value="updateConfigItem(index, 'color', $event)"
+                      />
                     </div>
 
-                    <!-- Size Dropdown -->
+                    <!-- Size Picker -->
                     <div>
                       <label class="text-xs text-[#8B8D97] mb-1 block">Size</label>
-                      <select
-                        :value="configItem.size"
-                        @change="
-                          updateConfigItem(
-                            index,
-                            'size',
-                            ($event.target as HTMLSelectElement).value
-                          )
-                        "
-                        class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#5B68DF] bg-white"
-                      >
-                        <option value="">Select size</option>
-                        <option v-for="size in sizeOptions" :key="size" :value="size">
-                          {{ size }}
-                        </option>
-                      </select>
+                      <SizePicker
+                        :model-value="configItem.size"
+                        @update:model-value="updateConfigItem(index, 'size', $event)"
+                      />
                     </div>
 
                     <!-- Price Input -->
@@ -642,8 +714,10 @@ const saveButtonLabel = computed(() => {
                       <label class="text-xs text-[#8B8D97] mb-1 block">Available Quantity</label>
                       <input
                         :value="configItem.qty"
-                        @input="
+                        @input="($event)=>{
+                          updateConfigItem(index, 'availableQty', ($event.target as HTMLInputElement).value)
                           updateConfigItem(index, 'qty', ($event.target as HTMLInputElement).value)
+                        }
                         "
                         type="number"
                         placeholder="0"
@@ -663,6 +737,19 @@ const saveButtonLabel = computed(() => {
                 <Icon icon="mdi:plus" class="w-4 h-4" />
                 Add other sizes
               </button>
+
+              <!-- Save Variant Button (only in edit mode) -->
+              <button
+                v-if="props.isEditMode"
+                @click="saveNewConfigs"
+                :disabled="savingConfig"
+                type="button"
+                class="w-full mt-3 px-4 py-3 bg-[#4145A7] text-white rounded-xl text-sm font-medium hover:bg-[#020721] disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
+              >
+                <Icon v-if="!savingConfig" icon="mdi:content-save" class="w-4 h-4" />
+                <Icon v-else icon="mdi:loading" class="w-4 h-4 animate-spin" />
+                {{ savingConfig ? 'Saving...' : 'Save Variant' }}
+              </button>
             </div>
           </div>
         </div>
@@ -676,6 +763,37 @@ const saveButtonLabel = computed(() => {
           >
             {{ saveButtonLabel }}
           </button>
+        </div>
+      </div>
+
+      <!-- Delete Config Custom Confirmation Dialog -->
+      <div
+        v-if="configToDelete !== null"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm"
+      >
+        <div class="w-96 bg-white border border-gray-200 rounded-lg shadow-xl p-6 space-y-4">
+          <div>
+            <h3 class="text-base font-semibold text-[#020721]">Delete Variant</h3>
+            <p class="text-sm text-[#8B8D97] mt-2">
+              Are you sure you want to delete this variant? This action cannot be undone.
+            </p>
+          </div>
+          <div class="flex gap-3 justify-end pt-2">
+            <button
+              @click="configToDelete = null"
+              class="px-4 py-2 text-sm font-medium text-[#020721] bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              v-if="configToDelete"
+              :disabled="savingConfig"
+              @click="deleteExistingConfig(configToDelete)"
+              class="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 disabled:opacity-50 rounded-lg transition-colors"
+            >
+              {{ savingConfig ? 'Deleting...' : 'Delete' }}
+            </button>
+          </div>
         </div>
       </div>
     </SheetContent>

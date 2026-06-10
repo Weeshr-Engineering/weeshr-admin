@@ -4,3 +4,6 @@ export { default as ProductFormSheet } from './ProductFormSheet.vue'
 export { default as BulkUploadSheet } from './BulkUploadSheet.vue'
 export { default as ViewProductSheet } from './ViewProductSheet.vue'
 export { default as DeleteProductDialog } from './DeleteProductDialog.vue'
+export { default as ColorPicker } from './ColorPicker.vue'
+export { default as SizePicker } from './SizePicker.vue'
+
