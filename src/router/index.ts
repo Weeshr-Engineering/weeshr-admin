@@ -42,6 +42,7 @@ import GlobalGeeftr from '@/views/protected/VendorModule/GlobalGeeftr.vue'
 import VendorRegistration from '@/views/unprotected/VendorModule/VendorRegistration.vue'
 import VendorsDetailsPage from '@/components/vendors/vendorsDetailsPage.vue'
 import VendorPayout from '@/views/protected/AdminModule/VendorPayout.vue'
+import ResetPassword from '@/views/unprotected/SuperAdminModule/ResetPassword.vue'
 
 const routes = [
   // dashboard,
@@ -49,7 +50,7 @@ const routes = [
     path: '/',
     name: 'home',
     component: DashboardWrapper,
-    meta: { requiresAuth: true, dynamic: true  }
+    meta: { requiresAuth: true, dynamic: true }
   },
   {
     path: '/registration',
@@ -61,6 +62,12 @@ const routes = [
     path: '/login',
     name: 'superAdmin-login',
     component: SuperAdminLogin,
+    meta: { hideSidebar: true }
+  },
+  {
+    path: '/reset-password',
+    name: 'reset-password',
+    component: ResetPassword,
     meta: { hideSidebar: true }
   },
 
@@ -295,16 +302,16 @@ router.beforeEach((to, from, next) => {
   const isAuthenticated = useSuperAdminStore().token !== ''
   // const isVendor = useSuperAdminStore().isVendor
   const requiresAuth = to.matched.some((record) => record.meta.requiresAuth)
- // 🧠 Dynamic dashboard: if user is vendor, switch home component
-//  if (to.name === 'home') {
-//   const record = to.matched[0]
+  // 🧠 Dynamic dashboard: if user is vendor, switch home component
+  //  if (to.name === 'home') {
+  //   const record = to.matched[0]
 
-//   if (record?.components) {
-//     record.components.default = isVendor
-//       ? Vendors
-//       : AdminDashboard
-//   }
-// }
+  //   if (record?.components) {
+  //     record.components.default = isVendor
+  //       ? Vendors
+  //       : AdminDashboard
+  //   }
+  // }
 
 
 

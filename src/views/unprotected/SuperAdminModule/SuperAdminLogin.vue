@@ -333,6 +333,11 @@ const onSubmit = form.handleSubmit(async () => {
 
                     Sign In
                   </Button>
+                  <div class="w-full flex items-center justify-end pt-2">
+                    <router-link :to="`/reset-password`" class="text-right text-sm text-white hover:underline">
+                      Forgot Password?
+                    </router-link>
+                  </div>
                   <div class="pt-5 text-xs text-center text-gray-400">
                     <span> Copyright © {{ currentYear }} </span>
                   </div>

@@ -47,8 +47,7 @@ const props = defineProps<{
 const copied = ref(false);
 const baseLink = 'https://weeshr.com/v';
 const vendorSlug = computed(() => {
-  // return props.vendorName?.toLowerCase().replace(/\s+/g, '-');
-  return JSON.parse(localStorage.getItem('vendor') || 'null').toLowerCase().replace(/\s+/g, '-');
+  return props.vendorName?.toLowerCase().replace(/\s+/g, '-');
 });
 const storeLink = computed(() => {
   return `${baseLink}/${vendorSlug.value}`;
@@ -97,7 +96,7 @@ const handleShare = (option: any) => {
   if (option.action === 'copy') {
     navigator.clipboard.writeText(storeLink.value);
     copied.value = true;
-    console.log(storeLink.value)
+    // console.log(storeLink.value)
     setTimeout(() => {
       copied.value = false;
     }, 2000);
